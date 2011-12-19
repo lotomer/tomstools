@@ -1,0 +1,6 @@
+what,kind,bundleId,bundleVersion,description,time
+stopped,bundle,org.eclipse.jst.ws,1.0.509.v201108250610,"org.eclipse.jst.ws",1319949696937
+stopped,bundle,org.eclipse.wst.ws.explorer,1.0.607.v201103082002,"org.eclipse.wst.ws.explorer",1319949696937
+stopped,bundle,org.eclipse.wst.wsdl.ui,1.2.403.v201108240515,"org.eclipse.wst.wsdl.ui",1319949696937
+stopped,bundle,org.eclipse.wst.ws.ui,1.1.200.v201004211805,"org.eclipse.wst.ws.ui",1319949696937
+stopped,bundle,org.eclipse.wst.wsi.ui,1.0.502.v201104071820,"org.eclipse.wst.wsi.ui",1319949696937

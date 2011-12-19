@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="GBK"?>
+<project name="common.build" default="all" basedir=".">
+    <property name="module.current.dir" value="${basedir}"/>
+    <property name="module.src.dir"     value="${module.current.dir}/src"/>
+    <property name="module.build.dir"   value="${module.current.dir}/classes"/>
+    <property name="module.dest.dir"    value="${module.current.dir}/dest"/>
+    <property name="lib.dir"            value="${module.current.dir}/../lib"/>
+    <property name="module.jar.name"    value="TomsTools-common.jar"/>
+     
+    <!--
+        引用自动化脚本模板。（作者：龙昌茂）
+            提供任务:
+                1、clean         清理
+                2、compile       编译
+                3、jar           打包
+            
+            依赖变量（必须在import这个文件之前定义）：
+                1、${module.src.dir}        源文件目录
+                2、${module.build.dir}      编译结果目录
+                3、${module.dest.dir}       打包输出目录
+                4、${module.jar.name}       jar包的名字
+                5、${lib.dir}               依赖的jar所在目录
+                            
+            可自定义的钩子任务（必须在import这个文件之后定义）：
+                1、compile.before           编译前钩子任务
+                2、compile.after            编译后钩子任务（将源文件目录下的非JAVA文件copy到编译后结果目录不在此列）
+                3、jar.before               打包前钩子任务
+                4、jar.after                打包后钩子任务
+                
+            可自定义的文件集合（必须在import这个文件之后定义）：
+                1、compile.patternset.id    编译时的文件集合
+                2、jar.patternset.id        打包时的文件集合
+                3、copy.resource.id         编译后需要copy的资源文件集合
+    -->
+    <import file="${module.current.dir}/../../build.template"/>    
+</project>

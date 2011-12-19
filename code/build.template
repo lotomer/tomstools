@@ -1,0 +1,253 @@
+<?xml version="1.0" encoding="GBK"?>
+<project name="build-template" basedir=".">
+    <description>
+        <![CDATA[
+          自动化脚本模板。（作者：龙昌茂）
+            提供任务:
+                1、clean         清理
+                2、compile       编译
+                3、jar           打包
+            
+            依赖变量（必须在import这个文件之前定义）：
+                1、${module.src.dir}        源文件目录
+                2、${module.build.dir}      编译结果目录
+                3、${module.dest.dir}       打包输出目录
+                4、${module.jar.name}       jar包的名字
+                5、${lib.dir}               依赖的jar所在目录
+                            
+            可自定义的钩子任务（必须在import这个文件之后定义）：
+                1、compile.before           编译前钩子任务
+                2、compile.after            编译后钩子任务（将源文件目录下的非JAVA文件copy到编译后结果目录不在此列）
+                3、jar.before               打包前钩子任务
+                4、jar.after                打包后钩子任务
+                
+            可自定义的文件集合（必须在import这个文件之后定义）：
+                1、compile.patternset.id    编译时的文件集合
+                2、jar.patternset.id        打包时的文件集合
+                3、copy.resource.id         编译后需要copy的资源文件集合
+        ]]>
+    </description>
+    <property environment="env"/>
+    <property name="debug"          value="true" />
+    <property name="java.encoding"  value="utf-8" />
+    <property name="lib.dir"        value="${basedir}/../lib" />
+    <property name="jar.output.dir" value="${lib.dir}/modules"/>
+    <condition property="JAVA_HOME" value="${COMPILE_JAVA_HOME}" else="${env.JAVA_HOME}">
+        <isset property="COMPILE_JAVA_HOME"/>
+    </condition>
+    <!--======================== [public] =============================-->
+    <target name="all" depends="jar,jar.output"/>
+    
+    <!-- 清理 -->
+    <target name="clean" depends="compile.clean,jar.clean,jar.output.clean" />    
+    
+    <!-- 编译 -->
+    <target name="compile">
+        <echo message="JAVA_HOME=${JAVA_HOME}"/>
+        <mkdir dir="${module.build.dir}"/>
+        <!-- 编译前钩子任务 -->
+        <antcall target="compile.before"/>
+        
+        <!-- 执行编译任务 -->
+        <antcall target="compile.execute"/>
+        
+        <!-- 将源目录中的文件拷贝到编译后目录中 -->
+        <antcall target="copy.resource.to.builddir"/>
+        
+        <!-- 编译后钩子任务 -->
+        <antcall target="compile.after"/>
+    </target>
+    
+    <!-- 打包 -->
+    <target name="jar"  depends="compile">
+        <mkdir dir="${module.dest.dir}"/>
+        <!-- 打包前钩子任务 -->
+        <antcall target="jar.before"/>
+        
+        <!-- 执行打包任务 -->
+        <antcall target="jar.execute"/>
+        
+        <!-- 打包前钩子任务 -->
+        <antcall target="jar.after"/>        
+    </target>
+    
+    <!-- 将jar包输出到指定目录 -->
+    <target name="jar.output">
+        <copy file="${module.dest.dir}/${module.jar.name}" todir="${jar.output.dir}"/>
+    </target>
+    <!--======================== [private] =============================-->
+    <!-- 清理编译结果 -->
+    <target name="compile.clean">
+        <delete dir="${module.build.dir}"/>
+        <!--mkdir dir="${module.build.dir}"/-->
+    </target>
+    
+    <!-- 清理打包结果 -->
+    <target name="jar.clean">
+        <delete dir="${module.dest.dir}"/>
+        <!--delete file="${module.dest.dir}/${module.jar.name}"/>
+        <mkdir dir="${module.dest.dir}"/-->
+    </target>
+    
+    <!-- 清理打包输出结果 -->
+    <target name="jar.output.clean">
+        <delete file="${jar.output.dir}/${module.jar.name}"/>
+    </target>
+    
+    <!-- 执行编译 -->
+    <target name="compile.execute">
+        <javac srcdir="${module.src.dir}" destdir="${module.build.dir}" debug="${debug}" fork="true" encoding="${java.encoding}" executable="${JAVA_HOME}/bin/javac">
+            <patternset refid="compile.patternset.id"/>
+            <classpath refid="lib.classpath"/>
+        </javac>
+    </target>
+    
+    <!-- 执行打包 -->
+    <target name="jar.execute">
+        <jar basedir="${module.build.dir}" destfile="${module.dest.dir}/${module.jar.name}">
+            <patternset refid="jar.patternset.id"/>            
+        </jar>
+    </target>
+    
+    <!-- 将源目录中的文件拷贝到编译后目录中 -->
+    <target name="copy.resource.to.builddir">
+        <echo message="将源目录中的文件拷贝到编译后目录中，默认拷贝所有非JAVA文件，如需更改，请重定义patternset：copy.resource.id"/>
+        <!-- 将java文件以外的其他文件都copy到编译结果目录，以便打包 -->
+        <copy todir="${module.build.dir}">
+            <fileset dir="${module.src.dir}">
+                <patternset refid="copy.resource.id"/>
+            </fileset>
+        </copy>
+    </target>
+    
+    <!-- classpath -->
+    <path id="lib.classpath">
+        <fileset dir="${lib.dir}">
+            <include name="**/*.jar"/>
+        </fileset>
+    </path>
+    
+    <!--======================== [protected] =============================-->
+    <!-- 编译时的文件集合 -->
+    <patternset id="compile.patternset.id">
+        <include name="**/*"/>
+    </patternset>
+    
+    <!-- 打包时的文件集合 -->
+    <patternset id="jar.patternset.id">
+        <include name="**/*"/>
+    </patternset>
+    
+    <!-- 编译后需要copy的资源文件集合 -->
+    <patternset id="copy.resource.id">
+        <exclude name="**/*.java"/>
+        <exclude name="**/*.xml"/>
+    </patternset>
+    
+    <!-- 钩子任务：编译前 -->
+    <target name="compile.before">
+    </target>
+    
+    <!-- 钩子任务：编译后 -->
+    <target name="compile.after">
+    </target>
+    
+    <!-- 钩子任务：打包前 -->
+    <target name="jar.before">
+    </target>
+    
+    <!-- 钩子任务：打包后 -->
+    <target name="jar.after">
+    </target>
+    
+    <!-- 加扰 -->
+    <target name="obfuscate">
+        <taskdef resource="proguard/ant/task.properties"
+               classpath="${proguard.dir}/lib/proguard.jar" />
+        
+        <mkdir dir="${temp.output.dir}"/>
+        <proguard printseeds="on" shrink="false" optimize="false" ignorewarnings="true">
+            <!-- Specify the input jars, output jars, and library jars. -->            
+            <injar  file="${code.lib.dir}/modules/"/>
+            <injar  file="${code.web.dir}/dist/${web.jar.name}" />
+            <outjar file="${temp.output.dir}" />
+            
+            <libraryjar file="${java.home}/lib/rt.jar" />
+            <libraryjar file="${code.lib.dir}" />
+            <libraryjar file="${code.plugins.lib.dir}" />
+            <libraryjar file="${code.web.lib.dir}" />
+            <libraryjar file="${web.lib.dir}" />
+            
+            <!-- Preserve all public applications. -->            
+            <!--keepclasseswithmembers access="public">
+              <method access    ="public static"
+                      type      ="void"
+                      name      ="main"
+                      parameters="java.lang.String[]" />
+            </keepclasseswithmembers-->
+            
+            <!-- Preserve all annotations. -->            
+            <keepattribute name="*Annotation*" />
+            
+            <!-- Preserve all native method names and the names of their classes. -->            
+            <keepclasseswithmembernames>
+              <method access="native" />
+            </keepclasseswithmembernames>
+            
+            <!-- Preserve the methods that are required in all enumeration classes. -->            
+            <keepclassmembers extends="java.lang.Enum">
+              <method access="public static"
+                      type="**[]"
+                      name="values"
+                      parameters="" />
+              <method access="public static"
+                      type="**"
+                      name="valueOf"
+                      parameters="java.lang.String" />
+            </keepclassmembers>
+            
+            <!-- Explicitly preserve all serialization members. The Serializable
+                 interface is only a marker interface, so it wouldn't save them.
+                 You can comment this out if your library doesn't use serialization.
+                 If your code contains serializable classes that have to be backward
+                 compatible, please refer to the manual. -->            
+            <keepclassmembers implements="java.io.Serializable">
+              <field  access    ="static final"
+                      type      ="long"
+                      name      ="serialVersionUID" />
+              <field  access    ="static final"
+                      type      ="java.io.ObjectStreamField[]"
+                      name      ="serialPersistentFields" />
+              <method access    ="private"
+                      type      ="void"
+                      name      ="writeObject"
+                      parameters="java.io.ObjectOutputStream" />
+              <method access    ="private"
+                      type      ="void"
+                      name      ="readObject"
+                      parameters="java.io.ObjectInputStream" />
+              <method type      ="java.lang.Object"
+                      name      ="writeReplace"
+                      parameters="" />
+              <method type      ="java.lang.Object"
+                      name      ="readResolve"
+                      parameters="" />
+            </keepclassmembers>
+            
+            <!-- Your application may contain more items that need to be preserved;
+                 typically classes that are dynamically created using Class.forName -->
+            <!-- Keep all public servlets. -->
+            <keep access="public" implements="javax.servlet.Servlet" />
+            <!-- Keep all public filter. -->
+            <keep access="public" implements="javax.servlet.Filter" />
+
+            <!-- =================================== 样例 ============================ -->
+            <keep type="interface" name="org.tomstools.A"/>
+            <keep type="class" implements="org.tomstools.B"/>
+
+            <keep type="class" name="org.tomstools.C">
+                <method access="public"/>
+            </keep>            
+        </proguard>
+    </target>
+</project>

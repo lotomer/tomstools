@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section name="Workbench">
+	<item value="1" key="org.eclipse.wst.xsl.debug.ui.PROCESSOR_DETAILS_DIALOG.sortColumn"/>
+	<item value="180" key="org.eclipse.wst.xsl.debug.ui.PROCESSOR_DETAILS_DIALOG.columnWidth0"/>
+	<item value="180" key="org.eclipse.wst.xsl.debug.ui.PROCESSOR_DETAILS_DIALOG.columnWidth2"/>
+	<item value="90" key="org.eclipse.wst.xsl.debug.ui.PROCESSOR_DETAILS_DIALOG.columnWidth1"/>
+</section>

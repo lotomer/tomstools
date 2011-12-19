@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src/main/java"/>
+	<classpathentry kind="src" path="src/main/resources"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="Z:/code/common/lib/web/servlet/el-api.jar"/>
+	<classpathentry kind="lib" path="Z:/code/common/lib/web/servlet/jsp-api.jar"/>
+	<classpathentry kind="lib" path="Z:/code/common/lib/web/servlet/servlet-api.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/common"/>
+	<classpathentry kind="output" path="classes"/>
+</classpath>

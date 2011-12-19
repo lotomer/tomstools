@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="GBK"?>
+<project name="web.build" basedir="." default="all">
+    <property name="module.current.dir"         value="${basedir}"/>
+    <property file="${module.current.dir}/../config.properties"/>
+    
+    <property name="module.web.name"            value="${web.root.name}"/>
+    <property name="module.lib.dir"             value="${module.current.dir}/${module.web.name}/WEB-INF/lib"/>
+    <property name="module.src.dir"             value="${module.current.dir}/src"/>
+    <property name="module.build.dir"           value="${module.current.dir}/classes"/>
+    <property name="module.dest.dir"            value="${module.current.dir}/${module.web.name}/WEB-INF/classes"/>
+    <property name="module.dist.dir"            value="${module.current.dir}/dist"/>
+    <property name="module.war.name"            value="${web.package.name}"/>
+    <property name="module.jar.name"            value="${web.jar.name}"/>
+    <property name="code.dir"                   value="${module.current.dir}/.."/>
+    <property name="code.lib.dir"               value="${code.dir}/lib"/>
+    <property name="code.web.lib.dir"           value="${code.lib.dir}/web"/>
+    <property name="code.modules.lib.dir"       value="${code.lib.dir}/modules"/>
+    <property name="code.resources.dir"         value="${code.dir}/resources/src"/>
+    
+    <property environment="env"/>
+    <property name="debug"          value="true" />
+    <property name="java.encoding"  value="utf-8" />
+    <condition property="JAVA_HOME" value="${COMPILE_JAVA_HOME}" else="${env.JAVA_HOME}">
+        <isset property="COMPILE_JAVA_HOME"/>
+    </condition>
+    
+    <path id="compile.path">
+        <!--fileset dir="${module.lib.dir}" includes="**.jar"/-->
+        <fileset dir="${code.lib.dir}" includes="*.jar"/>
+        <fileset dir="${code.web.lib.dir}">
+            <include name="*.jar"/>
+            <include name="servlet/*.jar"/>
+        </fileset>
+        <fileset dir="${code.modules.lib.dir}">
+            <include name="${common.jar.name}"/>
+            <include name="${search.core.jar.name}"/>
+        </fileset>
+    </path>
+    
+    <target name="all" depends="clean,jar,copy.module.lib,package"/>
+    
+    <target name="build" depends="clean,jar"/>
+    
+    <target name="clean" depends="compile.clean,jar.clean,package.clean"/>
+    
+    <target name="compile" depends="compile.init">
+        <javac srcdir="${module.src.dir}" destdir="${module.build.dir}" debug="${debug}" fork="true" encoding="${java.encoding}" executable="${JAVA_HOME}/bin/javac">
+            <classpath refid="compile.path"/>
+        </javac>        
+    </target>
+    <!-- 执行打包 -->
+    <target name="jar" depends="jar.init,compile">
+        <jar basedir="${module.build.dir}" destfile="${module.dist.dir}/${module.jar.name}">
+        </jar>
+    </target>
+    
+    <target name="package" depends="package.init">
+        <war destfile="${module.current.dir}/${module.war.name}" basedir="${module.current.dir}/${module.web.name}"/>
+    </target>
+    
+    <!-- 从基础lib目录下复制jar包 -->    
+    <target name="copy.lib">
+        <copy todir="${module.lib.dir}" overwrite="true">
+            <fileset dir="${code.lib.dir}">
+                <include name="*.jar"/>
+                <exclude name="rt.jar"/>
+            </fileset>
+            
+            <fileset dir="${code.web.lib.dir}">
+                <include name="*.jar"/>
+            </fileset>
+            
+            <!-- 复制插件相关jar包 -->
+            <fileset dir="${code.lib.dir}/plugin_depends">
+                <include name="*.jar"/>
+            </fileset>
+        </copy>
+    </target>
+    
+    <target name="copy.module.lib">
+        <!-- 复制通用包、索引核心包、搜索核心包和插件包 -->
+        <copy todir="${module.lib.dir}">
+            <fileset dir="${code.modules.lib.dir}">
+                <include name="${common.jar.name}"/>
+                <include name="${index.core.jar.name}"/>
+                <include name="${search.core.jar.name}"/>
+                <include name="${index.plugin.jar.shortname}-*.jar"/>
+            </fileset>
+        </copy>
+        
+        <!-- 复制搜索前台包 -->
+        <copy todir="${module.lib.dir}">
+            <fileset dir="${module.dist.dir}">
+                <include name="${web.jar.name}"/>
+            </fileset>
+        </copy>
+    </target>
+    
+    <target name="compile.init" depends="compile.clean">
+        <mkdir dir="${module.dest.dir}"/>
+        <mkdir dir="${module.build.dir}"/>
+    </target>
+    
+    <target name="compile.clean">
+        <delete dir="${module.dest.dir}"/>
+        <delete dir="${module.build.dir}"/>
+    </target>
+    
+    <target name="package.init" depends="package.clean">
+        <copy todir="${module.dest.dir}" failonerror="false">
+            <fileset dir="${code.resources.dir}" excludes="config.properties">
+            </fileset>
+        </copy>
+        
+        <!-- 将配置文件国际化 -->
+        <native2ascii src="${code.resources.dir}" dest="${module.dest.dir}" includes="config.properties"/>
+        
+        <!-- 从基础lib目录下复制jar包 -->        
+        <antcall target="copy.lib"/>
+    </target>
+    
+    <target name="package.clean">
+        <delete file="${module.current.dir}/${module.war.name}"/>
+    </target>
+    
+    <target name="jar.init" depends="jar.clean">
+        <mkdir dir="${module.dist.dir}"/>
+        <mkdir dir="${module.lib.dir}"/>
+    </target>
+    
+    <target name="jar.clean">
+        <delete dir="${module.dist.dir}"/>
+        <delete dir="${module.lib.dir}"/>
+    </target>
+</project>
