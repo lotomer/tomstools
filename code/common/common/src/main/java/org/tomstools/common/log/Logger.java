@@ -10,7 +10,7 @@ package org.tomstools.common.log;
  * @time 上午10:31:16
  */
 public class Logger {
-    public static Logger getLogger(@SuppressWarnings("rawtypes") Class clazz)
+    public static <T> Logger getLogger(Class<T> clazz)
     {
         return new Logger(clazz);
     }
@@ -21,7 +21,7 @@ public class Logger {
         
     private org.apache.log4j.Logger logger; 
 
-    protected Logger(@SuppressWarnings("rawtypes") Class clazz)
+    protected <T> Logger(Class<T> clazz)
     {
         logger = org.apache.log4j.Logger.getLogger(clazz.getName());
     }

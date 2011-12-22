@@ -7,5 +7,6 @@
 	<classpathentry kind="lib" path="Z:/code/common/lib/web/servlet/jsp-api.jar"/>
 	<classpathentry kind="lib" path="Z:/code/common/lib/web/servlet/servlet-api.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/common"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/merge"/>
 	<classpathentry kind="output" path="classes"/>
 </classpath>

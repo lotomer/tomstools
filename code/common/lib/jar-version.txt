@@ -1,0 +1,3 @@
+mybatis: 3.0.1
+log4j: 1.2.15
+yuicompressor: 2.4.6

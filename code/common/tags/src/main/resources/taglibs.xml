@@ -6,7 +6,7 @@
     <tag>
         <name>js</name>
         <tag-class>org.tomstools.ui.tags.impl.JSTag</tag-class>
-        <body-content>JSP</body-content>
+        <body-content>empty</body-content>
         <attribute> 
             <name>id</name>
             <required>true</required>

@@ -3,6 +3,7 @@
  */
 package org.tomstools.common.compress;
 
+
 /**
  * 压缩工具
  * @author vaval
@@ -12,8 +13,10 @@ package org.tomstools.common.compress;
 public interface Compressor {
     /**
      * 将指定文件压缩后保存为压缩文件名
-     * @param srcFileName           待压缩文件
-     * @param compressedFileName    压缩后文件名
+     * @param srcFileName           待压缩文件的文件名
+     * @param compressedFileName    压缩后的文件名
+     * @param charset               文件编码格式
+     * @param deleteSourceFile      是否删除源文件
      */
-    public void compress(String srcFileName, String compressedFileName);
+    public void compress(String srcFileName, String compressedFileName, String charset, boolean deleteSourceFile);
 }

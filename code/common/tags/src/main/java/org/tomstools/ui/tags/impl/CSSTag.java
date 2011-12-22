@@ -8,6 +8,7 @@ import java.io.IOException;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspWriter;
 
+import org.tomstools.common.merge.manage.WebFileManagerFactory;
 import org.tomstools.common.util.Utils;
 import org.tomstools.ui.tags.AbstractTag;
 
@@ -26,8 +27,7 @@ public class CSSTag extends AbstractTag {
         if (null != getId()) {
             String id = getId().trim();
             if (!"".equals(id)) {
-                // TODO 未完成
-                String code = null;//WebFileMgr.getInstance().getCssCode(getId());
+                String code = WebFileManagerFactory.getInstance().getWebFileManager().getHTMLCode(id, "css");
                 if (Utils.isEmpty(code)) {
                     return SKIP_BODY;
                 }
