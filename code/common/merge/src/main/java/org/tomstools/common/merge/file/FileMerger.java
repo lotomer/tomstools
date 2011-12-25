@@ -44,7 +44,6 @@ public class FileMerger implements Merger {
         logger.info("start merge " + mergedFileName);
         OutputStream out = null;
         try {
-            out = new FileOutputStream(destFile);
             byte[] b = new byte[BUFFER_SIZE];
             //循环读入并输出
             for (String file : files) {
@@ -52,6 +51,9 @@ public class FileMerger implements Merger {
                 if (!srcFile.exists()){
                     logger.warn("The file is not exists! File name:" + file);
                     continue;
+                }
+                if (null == out){
+                    out = new FileOutputStream(destFile);
                 }
                 InputStream in = new FileInputStream(srcFile);
                 int count = 0;
@@ -65,9 +67,9 @@ public class FileMerger implements Merger {
                 in = null;
             }
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            logger.error(e.getMessage(),e);
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error(e.getMessage(),e);
         }
         finally{
             if (null != out){
@@ -75,7 +77,7 @@ public class FileMerger implements Merger {
                 try {
                     out.close();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    logger.error(e.getMessage(),e);
                 }
                 out = null;
             }

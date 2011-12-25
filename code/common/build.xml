@@ -1,0 +1,38 @@
+﻿<?xml version="1.0" encoding="GBK"?>
+<project name="all.build" default="all" basedir=".">
+    <property name="current.dir"                        value="${basedir}"/>
+
+    <target name="all" depends="clean.module.dir">
+        <antcall target="doSubant">
+            <param name="target.name" value="all"/>
+        </antcall>
+    </target>
+    <target name="clean" depends="clean.module.dir">
+        <antcall target="doSubant">
+            <param name="target.name" value="clean"/>
+        </antcall>
+    </target>
+    
+    <target name="clean.module.dir">
+        <delete dir="${current.dir}/lib/modules"/>
+    </target>
+    
+    <target name="doSubant">
+        <!-- 有先后顺序 -->
+        <subant target="${target.name}">
+            <fileset dir="${current.dir}" includes="common/build.xml"/>
+        </subant>
+        
+        <subant target="${target.name}">
+            <fileset dir="${current.dir}" includes="dataAccessor/build.xml"/>
+        </subant>
+        
+        <subant target="${target.name}">
+            <fileset dir="${current.dir}" includes="merge/build.xml"/>
+        </subant>
+        
+        <subant target="${target.name}">
+            <fileset dir="${current.dir}" includes="tags/build.xml"/>
+        </subant>
+    </target>
+</project>

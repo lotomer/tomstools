@@ -1,100 +1,118 @@
-<?xml version="1.0" encoding="GBK"?>
+ï»¿<?xml version="1.0" encoding="GBK"?>
 <project name="build-template" basedir=".">
     <description>
         <![CDATA[
-          ×Ô¶¯»¯½Å±¾Ä£°å¡££¨×÷Õß£ºÁú²ýÃ¯£©
-            Ìá¹©ÈÎÎñ:
-                1¡¢clean         ÇåÀí
-                2¡¢compile       ±àÒë
-                3¡¢jar           ´ò°ü
-            
-            ÒÀÀµ±äÁ¿£¨±ØÐëÔÚimportÕâ¸öÎÄ¼þÖ®Ç°¶¨Òå£©£º
-                1¡¢${module.src.dir}        Ô´ÎÄ¼þÄ¿Â¼
-                2¡¢${module.build.dir}      ±àÒë½á¹ûÄ¿Â¼
-                3¡¢${module.dest.dir}       ´ò°üÊä³öÄ¿Â¼
-                4¡¢${module.jar.name}       jar°üµÄÃû×Ö
-                5¡¢${lib.dir}               ÒÀÀµµÄjarËùÔÚÄ¿Â¼
-                            
-            ¿É×Ô¶¨ÒåµÄ¹³×ÓÈÎÎñ£¨±ØÐëÔÚimportÕâ¸öÎÄ¼þÖ®ºó¶¨Òå£©£º
-                1¡¢compile.before           ±àÒëÇ°¹³×ÓÈÎÎñ
-                2¡¢compile.after            ±àÒëºó¹³×ÓÈÎÎñ£¨½«Ô´ÎÄ¼þÄ¿Â¼ÏÂµÄ·ÇJAVAÎÄ¼þcopyµ½±àÒëºó½á¹ûÄ¿Â¼²»ÔÚ´ËÁÐ£©
-                3¡¢jar.before               ´ò°üÇ°¹³×ÓÈÎÎñ
-                4¡¢jar.after                ´ò°üºó¹³×ÓÈÎÎñ
+          è‡ªåŠ¨åŒ–è„šæœ¬æ¨¡æ¿ã€‚ï¼ˆä½œè€…ï¼šé¾™æ˜ŒèŒ‚ï¼‰
+            æä¾›ä»»åŠ¡:
+                1ã€clean         æ¸…ç†ã€‚ä¾èµ–compile.clean,jar.clean,jar.output.clean
+                2ã€compile       ç¼–è¯‘
+                3ã€build         æ‰“åŒ…ã€‚ä¾èµ–jar,confuse,jar.output
+                4ã€all           å…ˆæ¸…ç†(clean)ï¼Œåœ¨æ‰“jaråŒ…(build)ï¼Œç„¶åŽå†æ‰“å‘å¸ƒåŒ…(product.package)
+            ä¾èµ–å±žæ€§ï¼ˆå¿…é¡»åœ¨importè¿™ä¸ªæ–‡ä»¶ä¹‹å‰å®šä¹‰ï¼‰ï¼š
+                1ã€module.name              æ¨¡å—å
+                2ã€module.src.dir           æºæ–‡ä»¶ç›®å½•
+                3ã€module.build.dir         ç¼–è¯‘ç»“æžœç›®å½•
+                4ã€module.dest.dir          æ‰“åŒ…è¾“å‡ºç›®å½•
+                5ã€module.jar.name          jaråŒ…çš„åå­—
+                6ã€lib.dir                  ä¾èµ–çš„jaræ‰€åœ¨ç›®å½•
+                7ã€module.resource.dir      å®šä¹‰èµ„æºæ–‡ä»¶ç›®å½•ã€‚å¦‚æžœæŒ‡å®šäº†è¯¥å±žæ€§ï¼Œåˆ™ä¼šå°†è¯¥ç›®å½•ä¸‹çš„èµ„æºæ–‡ä»¶å…¨éƒ¨copyåˆ°ç¼–è¯‘åŽç›®å½•è¿›è¡Œæ‰“åŒ…
+                8ã€version                  ç‰ˆæœ¬
+
+            å¯è‡ªå®šä¹‰çš„å±žæ€§ï¼š
+                1ã€jar.output.dir           æ‰“åŒ…åŽè¾“å‡ºçš„ç›®å½•
+                2ã€need_confuse             æ˜¯å¦å¯¹jaråŒ…è¿›è¡ŒåŠ æ‰°ã€‚é»˜è®¤ä¸åŠ æ‰°ã€‚å¦‚æžœéœ€è¦åŠ æ‰°åˆ™å®šä¹‰è¯¥å±žæ€§å³å¯ 
+                3ã€copyright                ç‰ˆæƒä¿¡æ¯
+                4ã€tool.proguard.name       åŠ æ‰°å·¥å…·åŒ…å®Œæ•´æ–‡ä»¶å
+                5ã€COMPILE_JAVA_HOME        ç¼–è¯‘æ—¶ä½¿ç”¨çš„jdkç›®å½•
+            å¯è‡ªå®šä¹‰çš„é’©å­ä»»åŠ¡ï¼ˆå¿…é¡»åœ¨importè¿™ä¸ªæ–‡ä»¶ä¹‹åŽå®šä¹‰ï¼‰ï¼š
+                1ã€compile.before           ç¼–è¯‘å‰é’©å­ä»»åŠ¡
+                2ã€compile.after            ç¼–è¯‘åŽé’©å­ä»»åŠ¡ï¼ˆå°†æºæ–‡ä»¶ç›®å½•ä¸‹çš„éžJAVAæ–‡ä»¶copyåˆ°ç¼–è¯‘åŽç»“æžœç›®å½•ä¸åœ¨æ­¤åˆ—ï¼‰
+                3ã€jar.before               æ‰“åŒ…å‰é’©å­ä»»åŠ¡
+                4ã€jar.after                æ‰“åŒ…åŽé’©å­ä»»åŠ¡
+                5ã€product.package          äº§å“æ‰“åŒ…ï¼ˆä¸æ˜¯æ‰“jaråŒ…ï¼‰
                 
-            ¿É×Ô¶¨ÒåµÄÎÄ¼þ¼¯ºÏ£¨±ØÐëÔÚimportÕâ¸öÎÄ¼þÖ®ºó¶¨Òå£©£º
-                1¡¢compile.patternset.id    ±àÒëÊ±µÄÎÄ¼þ¼¯ºÏ
-                2¡¢jar.patternset.id        ´ò°üÊ±µÄÎÄ¼þ¼¯ºÏ
-                3¡¢copy.resource.id         ±àÒëºóÐèÒªcopyµÄ×ÊÔ´ÎÄ¼þ¼¯ºÏ
+            å¯è‡ªå®šä¹‰çš„æ–‡ä»¶é›†åˆï¼ˆå¿…é¡»åœ¨importè¿™ä¸ªæ–‡ä»¶ä¹‹åŽå®šä¹‰ï¼‰ï¼š
+                1ã€compile.patternset.id    ç¼–è¯‘æ—¶çš„æ–‡ä»¶é›†åˆ
+                2ã€jar.patternset.id        æ‰“åŒ…æ—¶çš„æ–‡ä»¶é›†åˆ
+                3ã€copy.resource.id         ç¼–è¯‘åŽéœ€è¦copyçš„èµ„æºæ–‡ä»¶é›†åˆ
         ]]>
     </description>
+    <!--æ—¶é—´æˆ³ -->
+    <tstamp>
+        <format property="NOW" pattern="yyyy-MM-dd HH:mm:ss"/>
+        <format property="YEAR" pattern="yyyy"/>
+    </tstamp>
     <property environment="env"/>
-    <property name="debug"          value="true" />
-    <property name="java.encoding"  value="utf-8" />
-    <property name="lib.dir"        value="${basedir}/../lib" />
-    <property name="jar.output.dir" value="${lib.dir}/modules"/>
-    <condition property="JAVA_HOME" value="${COMPILE_JAVA_HOME}" else="${env.JAVA_HOME}">
+
+    <property name="need_confuse"               value="true" />
+    <property name="debug"                      value="true" />
+    <property name="java.encoding"              value="utf-8" />
+    <property name="lib.dir"                    value="${basedir}/../lib" />
+    <property name="tool.proguard.name"         value="${lib.dir}/deploy/proguard.jar" />
+    <property name="jar.output.dir"             value="${lib.dir}/modules"/>
+    <property name="module.jar.confuse.name"    value="${module.name}.unconfuse.jar"/>
+    <property name="copyright"                  value="@ 2010-${YEAR} tomstools.org. All rights reserved."/>
+    <condition property="JAVA_HOME"     value="${COMPILE_JAVA_HOME}" else="${env.JAVA_HOME}">
         <isset property="COMPILE_JAVA_HOME"/>
     </condition>
     <!--======================== [public] =============================-->
-    <target name="all" depends="jar,jar.output"/>
+    <target name="all" depends="clean,build,product.package"/>
+    <target name="build" depends="jar,confuse,jar.output"/>
     
-    <!-- ÇåÀí -->
+    <!-- æ¸…ç† -->
     <target name="clean" depends="compile.clean,jar.clean,jar.output.clean" />    
     
-    <!-- ±àÒë -->
+    <!-- ç¼–è¯‘ -->
     <target name="compile">
         <echo message="JAVA_HOME=${JAVA_HOME}"/>
         <mkdir dir="${module.build.dir}"/>
-        <!-- ±àÒëÇ°¹³×ÓÈÎÎñ -->
+        <!-- ç¼–è¯‘å‰é’©å­ä»»åŠ¡ -->
         <antcall target="compile.before"/>
         
-        <!-- Ö´ÐÐ±àÒëÈÎÎñ -->
+        <!-- æ‰§è¡Œç¼–è¯‘ä»»åŠ¡ -->
         <antcall target="compile.execute"/>
         
-        <!-- ½«Ô´Ä¿Â¼ÖÐµÄÎÄ¼þ¿½±´µ½±àÒëºóÄ¿Â¼ÖÐ -->
+        <!-- å°†æºç›®å½•ä¸­çš„æ–‡ä»¶æ‹·è´åˆ°ç¼–è¯‘åŽç›®å½•ä¸­ -->
         <antcall target="copy.resource.to.builddir"/>
         
-        <!-- ±àÒëºó¹³×ÓÈÎÎñ -->
+        <!-- ç¼–è¯‘åŽé’©å­ä»»åŠ¡ -->
         <antcall target="compile.after"/>
     </target>
     
-    <!-- ´ò°ü -->
+    <!-- æ‰“åŒ… -->
     <target name="jar"  depends="compile">
         <mkdir dir="${module.dest.dir}"/>
-        <!-- ´ò°üÇ°¹³×ÓÈÎÎñ -->
+        <!-- æ‰“åŒ…å‰é’©å­ä»»åŠ¡ -->
         <antcall target="jar.before"/>
         
-        <!-- Ö´ÐÐ´ò°üÈÎÎñ -->
+        <!-- æ‰§è¡Œæ‰“åŒ…ä»»åŠ¡ -->
         <antcall target="jar.execute"/>
         
-        <!-- ´ò°üÇ°¹³×ÓÈÎÎñ -->
+        <!-- æ‰“åŒ…å‰é’©å­ä»»åŠ¡ -->
         <antcall target="jar.after"/>        
     </target>
     
-    <!-- ½«jar°üÊä³öµ½Ö¸¶¨Ä¿Â¼ -->
+    <!-- å°†jaråŒ…è¾“å‡ºåˆ°æŒ‡å®šç›®å½• -->
     <target name="jar.output">
-        <copy file="${module.dest.dir}/${module.jar.name}" todir="${jar.output.dir}"/>
+        <copy file="${module.dest.dir}/${module.jar.name}" tofile="${jar.output.dir}/${module.jar.name}"/>
     </target>
     <!--======================== [private] =============================-->
-    <!-- ÇåÀí±àÒë½á¹û -->
+    <!-- æ¸…ç†ç¼–è¯‘ç»“æžœ -->
     <target name="compile.clean">
         <delete dir="${module.build.dir}"/>
-        <!--mkdir dir="${module.build.dir}"/-->
     </target>
     
-    <!-- ÇåÀí´ò°ü½á¹û -->
+    <!-- æ¸…ç†æ‰“åŒ…ç»“æžœ -->
     <target name="jar.clean">
         <delete dir="${module.dest.dir}"/>
-        <!--delete file="${module.dest.dir}/${module.jar.name}"/>
-        <mkdir dir="${module.dest.dir}"/-->
     </target>
     
-    <!-- ÇåÀí´ò°üÊä³ö½á¹û -->
+    <!-- æ¸…ç†æ‰“åŒ…è¾“å‡ºç»“æžœ -->
     <target name="jar.output.clean">
         <delete file="${jar.output.dir}/${module.jar.name}"/>
     </target>
     
-    <!-- Ö´ÐÐ±àÒë -->
+    <!-- æ‰§è¡Œç¼–è¯‘ -->
     <target name="compile.execute">
         <javac srcdir="${module.src.dir}" destdir="${module.build.dir}" debug="${debug}" fork="true" encoding="${java.encoding}" executable="${JAVA_HOME}/bin/javac">
             <patternset refid="compile.patternset.id"/>
@@ -102,19 +120,28 @@
         </javac>
     </target>
     
-    <!-- Ö´ÐÐ´ò°ü -->
+    <!-- æ‰§è¡Œæ‰“åŒ… -->
     <target name="jar.execute">
         <jar basedir="${module.build.dir}" destfile="${module.dest.dir}/${module.jar.name}">
-            <patternset refid="jar.patternset.id"/>            
+            <patternset refid="jar.patternset.id"/>
+            <manifest>
+                <attribute name="Built-By" value="${user.name}"/>
+                <section name="${module.name}">
+                    <attribute name="Version" value="${version}"/>
+                    <attribute name="Copyright" value="${copyright}"/>
+                    <attribute name="Build-Time" value="${NOW}"/>
+                </section>
+
+              </manifest>
         </jar>
     </target>
     
-    <!-- ½«Ô´Ä¿Â¼ÖÐµÄÎÄ¼þ¿½±´µ½±àÒëºóÄ¿Â¼ÖÐ -->
-    <target name="copy.resource.to.builddir">
-        <echo message="½«Ô´Ä¿Â¼ÖÐµÄÎÄ¼þ¿½±´µ½±àÒëºóÄ¿Â¼ÖÐ£¬Ä¬ÈÏ¿½±´ËùÓÐ·ÇJAVAÎÄ¼þ£¬ÈçÐè¸ü¸Ä£¬ÇëÖØ¶¨Òåpatternset£ºcopy.resource.id"/>
-        <!-- ½«javaÎÄ¼þÒÔÍâµÄÆäËûÎÄ¼þ¶¼copyµ½±àÒë½á¹ûÄ¿Â¼£¬ÒÔ±ã´ò°ü -->
+    <!-- å°†æºç›®å½•ä¸­çš„æ–‡ä»¶æ‹·è´åˆ°ç¼–è¯‘åŽç›®å½•ä¸­ -->
+    <target name="copy.resource.to.builddir" if="module.resource.dir">
+        <echo message="å°†æºç›®å½•ä¸­çš„æ–‡ä»¶æ‹·è´åˆ°ç¼–è¯‘åŽç›®å½•ä¸­ï¼Œé»˜è®¤æ‹·è´æ‰€æœ‰éžJAVAæ–‡ä»¶ï¼Œå¦‚éœ€æ›´æ”¹ï¼Œè¯·é‡å®šä¹‰patternsetï¼šcopy.resource.id"/>
+        <!-- å°†javaæ–‡ä»¶ä»¥å¤–çš„å…¶ä»–æ–‡ä»¶éƒ½copyåˆ°ç¼–è¯‘ç»“æžœç›®å½•ï¼Œä»¥ä¾¿æ‰“åŒ… -->
         <copy todir="${module.build.dir}">
-            <fileset dir="${module.src.dir}">
+            <fileset dir="${module.resource.dir}">
                 <patternset refid="copy.resource.id"/>
             </fileset>
         </copy>
@@ -125,58 +152,20 @@
         <fileset dir="${lib.dir}">
             <include name="**/*.jar"/>
         </fileset>
-    </path>
+    </path>    
     
-    <!--======================== [protected] =============================-->
-    <!-- ±àÒëÊ±µÄÎÄ¼þ¼¯ºÏ -->
-    <patternset id="compile.patternset.id">
-        <include name="**/*"/>
-    </patternset>
-    
-    <!-- ´ò°üÊ±µÄÎÄ¼þ¼¯ºÏ -->
-    <patternset id="jar.patternset.id">
-        <include name="**/*"/>
-    </patternset>
-    
-    <!-- ±àÒëºóÐèÒªcopyµÄ×ÊÔ´ÎÄ¼þ¼¯ºÏ -->
-    <patternset id="copy.resource.id">
-        <exclude name="**/*.java"/>
-        <exclude name="**/*.xml"/>
-    </patternset>
-    
-    <!-- ¹³×ÓÈÎÎñ£º±àÒëÇ° -->
-    <target name="compile.before">
-    </target>
-    
-    <!-- ¹³×ÓÈÎÎñ£º±àÒëºó -->
-    <target name="compile.after">
-    </target>
-    
-    <!-- ¹³×ÓÈÎÎñ£º´ò°üÇ° -->
-    <target name="jar.before">
-    </target>
-    
-    <!-- ¹³×ÓÈÎÎñ£º´ò°üºó -->
-    <target name="jar.after">
-    </target>
-    
-    <!-- ¼ÓÈÅ -->
-    <target name="obfuscate">
+    <!-- åŠ æ‰° -->
+    <target name="confuse" if="need_confuse">
         <taskdef resource="proguard/ant/task.properties"
-               classpath="${proguard.dir}/lib/proguard.jar" />
-        
-        <mkdir dir="${temp.output.dir}"/>
+               classpath="${tool.proguard.name}" />
+
         <proguard printseeds="on" shrink="false" optimize="false" ignorewarnings="true">
             <!-- Specify the input jars, output jars, and library jars. -->            
-            <injar  file="${code.lib.dir}/modules/"/>
-            <injar  file="${code.web.dir}/dist/${web.jar.name}" />
-            <outjar file="${temp.output.dir}" />
+            <injar  file="${module.dest.dir}/${module.jar.name}"/>
+            <outjar file="${module.dest.dir}/${module.jar.confuse.name}" />
             
-            <libraryjar file="${java.home}/lib/rt.jar" />
-            <libraryjar file="${code.lib.dir}" />
-            <libraryjar file="${code.plugins.lib.dir}" />
-            <libraryjar file="${code.web.lib.dir}" />
-            <libraryjar file="${web.lib.dir}" />
+            <libraryjar file="${JAVA_HOME}/jre/lib/rt.jar" />
+            <libraryjar file="${lib.dir}" />
             
             <!-- Preserve all public applications. -->            
             <!--keepclasseswithmembers access="public">
@@ -241,13 +230,53 @@
             <!-- Keep all public filter. -->
             <keep access="public" implements="javax.servlet.Filter" />
 
-            <!-- =================================== ÑùÀý ============================ -->
+            <!-- =================================== æ ·ä¾‹ ============================ -->
             <keep type="interface" name="org.tomstools.A"/>
             <keep type="class" implements="org.tomstools.B"/>
 
-            <keep type="class" name="org.tomstools.C">
+            <keep type="class" name="**">
                 <method access="public"/>
             </keep>            
         </proguard>
+        
+        <delete file="${module.dest.dir}/${module.jar.name}"/>
+        <move file="${module.dest.dir}/${module.jar.confuse.name}" tofile="${module.dest.dir}/${module.jar.name}"/>
+    </target>
+    
+    <!--======================== [protected] =============================-->
+    <!-- ç¼–è¯‘æ—¶çš„æ–‡ä»¶é›†åˆ -->
+    <patternset id="compile.patternset.id">
+        <include name="**/*"/>
+    </patternset>
+    
+    <!-- æ‰“åŒ…æ—¶çš„æ–‡ä»¶é›†åˆ -->
+    <patternset id="jar.patternset.id">
+        <include name="**/*"/>
+    </patternset>
+    
+    <!-- ç¼–è¯‘åŽéœ€è¦copyçš„èµ„æºæ–‡ä»¶é›†åˆ -->
+    <patternset id="copy.resource.id">
+        <exclude name="**/*.java"/>
+        <exclude name="**/*.xml"/>
+    </patternset>
+    
+    <!-- é’©å­ä»»åŠ¡ï¼šç¼–è¯‘å‰ -->
+    <target name="compile.before">
+    </target>
+    
+    <!-- é’©å­ä»»åŠ¡ï¼šç¼–è¯‘åŽ -->
+    <target name="compile.after">
+    </target>
+    
+    <!-- é’©å­ä»»åŠ¡ï¼šæ‰“åŒ…å‰ -->
+    <target name="jar.before">
+    </target>
+    
+    <!-- é’©å­ä»»åŠ¡ï¼šæ‰“åŒ…åŽ -->
+    <target name="jar.after">
+    </target>
+    
+    <!-- æ‰“åŒ… -->
+    <target name="product.package">
     </target>
 </project>

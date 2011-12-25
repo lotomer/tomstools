@@ -1,36 +1,49 @@
-<?xml version="1.0" encoding="GBK"?>
+ï»¿<?xml version="1.0" encoding="GBK"?>
 <project name="dataaccessor.build" default="all" basedir=".">
-    <property name="module.current.dir" value="${basedir}"/>
-    <property name="module.src.dir"     value="${module.current.dir}/src"/>
-    <property name="module.build.dir"   value="${module.current.dir}/classes"/>
-    <property name="module.dest.dir"    value="${module.current.dir}/dest"/>
-    <property name="lib.dir"            value="${module.current.dir}/../lib"/>
-    <property name="module.jar.name"    value="TomsTools-dataAccessor.jar"/>
-     
+    <property name="module.current.dir"		value="${basedir}"/>
+    <property name="module.src.dir"			value="${module.current.dir}/src/main/java"/>
+    <property name="module.resource.dir"	value="${module.current.dir}/src/main/resources"/>
+    <property name="module.build.dir"		value="${module.current.dir}/classes"/>
+    <property name="module.dest.dir"		value="${module.current.dir}/dest"/>
+    <property name="lib.dir"				value="${module.current.dir}/../lib"/>
+    <property name="module.name"		    value="TomsTools-dataAccessor"/>
+    <property name="version"		        value="1.0.0"/>
+    <property name="module.jar.name"		value="${module.name}-${version}.jar"/>
+    
     <!--
-        ÒýÓÃ×Ô¶¯»¯½Å±¾Ä£°å¡££¨×÷Õß£ºÁú²ýÃ¯£©
-            Ìá¹©ÈÎÎñ:
-                1¡¢clean         ÇåÀí
-                2¡¢compile       ±àÒë
-                3¡¢jar           ´ò°ü
-            
-            ÒÀÀµ±äÁ¿£¨±ØÐëÔÚimportÕâ¸öÎÄ¼þÖ®Ç°¶¨Òå£©£º
-                1¡¢${module.src.dir}        Ô´ÎÄ¼þÄ¿Â¼
-                2¡¢${module.build.dir}      ±àÒë½á¹ûÄ¿Â¼
-                3¡¢${module.dest.dir}       ´ò°üÊä³öÄ¿Â¼
-                4¡¢${module.jar.name}       jar°üµÄÃû×Ö
-                5¡¢${lib.dir}               ÒÀÀµµÄjarËùÔÚÄ¿Â¼
-                            
-            ¿É×Ô¶¨ÒåµÄ¹³×ÓÈÎÎñ£¨±ØÐëÔÚimportÕâ¸öÎÄ¼þÖ®ºó¶¨Òå£©£º
-                1¡¢compile.before           ±àÒëÇ°¹³×ÓÈÎÎñ
-                2¡¢compile.after            ±àÒëºó¹³×ÓÈÎÎñ£¨½«Ô´ÎÄ¼þÄ¿Â¼ÏÂµÄ·ÇJAVAÎÄ¼þcopyµ½±àÒëºó½á¹ûÄ¿Â¼²»ÔÚ´ËÁÐ£©
-                3¡¢jar.before               ´ò°üÇ°¹³×ÓÈÎÎñ
-                4¡¢jar.after                ´ò°üºó¹³×ÓÈÎÎñ
+        å¼•ç”¨è‡ªåŠ¨åŒ–è„šæœ¬æ¨¡æ¿ã€‚ï¼ˆä½œè€…ï¼šé¾™æ˜ŒèŒ‚ï¼‰
+            æä¾›ä»»åŠ¡:
+                1ã€clean         æ¸…ç†ã€‚ä¾èµ–compile.clean,jar.clean,jar.output.clean
+                2ã€compile       ç¼–è¯‘
+                3ã€build         æ‰“åŒ…ã€‚ä¾èµ–jar,confuse,jar.output
+                4ã€all           å…ˆæ¸…ç†(clean)ï¼Œåœ¨æ‰“jaråŒ…(build)ï¼Œç„¶åŽå†æ‰“å‘å¸ƒåŒ…(product.package)
+            ä¾èµ–å±žæ€§ï¼ˆå¿…é¡»åœ¨importè¿™ä¸ªæ–‡ä»¶ä¹‹å‰å®šä¹‰ï¼‰ï¼š
+                1ã€module.name              æ¨¡å—å
+                2ã€module.src.dir           æºæ–‡ä»¶ç›®å½•
+                3ã€module.build.dir         ç¼–è¯‘ç»“æžœç›®å½•
+                4ã€module.dest.dir          æ‰“åŒ…è¾“å‡ºç›®å½•
+                5ã€module.jar.name          jaråŒ…çš„åå­—
+                6ã€lib.dir                  ä¾èµ–çš„jaræ‰€åœ¨ç›®å½•
+                7ã€module.resource.dir      å®šä¹‰èµ„æºæ–‡ä»¶ç›®å½•ã€‚å¦‚æžœæŒ‡å®šäº†è¯¥å±žæ€§ï¼Œåˆ™ä¼šå°†è¯¥ç›®å½•ä¸‹çš„èµ„æºæ–‡ä»¶å…¨éƒ¨copyåˆ°ç¼–è¯‘åŽç›®å½•è¿›è¡Œæ‰“åŒ…
+                8ã€version                  ç‰ˆæœ¬
+
+            å¯è‡ªå®šä¹‰çš„å±žæ€§ï¼š
+                1ã€jar.output.dir           æ‰“åŒ…åŽè¾“å‡ºçš„ç›®å½•
+                2ã€need_confuse             æ˜¯å¦å¯¹jaråŒ…è¿›è¡ŒåŠ æ‰°ã€‚é»˜è®¤ä¸åŠ æ‰°ã€‚å¦‚æžœéœ€è¦åŠ æ‰°åˆ™å®šä¹‰è¯¥å±žæ€§å³å¯ 
+                3ã€copyright                ç‰ˆæƒä¿¡æ¯
+                4ã€tool.proguard.name       åŠ æ‰°å·¥å…·åŒ…å®Œæ•´æ–‡ä»¶å
+                5ã€COMPILE_JAVA_HOME        ç¼–è¯‘æ—¶ä½¿ç”¨çš„jdkç›®å½•
+            å¯è‡ªå®šä¹‰çš„é’©å­ä»»åŠ¡ï¼ˆå¿…é¡»åœ¨importè¿™ä¸ªæ–‡ä»¶ä¹‹åŽå®šä¹‰ï¼‰ï¼š
+                1ã€compile.before           ç¼–è¯‘å‰é’©å­ä»»åŠ¡
+                2ã€compile.after            ç¼–è¯‘åŽé’©å­ä»»åŠ¡ï¼ˆå°†æºæ–‡ä»¶ç›®å½•ä¸‹çš„éžJAVAæ–‡ä»¶copyåˆ°ç¼–è¯‘åŽç»“æžœç›®å½•ä¸åœ¨æ­¤åˆ—ï¼‰
+                3ã€jar.before               æ‰“åŒ…å‰é’©å­ä»»åŠ¡
+                4ã€jar.after                æ‰“åŒ…åŽé’©å­ä»»åŠ¡
+                5ã€product.package          äº§å“æ‰“åŒ…ï¼ˆä¸æ˜¯æ‰“jaråŒ…ï¼‰
                 
-            ¿É×Ô¶¨ÒåµÄÎÄ¼þ¼¯ºÏ£¨±ØÐëÔÚimportÕâ¸öÎÄ¼þÖ®ºó¶¨Òå£©£º
-                1¡¢compile.patternset.id    ±àÒëÊ±µÄÎÄ¼þ¼¯ºÏ
-                2¡¢jar.patternset.id        ´ò°üÊ±µÄÎÄ¼þ¼¯ºÏ
-                3¡¢copy.resource.id         ±àÒëºóÐèÒªcopyµÄ×ÊÔ´ÎÄ¼þ¼¯ºÏ
+            å¯è‡ªå®šä¹‰çš„æ–‡ä»¶é›†åˆï¼ˆå¿…é¡»åœ¨importè¿™ä¸ªæ–‡ä»¶ä¹‹åŽå®šä¹‰ï¼‰ï¼š
+                1ã€compile.patternset.id    ç¼–è¯‘æ—¶çš„æ–‡ä»¶é›†åˆ
+                2ã€jar.patternset.id        æ‰“åŒ…æ—¶çš„æ–‡ä»¶é›†åˆ
+                3ã€copy.resource.id         ç¼–è¯‘åŽéœ€è¦copyçš„èµ„æºæ–‡ä»¶é›†åˆ
     -->
-    <import file="${module.current.dir}/../../build.template"/>    
+    <import file="${module.current.dir}/../../build.template"/>
 </project>
