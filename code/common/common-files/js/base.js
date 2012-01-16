@@ -16,6 +16,33 @@ function rTrim(s)
 {
     return s.replace(/(\s*$)/g, "");
 }
+/**
+ * 获取元素左边距
+ * @param element   元素
+ * @return 元素左边距的绝对值
+ */
+function getElementLeft(element){
+    var actualLeft = element.offsetLeft, parent = element.offsetParent;
+    while (parent){
+        actualLeft += parent.offsetLeft;
+        parent = parent.offsetParent;
+    }
+    return actualLeft;
+}
+
+/**
+ * 获取元素上边距
+ * @param element   元素
+ * @return 元素上边距的绝对值
+ */
+function getElementTop(element){
+    var actualTop = element.offsetTop, parent = element.offsetParent;
+    while (parent){
+        actualTop += parent.offsetTop;
+        parent = parent.offsetParent;
+    }
+    return actualTop;
+}
 //将字符串转码，以适应html的属性值
 function encodeHTMLProperty(htmlStr){
     if (htmlStr){
