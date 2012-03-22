@@ -1,18 +1,13 @@
+/**
+ * copyright (a) 2010-2012 tomstools.org. All rights reserved.
+ */
 package org.tomstools.common.db.exception;
 
 /**  
- * ClassName:   DAOException
- * Description: 数据访问异常类
- * Copyright:   (c)2010 lotomer.org 
- * 
- * @author:     lotomer
- * @version:    1.0  
- * Create at:   2010-7-29 下午02:20:09  
- *  
- * Modification History:  
- * Date         Author      Version     Description  
- * --------------------------------------------------------  
- * 2010-7-29      lotomer     1.0          1.0 Version  
+ * 数据访问异常类
+ * @author lotomer
+ * @date 2012-3-22 
+ * @time 上午11:04:28
  */
 public class DAOException extends Exception 
 {

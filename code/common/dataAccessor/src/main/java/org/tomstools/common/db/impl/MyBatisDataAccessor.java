@@ -1,3 +1,6 @@
+/**
+ * copyright (a) 2010-2012 tomstools.org. All rights reserved.
+ */
 package org.tomstools.common.db.impl;
 
 import java.sql.Connection;
@@ -13,14 +16,10 @@ import org.tomstools.common.db.result.PageInfo;
 import org.tomstools.common.log.Logger;
 
 /**
- * 数据库操作
- * 
- * @author: lotomer
- * @version: 1.0 Copyright: (c)2010 lotomer.org Create at: 2010-7-30 龙昌茂02:38:11
- * 
- *           Modification History: Date Author Version Description
- *           -------------------------------------------------------- 2010-7-30
- *           lotomer 1.0 1.0 Version
+ * 基于mybatis的数据库操作
+ * @author lotomer
+ * @date 2012-3-22 
+ * @time 上午11:03:54
  */
 public class MyBatisDataAccessor implements DataAccessor
 {
@@ -139,8 +138,7 @@ public class MyBatisDataAccessor implements DataAccessor
         return query(sqlName, null);
     }
     
-    @SuppressWarnings("rawtypes")
-    public List query4list(String sqlName, Object parameter, PageInfo pageInfo) throws DAOException
+    public List<?> query4list(String sqlName, Object parameter, PageInfo pageInfo) throws DAOException
     {
         checkSession();
         int offset = (pageInfo.getPageNum() - 1) * pageInfo.getPageSize();
@@ -156,14 +154,12 @@ public class MyBatisDataAccessor implements DataAccessor
         }
     }
     
-    @SuppressWarnings("rawtypes")
-    public List query4list(String sqlName, Object parameter) throws DAOException
+    public List<?> query4list(String sqlName, Object parameter) throws DAOException
     {
         return query4list(sqlName, parameter, PageInfo.DEFAULT);
     }
     
-    @SuppressWarnings("rawtypes")
-    public List query4list(String sqlName) throws DAOException
+    public List<?> query4list(String sqlName) throws DAOException
     {
         return query4list(sqlName, null, PageInfo.DEFAULT);
     }
@@ -196,7 +192,14 @@ public class MyBatisDataAccessor implements DataAccessor
 
     public Connection getConnection()
     {
-        return sqlSession.getConnection();
+        try {
+            checkSession();
+            return sqlSession.getConnection();
+        } catch (DAOException e) {
+            logger.error(e.getMessage(),e);
+        }
+        
+        return null;
     }
 
     public void clearCache()
