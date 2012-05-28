@@ -57,7 +57,7 @@
     </condition>
     <!--======================== [public] =============================-->
     <target name="all" depends="clean,build,product.package"/>
-    <target name="build" depends="jar,confuse,jar.output"/>
+    <target name="build" depends="jar,jar.output"/>
     
     <!-- 清理 -->
     <target name="clean" depends="compile.clean,jar.clean,jar.output.clean" />    

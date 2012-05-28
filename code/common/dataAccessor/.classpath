@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src/main/java"/>
+	<classpathentry kind="src" path="src/main/resources"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="Z:/code/common/lib/db/mybatis.jar"/>
+	<classpathentry kind="lib" path="Z:/code/common/lib/db/mybatis.jar" sourcepath="Z:/3rd-src/mybatis-sources.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/common"/>
 	<classpathentry kind="output" path="classes"/>
 </classpath>

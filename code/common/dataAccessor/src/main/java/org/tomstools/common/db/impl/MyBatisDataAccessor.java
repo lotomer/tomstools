@@ -21,7 +21,7 @@ import org.tomstools.common.log.Logger;
  * @date 2012-3-22 
  * @time 上午11:03:54
  */
-public class MyBatisDataAccessor implements DataAccessor
+class MyBatisDataAccessor implements DataAccessor
 {
     private static Logger     logger            = Logger.getLogger(MyBatisDataAccessor.class);
     private SqlSession        sqlSession;
