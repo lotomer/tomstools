@@ -3,6 +3,8 @@
  */
 package org.tomstools.common.compress;
 
+import java.io.IOException;
+
 
 /**
  * 压缩工具
@@ -18,5 +20,5 @@ public interface Compressor {
      * @param charset               文件编码格式
      * @param deleteSourceFile      是否删除源文件
      */
-    public void compress(String srcFileName, String compressedFileName, String charset, boolean deleteSourceFile);
+    public void compress(String srcFileName, String compressedFileName, String charset, boolean deleteSourceFile) throws IOException;
 }

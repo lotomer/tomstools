@@ -33,12 +33,15 @@ public class FileCompressor implements Compressor {
     private static final String FILE_EXT_JS = "js";
 
     public void compress(String srcFileName, String compressedFileName, String charset,
-            boolean deleteSourceFile) {
+            boolean deleteSourceFile) throws IOException {
+        logger.info("srcFileName:" + srcFileName);
+        logger.info("compressedFileName:" + compressedFileName);
+        
         compress(new File(srcFileName), new File(compressedFileName), charset, deleteSourceFile);
     }
 
     private void compress(File srcFile, File compressedFile, String charset,
-            boolean deleteSourceFile) {
+            boolean deleteSourceFile) throws IOException {
         if (null == srcFile) {
             throw new RuntimeException("The input file cannot be empty!");
         }
@@ -56,7 +59,7 @@ public class FileCompressor implements Compressor {
         }
     }
 
-    private void compressCSS(File inFile, File outFile, String charset, boolean deleteSourceFile) {
+    private void compressCSS(File inFile, File outFile, String charset, boolean deleteSourceFile) throws IOException {
         logger.info("start compress css file. in file:" + inFile.getAbsolutePath() + " out file:"
                 + outFile.getAbsolutePath());
         Reader in = null;
@@ -68,9 +71,8 @@ public class FileCompressor implements Compressor {
             CssCompressor compressor = new CssCompressor(in);
             out = new OutputStreamWriter(new FileOutputStream(outFile), charset);
             compressor.compress(out, linebreakpos);
-        } catch (IOException e) {
-            logger.error(e.getMessage(),e);
-        } finally {
+        } 
+        finally {
             if (in != null) {
                 try {
                     in.close();
@@ -99,7 +101,7 @@ public class FileCompressor implements Compressor {
         logger.info("compress css file finished.");
     }
 
-    private void compressJS(File inFile, File outFile, String charset, boolean deleteSourceFile) {
+    private void compressJS(File inFile, File outFile, String charset, boolean deleteSourceFile) throws IOException {
         logger.info("start compress js file. in file:" + inFile.getAbsolutePath() + " out file:"
                 + outFile.getAbsolutePath());
         Reader in = null;
@@ -142,8 +144,6 @@ public class FileCompressor implements Compressor {
                     disableOptimizations);
             in.close();
             in = null;
-        } catch (IOException e) {
-            logger.error(e.getMessage(),e);
         } finally {
             if (in != null) {
                 try {

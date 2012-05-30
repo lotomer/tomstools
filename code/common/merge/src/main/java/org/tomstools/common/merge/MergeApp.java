@@ -16,7 +16,7 @@ public final class MergeApp {
     private static final String COMMAND_DEFINE_PRE = "-D";
     private static final String COMMAND_COMPRESS = "-compress";
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
         WebFileManager webFileManager = WebFileManagerFactory.getInstance().getWebFileManager();
         String charset = "UTF-8"; // 默认文件编码
         for (int i = 0; i < args.length; ++i) {
@@ -79,13 +79,13 @@ public final class MergeApp {
         System.out.println("        设置变量。例如，设置变量A和B的值分别是1和2的方法是：-DA=1 -DB=2");
         System.out.println("详细介绍：");
         System.out.println("  【变量设置】");
-        System.out.println("        如果需要指定文件合并后的输出路径，则需要设置变量OUTPUT_加上文件类型如JS/CSS，如-DOUTPUT_JS=Z:/webapp/js");
+        System.out.println("        如果需要指定文件合并后的输出路径，则需要设置变量OUTPUT_加上文件类型如js/css，如-DOUTPUT_js=Z:/webapp/js");
         System.out.println("        如果没有指定文件合并后的输出路径，则默认输出到当前目录");
-        System.out.println("        如果需要指定WEB前台文件的配置文件，通过设置变量config来指定。默认配置文件名为：webFileConfig.properties");
+        System.out.println("        如果需要指定WEB前台文件的配置文件，通过设置变量WEB_CONFIG_FILE来指定。默认配置文件名为：webFileConfig.properties");
         System.out.println("  【配置文件】");
         System.out.println("        WEB前台文件的配置文件格式：一行一条、使用 key=value的方式配置");
         System.out.println("            key  组成格式：web. + 文件类型(js/css) + . + 文件标识(同一文件类型内必须唯一)");
-        System.out.println("            value组成格式：文件完整路径（可以包含变量，变量格式是：${变量名}。多个文件路径之间以英文逗号\",\"分隔）");
+        System.out.println("            value组成格式：文件输出目录,文件完整路径（可以包含变量，变量格式是：${变量名}。多个文件路径之间以英文逗号\",\"分隔）");
         
     }
 }

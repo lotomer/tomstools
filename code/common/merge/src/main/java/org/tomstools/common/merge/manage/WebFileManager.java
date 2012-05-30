@@ -3,6 +3,7 @@
  */
 package org.tomstools.common.merge.manage;
 
+import java.io.IOException;
 import java.util.List;
 
 import org.tomstools.common.log.Logger;
@@ -28,10 +29,16 @@ public abstract class WebFileManager {
 
     /**
      * 初始化工作，负责数据源的载入。 子类可重写
+     * @throws Exception 
      */
-    public abstract void init();
+    public abstract void init() throws Exception;
 
+    /**
+     * 设置是否开启调试模式。如果开启调试模式，则不会合并文件。默认开启。
+     * @param isDebug 是否开启调试模式。true 开启调试模式；false 不开启调试模式
+     */
     public final void setDebug(boolean isDebug) {
+        logger.info("set debug :" + isDebug);
         this.isDebug = isDebug;
     }
 
@@ -54,7 +61,7 @@ public abstract class WebFileManager {
             return html.toString();
         } else {
             // 非调试模式，返回合并后结果
-            return combileHTMLCode(fileMergeControler.getOutputFileName(id, type), type);
+            return combileHTMLCode(fileMergeControler.getOutputFileName4web(id, type), type);
         }
     }
 
@@ -66,6 +73,7 @@ public abstract class WebFileManager {
      * @param variableValue 变量值
      */
     public void addVariable(String variableName, String variableValue) {
+        logger.info("addVariable:" + variableName + "=" + variableValue);
         fileMergeControler.addVariable(variableName, variableValue);
     }
     /**
@@ -97,8 +105,9 @@ public abstract class WebFileManager {
 
     /**
      * 执行合并
+     * @throws IOException 
      */
-    public void merge(String charset) {
+    public void merge(String charset) throws IOException {
         fileMergeControler.merge(charset);
     }
     /**
@@ -109,7 +118,7 @@ public abstract class WebFileManager {
         fileMergeControler.setNeedCompress(needCompress);
     }
     /**
-     * 设置是否需要在压缩文件后删除源文件
+     * 设置是否需要在压缩文件后删除原合并文件
      * 默认不删除
      */
     public final void setNeedDeleteSourceFileForCompress(boolean needDeleteSourceFileForCompress) {

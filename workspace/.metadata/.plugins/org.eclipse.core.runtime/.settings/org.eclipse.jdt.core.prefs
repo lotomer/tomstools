@@ -1,4 +1,4 @@
-#Fri Dec 23 09:19:38 CST 2011
+#Tue May 29 14:37:29 CST 2012
 org.eclipse.jdt.core.formatter.insert_space_before_comma_in_for_inits=do not insert
 org.eclipse.jdt.core.formatter.brace_position_for_block=end_of_line
 org.eclipse.jdt.core.formatter.insert_space_after_at_in_annotation_type_declaration=do not insert
@@ -126,12 +126,13 @@ org.eclipse.jdt.core.formatter.insert_new_line_in_empty_annotation_declaration=i
 org.eclipse.jdt.core.formatter.insert_space_before_opening_brace_in_method_declaration=insert
 org.eclipse.jdt.core.formatter.insert_space_before_opening_paren_in_if=insert
 org.eclipse.jdt.core.formatter.comment.new_lines_at_javadoc_boundaries=true
+org.eclipse.jdt.core.formatter.insert_new_line_after_annotation_on_member=insert
 org.eclipse.jdt.core.formatter.insert_space_before_opening_bracket_in_array_type_reference=do not insert
 org.eclipse.jdt.core.formatter.insert_space_between_empty_braces_in_array_initializer=do not insert
 org.eclipse.jdt.core.formatter.insert_space_before_comma_in_multiple_local_declarations=do not insert
 org.eclipse.jdt.core.formatter.insert_space_after_opening_paren_in_constructor_declaration=do not insert
 org.eclipse.jdt.core.formatter.indent_body_declarations_compare_to_enum_constant_header=true
-org.eclipse.jdt.core.formatter.comment.insert_new_line_for_parameter=insert
+org.eclipse.jdt.core.formatter.comment.insert_new_line_for_parameter=do not insert
 org.eclipse.jdt.core.codeComplete.staticFinalFieldSuffixes=
 org.eclipse.jdt.core.formatter.alignment_for_throws_clause_in_method_declaration=16
 org.eclipse.jdt.core.formatter.insert_space_after_comma_in_annotation=insert
@@ -234,6 +235,7 @@ org.eclipse.jdt.core.formatter.insert_space_after_colon_in_assert=insert
 org.eclipse.jdt.core.formatter.alignment_for_conditional_expression=80
 org.eclipse.jdt.core.codeComplete.argumentPrefixes=
 org.eclipse.jdt.core.formatter.insert_space_after_opening_paren_in_method_declaration=do not insert
+org.eclipse.jdt.core.codeComplete.visibilityCheck=enabled
 org.eclipse.jdt.core.formatter.keep_imple_if_on_one_line=false
 org.eclipse.jdt.core.formatter.insert_new_line_in_empty_enum_declaration=insert
 org.eclipse.jdt.core.formatter.indent_switchstatements_compare_to_switch=false
@@ -247,8 +249,8 @@ org.eclipse.jdt.core.formatter.insert_space_after_comma_in_enum_constant_argumen
 org.eclipse.jdt.core.formatter.insert_space_before_opening_paren_in_for=insert
 org.eclipse.jdt.core.formatter.insert_space_after_opening_angle_bracket_in_type_arguments=do not insert
 org.eclipse.jdt.core.formatter.alignment_for_resources_in_try=80
-org.eclipse.jdt.core.formatter.insert_space_before_comma_in_parameterized_type_reference=do not insert
 org.eclipse.jdt.core.formatter.insert_space_after_comma_in_type_arguments=insert
+org.eclipse.jdt.core.formatter.insert_space_before_comma_in_parameterized_type_reference=do not insert
 org.eclipse.jdt.core.formatter.insert_space_before_opening_paren_in_while=insert
 org.eclipse.jdt.core.codeComplete.staticFieldPrefixes=
 org.eclipse.jdt.core.formatter.insert_space_before_opening_paren_in_method_invocation=do not insert

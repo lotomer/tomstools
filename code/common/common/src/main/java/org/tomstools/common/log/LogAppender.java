@@ -52,7 +52,7 @@ public class LogAppender extends RollingFileAppender{
         }
 
         // 变量名有效
-        String variableValue = System.getenv(variableName);
+        String variableValue = System.getProperty(variableName);
         if (null == variableValue)
         {
             return preStr + variableName + parseFileName(postStr);
