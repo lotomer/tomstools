@@ -278,6 +278,23 @@ public class FileMergeControler {
         void addFile(String fileName) {
             files.add(fileName);
         }
+        
+        @Override
+        public String toString() {
+            StringBuilder msg = new StringBuilder();
+            msg.append("fileInfo:{id:");
+            msg.append(fileId);
+            msg.append(",type:");
+            msg.append(fileType);
+            msg.append(",outPath:");
+            msg.append(outputPath);
+            msg.append(",outlineCode:");
+            msg.append(htmlOutlineCode);
+            msg.append(",inlineCode:");
+            msg.append(htmlInlineCode);
+            msg.append("}");
+            return msg.toString();
+        }
     }
 
     /**
@@ -294,14 +311,7 @@ public class FileMergeControler {
     public final String getHTMLCode(String id, String type, boolean isInline, String webRootPath) {
         if (isDebug) {
             // 调试模式，不合并
-            StringBuilder html = new StringBuilder();
-            List<String> files = getFileList(id, type);
-            for (String file : files) {
-                html.append(combileOutlineHTMLCode(file, type));
-                html.append("\n");
-            }
-
-            return html.toString();
+            return getOutlineHTMLCodes(id, type);
         } else {
             // 非调试模式，返回合并后结果
             if (isInline) {
@@ -312,6 +322,30 @@ public class FileMergeControler {
         }
     }
 
+    private String getOutlineHTMLCodes(String id, String type) {
+        FileInfo fileInfo = fileInfos.get(getKey(id, type));
+        String content = "";
+        if (null != fileInfo) {
+            content = fileInfo.htmlOutlineCode;
+            if (Utils.isEmpty(content)) {
+                // 获取数据并保存
+                List<String> files = fileInfo.files;
+                StringBuilder html = new StringBuilder();
+                if (!Utils.isEmpty(files)){
+                    for (String file : files) {
+                        html.append(getOutlineCode(file, type));
+                        html.append("\n");
+                    }
+                }
+                content = html.toString();
+                fileInfo.htmlOutlineCode = content;
+                logger.info(fileInfo);
+            }
+        }
+
+        return content;
+    }
+
     private String combileOutlineHTMLCode(String id, String type) {
         FileInfo fileInfo = fileInfos.get(getKey(id, type));
         String content = "";
@@ -319,8 +353,9 @@ public class FileMergeControler {
             content = fileInfo.htmlOutlineCode;
             if (Utils.isEmpty(content)) {
                 // 获取数据并保存
-                content = getOutlineCode(id, type);
+                content = getOutlineCode(getOutputFileName4web(id, type), type);
                 fileInfo.htmlOutlineCode = content;
+                logger.info(fileInfo);
             }
         }
 
@@ -336,15 +371,15 @@ public class FileMergeControler {
                 // 获取数据并保存
                 content = getInlineCode(id, type, webRootPath);
                 fileInfo.htmlInlineCode = content;
+                logger.info(fileInfo);
             }
         }
 
         return content;
     }
 
-    private String getOutlineCode(String id, String type) {
+    private String getOutlineCode(String outputFileName, String type) {
         StringBuilder html = new StringBuilder();
-        String outputFileName = getOutputFileName4web(id, type);
         if (WebFileManager.FILE_TYPE_JS.equalsIgnoreCase(type)) {
             // js文件
             // 文件方式外联
