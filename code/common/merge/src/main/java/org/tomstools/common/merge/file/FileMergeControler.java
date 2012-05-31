@@ -14,6 +14,7 @@ import java.util.Map.Entry;
 
 import org.tomstools.common.compress.CompressorFactory;
 import org.tomstools.common.log.Logger;
+import org.tomstools.common.merge.manage.WebFileManager;
 import org.tomstools.common.util.FileUtil;
 import org.tomstools.common.util.Utils;
 
@@ -31,10 +32,22 @@ public class FileMergeControler {
     private Map<String, FileInfo> fileInfos = new HashMap<String, FileInfo>();
     private boolean needCompress;
     private boolean needDeleteSourceFileForCompress;
+    private boolean isDebug;
 
     public FileMergeControler() {
         needCompress = false;
         needDeleteSourceFileForCompress = false;
+        isDebug = true;
+    }
+
+    /**
+     * 设置是否开启调试模式。如果开启调试模式，则不会合并文件。默认开启。
+     * 
+     * @param isDebug 是否开启调试模式。true 开启调试模式；false 不开启调试模式
+     */
+    public final void setDebug(boolean isDebug) {
+        logger.info("set debug :" + isDebug);
+        this.isDebug = isDebug;
     }
 
     /**
@@ -126,7 +139,8 @@ public class FileMergeControler {
 
     /**
      * 执行合并
-     * @throws IOException 
+     * 
+     * @throws IOException
      */
     public void merge(String charset) throws IOException {
         logger.info("start merge...");
@@ -164,8 +178,7 @@ public class FileMergeControler {
         String key = getKey(fileId, fileType);
         FileInfo fileInfo = fileInfos.get(key);
         if (null != fileInfo) {
-            return getCompressedFileName(fileInfo.outputPath, outputFileName, fileType,
-                    "/");
+            return getCompressedFileName(fileInfo.outputPath, outputFileName, fileType, "/");
         } else {
             return getCompressedFileName(".", outputFileName, fileType, "/");
         }
@@ -198,7 +211,7 @@ public class FileMergeControler {
         } else {
             out.append(fileName);
         }
-        logger.info(out.toString());
+        // logger.info(out.toString());
         return out.toString();
     }
 
@@ -251,6 +264,8 @@ public class FileMergeControler {
         String fileType;
         List<String> files;
         String outputPath;
+        String htmlOutlineCode; // 外联html内容
+        String htmlInlineCode; // 内联html内容
 
         FileInfo(String fileId, String fileType, String outputPath) {
             super();
@@ -263,5 +278,113 @@ public class FileMergeControler {
         void addFile(String fileName) {
             files.add(fileName);
         }
+    }
+
+    /**
+     * 获取html脚本
+     * 
+     * @param id 文件标识
+     * @param type 文件类型
+     * @param isInline 是否开启内联模式。debug模式下总是以外联方式连接 true 以内联方式直接将内容输出到引用文件中； false
+     *            以外联文件的方式连接到引用文件中
+     * @param webRootPath web应用物理路径
+     * 
+     * @return html脚本
+     */
+    public final String getHTMLCode(String id, String type, boolean isInline, String webRootPath) {
+        if (isDebug) {
+            // 调试模式，不合并
+            StringBuilder html = new StringBuilder();
+            List<String> files = getFileList(id, type);
+            for (String file : files) {
+                html.append(combileOutlineHTMLCode(file, type));
+                html.append("\n");
+            }
+
+            return html.toString();
+        } else {
+            // 非调试模式，返回合并后结果
+            if (isInline) {
+                return combileInlineHTMLCode(id, type, webRootPath);
+            } else {
+                return combileOutlineHTMLCode(id, type);
+            }
+        }
+    }
+
+    private String combileOutlineHTMLCode(String id, String type) {
+        FileInfo fileInfo = fileInfos.get(getKey(id, type));
+        String content = "";
+        if (null != fileInfo) {
+            content = fileInfo.htmlOutlineCode;
+            if (Utils.isEmpty(content)) {
+                // 获取数据并保存
+                content = getOutlineCode(id, type);
+                fileInfo.htmlOutlineCode = content;
+            }
+        }
+
+        return content;
+    }
+
+    private String combileInlineHTMLCode(String id, String type, String webRootPath) {
+        FileInfo fileInfo = fileInfos.get(getKey(id, type));
+        String content = "";
+        if (null != fileInfo) {
+            content = fileInfo.htmlInlineCode;
+            if (Utils.isEmpty(content)) {
+                // 获取数据并保存
+                content = getInlineCode(id, type, webRootPath);
+                fileInfo.htmlInlineCode = content;
+            }
+        }
+
+        return content;
+    }
+
+    private String getOutlineCode(String id, String type) {
+        StringBuilder html = new StringBuilder();
+        String outputFileName = getOutputFileName4web(id, type);
+        if (WebFileManager.FILE_TYPE_JS.equalsIgnoreCase(type)) {
+            // js文件
+            // 文件方式外联
+            html.append("<script type=\"text/javascript\" src=\"");
+            html.append(outputFileName);
+            html.append("\"></script>");
+
+        } else if (WebFileManager.FILE_TYPE_CSS.equalsIgnoreCase(type)) {
+            // css文件
+            // 文件方式外联
+            html.append("<link type=\"text/css\" rel=\"stylesheet\" href=\"");
+            html.append(outputFileName);
+            html.append("\"/>");
+
+        } else {
+            logger.warn("The file type is not expected(expected:js/css)! type:" + type);
+        }
+        return html.toString();
+    }
+
+    private String getInlineCode(String id, String type, String webRootPath) {
+        StringBuilder html = new StringBuilder();
+        String outputFileName = webRootPath + File.separator + getOutputFileName4web(id, type);
+        
+        if (WebFileManager.FILE_TYPE_JS.equalsIgnoreCase(type)) {
+            // js文件
+            // 字符串方式内联
+            html.append("<script type=\"text/javascript\">");
+            html.append(FileUtil.getFileContent(outputFileName));
+            html.append("</script>");
+        } else if (WebFileManager.FILE_TYPE_CSS.equalsIgnoreCase(type)) {
+            // css文件
+            // 字符串方式内联
+            html.append("<style type=\"text/css\">");
+            html.append(FileUtil.getFileContent(outputFileName));
+            html.append("</style>");
+        } else {
+            logger.warn("The file type is not expected(expected:js/css)! type:" + type);
+        }
+
+        return html.toString();
     }
 }

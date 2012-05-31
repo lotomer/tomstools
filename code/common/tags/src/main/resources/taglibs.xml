@@ -11,6 +11,17 @@
             <name>id</name>
             <required>true</required>
         </attribute>
+        <attribute> 
+            <name>mode</name>
+            <required>false</required>
+            <description>
+            <![CDATA[
+            取值说明：
+            file 以文件方式外联。默认
+            inline 将内容内联到页面文件中
+            ]]>
+            </description>
+        </attribute>
     </tag>
     <tag>
         <name>css</name>
@@ -19,6 +30,17 @@
         <attribute>
             <name>id</name>
             <required>true</required>
+        </attribute>
+        <attribute> 
+            <name>mode</name>
+            <required>false</required>
+            <description>
+            <![CDATA[
+            取值说明：<br/>
+            [file] 以文件方式外联。默认<br/>
+            [inline] 将内容内联到页面文件中
+            ]]>
+            </description>
         </attribute>
     </tag>
     <tag>

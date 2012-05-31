@@ -10,7 +10,6 @@ import javax.servlet.jsp.JspWriter;
 
 import org.tomstools.common.merge.manage.WebFileManagerFactory;
 import org.tomstools.common.util.Utils;
-import org.tomstools.ui.tags.AbstractTag;
 
 /**
  * 自定义标签：css标签
@@ -18,16 +17,14 @@ import org.tomstools.ui.tags.AbstractTag;
  * @date 2011-12-14 
  * @time 下午03:27:17
  */
-public class CSSTag extends AbstractTag {
-
-    private static final long serialVersionUID = -4886326961781865012L;
-
+public class CSSTag extends InlineTag {
+    private static final long serialVersionUID = -2628245647795440967L;
     @Override
     public int doStartTag() throws JspException {        
         if (null != getId()) {
             String id = getId().trim();
             if (!"".equals(id)) {
-                String code = WebFileManagerFactory.getInstance().getWebFileManager().getHTMLCode(id, "css");
+                String code = WebFileManagerFactory.getInstance().getWebFileManager().getHTMLCode(id, "css", MODE_INLINE.equalsIgnoreCase(getMode()),pageContext.getServletContext().getRealPath("/"));
                 if (Utils.isEmpty(code)) {
                     return SKIP_BODY;
                 }
@@ -42,5 +39,5 @@ public class CSSTag extends AbstractTag {
             }
         }
         return SKIP_BODY;
-    }
+    } 
 }
