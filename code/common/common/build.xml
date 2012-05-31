@@ -1,14 +1,14 @@
 ﻿<?xml version="1.0" encoding="GBK"?>
 <project name="common.build" default="all" basedir=".">
-    <property name="module.current.dir"		value="${basedir}"/>
-    <property name="module.src.dir"			value="${module.current.dir}/src/main/java"/>
-    <property name="module.resource.dir"	value="${module.current.dir}/src/main/resources"/>
-    <property name="module.build.dir"		value="${module.current.dir}/classes"/>
-    <property name="module.dest.dir"		value="${module.current.dir}/dest"/>
-    <property name="lib.dir"				value="${module.current.dir}/../lib"/>
-    <property name="module.name"		    value="TomsTools-common"/>
-    <property name="version"		        value="1.0.0"/>
-    <property name="module.jar.name"		value="${module.name}-${version}.jar"/>
+    <property name="module.current.dir"     value="${basedir}"/>
+    <property name="module.src.dir"         value="${module.current.dir}/src/main/java"/>
+    <property name="module.resource.dir"    value="${module.current.dir}/src/main/resources"/>
+    <property name="module.build.dir"       value="${module.current.dir}/classes"/>
+    <property name="module.dest.dir"        value="${module.current.dir}/dest"/>
+    <property name="lib.dir"                value="${module.current.dir}/../lib"/>
+    <property name="module.name"            value="TomsTools-common"/>
+    <property name="version"                value="1.0.1"/>
+    <property name="module.jar.name"        value="${module.name}-${version}.jar"/>
     
     <!--
         引用自动化脚本模板。（作者：龙昌茂）
