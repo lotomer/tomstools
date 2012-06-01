@@ -12,14 +12,12 @@ import org.tomstools.ui.tags.AbstractTag;
  */
 public class InlineTag extends AbstractTag {
     private static final long serialVersionUID = 4314326387409241760L;
-    protected static final String MODE_FILE = "file";
-    protected static final String MODE_INLINE = "inline";
+    private String inline;
+    public final String getInline() {
+        return inline;
+    }
+    public final void setInline(String inline) {
+        this.inline = inline;
+    }
     
-    private String mode = MODE_FILE;
-    public final String getMode() {
-        return mode;
-    }
-    public final void setMode(String mode) {
-        this.mode = mode;
-    }
 }

@@ -44,19 +44,19 @@ public final class FileUtil {
     /**
      * 根据文件名获取文件内容
      * XXX 读取性能需要优化
-     * @param fileName 文件名
+     * @param file 文件
      * @return 文件内容
      */
-    public static String getFileContent(String fileName) {
-        StringBuilder content = new StringBuilder();
-        File file = new File(fileName);
+    public static String getFileContent(File file) {
+        StringBuilder content = new StringBuilder();        
         if (file.isFile()) {
             try {
-                BufferedReader reader = new BufferedReader(new FileReader(fileName));
+                BufferedReader reader = new BufferedReader(new FileReader(file));
                 String lineContent = null;
                 while ((lineContent = reader.readLine()) != null) {
                     content.append(lineContent);
                 }
+                reader.close();
             } catch (IOException e) {
                 logger.error(e.getMessage(), e);
             }
@@ -65,5 +65,48 @@ public final class FileUtil {
         }
         
         return content.toString();
+    }
+
+    /**
+     * 获取源文件相对于基准文件的相对路径
+     * @param baseFilePath  基准文件。必须是目录而不是文件。不允许为null
+     * @param srcFilePath   源文件。必须是目录而不是文件。。不允许为null
+     * @return 相对路径
+     */
+    public static String generateAbstractPath(File baseFilePath, File srcFilePath) {
+        String baseFileName = getRealPath(baseFilePath);
+        String srcFileName = getRealPath(srcFilePath);
+        String[] baseNames = baseFileName.split("\\" + File.separator);
+        String[] srcNames = srcFileName.split("\\" + File.separator);
+        int baseLength = baseNames.length;
+        //int srcLength = isFile ? srcNames.length - 1 : srcNames.length;
+        int srcLength = srcNames.length;
+        int length = baseLength < srcLength ? baseLength : srcLength;
+        int index = 0;
+        for (; index < length; index++){
+            if (!baseNames[index].equals(srcNames[index])){
+                break;
+            }
+        }
+        StringBuilder abstractPath = new StringBuilder();
+        for (int i = index; i < baseNames.length; i++) {
+            abstractPath.append("../");
+        }
+        for (int i = index; i < srcNames.length; i++) {
+            abstractPath.append(srcNames[i]);
+            if (i != srcNames.length - 1){
+                abstractPath.append("/");
+            }
+        }
+        
+        return abstractPath.toString();
+    }
+    private static String getRealPath(File file) {
+        try {
+            return file.getCanonicalPath();
+        } catch (IOException e) {
+            logger.error(e.getMessage());
+            return file.getAbsolutePath();
+        }
     }
 }

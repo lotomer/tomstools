@@ -12,13 +12,11 @@
             <required>true</required>
         </attribute>
         <attribute> 
-            <name>mode</name>
+            <name>inline</name>
             <required>false</required>
             <description>
             <![CDATA[
-            取值说明：
-            file 以文件方式外联。默认
-            inline 将内容内联到页面文件中
+            内联时该标签所在目录。为空时不进行内联。默认为空。
             ]]>
             </description>
         </attribute>
@@ -32,13 +30,11 @@
             <required>true</required>
         </attribute>
         <attribute> 
-            <name>mode</name>
+            <name>inline</name>
             <required>false</required>
             <description>
             <![CDATA[
-            取值说明：<br/>
-            [file] 以文件方式外联。默认<br/>
-            [inline] 将内容内联到页面文件中
+            内联时该标签所在目录。为空时不进行内联。默认为空。
             ]]>
             </description>
         </attribute>

@@ -47,14 +47,13 @@ public abstract class WebFileManager {
      * 
      * @param id 文件标识
      * @param type 文件类型
-     * @param isInline 是否开启内联模式。debug模式下总是以外联方式连接 true 以内联方式直接将内容输出到引用文件中； false
-     *            以外联文件的方式连接到引用文件中
+     * @param inlinePath  内联时该标签所在目录。为空时不进行内联。默认为空。
      * @param webRootPath web应用物理路径
      * 
      * @return html脚本
      */
-    public final String getHTMLCode(String id, String type, boolean isInline, String webRootPath) {
-        return fileMergeControler.getHTMLCode(id, type, isInline, webRootPath);
+    public final String getHTMLCode(String id, String type, String inlinePath, String webRootPath) {
+        return fileMergeControler.getHTMLCode(id, type, inlinePath, webRootPath);
     }
 
     /**

@@ -3,6 +3,8 @@
  */
 package org.tomstools.common.merge;
 
+import java.io.File;
+
 /**
  * 合并工具
  * @author vaval
@@ -19,6 +21,11 @@ public interface Merger {
     /**
      * 执行合并
      * @param dest    执行合并时的辅助信息
+     * @param handle  内容处理钩子
      */
-    public void merge(String dest);
+    public void merge(String dest,Handle handle);
+    
+    public interface Handle{
+        String process(File file,String fileContent,File destFile);
+    }
 }

@@ -4,17 +4,16 @@
 package org.tomstools.common.merge.file;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.tomstools.common.log.Logger;
 import org.tomstools.common.merge.Merger;
+import org.tomstools.common.util.FileUtil;
 
 /**
  * 文件合并器
@@ -25,7 +24,7 @@ import org.tomstools.common.merge.Merger;
  */
 public class FileMerger implements Merger {
     private static final Logger logger = Logger.getLogger(FileMerger.class);
-    private static final int BUFFER_SIZE = 1024;
+    //private static final int BUFFER_SIZE = 1024;
     private List<String> files = new ArrayList<String>();
 
     public void add(String srcFileName) {
@@ -33,7 +32,7 @@ public class FileMerger implements Merger {
         files.add(srcFileName);
     }
 
-    public void merge(String mergedFileName) {
+    public void merge(String mergedFileName, Handle handle) {
         // 目标文件不能存在
         File destFile = new File(mergedFileName);
         if (destFile.exists()){
@@ -43,28 +42,22 @@ public class FileMerger implements Merger {
         }
         logger.info("start merge " + mergedFileName);
         OutputStream out = null;
-        try {
-            byte[] b = new byte[BUFFER_SIZE];
+        try {            
             //循环读入并输出
-            for (String file : files) {
-                File srcFile = new File(file);
-                if (!srcFile.exists()){
-                    logger.warn("The file is not exists! File name:" + file);
+            for (String fileName : files) {
+                File file = new File(fileName);
+                if (!file.exists()){
+                    logger.warn("The file is not exists! File name:" + file.getAbsolutePath());
                     continue;
                 }
                 if (null == out){
                     out = new FileOutputStream(destFile);
                 }
-                InputStream in = new FileInputStream(srcFile);
-                int count = 0;
-                do{
-                    count = in.read(b);
-                    out.write(b,0,count);
-                }while(count == BUFFER_SIZE);
-                out.write('\n');
-                // 关闭输入流
-                in.close();
-                in = null;
+                String content = FileUtil.getFileContent(file);
+                if (null != handle){
+                    content = handle.process(file,content,destFile);
+                }
+                out.write(content.getBytes());
             }
         } catch (FileNotFoundException e) {
             logger.error(e.getMessage(),e);

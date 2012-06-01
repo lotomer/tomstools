@@ -11,9 +11,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.tomstools.common.compress.CompressorFactory;
 import org.tomstools.common.log.Logger;
+import org.tomstools.common.merge.Merger;
 import org.tomstools.common.merge.manage.WebFileManager;
 import org.tomstools.common.util.FileUtil;
 import org.tomstools.common.util.Utils;
@@ -127,7 +130,7 @@ public class FileMergeControler {
         String key = getKey(fileId, fileType);
         FileInfo fileInfo = fileInfos.get(key);
         if (null == fileInfo) {
-            fileInfo = new FileInfo(fileId, fileType, outputPath);
+            fileInfo = new FileInfo(fileId, fileType, replaceVariable(outputPath));
             fileInfos.put(key, fileInfo);
         }
         fileInfo.addFile(fileName);
@@ -154,8 +157,22 @@ public class FileMergeControler {
                 merger.add(fileName);
             }
             // 执行合并
-            String mergedFileName = getMergedFileName(fileId, fileType);
-            merger.merge(mergedFileName);
+            final String mergedFileName = fileInfo.outputPath + File.separator + getMergedFileName(fileId, fileType);
+            System.out.println(mergedFileName);
+            // 解决相对路径问题
+            if ("css".equalsIgnoreCase(fileType)) {
+                merger.merge(mergedFileName, new Merger.Handle() {                    
+                    public String process(File file, String content, File destFile) {
+                        return replaceCss(content,file.getParent(),destFile.getParentFile());
+                    }
+                });
+            } else if ("js".equalsIgnoreCase(fileType)) {
+                merger.merge(mergedFileName, new Merger.Handle() {                    
+                    public String process(File file, String content, File destFile) {
+                        return replaceJs(content,file.getParent(),destFile.getParentFile());
+                    }
+                });
+            }
             if (needCompress) {
                 // 执行压缩
                 CompressorFactory.createFileCompressor().compress(
@@ -222,7 +239,7 @@ public class FileMergeControler {
      * @param fileType 文件类型
      * @return 合并后的完整文件名
      */
-    private String getMergedFileName(String fileId, String fileType) {
+    String getMergedFileName(String fileId, String fileType) {
         StringBuilder fileName = new StringBuilder();
         fileName.append(fileId);
         fileName.append(".");
@@ -265,7 +282,7 @@ public class FileMergeControler {
         List<String> files;
         String outputPath;
         String htmlOutlineCode; // 外联html内容
-        String htmlInlineCode; // 内联html内容
+        private Map<String, String> inlineCodes;// 内联html内容
 
         FileInfo(String fileId, String fileType, String outputPath) {
             super();
@@ -273,12 +290,21 @@ public class FileMergeControler {
             this.fileType = fileType;
             this.outputPath = outputPath;
             files = new ArrayList<String>();
+            inlineCodes = new HashMap<String, String>();
+        }
+
+        void addInlineCode(String inlinePath, String code) {
+            inlineCodes.put(inlinePath, code);
+        }
+
+        String getInlineCode(String inlinePath) {
+            return inlineCodes.get(inlinePath);
         }
 
         void addFile(String fileName) {
             files.add(fileName);
         }
-        
+
         @Override
         public String toString() {
             StringBuilder msg = new StringBuilder();
@@ -290,8 +316,8 @@ public class FileMergeControler {
             msg.append(outputPath);
             msg.append(",outlineCode:");
             msg.append(htmlOutlineCode);
-            msg.append(",inlineCode:");
-            msg.append(htmlInlineCode);
+            msg.append(",inlineCodes:");
+            msg.append(inlineCodes);
             msg.append("}");
             return msg.toString();
         }
@@ -302,20 +328,19 @@ public class FileMergeControler {
      * 
      * @param id 文件标识
      * @param type 文件类型
-     * @param isInline 是否开启内联模式。debug模式下总是以外联方式连接 true 以内联方式直接将内容输出到引用文件中； false
-     *            以外联文件的方式连接到引用文件中
+     * @param inlinePath 内联时该标签所在目录。为空时不进行内联。默认为空。
      * @param webRootPath web应用物理路径
      * 
      * @return html脚本
      */
-    public final String getHTMLCode(String id, String type, boolean isInline, String webRootPath) {
+    public final String getHTMLCode(String id, String type, String inlinePath, String webRootPath) {
         if (isDebug) {
             // 调试模式，不合并
             return getOutlineHTMLCodes(id, type);
         } else {
             // 非调试模式，返回合并后结果
-            if (isInline) {
-                return combileInlineHTMLCode(id, type, webRootPath);
+            if (!Utils.isEmpty(inlinePath)) {
+                return combileInlineHTMLCode(id, type, inlinePath, webRootPath);
             } else {
                 return combileOutlineHTMLCode(id, type);
             }
@@ -331,7 +356,7 @@ public class FileMergeControler {
                 // 获取数据并保存
                 List<String> files = fileInfo.files;
                 StringBuilder html = new StringBuilder();
-                if (!Utils.isEmpty(files)){
+                if (!Utils.isEmpty(files)) {
                     for (String file : files) {
                         html.append(getOutlineCode(file, type));
                         html.append("\n");
@@ -362,15 +387,16 @@ public class FileMergeControler {
         return content;
     }
 
-    private String combileInlineHTMLCode(String id, String type, String webRootPath) {
+    private String combileInlineHTMLCode(String id, String type, String inlinePath,
+            String webRootPath) {
         FileInfo fileInfo = fileInfos.get(getKey(id, type));
         String content = "";
         if (null != fileInfo) {
-            content = fileInfo.htmlInlineCode;
+            content = fileInfo.getInlineCode(inlinePath);
             if (Utils.isEmpty(content)) {
                 // 获取数据并保存
-                content = getInlineCode(id, type, webRootPath);
-                fileInfo.htmlInlineCode = content;
+                content = getInlineCode(id, type, webRootPath, new File(webRootPath + inlinePath));
+                fileInfo.addInlineCode(inlinePath, content);
                 logger.info(fileInfo);
             }
         }
@@ -400,21 +426,30 @@ public class FileMergeControler {
         return html.toString();
     }
 
-    private String getInlineCode(String id, String type, String webRootPath) {
+    private String getInlineCode(String id, String type, String webRootPath, File pagePath) {
         StringBuilder html = new StringBuilder();
-        String outputFileName = webRootPath + File.separator + getOutputFileName4web(id, type);
-        
+        String outputFileName = getOutputFileName4web(id, type);
+        if (outputFileName.startsWith("/")) {
+            outputFileName = outputFileName.substring(1);
+            int index = outputFileName.indexOf("/");
+            if (-1 < index) {
+                outputFileName = webRootPath + outputFileName.substring(index);
+            }
+        } else {
+            outputFileName = webRootPath + File.separator + outputFileName;
+        }
+
         if (WebFileManager.FILE_TYPE_JS.equalsIgnoreCase(type)) {
             // js文件
             // 字符串方式内联
             html.append("<script type=\"text/javascript\">");
-            html.append(FileUtil.getFileContent(outputFileName));
+            html.append(replaceJs(new File(outputFileName), pagePath));
             html.append("</script>");
         } else if (WebFileManager.FILE_TYPE_CSS.equalsIgnoreCase(type)) {
             // css文件
             // 字符串方式内联
             html.append("<style type=\"text/css\">");
-            html.append(FileUtil.getFileContent(outputFileName));
+            html.append(replaceCss(new File(outputFileName), pagePath));
             html.append("</style>");
         } else {
             logger.warn("The file type is not expected(expected:js/css)! type:" + type);
@@ -422,4 +457,56 @@ public class FileMergeControler {
 
         return html.toString();
     }
+
+    String replaceJs(String content, String contentParentPath, File pagePath) {
+        if (!Utils.isEmpty(content)) {
+            // 约定：js不允许使用相对路径，涉及相对路径
+            return content;// .replaceAll("", "");
+        } else {
+            return "";
+        }
+    }
+    private String replaceJs(File srcFile, File pagePath) {
+        String content = FileUtil.getFileContent(srcFile);
+         String contentPath = srcFile.getParent();
+        return replaceJs(content, contentPath, pagePath);
+    }
+    String replaceCss(String content, String contentParentPath, File pagePath) {
+        if (!Utils.isEmpty(content)) {
+            // 将所有相对路径进行转换
+            // 对图片的引用格式可能为：url(a.gif)、url(i/a.gif)、url(./i/a.gif)、url(../i/a.gif)，路径可能由单引号(')、双引号(")包裹
+            Pattern pattern = Pattern.compile("([\\W]url\\(['\"]*)(.*?)(['\"]*\\))",
+                    Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
+            Matcher matcher = pattern.matcher(content);
+            int iPosStart = 0;
+            int iPosEnd = content.length();
+            boolean isMathered = false;
+            StringBuffer result = new StringBuffer();
+            while (matcher.find()) {
+                isMathered = true;
+                result.append(content.substring(iPosStart, matcher.start()));
+                result.append(matcher.group(1));
+                File contentFile = new File(contentParentPath + File.separator + matcher.group(2));
+                String abstractPath = FileUtil
+                        .generateAbstractPath(pagePath, contentFile);
+                result.append(abstractPath);
+                result.append(matcher.group(3));
+                iPosStart = matcher.end();
+            }
+            result.append(content.substring(iPosStart, iPosEnd));
+            if (isMathered) {
+                return result.toString();
+            } else {
+                return content;
+            }
+        } else {
+            return "";
+        }        
+    }
+    private String replaceCss(File srcFile, File pagePath) {
+        String content = FileUtil.getFileContent(srcFile);
+        String contentPath = srcFile.getParent();
+        return replaceCss(content, contentPath, pagePath);
+    }
+
 }
