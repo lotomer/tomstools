@@ -1,0 +1,28 @@
+/** 内容区 */
+#divContent {width:680px;margin:0 auto;}
+#divSystems,#divSearch,#divSearchHis,#divSearchHot {float:left;width:100%;}
+/** 系统列表区 227 138  114 69 224 92 */
+#divSystems {height:33px;background:url(../i/index.gif) 0px -166px repeat-x;}
+#divSystems div {height: 33px;
+    line-height: 33px;
+    width: 106px;
+    margin-left: 15px;}
+
+/** 搜索区 */
+#divSearch {margin-top:10px;height:30px;}
+#keyword {width:550px;padding:4px 7px;border-width:2px;vertical-align:middle;border-style:solid;border-color: #9A9A9A #CDCDCD #CDCDCD #9A9A9A;}
+#btnSearch {background:url(../i/index.gif) 0 -101px no-repeat Transparent; height:28px;width:71px;border:none;cursor:pointer;vertical-align:middle;}
+#divSearch label {display:none;}
+#mainForm div {display:block;line-height:20px;height:20px;}
+/** 搜索历史/热词区 */
+#divSearchHis,#divSearchHot {overflow: auto;margin: 10px 0 0; border: 1px solid #ddd;}
+#divSearchHis span,#divSearchHot span {float:left; width:100%;border-bottom: 1px solid #ddd;background:url(../i/index.gif) 0px -137px no-repeat;}
+#divSearchHis label,#divSearchHot label{padding:5px 10px; font-weight: 600; font-size: 12px;}
+#divSearchHisContent,#divSearchHotContent {float:left;width:650px;clear:left;padding:5px;}
+#divSearchHisContent div,#divSearchHotContent div{float:left;width:120px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;text-align:left;margin:5px;height: 20px;}
+
+/** 页脚区 */
+#divFooter { position:relative;clear:both;top:80px;width:100%;text-align:center;line-height:20px;}
+
+/** 备用区 */
+#divHidden {display:none;}

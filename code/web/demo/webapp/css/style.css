@@ -1,0 +1,71 @@
+/** 元素选择器 */
+body {
+    font-family: Arial,"宋体", sans-serif;
+    font-size: 14px;
+    background-color: #fff;
+    margin:0 auto;
+}
+
+/** 列表 */
+ul,ol,li {
+    margin: 0;
+    padding: 0;
+}
+
+.link {
+    cursor: pointer;
+    color:blue;
+    }
+
+div label {float:left;}
+
+/* 系统区 */
+/* 被选中系统特殊样式 */
+.currSystem {
+    background: url(../i/index.gif) -77px -102px no-repeat;
+    color: red;
+}
+
+/* 单个系统 */
+.systemItem {
+    float: left;
+    text-align: center;
+    display: inline;
+}
+
+.mouseover {
+    color: #F0F;
+}
+
+/* 高亮样式，展现搜索结果时必须 
+.highlight {
+    color: red;
+    font-style: normal;
+}*/
+
+/*联想提示框样式*/
+.inputNotify {
+    position: absolute;
+    border: 1px solid black;
+    background-color: #F5F5F5;
+}
+.inputNotify li {
+    width:100%;
+    list-style: none;
+}
+/*联想提示框中被选中条目样式*/
+.itemSelect {
+    background-color: #c0c0c0;
+}
+/* 空div样式*/
+.divEmpty{
+    height: 20px;
+}
+/*专门用于隐藏*/
+.hidden {
+    display: none;
+}
+/** 测试专用 
+div, span, label{
+   border:1px solid red;
+}*/

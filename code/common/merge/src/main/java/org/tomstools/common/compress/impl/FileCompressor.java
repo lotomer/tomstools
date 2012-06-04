@@ -16,7 +16,6 @@ import org.mozilla.javascript.ErrorReporter;
 import org.mozilla.javascript.EvaluatorException;
 import org.tomstools.common.compress.Compressor;
 import org.tomstools.common.log.Logger;
-import org.tomstools.common.util.FileUtil;
 
 import com.yahoo.platform.yui.compressor.CssCompressor;
 import com.yahoo.platform.yui.compressor.JavaScriptCompressor;
@@ -33,15 +32,15 @@ public class FileCompressor implements Compressor {
     private static final String FILE_EXT_JS = "js";
 
     public void compress(String srcFileName, String compressedFileName, String charset,
-            boolean deleteSourceFile) throws IOException {
+            boolean deleteSourceFile, String fileType) throws IOException {
         logger.info("srcFileName:" + srcFileName);
         logger.info("compressedFileName:" + compressedFileName);
         
-        compress(new File(srcFileName), new File(compressedFileName), charset, deleteSourceFile);
+        compress(new File(srcFileName), new File(compressedFileName), charset, deleteSourceFile,fileType);
     }
 
     private void compress(File srcFile, File compressedFile, String charset,
-            boolean deleteSourceFile) throws IOException {
+            boolean deleteSourceFile, String fileType) throws IOException {
         if (null == srcFile) {
             throw new RuntimeException("The input file cannot be empty!");
         }
@@ -49,9 +48,9 @@ public class FileCompressor implements Compressor {
             throw new RuntimeException("The dest file cannot be empty!");
         }
         // 区分是JS文件还是CSS文件，二者需要使用各自的方法进行压缩
-        if (FILE_EXT_CSS.equalsIgnoreCase(FileUtil.getFileExt(srcFile.getName()))) {
+        if (FILE_EXT_CSS.equalsIgnoreCase(fileType)) {
             compressCSS(srcFile, compressedFile, charset, deleteSourceFile);
-        } else if (FILE_EXT_JS.equalsIgnoreCase(FileUtil.getFileExt(srcFile.getName()))) {
+        } else if (FILE_EXT_JS.equalsIgnoreCase(fileType)) {
             compressJS(srcFile, compressedFile, charset, deleteSourceFile);
         } else {
             throw new RuntimeException("The input file must be css/js file. "
@@ -61,7 +60,7 @@ public class FileCompressor implements Compressor {
 
     private void compressCSS(File inFile, File outFile, String charset, boolean deleteSourceFile) throws IOException {
         logger.info("start compress css file. in file:" + inFile.getAbsolutePath() + " out file:"
-                + outFile.getAbsolutePath());
+                + outFile.getAbsolutePath() + " charset:" + charset);
         Reader in = null;
         Writer out = null;
         int linebreakpos = -1;

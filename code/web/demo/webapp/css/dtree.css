@@ -1,0 +1,36 @@
+/**dtree 左边树型结构，应用于 <div id="divLeft" >**/
+
+.dtree {
+	margin:0px 10px 15px;
+}
+
+.dTreeNode {
+    white-space: nowrap;
+}
+.node{
+    
+}
+
+.dtree img {
+	border: 0px;
+	vertical-align: middle;
+}
+
+.dtree a {
+	font-weight:normal;
+	color: #333;
+	text-decoration: none;
+}
+.dtree a.node, .dtree a.nodeSel {
+	font-weight:normal;
+	white-space: nowrap;
+	padding: 1px 2px 1px 2px;
+}
+.dtree a.node:hover, .dtree a.nodeSel:hover {
+	font-weight:normal;
+	color: #333;
+	text-decoration: underline;
+}
+.dtree a.nodeSel {
+	background-color: #c0d2ec;
+}

@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="GBK"?>
+<project name="web.build" basedir="." default="all">
+    <property name="module.current.dir"         value="${basedir}"/>
+    
+    <property name="module.web.name"            value="webapp"/>
+    <property name="module.lib.dir"             value="${module.current.dir}/${module.web.name}/WEB-INF/lib"/>
+    <property name="module.src.dir"             value="${module.current.dir}/src"/>
+    <property name="module.build.dir"           value="${module.current.dir}/classes"/>
+    <property name="module.dest.dir"            value="${module.current.dir}/${module.web.name}/WEB-INF/classes"/>
+    <property name="module.dist.dir"            value="${module.current.dir}/dist"/>
+    <property name="module.war.name"            value="demo.war"/>
+    <property name="module.jar.name"            value="demo.jar"/>
+    <!--property name="code.lib.dir"               value="${module.current.dir}/lib"/-->
+    <property name="code.lib.dir"               value="${module.current.dir}/../../common/lib"/>
+    
+    <property environment="env"/>
+    <property name="debug"          value="true" />
+    <property name="java.encoding"  value="utf-8" />
+    <condition property="JAVA_HOME" value="${COMPILE_JAVA_HOME}" else="${env.JAVA_HOME}">
+        <isset property="COMPILE_JAVA_HOME"/>
+    </condition>
+    
+    <path id="compile.path">
+        <fileset dir="${code.lib.dir}">
+            <include name="**/*.jar"/>
+        </fileset>        
+    </path>
+    
+    <target name="all" depends="clean,jar,package"/>
+    
+    <target name="build" depends="clean,jar"/>
+    
+    <target name="clean" depends="compile.clean,jar.clean,package.clean"/>
+    
+    <target name="compile" depends="compile.init">
+        <javac srcdir="${module.src.dir}" destdir="${module.build.dir}" debug="${debug}" fork="true" encoding="${java.encoding}" executable="${JAVA_HOME}/bin/javac">
+            <classpath refid="compile.path"/>
+        </javac>        
+    </target>
+    <!-- 执行打包 -->
+    <target name="jar" depends="jar.init,compile">
+        <jar basedir="${module.build.dir}" destfile="${module.dist.dir}/${module.jar.name}">
+        </jar>
+    </target>
+    
+    <!-- 打包 -->
+    <target name="package" depends="package.init">
+        <war basedir="${module.current.dir}/${module.web.name}" destfile="${module.current.dir}/${module.war.name}">
+            <lib dir="${code.lib.dir}">
+                <include name="*.jar"/>
+            </lib>
+            <lib dir="${module.dist.dir}">
+                <include name="*.jar"/>
+            </lib>
+        </war>
+    </target>
+    
+    <target name="compile.init" depends="compile.clean">
+        <mkdir dir="${module.dest.dir}"/>
+        <mkdir dir="${module.build.dir}"/>
+    </target>
+    
+    <target name="compile.clean">
+        <delete dir="${module.dest.dir}"/>
+        <delete dir="${module.build.dir}"/>
+    </target>
+    
+    <target name="package.init" depends="package.clean">
+        <copy todir="${module.dest.dir}">
+            <fileset dir="${module.src.dir}" includes="*.*"/>
+        </copy>
+        <!-- 合并压缩JS/CSS文件 -->
+        <antcall target="package.web.compress"/>
+    </target>
+    
+    <!-- 对web前台JS/CSS文件进行合并、压缩 -->
+    <target name="package.web.compress">
+        <java classname="org.tomstools.common.merge.MergeApp" failonerror="true">
+            <sysproperty key="log4j.configuration" value="log4j.properties"/>
+            <arg value="-DWEB_CONFIG_FILE=config.properties"/>
+            <arg value="-DBASE_PATH=${module.current.dir}/${module.web.name}"/>
+            <arg value="-compress:deleteSourceFile"/>
+            <classpath refid="compile.path"/>
+            <classpath>
+                <pathelement location="${module.src.dir}"/>
+            </classpath>
+            <classpath>
+                <pathelement location="${code.lib.dir}/deploy/yuicompressor.jar"/>
+            </classpath>
+        </java>
+    </target>
+    <target name="package.clean">
+        <delete file="${module.current.dir}/${module.war.name}"/>
+    </target>
+    
+    <target name="jar.init" depends="jar.clean">
+        <mkdir dir="${module.dist.dir}"/>
+        <mkdir dir="${module.lib.dir}"/>
+    </target>
+    
+    <target name="jar.clean">
+        <delete dir="${module.dist.dir}"/>
+    </target>
+</project>

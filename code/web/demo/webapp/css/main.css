@@ -1,0 +1,229 @@
+/** 父容器  */
+#divContainer {
+    height: 100%;
+    width: 980px;
+    line-height: 20px;
+}
+
+#divContent {
+    overflow: hidden;
+    float: left;
+    clear: left;
+    width: 98%
+}
+
+#divHeader {
+    height :67px;
+    width: 180px;
+    background-image: url(../i/logo_mini.jpg);
+    background-repeat: no-repeat;
+    float: left;cursor: pointer;
+}
+
+/** 系统列表区 */
+#divSystems {
+    margin: 15px 0 10px 40px;
+    padding-left: 80px;
+    float: left;
+    width: 450px;
+    overflow: auto;
+    height: 33px;
+    background-image: url(../i/sys_bg_btm.gif);
+    background-repeat: repeat-x;
+    background-position: left bottom;
+}
+
+#divSystems div {
+    height: 33px;
+    line-height: 33px;
+    width: 106px;
+    margin-right: 5px;
+}
+
+/** 搜索区 */
+#divSearch {
+    float: left;
+    margin-bottom: 10px;
+    margin-left: 40px;
+}
+
+#keyword {
+    width: 450px;
+    height: 20px;
+}
+
+#btnSearch {
+    background-image: url(../i/btn_search.jpg);
+    background-color: Transparent;
+    background-repeat: no-repeat;
+    border: none;
+    height: 25px;
+    width: 71px;
+    cursor: pointer;
+}
+
+#divSearch label {
+    visibility: hidden;
+    font-weight: 400;
+    line-height: 26px;
+    display: none;
+}
+
+#mainForm div {
+    display: block;
+    line-height: 20px;
+    height: 20px;
+}
+
+#divContent {
+    padding-left: 20px;
+}
+
+/** 左边区    */
+#divLeft {
+    clear: left;
+    float: left;
+    width: 180px;
+    display: inline;
+    margin-right: 25px;
+    overflow:auto;
+    overflow-y:hidden;
+}
+
+/** 加载提示  */
+#loading{
+    background-image: url(../i/loading.gif);
+    background-repeat:no-repeat;
+    padding-left: 18px;
+    margin:0 auto;
+}
+
+/** 中间搜索结果 */
+#divResult {
+    float: left;
+    width: 600px;
+    white-space: normal;
+    overflow: hidden;
+}
+#resultDetail  ol li {
+    list-style:none outside none ;
+}
+#resultDetail li{
+    margin-bottom: 10px;
+}
+.resHeader{
+    margin-bottom:5px;
+    padding: 0;
+    font-size: 120%;
+}
+
+.resHeader a:link{
+    color:blue;
+    text-decoration: underline;
+    cursor: pointer;
+}
+.resHeader a:visited{
+    color:#606;
+}
+.resHeader a:hover , active {
+    color:#F0F;
+}
+
+.resFooter{
+     color:#008000;
+    font-size: 95%;
+}
+/** 结果汇总、结果详情、页码  */
+#resultSummary,#resultDetail,#resultNavigation
+{
+    float:left;clear:both;width:100%;
+}
+
+/** 页码处理 */
+#resultNavigation a{
+    border: 1px solid #CCDBE4;
+    color: #3666D4;
+    float: left;
+    margin: 0 5px 0 0;
+    padding: 2px 8px;
+    text-align: center;
+    text-decoration: none;
+}
+#resultNavigation a:hover{
+    background: none repeat scroll 0 0 #3666d4;
+    border-color: #2b55af;
+    color:#fff;
+}
+.currentPageNum {
+    border: 0 none;
+    color: #000000;
+    font-size: 108%;
+    float: left;
+    font-weight: bold;
+    padding: 2px 6px;
+    line-height: 20px;
+}
+
+.pageNumWord {
+    border-width: 2px;
+    margin-top: 0px;
+    padding-bottom: 1px;
+    padding-top: 1px;
+    float: left;
+}
+/** 搜索历史区/搜索热词区 */
+#divContentExt1,#divContentLast {
+    float: right;
+    clear: right;
+    width: 120px;
+    border-left: 1px solid #ccc;
+    padding-left: 10px;
+}
+#divContentExt1 label,#divContentLast label  {
+    font-weight: 600;font-size: 12px;
+}
+#divSearchHisContent,#divSearchHotContent {
+    float: left;
+    width: 108px;
+}
+
+#divSearchHisContent div,#divSearchHotContent div  {
+    width: 100%;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    text-align: left;
+}
+
+/** 相关搜索区 */
+#divResultLast {
+    margin-top: 20px;
+    float:left;
+    overflow: auto;
+    width:580px;
+    border: 1px solid #ddd;
+}
+
+#divResultLast span{float:left;border-bottom: 1px solid #ddd; width:100%;background-image: url(../i/navBg.gif); background-repeat: repeat-x;}
+#divResultLast label{padding: 5px 10px; font-size: medium;font-weight: 600;font-size: 12px;}
+#divSearchRelativeContent {width:560px;float:left;clear:left;padding:5px;}
+#divSearchRelativeContent div{float:left;width:106px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;text-align:left;height: 20px;}
+
+/** 超链接样式 */
+#systemContent,#searchHisContent,#searchHotContent {
+    color: #00F
+}
+
+/** 页脚区 */
+#divFooter {    
+    clear: both;
+    margin-top: 50px;
+    width: 100%;
+    text-align: center;
+    line-height: 20px;
+}
+
+/** 备用区 */
+#divHidden {
+    display: none;
+}

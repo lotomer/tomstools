@@ -19,6 +19,7 @@ public interface Compressor {
      * @param compressedFileName    压缩后的文件名
      * @param charset               文件编码格式
      * @param deleteSourceFile      是否删除源文件
+     * @param fileType              文件类型。css/js
      */
-    public void compress(String srcFileName, String compressedFileName, String charset, boolean deleteSourceFile) throws IOException;
+    public void compress(String srcFileName, String compressedFileName, String charset, boolean deleteSourceFile, String fileType) throws IOException;
 }

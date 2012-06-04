@@ -31,6 +31,7 @@ import org.tomstools.common.util.Utils;
 public class FileMergeControler {
     private static final Logger logger = Logger.getLogger(FileMergeControler.class);
     private static final String SEPARATOR_KEY = "_";
+    private static final String EXT_MERGED = ".merged";
     private Map<String, String> variables = new HashMap<String, String>();
     private Map<String, FileInfo> fileInfos = new HashMap<String, FileInfo>();
     private boolean needCompress;
@@ -157,28 +158,34 @@ public class FileMergeControler {
                 merger.add(fileName);
             }
             // 执行合并
-            final String mergedFileName = fileInfo.outputPath + File.separator + getMergedFileName(fileId, fileType);
-            System.out.println(mergedFileName);
+            final String mergedFileName = getMergedFileName(fileId, fileType);
+
             // 解决相对路径问题
             if ("css".equalsIgnoreCase(fileType)) {
-                merger.merge(mergedFileName, new Merger.Handle() {                    
-                    public String process(File file, String content, File destFile) {
-                        return replaceCss(content,file.getParent(),destFile.getParentFile());
-                    }
-                });
+                merger.merge(fileInfo.outputPath + File.separator + mergedFileName, charset,
+                        new Merger.Handle() {
+                            public String process(File file, String content, File destFile) {
+                                return replaceCss(content, file.getParent(),
+                                        destFile.getParentFile());
+                            }
+                        });
             } else if ("js".equalsIgnoreCase(fileType)) {
-                merger.merge(mergedFileName, new Merger.Handle() {                    
-                    public String process(File file, String content, File destFile) {
-                        return replaceJs(content,file.getParent(),destFile.getParentFile());
-                    }
-                });
+                merger.merge(fileInfo.outputPath + File.separator + mergedFileName, charset,
+                        new Merger.Handle() {
+                            public String process(File file, String content, File destFile) {
+                                return replaceJs(content, file.getParent(),
+                                        destFile.getParentFile());
+                            }
+                        });
             }
             if (needCompress) {
                 // 执行压缩
-                CompressorFactory.createFileCompressor().compress(
-                        mergedFileName,
-                        getCompressedFileName(fileInfo.outputPath, mergedFileName, fileType,
-                                File.separator), charset, needDeleteSourceFileForCompress);
+                CompressorFactory.createFileCompressor()
+                        .compress(
+                                fileInfo.outputPath + File.separator + mergedFileName,
+                                getCompressedFileName(fileInfo.outputPath, mergedFileName,
+                                        fileType, File.separator), charset,
+                                needDeleteSourceFileForCompress, fileType);
             }
         }
     }
@@ -205,16 +212,18 @@ public class FileMergeControler {
      * 获取文件压缩后的文件名
      * 
      * @param outputPath 输出目录
-     * @param fileName 压缩压缩的文件的文件名
+     * @param mergedFileName 压缩压缩的文件的文件名
      * @param fileType 文件类型
      * @param fileSeparator 文件路径分隔符
      * @return 文件压缩后的文件名
      */
-    private String getCompressedFileName(String outputPath, String fileName, String fileType,
+    private String getCompressedFileName(String outputPath, String mergedFileName, String fileType,
             String fileSeparator) {
         StringBuilder out = new StringBuilder();
-        out.append(replaceVariable(outputPath));
+        out.append(outputPath);
         out.append(fileSeparator);
+        String fileName = mergedFileName
+                .substring(0, mergedFileName.length() - EXT_MERGED.length());
         if (needCompress) {
             int index = fileName.lastIndexOf(".");
             if (-1 < index) {
@@ -244,6 +253,7 @@ public class FileMergeControler {
         fileName.append(fileId);
         fileName.append(".");
         fileName.append(fileType);
+        fileName.append(EXT_MERGED);
         return fileName.toString();
     }
 
@@ -443,13 +453,24 @@ public class FileMergeControler {
             // js文件
             // 字符串方式内联
             html.append("<script type=\"text/javascript\">");
-            html.append(replaceJs(new File(outputFileName), pagePath));
+            String content = replaceJs(new File(outputFileName), pagePath);
+            if (content.startsWith(FileUtil.FILE_HEAD_UTF8_STR)) {
+                html.append(content.substring(FileUtil.FILE_HEAD_UTF8_STR.length()).getBytes());
+            } else {
+                html.append(content);
+            }
+
             html.append("</script>");
         } else if (WebFileManager.FILE_TYPE_CSS.equalsIgnoreCase(type)) {
             // css文件
             // 字符串方式内联
             html.append("<style type=\"text/css\">");
-            html.append(replaceCss(new File(outputFileName), pagePath));
+            String content = replaceCss(new File(outputFileName), pagePath);
+            if (content.startsWith(FileUtil.FILE_HEAD_UTF8_STR)) {
+                html.append(content.substring(FileUtil.FILE_HEAD_UTF8_STR.length()).getBytes());
+            } else {
+                html.append(content);
+            }
             html.append("</style>");
         } else {
             logger.warn("The file type is not expected(expected:js/css)! type:" + type);
@@ -458,19 +479,41 @@ public class FileMergeControler {
         return html.toString();
     }
 
-    String replaceJs(String content, String contentParentPath, File pagePath) {
+    String replaceJs(String content, String contentParentPath, File pagePath) {       
         if (!Utils.isEmpty(content)) {
-            // 约定：js不允许使用相对路径，涉及相对路径
-            return content;// .replaceAll("", "");
+            // 约定：js中只允许以下方式使用相对路径
+            // 1、对象的src属性中可以包含相对路径。如 
+            //      .src="a.gif";
+            //      .src='../a.gif';
+            Pattern pattern = Pattern.compile("(\\S+?\\.src\\s*?=\\s*?['\"])(.*?)(['\"]\\s*?;)",
+                    Pattern.DOTALL);
+            Matcher matcher = pattern.matcher(content);
+            int iPosStart = 0;
+            int iPosEnd = content.length();
+            StringBuffer result = new StringBuffer();
+            while (matcher.find()) {
+                result.append(content.substring(iPosStart, matcher.start()));
+                result.append(matcher.group(1));
+                File contentFile = new File(contentParentPath + File.separator + matcher.group(2));
+                String abstractPath = FileUtil.generateAbstractPath(pagePath, contentFile);
+                result.append(abstractPath);
+                result.append(matcher.group(3));
+                iPosStart = matcher.end();
+            }
+            result.append(content.substring(iPosStart, iPosEnd));
+
+            return result.toString();
         } else {
             return "";
         }
     }
+
     private String replaceJs(File srcFile, File pagePath) {
         String content = FileUtil.getFileContent(srcFile);
-         String contentPath = srcFile.getParent();
+        String contentPath = srcFile.getParent();
         return replaceJs(content, contentPath, pagePath);
     }
+
     String replaceCss(String content, String contentParentPath, File pagePath) {
         if (!Utils.isEmpty(content)) {
             // 将所有相对路径进行转换
@@ -480,31 +523,32 @@ public class FileMergeControler {
             Matcher matcher = pattern.matcher(content);
             int iPosStart = 0;
             int iPosEnd = content.length();
-            boolean isMathered = false;
             StringBuffer result = new StringBuffer();
+            String pre = null;
+            String url = null;
+            String tail = null;
             while (matcher.find()) {
-                isMathered = true;
                 result.append(content.substring(iPosStart, matcher.start()));
-                result.append(matcher.group(1));
-                File contentFile = new File(contentParentPath + File.separator + matcher.group(2));
-                String abstractPath = FileUtil
-                        .generateAbstractPath(pagePath, contentFile);
+                pre = matcher.group(1);
+                url = matcher.group(2);
+                tail = matcher.group(3);
+                result.append(pre);
+                File contentFile = new File(contentParentPath + File.separator + url);
+                String abstractPath = FileUtil.generateAbstractPath(pagePath, contentFile);
                 result.append(abstractPath);
-                result.append(matcher.group(3));
+                result.append(tail);
                 iPosStart = matcher.end();
             }
             result.append(content.substring(iPosStart, iPosEnd));
-            if (isMathered) {
-                return result.toString();
-            } else {
-                return content;
-            }
+
+            return result.toString();
         } else {
             return "";
-        }        
+        }
     }
+
     private String replaceCss(File srcFile, File pagePath) {
-        String content = FileUtil.getFileContent(srcFile);
+        String content = FileUtil.getFileContent(srcFile, "UTF-8");
         String contentPath = srcFile.getParent();
         return replaceCss(content, contentPath, pagePath);
     }
