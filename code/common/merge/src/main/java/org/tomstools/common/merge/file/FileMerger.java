@@ -7,7 +7,10 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
+import java.nio.CharBuffer;
+import java.nio.channels.FileChannel;
+import java.nio.charset.Charset;
+import java.nio.charset.CharsetEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -42,7 +45,9 @@ public class FileMerger implements Merger {
             }
         }
         logger.info("start merge " + mergedFileName);
-        OutputStream out = null;
+        FileOutputStream os = null;
+        FileChannel out = null;
+        CharsetEncoder encoder = Charset.forName("UTF-8").newEncoder();
         try {
             // 循环读入并输出
             for (String fileName : files) {
@@ -52,7 +57,8 @@ public class FileMerger implements Merger {
                     continue;
                 }
                 if (null == out) {
-                    out = new FileOutputStream(destFile);
+                    os = new FileOutputStream(destFile);
+                    out = os.getChannel();
                     // 输出UTF8文件标准头
                     //out.write(FileUtil.FILE_HEAD_UTF8);
                 }
@@ -61,13 +67,13 @@ public class FileMerger implements Merger {
                 if (null != handle) {
                     content = handle.process(file, content, destFile);
                 }
-                
                 // 去除UTF8文件头
                 if (content.startsWith(FileUtil.FILE_HEAD_UTF8_STR)) {
-                    out.write(content.substring(FileUtil.FILE_HEAD_UTF8_STR.length()).getBytes());
+                    content = content.substring(FileUtil.FILE_HEAD_UTF8_STR.length());
+                    out.write(encoder.encode(CharBuffer.wrap(content)));
                 } else {
-                    out.write(content.getBytes());
-                }
+                    out.write(encoder.encode(CharBuffer.wrap(content)));
+                }                
             }
         } catch (FileNotFoundException e) {
             logger.error(e.getMessage(), e);

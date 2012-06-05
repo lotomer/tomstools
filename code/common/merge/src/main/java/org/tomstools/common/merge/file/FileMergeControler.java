@@ -455,7 +455,7 @@ public class FileMergeControler {
             html.append("<script type=\"text/javascript\">");
             String content = replaceJs(new File(outputFileName), pagePath);
             if (content.startsWith(FileUtil.FILE_HEAD_UTF8_STR)) {
-                html.append(content.substring(FileUtil.FILE_HEAD_UTF8_STR.length()).getBytes());
+                html.append(content.substring(FileUtil.FILE_HEAD_UTF8_STR.length()));
             } else {
                 html.append(content);
             }
@@ -467,7 +467,7 @@ public class FileMergeControler {
             html.append("<style type=\"text/css\">");
             String content = replaceCss(new File(outputFileName), pagePath);
             if (content.startsWith(FileUtil.FILE_HEAD_UTF8_STR)) {
-                html.append(content.substring(FileUtil.FILE_HEAD_UTF8_STR.length()).getBytes());
+                html.append(content.substring(FileUtil.FILE_HEAD_UTF8_STR.length()));
             } else {
                 html.append(content);
             }
@@ -479,7 +479,7 @@ public class FileMergeControler {
         return html.toString();
     }
 
-    String replaceJs(String content, String contentParentPath, File pagePath) {       
+    public String replaceJs(String content, String contentParentPath, File pagePath) {       
         if (!Utils.isEmpty(content)) {
             // 约定：js中只允许以下方式使用相对路径
             // 1、对象的src属性中可以包含相对路径。如 
@@ -509,7 +509,7 @@ public class FileMergeControler {
     }
 
     private String replaceJs(File srcFile, File pagePath) {
-        String content = FileUtil.getFileContent(srcFile);
+        String content = FileUtil.getFileContent(srcFile, "UTF-8");
         String contentPath = srcFile.getParent();
         return replaceJs(content, contentPath, pagePath);
     }

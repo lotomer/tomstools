@@ -3,6 +3,7 @@ package org.tomstools.common.util;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 
 import junit.framework.TestCase;
 
@@ -97,5 +98,5 @@ public class FileUtilTest extends TestCase {
         String file1 = "c:/a";
         String file2 = "c:/a/b/";
         assertEquals("b", FileUtil.generateAbstractPath(new File(file1),new File(file2)));
-    }    
+    }
 }

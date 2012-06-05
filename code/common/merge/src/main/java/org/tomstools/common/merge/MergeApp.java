@@ -3,8 +3,17 @@
  */
 package org.tomstools.common.merge;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.CharBuffer;
+import java.nio.channels.FileChannel;
+import java.nio.charset.Charset;
+import java.nio.charset.CharsetEncoder;
+
 import org.tomstools.common.merge.manage.WebFileManager;
 import org.tomstools.common.merge.manage.WebFileManagerFactory;
+import org.tomstools.common.util.FileUtil;
 
 /**
  * 合并应用程序
@@ -15,8 +24,26 @@ import org.tomstools.common.merge.manage.WebFileManagerFactory;
 public final class MergeApp {
     private static final String COMMAND_DEFINE_PRE = "-D";
     private static final String COMMAND_COMPRESS = "-compress";
-
+    public static void doTest(String[] args) throws IOException {
+        String charsetName = "UTF-8";
+        String content = FileUtil.getFileContent(new File("F:\\tomstools\\code\\web\\demo\\webapp\\js\\util.js"), charsetName);
+        System.out.println(content.toString());
+        System.out.println("=========================================================");
+        FileOutputStream os = new FileOutputStream("y:\\util.js");
+        FileChannel out = os.getChannel();
+        CharsetEncoder encoder = Charset.forName(charsetName).newEncoder();
+        out.write(encoder.encode(CharBuffer.wrap(content)));
+        out.close();
+        System.out.println();
+    }
     public static void main(String[] args) throws Exception {
+        doMerge(args);
+//        long start = System.currentTimeMillis();
+//        doTest(args);
+//        System.out.println(System.currentTimeMillis() - start);
+    }
+
+    private static void doMerge(String[] args) throws Exception {
         WebFileManager webFileManager = WebFileManagerFactory.getInstance().getWebFileManager();
         String charset = "UTF-8"; // 默认文件编码
         for (int i = 0; i < args.length; ++i) {
@@ -60,7 +87,6 @@ public final class MergeApp {
         //执行合并
         webFileManager.merge(charset);
     }
-
     /**
      * 打印使用说明
      */

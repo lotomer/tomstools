@@ -4,12 +4,10 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import org.tomstools.common.util.FileUtil;
 
 import junit.framework.TestCase;
+
+import org.tomstools.common.util.FileUtil;
 
 public class FileMergeControlerTest extends TestCase {
 
@@ -210,26 +208,6 @@ public class FileMergeControlerTest extends TestCase {
         assertEquals(
                 "function(){\nvar i = new Image();\nalert(i);\ni.src = 'p/i/a.gif';\nvar img = new Image();\nimg.src=\"p/i/a.gif\";\nalert(img.src);\nimg.src='p/a/i/a.gif';\nimg = new Image();\nimg.src='p/a/i/a.gif';\n",
                 FileUtil.getFileContent(outFile));
-    }
-
-    public static void main(String[] args) throws Exception {
-        // String content =
-        // "var image = new Image();\nimage.src = \"../../i/a.gif\";\nImage.src='a/gif';image.src='a/gif';";
-        // String regex =
-        // "[\\W](\\w+)\\s*=\\s*(new ){0,1}Image\\(\\)\\s*;(.*?(\\1)\\.src\\s*=\\s*['\"](.*?)['\"];)+?";
-        String content = "aaa=123;aab=1;aac=b;";
-        String regex = "aaa=.*?(aa\\w*)+";
-        Pattern pattern = Pattern.compile(regex, Pattern.DOTALL);
-        Matcher matcher = pattern.matcher(content);
-
-        while (matcher.find()) {
-            System.out.println(matcher.groupCount());
-            for (int i = 0; i < matcher.groupCount(); i++) {
-                System.out.println(matcher.group(i + 1));
-            }
-
-            System.out.println("----------------------------------------");
-        }
     }
 
     private void prepareFile(String fileName, String fileContent) throws IOException {
