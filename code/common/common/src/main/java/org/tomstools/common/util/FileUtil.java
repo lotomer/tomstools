@@ -4,13 +4,16 @@
 package org.tomstools.common.util;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.CharBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
+import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
+import java.nio.charset.CharsetEncoder;
 
 import org.tomstools.common.log.Logger;
 
@@ -104,7 +107,7 @@ public final class FileUtil {
                 inf.close();
                 return cb.toString();
             } catch (IOException e) {
-                logger.error(e.getMessage(),e);
+                logger.error(e.getMessage(), e);
             }
         } else {
             logger.warn("The file is not exists or is not a file!" + file.getAbsolutePath());
@@ -155,6 +158,41 @@ public final class FileUtil {
         } catch (IOException e) {
             logger.error(e.getMessage());
             return file.getAbsolutePath();
+        }
+    }
+
+    public static void saveFile(String fileName, String content, String charsetName) {
+        if (Utils.isEmpty(fileName) || Utils.isEmpty(content)) {
+            return;
+        }
+        logger.info("save file:" + fileName + " charset:" + charsetName);
+        File file = new File(fileName);
+        file.getParentFile().mkdirs();
+        Charset cs;
+        if (Utils.isEmpty(charsetName)) {
+            cs = Charset.defaultCharset();
+        } else {
+            cs = Charset.forName(charsetName);
+        }
+        CharsetEncoder encoder = cs.newEncoder();
+        FileOutputStream os = null;
+        FileChannel out = null;
+        try {
+            os = new FileOutputStream(file);
+            out = os.getChannel();
+            out.write(encoder.encode(CharBuffer.wrap(content)));
+        } catch (CharacterCodingException e) {
+            logger.error(e.getMessage(), e);
+        } catch (IOException e) {
+            logger.error(e.getMessage(), e);
+        } finally {
+            if (null != os) {
+                try {
+                    os.close();
+                } catch (IOException e) {
+                    logger.error(e.getMessage(), e);
+                }
+            }
         }
     }
 }

@@ -10,8 +10,8 @@
     <property name="module.dist.dir"            value="${module.current.dir}/dist"/>
     <property name="module.war.name"            value="demo.war"/>
     <property name="module.jar.name"            value="demo.jar"/>
-    <!--property name="code.lib.dir"               value="${module.current.dir}/lib"/-->
-    <property name="code.lib.dir"               value="${module.current.dir}/../../common/lib"/>
+    <property name="code.lib.dir"               value="${module.current.dir}/lib"/>
+    <!-- <property name="code.lib.dir"               value="${module.current.dir}/../../common/lib"/> -->
     
     <property environment="env"/>
     <property name="debug"          value="true" />
