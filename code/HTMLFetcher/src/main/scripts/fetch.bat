@@ -5,7 +5,7 @@ set LIBDIR=%curr_dir%..\lib
 call %curr_dir%setEnv.cmd "%LIBDIR%"
 REM echo CLASSPATH=%CLASSPATH%
 
-set EXE_CMD=java
+set EXE_CMD=call java
 set MAIN_CLASS=org.tomstools.html.fetcher.HTMLFetcherApp
 set JAVA_ARGS=-Dfile.encoding=UTF8
 set APP_ARGS=

@@ -12,6 +12,7 @@
     <property name="module.jar.name"        value="${module.name}-${version}.jar"/>
     <property name="product.output.name"    value="${module.name}-app.zip"/>
     <property name="product.output.dir"     value="${module.current.dir}/product"/>
+    <property name="common.dir"             value="${module.current.dir}/../common"/>
     
     <!--
         引用自动化脚本模板。（作者：龙昌茂）
@@ -67,7 +68,10 @@
             <fileset dir="${lib.dir}/logger" includes="log4j.jar"/>
             <fileset dir="${lib.dir}/deploy" includes="yuicompressor.jar"/>
         </copy>
-        
+        <copy todir="${product.output.dir}/resources">
+            <fileset dir="${module.resource.dir}" includes="*"/>
+            <fileset dir="${common.dir}/src/main/resources" includes="*"/>
+        </copy>
         <zip destfile="${module.current.dir}/${product.output.name}" basedir="${product.output.dir}">
         </zip>
     </target>
