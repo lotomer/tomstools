@@ -7,7 +7,7 @@
     <property name="module.dest.dir"        value="${module.current.dir}/dest"/>
     <property name="lib.dir"                value="${module.current.dir}/../lib"/>
     <property name="module.name"            value="TomsTools-common"/>
-    <property name="version"                value="1.0.1"/>
+    <property name="version"                value="1.0.2"/>
     <property name="module.jar.name"        value="${module.name}-${version}.jar"/>
     
     <!--
@@ -46,4 +46,11 @@
                 3、copy.resource.id         编译后需要copy的资源文件集合
     -->
     <import file="${module.current.dir}/../../build.template"/>
+    <!-- copy 源码 -->
+    <target name="jar.before">
+        <copy todir="${module.build.dir}">
+            <fileset dir="${module.src.dir}">
+            </fileset>
+        </copy>
+    </target>
 </project>

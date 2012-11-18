@@ -96,7 +96,12 @@ public class HiddenTag extends AbstractTag {
 
             // 根据name从请求参数中获取值
             if (isValidScope()) {
-                setValue((String) getAttribute(id, getScope()));
+                Object value = getAttribute(id, getScope());
+                if (null != value){
+                    setValue(String.valueOf(value));
+                }else{
+                    setValue(null);
+                }
             }
             if (null != getValue()) {
                 html.append("\" value=\"");

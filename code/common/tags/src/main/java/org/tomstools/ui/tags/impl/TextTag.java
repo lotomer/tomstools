@@ -46,7 +46,12 @@ public class TextTag extends HiddenTag {
             }
             // 值
             if (isValidScope()) {
-                setValue((String) getAttribute(id, getScope()));
+                Object value = getAttribute(id, getScope());
+                if (null != value){
+                    setValue(String.valueOf(value));
+                }else{
+                    setValue(null);
+                }
             }
             if (null != getValue()) {
                 html.append("\" value=\"");

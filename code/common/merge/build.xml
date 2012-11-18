@@ -8,7 +8,7 @@
     <property name="module.dest.dir"        value="${module.current.dir}/dest"/>
     <property name="lib.dir"                value="${module.current.dir}/../lib"/>
     <property name="module.name"            value="TomsTools-merge"/>
-    <property name="version"                value="1.1.1"/>
+    <property name="version"                value="1.1.2"/>
     <property name="module.jar.name"        value="${module.name}-${version}.jar"/>
     <property name="product.output.name"    value="${module.name}-app.zip"/>
     <property name="product.output.dir"     value="${module.current.dir}/product"/>
@@ -50,7 +50,13 @@
                 3、copy.resource.id         编译后需要copy的资源文件集合
     -->
     <import file="${module.current.dir}/../../build.template"/>
-    
+    <!-- copy 源码 -->
+    <target name="jar.before">
+        <copy todir="${module.build.dir}">
+            <fileset dir="${module.src.dir}">
+            </fileset>
+        </copy>
+    </target>
     <!-- 清理(覆盖模板中的，加入package.clean) -->
     <target name="clean" depends="compile.clean,jar.clean,jar.output.clean,package.clean" />
     
