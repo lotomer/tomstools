@@ -1,0 +1,18 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Toms Tools
+Bundle-SymbolicName: tomstools;singleton:=true
+Bundle-Version: 1.4.1
+Bundle-Activator: org.lotomer.plugins.tomstools.Activator
+Bundle-Vendor: lotomer
+Bundle-Localization: plugin
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ org.eclipse.core.resources,
+ org.eclipse.jdt.core,
+ org.eclipse.ui.ide,
+ org.eclipse.wst.jsdt.core,
+ org.eclipse.wst.server.core
+Bundle-ActivationPolicy: lazy
+Bundle-ClassPath: .,lib/classsearcher.jar
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
