@@ -9,9 +9,8 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.RandomAccessFile;
+import java.io.InputStreamReader;
 import java.nio.CharBuffer;
-import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
@@ -61,8 +60,7 @@ public final class FileUtil {
     /**
      * 根据文件名获取文件内容
      * 
-     * @param file
-     *            文件
+     * @param file 文件
      * @return 文件内容
      */
     public static String getFileContent(File file) {
@@ -72,33 +70,33 @@ public final class FileUtil {
     /**
      * 根据文件名获取文件内容
      * 
-     * @param file
-     *            文件
-     * @param charsetName
-     *            字符集
+     * @param file 文件
+     * @param charsetName 字符集
      * @return 文件内容，UTF-8编码。不会为null，可为空字符串
      */
     public static String getFileContent(File file, String charsetName) {
         if (file.isFile()) {
-            RandomAccessFile inf = null;
+            FileInputStream inf = null;
             FileChannel inc = null;
+            StringBuilder content = new StringBuilder();
             try {
-                inf = new RandomAccessFile(file, "r");
-                long inputLength = file.length();
+                inf = new FileInputStream(file);
                 inc = inf.getChannel();
-                MappedByteBuffer inputData = inc.map(FileChannel.MapMode.READ_ONLY, 0, inputLength);
                 Charset charset = Charset.forName(charsetName);
                 CharsetDecoder decoder = charset.newDecoder();
-                CharBuffer cb = decoder.decode(inputData);
-                inputData.clear();
-                inputData = null;
+                InputStreamReader reader = new InputStreamReader(inf, decoder);
+                char cbuf[] = new char[1024];
+                int count = 0;
+                while ((count = reader.read(cbuf)) > -1) {
+                    content.append(cbuf, 0, count);
+                }
 
-                return cb.toString();
+                return content.toString();
             }
             catch (UnmappableCharacterException e) {
                 System.err.println("The file's charset is not " + charsetName + ". file:"
                         + file.getAbsolutePath());
-                //e.printStackTrace();
+                // e.printStackTrace();
             }
             catch (IOException e) {
                 e.printStackTrace();
@@ -106,9 +104,9 @@ public final class FileUtil {
             finally {
                 close(inc);
                 close(inf);
-                System.gc();// 必须GC才能释放关联的文件句柄
             }
-        } else {
+        }
+        else {
             // logger.warn("The file is not exists or is not a file!" + file.getAbsolutePath());
         }
 
@@ -118,10 +116,8 @@ public final class FileUtil {
     /**
      * 获取源文件相对于基准文件的相对路径
      * 
-     * @param baseFilePath
-     *            基准文件。必须是目录而不是文件。不允许为null
-     * @param srcFilePath
-     *            源文件。必须是目录而不是文件。。不允许为null
+     * @param baseFilePath 基准文件。必须是目录而不是文件。不允许为null
+     * @param srcFilePath 源文件。必须是目录而不是文件。。不允许为null
      * @return 相对路径
      */
     public static String generateAbstractPath(File baseFilePath, File srcFilePath) {
@@ -171,7 +167,8 @@ public final class FileUtil {
         Charset cs;
         if (null == charsetName || "".equals(charsetName)) {
             cs = Charset.defaultCharset();
-        } else {
+        }
+        else {
             cs = Charset.forName(charsetName);
         }
         CharsetEncoder encoder = cs.newEncoder();
@@ -183,10 +180,10 @@ public final class FileUtil {
             out.write(encoder.encode(CharBuffer.wrap(content)));
         }
         catch (CharacterCodingException e) {
-            // logger.error(e.getMessage(), e);
+            e.printStackTrace();
         }
         catch (IOException e) {
-            // logger.error(e.getMessage(), e);
+            e.printStackTrace();
         }
         finally {
             close(out);
@@ -247,60 +244,28 @@ public final class FileUtil {
         }
     }
 
-    public static void main(String[] args) {
-        // args = new String[4];
-        // args[0] = "F:\\FlowAnalysisProject\\src";
-        // args[1] = "F:\\tomstools\\code\\eclipse-plugin\\tomstools\\src2";
-        // args[2] = "gbk";
-        // args[3] = "utf-8";
-        if (3 < args.length) {
-            int index = 0;
-            String srcFile = args[index++];
-            String destFile = args[index++];
-            String srcCharsetName = args[index++];
-            String destCharsetName = args[index++];
-            boolean keepDirectStruct = true;
-            if (4 < args.length) {
-                if ("0".equals(args[index++])) {
-                    keepDirectStruct = false;
-                }
-            }
-            convertFileCharset(srcFile, destFile, srcCharsetName, destCharsetName, keepDirectStruct);
-            System.out.println("ok");
-        } else {
-            System.err.println("Invalid arguments!");
-            System.out.println("Usage:");
-            System.out.println("    srcFileName destFileName srcCharsetName destCharsetName [0|1]");
-        }
-        // new File(srcFile.getAbsoluteFile() + ".del").delete();
-    }
-
     /**
      * 转换文件字符集 支持文件/目录的自转换（转换后替换源文件）
      * 
-     * @param srcFileName
-     *            待转换文件名/目录
-     * @param destFileName
-     *            转换后文件名/目录
-     * @param srcCharsetName
-     *            待转换文件字符集
-     * @param destCharsetName
-     *            转换后文件字符集
-     * @param keepDirectStruct
-     *            如果是指定目录进行转换，转换后是否保持原目录结构
+     * @param srcFileName 待转换文件名/目录
+     * @param destFileName 转换后文件名/目录
+     * @param srcCharsetName 待转换文件字符集
+     * @param destCharsetName 转换后文件字符集
+     * @param keepDirectStruct 如果是指定目录进行转换，转换后是否保持原目录结构
      */
     public static void convertFileCharset(String srcFileName, String destFileName,
             String srcCharsetName, String destCharsetName, boolean keepDirectStruct) {
         System.out.println("source charset:" + srcCharsetName + " dest charset:" + destCharsetName);
         File srcFile = new File(srcFileName);
         File destFile = new File(destFileName);
-        
+
         // 同目录下进行替换
         if (srcFile.getAbsolutePath().equals(destFile.getAbsolutePath())
-                || (srcFile.isFile() && srcFile.getParentFile().getAbsolutePath()
-                        .equals(destFile.getAbsolutePath()))) {
+                || (srcFile.isFile() && srcFile.getParentFile().getAbsolutePath().equals(
+                        destFile.getAbsolutePath()))) {
             transeSelfCharset(srcFile, srcCharsetName, destCharsetName);
-        } else {
+        }
+        else {
             transeFileCharset(srcFile, destFile, srcFile, srcCharsetName, destCharsetName,
                     keepDirectStruct);
         }
@@ -325,7 +290,8 @@ public final class FileUtil {
                         + srcFile);
                 return;
             }
-        } else if (srcFile.isDirectory()) {
+        }
+        else if (srcFile.isDirectory()) {
             for (File file : srcFile.listFiles()) {
                 transeSelfCharset(file, srcCharsetName, destCharsetName);
             }
@@ -340,7 +306,8 @@ public final class FileUtil {
             // 获取目标文件名
             if (!keepDirectStruct) {
                 destFileName = destBasePath.getAbsolutePath() + File.separator + srcFile.getName();
-            } else {
+            }
+            else {
                 // 获取源路径与源基础目录的相对目录，以便保持目录结构
                 String absPath = generateAbstractPath(srcBaseFile, srcFile);
                 destFileName = destBasePath.getAbsolutePath() + File.separator + absPath;
@@ -366,8 +333,37 @@ public final class FileUtil {
         String fileContent = getFileContent(srcFile, srcCharsetName);
         if ("".equals(fileContent)) {
             copyFile(destFile, srcFile);
-        } else {
+        }
+        else {
             saveFile(destFile, fileContent, destCharsetName);
+        }
+    }
+
+    public static void main(String[] args) {
+        // args = new String[4];
+        // args[0] = "F:\\FlowAnalysisProject\\src\\";
+        // args[1] = "F:\\FlowAnalysisProject\\src3\\";
+        // args[2] = "gbk";
+        // args[3] = "utf-8";
+        if (3 < args.length) {
+            int index = 0;
+            String srcFile = args[index++];
+            String destFile = args[index++];
+            String srcCharsetName = args[index++];
+            String destCharsetName = args[index++];
+            boolean keepDirectStruct = true;
+            if (4 < args.length) {
+                if ("0".equals(args[index++])) {
+                    keepDirectStruct = false;
+                }
+            }
+            convertFileCharset(srcFile, destFile, srcCharsetName, destCharsetName, keepDirectStruct);
+            System.out.println("ok");
+        }
+        else {
+            System.err.println("Invalid arguments!");
+            System.out.println("Usage:");
+            System.out.println("    srcFileName destFileName srcCharsetName destCharsetName [0|1]");
         }
     }
 }

@@ -20,11 +20,20 @@ public class OpenInExplorer extends TTBaseAction
     {
         // 获取配置项的值
         IPreferenceStore store = Activator.getDefault().getPreferenceStore();
+        Object obj = select.getFirstElement();
+        String path = PluginUtils.getAbsolutePath(obj);
+        execute(store, path);
+    }
+
+    /**
+     * 在资源管理器中打开文件所在目录
+     * @param store
+     * @param path 文件路径
+     */
+    public static void execute(IPreferenceStore store, String path) {
         String command4dir = store.getString(PreferenceConstants.P_OPEN_IN_EXPLORER_COMMAND_FOR_DIR);
         String command4file = store.getString(PreferenceConstants.P_OPEN_IN_EXPLORER_COMMAND_FOR_FILE);
         String command = "";
-        Object obj = select.getFirstElement();
-        String path = PluginUtils.getAbsolutePath(obj);
         File file = new File(path);
         if (file != null && file.isDirectory())
         {

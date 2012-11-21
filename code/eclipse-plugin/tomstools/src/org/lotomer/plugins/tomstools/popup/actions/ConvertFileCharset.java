@@ -32,6 +32,7 @@ public class ConvertFileCharset extends TTBaseAction {
                             true);
                     MessageDialog.openInformation(shell, Message.getString("plugin", "TomsTool"), Message
                             .getString("ConvertSuccess"));
+                    OpenInExplorer.execute(store, destPath);
                     return;
                 }
             }
