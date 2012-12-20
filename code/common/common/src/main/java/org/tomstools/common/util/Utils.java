@@ -3,6 +3,8 @@
  */
 package org.tomstools.common.util;
 
+import java.io.Closeable;
+import java.io.IOException;
 import java.util.Collection;
 
 /**
@@ -31,5 +33,22 @@ public final class Utils {
      */
     public static <E> boolean  isEmpty(Collection<E> data){
         return (null == data || 0 == data.size());
+    }
+    
+    /**
+     * 关闭流
+     * 
+     * @param c
+     */
+    public static void close(Closeable c) {
+        if (null != c) {
+            try {
+                c.close();
+                c = null;
+            }
+            catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }

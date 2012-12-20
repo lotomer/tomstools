@@ -143,7 +143,7 @@ public class HTMLFetcherApp {
         if (Utils.isEmpty(fileName)) {
             fileName = String.valueOf(count);
         }
-        FileUtil.saveFile(outpath + File.separator + fileName, htmlContent, null);
+        FileUtil.saveFile(new File(outpath + File.separator + fileName), htmlContent, null);
 
         // 根据正则表达式获取子页面
         if (!Utils.isEmpty(regexp)) {

@@ -3,6 +3,8 @@
  */
 package org.tomstools.html.fetcher.thread;
 
+import java.io.File;
+
 import org.tomstools.common.log.Logger;
 import org.tomstools.common.util.FileUtil;
 import org.tomstools.html.fetcher.HTMLFetcher;
@@ -33,7 +35,7 @@ public class FetchTask {
         String htmlContent = fetcher.fetchHTMLContent(url, regexpFilterInclude,regexpFilterExclude);
         outputFileName = outputFileName + "." + FileUtil.getFileExt(url);
         //String charset = HTMLUtil.parseCharset(htmlContent);
-        FileUtil.saveFile(outputFileName, htmlContent,null);
+        FileUtil.saveFile(new File(outputFileName), htmlContent,null);
     }
 
     @Override

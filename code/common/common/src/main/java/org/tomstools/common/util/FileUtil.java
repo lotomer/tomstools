@@ -3,10 +3,16 @@
  */
 package org.tomstools.common.util;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.nio.CharBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.CharacterCodingException;
@@ -14,6 +20,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
 import java.nio.charset.UnmappableCharacterException;
+
 import org.tomstools.common.log.Logger;
 
 /**
@@ -24,7 +31,7 @@ import org.tomstools.common.log.Logger;
  * @time 下午03:26:24
  */
 public final class FileUtil {
-    private static final Logger logger = Logger.getLogger(FileUtil.class);
+    private static final Logger LOG = Logger.getLogger(FileUtil.class);
     /** 文件头：UTF8 */
     public static final byte[] FILE_HEAD_UTF8 = new byte[] { (byte) 0xEF, (byte) 0xBB, (byte) 0xBF };
     /** 文件头：UTF8 */
@@ -91,7 +98,7 @@ public final class FileUtil {
      * @return 文件内容，UTF-8编码
      */
     public static String getFileContent(File file, String charsetName) {
-        logger.info("get file content. fileName:" + file.getAbsolutePath() + " charset:"
+        LOG.info("get file content. fileName:" + file.getAbsolutePath() + " charset:"
                 + charsetName);
 
         if (file.isFile()) {
@@ -113,17 +120,17 @@ public final class FileUtil {
                 return content.toString();
             }
             catch (UnmappableCharacterException e) {
-                logger.error("The file's charset is not " + charsetName + ". file:"
+                LOG.error("The file's charset is not " + charsetName + ". file:"
                         + file.getAbsolutePath());
             } catch (IOException e) {
-                logger.error(e.getMessage(), e);
+                LOG.error(e.getMessage(), e);
             }
             finally {
-                close(inc);
-                close(inf);
+                Utils.close(inc);
+                Utils.close(inf);
             }
         } else {
-            logger.warn("The file is not exists or is not a file!" + file.getAbsolutePath());
+            LOG.warn("The file is not exists or is not a file!" + file.getAbsolutePath());
         }
 
         return "";
@@ -169,17 +176,16 @@ public final class FileUtil {
         try {
             return file.getCanonicalPath();
         } catch (IOException e) {
-            logger.error(e.getMessage());
+            LOG.error(e.getMessage());
             return file.getAbsolutePath();
         }
     }
 
     public static void saveFile(File file, String content, String charsetName) {
-        if (Utils.isEmpty(fileName) || Utils.isEmpty(content)) {
+        if (null == file || Utils.isEmpty(content)) {
             return;
         }
-        logger.info("save file:" + fileName + " charset:" + charsetName);
-        File file = new File(fileName);
+        LOG.info("save file:" + file.getAbsolutePath() + " charset:" + charsetName);
         file.getParentFile().mkdirs();
         Charset cs;
         if (Utils.isEmpty(charsetName)) {
@@ -195,29 +201,12 @@ public final class FileUtil {
             out = os.getChannel();
             out.write(encoder.encode(CharBuffer.wrap(content)));
         } catch (CharacterCodingException e) {
-            logger.error(e.getMessage(), e);
+            LOG.error(e.getMessage(), e);
         } catch (IOException e) {
-            logger.error(e.getMessage(), e);
+            LOG.error(e.getMessage(), e);
         } finally {
-            close(out);
-            close(os);
-        }
-    }
-
-    /**
-     * 关闭流
-     * 
-     * @param c
-     */
-    public static void close(Closeable c) {
-        if (null != c) {
-            try {
-                c.close();
-                c = null;
-            }
-            catch (IOException e) {
-                e.printStackTrace();
-            }
+            Utils.close(out);
+            Utils.close(os);
         }
     }
 
@@ -252,8 +241,8 @@ public final class FileUtil {
             e.printStackTrace();
         }
         finally {
-            close(fis);
-            close(fos);
+            Utils.close(fis);
+            Utils.close(fos);
         }
     }
 
@@ -375,7 +364,7 @@ public final class FileUtil {
         OutputStream out = new BufferedOutputStream(new FileOutputStream(outputFile));
         writeFiles(out, srcDirectory);
         // 关闭输出流
-        Util.close(out);
+        Utils.close(out);
     }
 
     private static void writeFiles(OutputStream out, File path) {
@@ -403,7 +392,7 @@ public final class FileUtil {
                 LOG.error(e.getMessage(),e);
             }
             finally{
-                Util.close(input);
+                Utils.close(input);
             }
         }else{
             // empty
