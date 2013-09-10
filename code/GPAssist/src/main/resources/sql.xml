@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>     
+<!DOCTYPE mapper     
+PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN"     
+"http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+
+<mapper namespace="org.tomstools.html.fetcher">
+    <select id="selectOneAgency" parameterType="org.tomstools.html.data.Agency" resultType="String">
+        SELECT 1 
+        FROM GP_AGENCY
+        WHERE SYMBOL=#{symbol}
+    </select>
+    
+    <insert id="insertAgency"  parameterType="org.tomstools.html.data.Agency">
+        INSERT INTO GP_AGENCY (SYMBOL,SNAME,PATH,IN_TIME) VALUES (#{symbol},#{sname},#{path},now())
+    </insert>
+</mapper>

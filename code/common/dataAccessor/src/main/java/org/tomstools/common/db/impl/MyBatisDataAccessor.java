@@ -50,7 +50,7 @@ class MyBatisDataAccessor implements DataAccessor
         }
         catch (PersistenceException e)
         {
-            throw new DAOException(e);
+            throw new DAOException(e.getMessage(),e);
         }
         clearCache();
     }
@@ -71,7 +71,9 @@ class MyBatisDataAccessor implements DataAccessor
     public void rollback(boolean force)
     {
         logger.info("===================rollback===force: " + force);
-        sqlSession.rollback(force);
+        if (null != sqlSession){
+            sqlSession.rollback(force);
+        }
     }
     
     public void close()
