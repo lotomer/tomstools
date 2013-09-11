@@ -58,4 +58,13 @@ public class HTMLUtil {
             }
         }        
     }
+    /**
+     * 去除文本中的标签。
+     * 如"<div>asdf"去除标签后得到"asdf"
+     * @param html
+     * @return 去除标签后的数据
+     */
+    public static String removeTags(String html) {
+        return html.replaceAll("<.*?>", "");
+    }
 }

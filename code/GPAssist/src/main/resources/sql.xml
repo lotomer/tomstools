@@ -7,10 +7,18 @@ PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN"
     <select id="selectOneAgency" parameterType="org.tomstools.html.data.Agency" resultType="String">
         SELECT 1 
         FROM GP_AGENCY
-        WHERE SYMBOL=#{symbol}
+        WHERE AGENCY_SYMBOL=#{agencySymbol}
     </select>
     
     <insert id="insertAgency"  parameterType="org.tomstools.html.data.Agency">
-        INSERT INTO GP_AGENCY (SYMBOL,SNAME,PATH,IN_TIME) VALUES (#{symbol},#{sname},#{path},now())
+        INSERT INTO GP_AGENCY (AGENCY_SYMBOL,SNAME,PATH,IN_TIME) VALUES (#{agencySymbol},#{sname},#{path},now())
     </insert>
+    
+    <insert id="insertAgencyDeal"  parameterType="org.tomstools.html.data.AgencyDeal">
+        INSERT INTO GP_AGENCY_DEAL (SYMBOL,SNAME,TDATE,BUY,SALE,AGENCY_SYMBOL,IN_TIME) VALUES (#{symbol},#{sname},#{tdate},#{buy},#{sale},#{agencySymbol},now())
+    </insert>
+    
+    <delete id="cleanAgencyDeals" parameterType="map">
+        DELETE FROM GP_AGENCY_DEAL WHERE TDATE BETWEEN #{beginDate} AND #{endDate}
+    </delete>
 </mapper>

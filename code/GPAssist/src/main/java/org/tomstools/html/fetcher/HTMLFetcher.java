@@ -24,14 +24,14 @@ import org.tomstools.common.util.Utils;
 import org.tomstools.html.Util.HTMLUtil;
 
 /**
- * HTML页面抓取工具。 XXX 暂不支持登录
+ * HTML页面抓取工具。
  * 
  * @author lotomer
  * @date 2012-6-9
  * @time 上午09:13:01
  */
 public class HTMLFetcher {
-    private static final Logger logger = Logger.getLogger(HTMLFetcher.class);
+    private static final Logger LOG = Logger.getLogger(HTMLFetcher.class);
     // private Map<String, RequestInfo> requestInfos = new HashMap<String,
     // RequestInfo>();
     private HttpHost proxy;
@@ -75,10 +75,21 @@ public class HTMLFetcher {
      *            &lt;/div&gt;。 可为null，表示包含全部
      * @param regexpFilterExclude 内容过滤器。不能包含的内容的正则表达式。可为null，表示包含全部。
      *            如果regexpFilterInclude不为null，则在regexpFilterInclude处理的基础上进行第二次过滤
-     * @return 页面内容
+     * @return 页面内容。null 为出现了异常
      */
     public String fetchHTMLContent(String htmlUrl) {
-        String responseText = "";
+        String result = doFetchHTMLContent(htmlUrl);
+        if (null == result){
+            // 出现了异常，重试一次
+            LOG.warn("try again!" + htmlUrl);
+            result = doFetchHTMLContent(htmlUrl);
+        }
+        
+        return result;
+    }
+    
+    private String doFetchHTMLContent(String htmlUrl) {
+        String responseText = null;
         HttpClient httpClient = new DefaultHttpClient();
         HttpGet httpGet = new HttpGet(htmlUrl);
         if (null != proxy) {
@@ -91,11 +102,11 @@ public class HTMLFetcher {
         httpClient.getParams().setIntParameter(CoreConnectionPNames.SO_TIMEOUT, 30000);
         // 初始化连接
         initHttp(httpGet);
-        logger.info("executing request " + httpGet.getURI());
+        LOG.info("executing request " + httpGet.getURI());
         try {
             HttpResponse response = httpClient.execute(httpGet);
             HttpEntity entity = response.getEntity();
-            logger.info("Response status code: " + response.getStatusLine().getStatusCode());
+            LOG.info("Response status code: " + response.getStatusLine().getStatusCode());
             if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
                 if (entity != null) {
                     String contents = EntityUtils.toString(entity);
@@ -118,9 +129,9 @@ public class HTMLFetcher {
             // immediate deallocation of all system resources
             httpClient.getConnectionManager().shutdown();
         } catch (ClientProtocolException e) {
-            logger.error(e.getMessage(), e);
+            LOG.error(e.getMessage(), e);
         } catch (IOException e) {
-            logger.error(e.getMessage(), e);
+            LOG.error(e.getMessage(), e);
         }
         return responseText;
     }

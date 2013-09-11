@@ -26,7 +26,7 @@ public class AgencyDAO {
      * @param name  机构名称
      * @param path  路径
      */
-    public void addAgency(Agency agency) {
+    public void add(Agency agency) {
         if (null == agency){
             return;
         }
@@ -37,14 +37,16 @@ public class AgencyDAO {
      * 保存数据
      */
     public void save(){
+        int newCount = 0;
         DataAccessor dataAccessor = DataAccessorFactory.getInstance().getDataAccessorBuilder().newDataAccessor();
         try {
-            dataAccessor.open(false);
+            dataAccessor.open();
             for (Agency agency : agencies) {
                 Object obj = dataAccessor.query(SqlConstant.SELECT_ONE_AGENCY, agency);
                 if (null == obj){
                     // 不存在，则新增
                     dataAccessor.insert(SqlConstant.INSERT_AGENCY, agency);
+                    ++newCount;
                 }
                 //System.out.println(agency.getSymbol() + ":" + agency.getSname() + ":"+ this.host + agency.getPath());
             }
@@ -55,6 +57,6 @@ public class AgencyDAO {
             LOG.error(e.getMessage(),e);
         }
         
-        //System.out.println(agencies.size());
+        LOG.info("total:" + agencies.size() + ", new: " + newCount);
     }
 }

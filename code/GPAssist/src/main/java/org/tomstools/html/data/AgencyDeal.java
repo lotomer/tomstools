@@ -9,18 +9,20 @@ package org.tomstools.html.data;
  *
  */
 public class AgencyDeal {
-    private String symbol;      // 标记
+    private String symbol;      // 股票标记
     private String sname;       // 名称
     private String tdate;       // 日期
-    private String buy;         // 买入
-    private String sale;        // 卖出
-    public AgencyDeal(String symbol, String sname, String tdate, String buy, String sale) {
+    private float buy;         // 买入
+    private float sale;        // 卖出
+    private String agencySymbol;// 机构标识
+    public AgencyDeal(String agencySymbol,String symbol, String sname, String tdate, String buy, String sale) {
         super();
+        this.agencySymbol = agencySymbol;
         this.symbol = symbol;
         this.sname = sname;
         this.tdate = tdate;
-        this.buy = buy;
-        this.sale = sale;
+        this.buy = Float.parseFloat(buy);
+        this.sale = Float.parseFloat(sale);
     }
     @Override
     public int hashCode() {
@@ -51,10 +53,17 @@ public class AgencyDeal {
             return false;
         return true;
     }
+
     @Override
     public String toString() {
         return "AgencyDeal [symbol=" + symbol + ", sname=" + sname + ", tdate=" + tdate + ", buy="
-                + buy + ", sale=" + sale + "]";
+                + buy + ", sale=" + sale + ", agencySymbol=" + agencySymbol + "]";
+    }
+    public final String getAgencySymbol() {
+        return agencySymbol;
+    }
+    public final void setAgencySymbol(String agencySymbol) {
+        this.agencySymbol = agencySymbol;
     }
     public final String getSymbol() {
         return symbol;
@@ -65,10 +74,10 @@ public class AgencyDeal {
     public final String getTdate() {
         return tdate;
     }
-    public final String getBuy() {
+    public final float getBuy() {
         return buy;
     }
-    public final String getSale() {
+    public final float getSale() {
         return sale;
     }
     public final void setSymbol(String symbol) {
@@ -80,10 +89,10 @@ public class AgencyDeal {
     public final void setTdate(String tdate) {
         this.tdate = tdate;
     }
-    public final void setBuy(String buy) {
+    public final void setBuy(float buy) {
         this.buy = buy;
     }
-    public final void setSale(String sale) {
+    public final void setSale(float sale) {
         this.sale = sale;
     }
     

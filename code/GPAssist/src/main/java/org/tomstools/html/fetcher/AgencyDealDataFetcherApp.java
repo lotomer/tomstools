@@ -57,7 +57,7 @@ public class AgencyDealDataFetcherApp {
         }
     }
 
-    private AgencyDealDAO agency;
+    private AgencyDealDAO agencyDeal;
     private HTMLFetcher fetcher;
 
     public AgencyDealDataFetcherApp() {
@@ -81,7 +81,7 @@ public class AgencyDealDataFetcherApp {
      * @param date 日期，可以为null
      */
     public void fetchAgencyDealData(String agencySymbol, int month, String date) {
-        if (Utils.isEmpty(agencySymbol)){
+        if (Utils.isEmpty(agencySymbol)) {
             logger.warn("The agencySymbol cannot be null or empty!");
             return;
         }
@@ -99,26 +99,26 @@ public class AgencyDealDataFetcherApp {
         JSONObject obj = (JSONObject) JSONObject.parse(htmlContent);
         logger.info("total:" + obj.get("total"));
         JSONArray arr = obj.getJSONArray("list");
-        agency = new AgencyDealDAO();
+        agencyDeal = new AgencyDealDAO();
         for (int i = 0; i < arr.size(); ++i) {
             JSONObject o = (JSONObject) arr.get(i);
             if (!Utils.isEmpty(date)) {
                 // 指定了日期，则只获取该日期的数据
                 if (date.equals(o.get("TDATE"))) {
-                    agency.add(new AgencyDeal(o.get("SYMBOL").toString(),
-                            o.get("SNAME").toString(), o.get("TDATE").toString(), o.get(
-                                    "SMEBTCOMPANY4").toString(), o.get("SMEBTCOMPANY5").toString()));
+                    agencyDeal.add(new AgencyDeal(agencySymbol, o.get("SYMBOL").toString(), o.get(
+                            "SNAME").toString(), o.get("TDATE").toString(), o.get("SMEBTCOMPANY4")
+                            .toString(), o.get("SMEBTCOMPANY5").toString()));
                 }
             } else {
-                agency.add(new AgencyDeal(o.get("SYMBOL").toString(), o.get("SNAME").toString(), o
-                        .get("TDATE").toString(), o.get("SMEBTCOMPANY4").toString(), o.get(
-                        "SMEBTCOMPANY5").toString()));
+                agencyDeal.add(new AgencyDeal(agencySymbol, o.get("SYMBOL").toString(), o.get(
+                        "SNAME").toString(), o.get("TDATE").toString(), o.get("SMEBTCOMPANY4")
+                        .toString(), o.get("SMEBTCOMPANY5").toString()));
             }
         }
 
-        agency.save();
+        agencyDeal.save();
     }
-    
+
     private static void printHelp() {
         System.out.println("Usage: AgencyDealDataFetcherApp [options] agencySymbol");
         System.out.println("Options are:");
@@ -131,7 +131,7 @@ public class AgencyDealDataFetcherApp {
     }
 
     public static void main(String[] args) throws MalformedURLException {
-        String agencySymbol = null;//"80138252";
+        String agencySymbol = null;// "80138252";
         String month = null;// "9";
         String date = null;// "2013-09-06";
         String proxyHost = null;// "127.0.0.1";
@@ -179,11 +179,11 @@ public class AgencyDealDataFetcherApp {
                 agencySymbol = args[i];
             }
         }
-        if (Utils.isEmpty(agencySymbol)){
+        if (Utils.isEmpty(agencySymbol)) {
             System.err.println("The agencySymbol cannot be empty!");
             System.exit(-1);
         }
-        
+
         AgencyDealDataFetcherApp fetcher = new AgencyDealDataFetcherApp(proxyHost, proxyPort,
                 proxyScheme);
         long start = System.currentTimeMillis();

@@ -4,13 +4,18 @@
 package org.tomstools.html.fetcher;
 
 import java.net.MalformedURLException;
+import java.security.NoSuchAlgorithmException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.tomstools.common.log.Logger;
+import org.tomstools.common.util.MD5;
 import org.tomstools.common.util.Utils;
 import org.tomstools.html.Util.HTMLUtil;
 import org.tomstools.html.data.Agency;
 import org.tomstools.html.data.AgencyDAO;
+import org.tomstools.html.data.AgencyDeal;
+import org.tomstools.html.data.AgencyDealDAO;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -21,22 +26,28 @@ import com.alibaba.fastjson.JSONObject;
  * @time 下午02:09:32
  */
 public class AgencyFetcherApp {
-    // private static final Logger logger =
-    // Logger.getLogger(AgencyFetcherApp.class);
+     private static final Logger LOG =
+     Logger.getLogger(AgencyFetcherApp.class);
 
     private AgencyDAO agency;
     private HTMLFetcher fetcher;
 
-    public AgencyFetcherApp() {
+    private AgencyDealDAO agencyDeal;
+
+    private MD5 md5;
+
+    public AgencyFetcherApp() throws NoSuchAlgorithmException {
+        md5 = new MD5();
         fetcher = new HTMLFetcher();
     }
 
-    public AgencyFetcherApp(String proxyHost, int proxyPort, String proxyScheme) {
+    public AgencyFetcherApp(String proxyHost, int proxyPort, String proxyScheme) throws NoSuchAlgorithmException {
         if (Utils.isEmpty(proxyHost)) {
             fetcher = new HTMLFetcher();
         } else {
             fetcher = new HTMLFetcher(proxyHost, proxyPort, proxyScheme);
         }
+        md5 = new MD5();
     }
 
     /**
@@ -46,7 +57,7 @@ public class AgencyFetcherApp {
         // 第一步 获取每日股票龙虎榜数据
         // http://quotes.money.163.com/hs/marketdata/service/lhb.php?host=/hs/marketdata/service/lhb.php&page=0&query=start:2013-09-06;end:2013-09-06&fields=NO,SYMBOL,SNAME,TDATE,TCLOSE,PCHG,SMEBTSTOCK1,SYMBOL,VOTURNOVER,COMPAREA,VATURNOVER,SYMBOL&sort=TDATE&order=desc&count=150&type=query&initData=[object%20Object]&req=11511
         String urlStep1 = "http://quotes.money.163.com/hs/marketdata/service/lhb.php?host=/hs/marketdata/service/lhb.php&page=0&"
-                + "query=start:%s;end:%s&fields=NO,SYMBOL,TDATE,SNAME,SMEBTSTOCK1&count=2500&type=query&req=11511";
+                + "query=start:%s;end:%s&fields=NO,SYMBOL,TDATE,SNAME,SMEBTSTOCK1&count=250000&type=query&req=11511";
         // 第二步 逐个获取龙虎榜股票涉及的主力
         // http://quotes.money.163.com/hs/marketdata/mrlhbSub.php?clear=1202&symbol=000663&type=01&date=2013-09-06&width=920&height=500&modal=true&frame=true
         String urlStep2 = "http://quotes.money.163.com/hs/marketdata/mrlhbSub.php?clear=1202&"
@@ -57,43 +68,62 @@ public class AgencyFetcherApp {
         // "http://quotes.money.163.com/hs/marketdata/service/jglhb.php?host=/hs/marketdata/service/jglhb.php&page=0&query=agencysymbol:80138252;date:8&fields=NO,SYMBOL,SNAME,TDATE,SMEBTCOMPANY4,SMEBTCOMPANY5,SMEBTCOMPANY1&sort=TDATE&order=desc&count=250&type=query&req=11526";
 
         String htmlContent = fetcher.fetchHTMLContent(String.format(urlStep1, beginDate, endDate));
-        System.out.println(htmlContent);
+        //System.out.println(htmlContent);
         if (Utils.isEmpty(htmlContent)) {
             return;
         }
         JSONObject obj = (JSONObject) JSONObject.parse(htmlContent);
-        System.out.println("total:" + obj.get("total"));
+        LOG.info("total:" + obj.get("total"));
         JSONArray arr = obj.getJSONArray("list");
-        System.out.println(arr.size());
+        LOG.info("fetch:"+arr.size());
         String host = HTMLUtil.getHost(urlStep2);
-        System.out.println(host);
+        LOG.info("host:"+host);
         agency = new AgencyDAO();
+        agencyDeal = new AgencyDealDAO();
         for (int i = 0; i < arr.size(); ++i) {
             JSONObject o = (JSONObject) arr.get(i);
             htmlContent = fetcher.fetchHTMLContent(String.format(urlStep2, o.get("SYMBOL"),o.get("SMEBTSTOCK11"),
                     o.get("TDATE")));
-            // System.out.println(htmlContent);
-            parseSubUrls(htmlContent,host);
-             break;
+            parseSubUrls(htmlContent,host,o.get("SYMBOL").toString(),o.get("SNAME").toString(),o.get("TDATE").toString());
         }
 
         agency.save();
-
+        // 先删除指定日期的交易数据，然后再添加
+        agencyDeal.clean(beginDate,endDate);
+        agencyDeal.save();
     }
-
-    private void parseSubUrls(String htmlContent,String host) {
-        // 根据正则表达式获取子页面
-        StringBuilder realRegexp = new StringBuilder();
-        realRegexp.append("<a .*?href='(/marketdata/agencylist_([0-9]+).html )'.*?>(.*?)</a>");
-
-        Pattern pattern = Pattern.compile(realRegexp.toString(), Pattern.CASE_INSENSITIVE
-                | Pattern.UNICODE_CASE | Pattern.DOTALL);
+    
+    Pattern pattern = Pattern.compile("异动期内买入金额最大的前5名</td></tr>(.*?)</tbody>", Pattern.CASE_INSENSITIVE
+            | Pattern.UNICODE_CASE | Pattern.DOTALL);
+    Pattern valuePattern = Pattern.compile("<tr>\\s*?<[/]{0,1}td>(.*?)</td>\\s*?<td>(.*?)</td>\\s*?<td>(.*?)</td>\\s*?<td>(.*?)</td>", Pattern.CASE_INSENSITIVE
+            | Pattern.UNICODE_CASE | Pattern.DOTALL);
+    Pattern namePattern = Pattern.compile("<a .*?href='(/marketdata/agencylist_(.*?).html )'.*?>(.*?)</a>", Pattern.CASE_INSENSITIVE
+            | Pattern.UNICODE_CASE | Pattern.DOTALL);
+    private void parseSubUrls(String htmlContent,String host,String symbol,String sname,String tdate) {
         Matcher matcher = pattern.matcher(htmlContent);
-        while (matcher.find()) {
-            agency.addAgency(new Agency(matcher.group(2), matcher.group(3), host + matcher.group(1)));
+        if (matcher.find()) {
+            // 获取正文
+            Matcher valueMatcher = valuePattern.matcher(matcher.group(1));
+            while (valueMatcher.find()) {
+                // 循环获取值
+                Matcher nameMatcher = namePattern.matcher(valueMatcher.group(1));
+                if (nameMatcher.find()){
+                    // 添加机构信息
+                    agency.add(new Agency(nameMatcher.group(2),nameMatcher.group(3),host +nameMatcher.group(1)));
+                    //添加交易数据
+                    agencyDeal.add(new AgencyDeal(nameMatcher.group(2), symbol, sname, tdate, valueMatcher.group(2).trim(), valueMatcher.group(4).trim()));
+                }else{
+                 // 添加机构信息
+                    String name = HTMLUtil.removeTags(valueMatcher.group(1));
+                    agency.add(new Agency(md5.md5(name),name,""));
+                    //添加交易数据
+                    agencyDeal.add(new AgencyDeal(md5.md5(name), symbol, sname, tdate, valueMatcher.group(2).trim(), valueMatcher.group(4).trim()));
+                    //System.out.println(HTMLUtil.removeTags(valueMatcher.group(1))+":"+valueMatcher.group(2).trim()+":"+valueMatcher.group(4).trim());
+                }
+            }
         }
     }
-
+    
     private static void printHelp() {
         System.out.println("Usage: AgencyDealDataFetcherApp [options] agencySymbol");
         System.out.println("Options are:");
@@ -105,7 +135,7 @@ public class AgencyFetcherApp {
         System.out.println("    -h       help        Print the help message.");
     }
 
-    public static void main(String[] args) throws MalformedURLException {
+    public static void main(String[] args) throws MalformedURLException, NoSuchAlgorithmException {
         String beginDate = null;// "2013-09-06";
         String endDate = null;// "2013-09-06";
         String proxyHost = null;// "127.0.0.1";
@@ -151,6 +181,11 @@ public class AgencyFetcherApp {
                 printHelp();
             }
         }
+        
+        // for test begin
+        beginDate = "2013-01-01";
+        endDate = "2013-09-10";
+        // for test end
         if (Utils.isEmpty(beginDate) && Utils.isEmpty(endDate)) {
             System.err.println("The beginDate and endDate cannot be both empty!");
             System.exit(-1);

@@ -9,13 +9,13 @@ package org.tomstools.html.data;
  *
  */
 public class Agency {
-    private String symbol;      // 标记
+    private String agencySymbol;      // 标记
     private String sname;        // 名称
     private String path;        // 路径
     
-    public Agency(String symbol, String sname, String path) {
+    public Agency(String agencySymbol, String sname, String path) {
         super();
-        this.symbol = symbol;
+        this.agencySymbol = agencySymbol;
         this.sname = sname;
         this.path = path;
     }
@@ -24,7 +24,7 @@ public class Agency {
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((symbol == null) ? 0 : symbol.hashCode());
+        result = prime * result + ((agencySymbol == null) ? 0 : agencySymbol.hashCode());
         return result;
     }
 
@@ -37,21 +37,21 @@ public class Agency {
         if (getClass() != obj.getClass())
             return false;
         Agency other = (Agency) obj;
-        if (symbol == null) {
-            if (other.symbol != null)
+        if (agencySymbol == null) {
+            if (other.agencySymbol != null)
                 return false;
-        } else if (!symbol.equals(other.symbol))
+        } else if (!agencySymbol.equals(other.agencySymbol))
             return false;
         return true;
     }
 
     @Override
     public String toString() {
-        return "Agency [symbol=" + symbol + ", name=" + sname + ", path=" + path + "]";
+        return "Agency [symbol=" + agencySymbol + ", name=" + sname + ", path=" + path + "]";
     }
 
-    public final String getSymbol() {
-        return symbol;
+    public final String getAgencySymbol() {
+        return agencySymbol;
     }
     public final String getPath() {
         return path;
@@ -65,8 +65,8 @@ public class Agency {
         this.sname = sname;
     }
 
-    public final void setSymbol(String symbol) {
-        this.symbol = symbol;
+    public final void setAgencySymbol(String agencySymbol) {
+        this.agencySymbol = agencySymbol;
     }
 
     public final void setPath(String path) {
