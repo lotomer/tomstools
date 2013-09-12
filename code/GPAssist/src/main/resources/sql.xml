@@ -21,4 +21,34 @@ PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN"
     <delete id="cleanAgencyDeals" parameterType="map">
         DELETE FROM GP_AGENCY_DEAL WHERE TDATE BETWEEN #{beginDate} AND #{endDate}
     </delete>
+    
+    <select id="selectAgencyDealWithQ" parameterType="map" resultType="org.tomstools.html.data.AgencyDeal">
+        SELECT a.*,g.SNAME agencyName FROM (
+        SELECT d.AGENCY_SYMBOL agencySymbol,d.SYMBOL symbol,d.SNAME sname,SUM(d.BUY) buy,SUM(d.SALE) sale,SUM(d.BUY)-SUM(d.SALE) total
+        FROM gp_agency_deal d WHERE d.TDATE BETWEEN #{beginDate} AND #{endDate} GROUP BY d.AGENCY_SYMBOL,d.SYMBOL
+        ) a,gp_agency g,gp_agency_q q where a.agencySymbol=g.AGENCY_SYMBOL AND g.SNAME=q.SNAME
+        <choose>
+            <when test="symbol != null"> AND a.symbol= #{symbol} </when>
+        </choose>
+        <choose>
+            <when test="agencyName != null"> AND g.SNAME= #{agencyName} </when>
+        </choose>
+         
+        ORDER BY q.ORDER_NUM
+    </select>
+    
+    <select id="selectAgencyDeal" parameterType="map" resultType="org.tomstools.html.data.AgencyDeal">
+        SELECT a.*,g.SNAME agencyName FROM (
+        SELECT d.AGENCY_SYMBOL agencySymbol,d.SYMBOL symbol,d.SNAME sname,SUM(d.BUY) buy,SUM(d.SALE) sale,SUM(d.BUY)-SUM(d.SALE) total
+        FROM gp_agency_deal d WHERE d.TDATE BETWEEN #{beginDate} AND #{endDate} GROUP BY d.AGENCY_SYMBOL,d.SYMBOL
+        ) a,gp_agency g where a.agencySymbol=g.AGENCY_SYMBOL 
+        <choose>
+            <when test="symbol != null"> AND a.symbol= #{symbol} </when>
+        </choose>
+        <choose>
+            <when test="agencyName != null"> AND g.SNAME= #{agencyName} </when>
+        </choose>
+         
+        ORDER BY a.total desc
+    </select>
 </mapper>

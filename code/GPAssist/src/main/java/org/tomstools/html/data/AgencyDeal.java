@@ -5,25 +5,35 @@ package org.tomstools.html.data;
 
 /**
  * 机构交易数据
+ * 
  * @author hadoop
- *
+ * 
  */
 public class AgencyDeal {
-    private String symbol;      // 股票标记
-    private String sname;       // 名称
-    private String tdate;       // 日期
-    private float buy;         // 买入
-    private float sale;        // 卖出
+    private String symbol; // 股票标记
+    private String sname; // 名称
+    private String tdate; // 日期
+    private long buy; // 买入
+    private long sale; // 卖出
     private String agencySymbol;// 机构标识
-    public AgencyDeal(String agencySymbol,String symbol, String sname, String tdate, String buy, String sale) {
+    private float total;
+    private String agencyName;
+
+    public AgencyDeal() {
+
+    }
+
+    public AgencyDeal(String agencySymbol, String symbol, String sname, String tdate, String buy,
+            String sale) {
         super();
         this.agencySymbol = agencySymbol;
         this.symbol = symbol;
         this.sname = sname;
         this.tdate = tdate;
-        this.buy = Float.parseFloat(buy);
-        this.sale = Float.parseFloat(sale);
+        this.buy = (long) (Float.parseFloat(buy) * 10000);
+        this.sale = (long) (Float.parseFloat(sale) * 10000);
     }
+
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -32,6 +42,7 @@ public class AgencyDeal {
         result = prime * result + ((tdate == null) ? 0 : tdate.hashCode());
         return result;
     }
+
     @Override
     public boolean equals(Object obj) {
         if (this == obj)
@@ -54,46 +65,93 @@ public class AgencyDeal {
         return true;
     }
 
-    @Override
-    public String toString() {
-        return "AgencyDeal [symbol=" + symbol + ", sname=" + sname + ", tdate=" + tdate + ", buy="
-                + buy + ", sale=" + sale + ", agencySymbol=" + agencySymbol + "]";
+    public String toFrmtString() {
+        StringBuilder msg = new StringBuilder();
+        msg.append(symbol);
+        msg.append("\t");
+        msg.append(buy);
+        msg.append("\t");
+        msg.append(sale);
+        msg.append("\t");
+        msg.append(total);
+        msg.append("\t");
+        msg.append(sname);
+        msg.append("\t");
+        msg.append(agencyName);
+
+        return msg.toString();
     }
+
+     @Override
+     public String toString() {
+     return "AgencyDeal [symbol=" + symbol + ", sname=" + sname + ", tdate=" +
+     tdate + ", buy="
+     + buy + ", sale=" + sale + ", agencySymbol=" + agencySymbol + ", total="
+     + total
+     + ", agencyName=" + agencyName + "]";
+     }
     public final String getAgencySymbol() {
         return agencySymbol;
     }
+
     public final void setAgencySymbol(String agencySymbol) {
         this.agencySymbol = agencySymbol;
     }
+
     public final String getSymbol() {
         return symbol;
     }
+
     public final String getSname() {
         return sname;
     }
+
     public final String getTdate() {
         return tdate;
     }
-    public final float getBuy() {
+
+    public final long getBuy() {
         return buy;
     }
-    public final float getSale() {
+
+    public final long getSale() {
         return sale;
     }
+
     public final void setSymbol(String symbol) {
         this.symbol = symbol;
     }
+
     public final void setSname(String sname) {
         this.sname = sname;
     }
+
     public final void setTdate(String tdate) {
         this.tdate = tdate;
     }
-    public final void setBuy(float buy) {
+
+    public final void setBuy(long buy) {
         this.buy = buy;
     }
-    public final void setSale(float sale) {
+
+    public final void setSale(long sale) {
         this.sale = sale;
     }
-    
+
+    public final float getTotal() {
+        return total;
+    }
+
+    public final void setTotal(float total) {
+        this.total = total;
+    }
+
+    public final String getAgencyName() {
+        return agencyName;
+    }
+
+    public final void setAgencyName(String agencyName) {
+        this.agencyName = agencyName;
+    }
+
 }

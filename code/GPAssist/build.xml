@@ -66,13 +66,17 @@
             <fileset dir="${module.script.dir}" includes="**"/>
         </copy>
         <copy todir="${product.output.dir}/lib">
-            <fileset dir="${jar.output.dir}" includes="*common*.jar"/>            
+            <fileset dir="${jar.output.dir}" includes="*common*.jar"/>
+            <fileset dir="${jar.output.dir}" includes="*dataAccessor*.jar"/>
             <fileset dir="${jar.output.dir}" includes="${module.jar.name}"/>            
-            <fileset dir="${lib.dir}/logger" includes="log4j.jar"/>
-            <fileset dir="${lib.dir}/logger" includes="commons-logging.jar"/>
+            <fileset dir="${lib.dir}/logger" includes="*.jar"/>
+            <fileset dir="${lib.dir}/db" includes="*.jar"/>
             <fileset dir="${lib.dir}/http"   includes="*.jar"/>
+            <fileset dir="${lib.dir}"   includes="*.jar"/>
         </copy>
-        
+        <copy todir="${product.output.dir}/resources">
+            <fileset dir="${module.resource.dir}" includes="**"/>
+        </copy>
         <zip destfile="${module.current.dir}/${product.output.name}" basedir="${product.output.dir}">
         </zip>
     </target>

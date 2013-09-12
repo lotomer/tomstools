@@ -12,7 +12,9 @@ public class Agency {
     private String agencySymbol;      // 标记
     private String sname;        // 名称
     private String path;        // 路径
-    
+    public Agency(){
+        
+    }
     public Agency(String agencySymbol, String sname, String path) {
         super();
         this.agencySymbol = agencySymbol;

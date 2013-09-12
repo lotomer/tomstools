@@ -38,10 +38,12 @@ public class AgencyDAO {
      */
     public void save(){
         int newCount = 0;
+        Agency tmpAgency = null;
         DataAccessor dataAccessor = DataAccessorFactory.getInstance().getDataAccessorBuilder().newDataAccessor();
         try {
             dataAccessor.open();
             for (Agency agency : agencies) {
+            	tmpAgency = agency;
                 Object obj = dataAccessor.query(SqlConstant.SELECT_ONE_AGENCY, agency);
                 if (null == obj){
                     // 不存在，则新增
@@ -54,6 +56,7 @@ public class AgencyDAO {
             dataAccessor.close();
         } catch (DAOException e) {
             dataAccessor.rollback(false);
+            LOG.error(tmpAgency.toString());
             LOG.error(e.getMessage(),e);
         }
         

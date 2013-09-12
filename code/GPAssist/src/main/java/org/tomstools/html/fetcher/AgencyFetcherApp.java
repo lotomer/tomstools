@@ -57,7 +57,7 @@ public class AgencyFetcherApp {
         // 第一步 获取每日股票龙虎榜数据
         // http://quotes.money.163.com/hs/marketdata/service/lhb.php?host=/hs/marketdata/service/lhb.php&page=0&query=start:2013-09-06;end:2013-09-06&fields=NO,SYMBOL,SNAME,TDATE,TCLOSE,PCHG,SMEBTSTOCK1,SYMBOL,VOTURNOVER,COMPAREA,VATURNOVER,SYMBOL&sort=TDATE&order=desc&count=150&type=query&initData=[object%20Object]&req=11511
         String urlStep1 = "http://quotes.money.163.com/hs/marketdata/service/lhb.php?host=/hs/marketdata/service/lhb.php&page=0&"
-                + "query=start:%s;end:%s&fields=NO,SYMBOL,TDATE,SNAME,SMEBTSTOCK1&count=250000&type=query&req=11511";
+                + "query=start:%s;end:%s&fields=NO,SYMBOL,TDATE,SNAME,SMEBTSTOCK1&sort=TDATE&order=desc&count=250000&type=query&req=11511";
         // 第二步 逐个获取龙虎榜股票涉及的主力
         // http://quotes.money.163.com/hs/marketdata/mrlhbSub.php?clear=1202&symbol=000663&type=01&date=2013-09-06&width=920&height=500&modal=true&frame=true
         String urlStep2 = "http://quotes.money.163.com/hs/marketdata/mrlhbSub.php?clear=1202&"
@@ -183,8 +183,8 @@ public class AgencyFetcherApp {
         }
         
         // for test begin
-        beginDate = "2013-01-01";
-        endDate = "2013-09-10";
+        //beginDate = "2013-01-01";
+        //endDate = "2013-09-10";
         // for test end
         if (Utils.isEmpty(beginDate) && Utils.isEmpty(endDate)) {
             System.err.println("The beginDate and endDate cannot be both empty!");
