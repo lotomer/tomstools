@@ -1,5 +1,6 @@
 ﻿<?php
 error_reporting(E_ERROR | E_WARNING | E_PARSE);
+include "header.php";
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -11,32 +12,32 @@ error_reporting(E_ERROR | E_WARNING | E_PARSE);
 <body>
     <div>
     <form>
-        <label>开始日期</label><input type="text" id="beginDate" value="2013-09-01">
-        <label>结束日期</label><input type="text" id="endDate" value="2013-09-11">
+        <label>开始日期</label><input type="text" id="beginDate" maxlength="10" value="<?php echo date("Y-m-d",mktime(0,0,0,date("m"),date("d")-7,date("Y")));?>">
+        <label>结束日期</label><input type="text" id="endDate"  maxlength="10" value="<?php echo date("Y-m-d");?>">
         <br/>
         <label>股票代码</label><input type="text" id="symbol" value="">
         <label>机构名称</label><select id="agencyName"><option value ="">[ ----  未选择  ---- ]</option>
             <?php include 'agency.php';?>
             </select>
         <br/>
-        <label>返回条数</label><input type="text" id="cnt" value="50"><input type="checkbox" id="chkQ">主力机构
+        <label>返回条数</label><input type="text" id="cnt" maxlength="6" value="5000"><input type="checkbox" id="chkQ">主力机构
         <br/>
-        <input type="checkbox" id="chkOrder">排序方式（勾选为升序，不勾选为降序）
+        <input type="checkbox" id="chkByDate">按天统计<input type="checkbox" id="chkByAgency">按机构统计<input type="checkbox" id="chkOrder">排序方式（勾选为升序，不勾选为降序）
         <br/>
-        <input type="button" onclick="query()" value="查询"/>
+        <input type="button" onclick="return query();" value="查询"/>
     </form>
+    </div>
+    <div id="divError" style="color:red">
     </div>
     <div id="divResult">
     </div>
 </body>
 
+<script type="text/javascript" src="js/common.js"></script>
 <script type="text/javascript">
-
-function trim(s)
-{
-    return s.replace(/(^\s*)/g, "").replace(/(\s*$)/g, "");
-}
 function query(){
+    document.getElementById("divResult").innerHTML="";
+    
     var beginDate = document.getElementById("beginDate").value;
     var endDate = document.getElementById("endDate").value;
     var symbol = document.getElementById("symbol").value;
@@ -44,35 +45,41 @@ function query(){
     var cnt = document.getElementById("cnt").value;
     var type = document.getElementById("chkQ").checked ? "q" : "";
     var order = document.getElementById("chkOrder").checked ? "asc" : "desc";
+    var byDate = document.getElementById("chkByDate").checked ? "true" : "false";
+    var byAgency = document.getElementById("chkByAgency").checked ? "true" : "false";
     
-    if ("" == trim(beginDate)){
-        alert("开始日期不能为空");
+    var regDate = new RegExp("^[0-9]{4}-[0-9]{2}-[0-9]{2}$","g");
+    var regNum = new RegExp("^[0-9]+$","g");
+    
+    if (null == beginDate.match(regDate)){
+        showError("开始日期格式不对：yyyy-MM-dd (如：2012-01-01)");
         document.getElementById("beginDate").focus();
-        return;
-    }
-    
-    if ("" == trim(endDate)){
-        alert("结束日期不能为空");
+    }else if (null == endDate.match(regDate)){
+        showError("结束日期格式不对：yyyy-MM-dd (如：2012-01-01)");
         document.getElementById("endDate").focus();
-        return;
-    }
-    
-    if ("" == trim(cnt)){
-        alert("返回结果数不能为空");
+    }else if (null == cnt.match(regNum)){
+        showError("返回结果数必须是数字！");
         document.getElementById("cnt").focus();
-        return;
+    }else{
+        showError("");
+        return doQuery(beginDate,endDate,type,symbol,agencyName,cnt, order,byDate,byAgency);
     }
     
-    doQuery(beginDate,endDate,type,symbol,agencyName,cnt, order);
+    return false;
 }
-function doQuery(beginDate,endDate,type,symbol,agencyName,cnt,order)
+function showError(msg){
+    document.getElementById("divError").innerHTML = msg;
+}
+function doQuery(beginDate,endDate,type,symbol,agencyName,cnt,order,byDate,byAgency)
 { 
-    document.getElementById("divResult").innerHTML="";
     var url="q.php?b=" + beginDate;
     url=url+"&e="+endDate;
     url=url+"&t="+type;
     url=url+"&cnt="+cnt;
     url=url+"&order="+order;
+    url=url+"&byDate="+byDate;
+    url=url+"&byAgency="+byAgency;
+    
     if (symbol){
         url=url+"&symbol="+symbol;
     }
@@ -93,110 +100,8 @@ function doQuery(beginDate,endDate,type,symbol,agencyName,cnt,order)
             alert(e);
         }
     });
-}
-/**
-    以异步get方式向指定URL发送请求。
-    @param {Object}   o       包含请求信息的对象，该对象可选一下参数：
-                              url {String}          请求的url
-                              data {Object}         包含请求参数的对象
-                              dataType {String}     返回类型。json或其他。
-                              async {Boolean}       是否异步。true 异步； false 同步。默认true
-                              success {Function}    请求成功的回调函数，只包含一个数据参数
-                              fail {Function}       请求失败的回调函数
-    @param {Function} fnCallback 回调函数
-    */
-function get(o) {
-    if (typeof o === "object" && o){
-        var url = o.url, 
-            data = o.data,
-            dataType = o.dataType,
-            async = o.async,
-            success = o.success,
-            fail = o.fail;
-        if (!url || !success){ //url、success属性不能为空
-            alert("参数属性不完整。必须包含url和success属性！");
-            return;
-        }
-        //带有参数，则追加参数
-        if (data){
-            for (var propName in data){
-                if (typeof data[propName] === "function"){
-                    url = this.addURLParam(url, propName, data[propName]());
-                } else {
-                    url = this.addURLParam(url, propName, data[propName]);
-                }
-            }
-        }
-        
-        //设置是否同步的默认值为异步
-        if (typeof async === "undefined"){
-            async = true;
-        }
-        
-        //设置数据类型的默认值为json
-        //if (!dataType){
-        //    dataType = "json";
-        //}
-        if (typeof XMLHttpRequest !== "undefined" || typeof ActiveXObject !== "undefined") {
-            var oRequest = this.createXHR();
-            oRequest.onreadystatechange = function () {
-                if (oRequest.readyState === 4) {
-                    if (oRequest.status === 200){
-                        if (dataType === "json"){
-                            success(eval("(" + oRequest.responseText + ")"));
-                        }else{
-                            success(oRequest.responseText);
-                        }
-                    } else {
-                        if (typeof fail === "function"){
-                            fail(oRequest.responseText);
-                        }
-                    }
-                    oRequest = null;
-                }                    
-            };
-            oRequest.open("get", url, async);
-            oRequest.send();            
-        } else if (navigator.javaEnabled() && typeof java !== "undefined" && typeof java.net !== "undefined") {
-            setTimeout(function () {
-                fnCallback(this.httpGet(url));
-            }, 10);
-        } else {
-            alert("Your browser doesn't support HTTP requests.");
-        }
-    } else {
-        alert("参数不匹配。参数必须是一个有效的对象！");
-    }
-}
-function createXHR(){
-    if (typeof XMLHttpRequest !== "undefined"){
-        createXHR = function(){
-            return new XMLHttpRequest();
-        };
-    }else if (typeof ActiveXObject !== "undefined"){
-        createXHR =  function(){
-            if (typeof arguments.callee.activeXString !== "string"){
-                var versions = ['Microsoft.XMLHTTP', 'MSXML.XMLHTTP', 'Msxml2.XMLHTTP.7.0', 'Msxml2.XMLHTTP.6.0', 'Msxml2.XMLHTTP.5.0', 'Msxml2.XMLHTTP.4.0', 'MSXML2.XMLHTTP.3.0', 'MSXML2.XMLHTTP'];
-                for (var i=0,len=versions.length; i < len; i++){
-                    try{
-                        var xhr = new ActiveXObject(versions[i]);
-                        arguments.callee.activeXString = versions[i];
-                        return xhr;
-                    }catch(ex){
-                        //do nonthing
-                    }
-                }
-            }
-            return new ActiveXObject(arguments.callee.activeXString);
-        };
-    } else {
-        createXHR = function(){
-            throw new Error("No XHR object available.");
-        };
-    }
     
-    return createXHR();
+    return true;
 }
-
 </script>
 </html>
