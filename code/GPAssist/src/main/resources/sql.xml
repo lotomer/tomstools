@@ -51,4 +51,20 @@ PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN"
          
         ORDER BY a.total desc
     </select>
+    
+    <insert id="insertStockDeal"  parameterType="org.tomstools.html.data.StockDeal">
+        INSERT INTO GP_STOCK_DEAL (SYMBOL,SNAME,TDATE,PRICE,AMPLITUDE,IN_TIME) VALUES (#{symbol},#{sname},#{tdate},#{price},#{amplitude},now())
+    </insert>
+    
+    <delete id="cleanStockDeals" parameterType="map">
+        DELETE FROM GP_STOCK_DEAL WHERE TDATE BETWEEN #{beginDate} AND #{endDate}
+    </delete>
+    
+    <select id="selectStockDeal" parameterType="map" resultType="org.tomstools.html.data.StockDeal">
+        SELECT * FROM GP_STOCK_DEAL where TDATE BETWEEN #{beginDate} AND #{endDate}
+        <choose>
+            <when test="symbol != null"> AND SYMBOL= #{symbol} </when>
+        </choose>
+
+    </select>
 </mapper>

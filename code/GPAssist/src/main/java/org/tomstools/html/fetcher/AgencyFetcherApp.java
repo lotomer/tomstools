@@ -16,6 +16,8 @@ import org.tomstools.html.data.Agency;
 import org.tomstools.html.data.AgencyDAO;
 import org.tomstools.html.data.AgencyDeal;
 import org.tomstools.html.data.AgencyDealDAO;
+import org.tomstools.html.data.StockDeal;
+import org.tomstools.html.data.StockDealDAO;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -80,14 +82,17 @@ public class AgencyFetcherApp {
         LOG.info("host:"+host);
         agency = new AgencyDAO();
         agencyDeal = new AgencyDealDAO();
+        StockDealDAO stockDeal = new StockDealDAO();
         for (int i = 0; i < arr.size(); ++i) {
             JSONObject o = (JSONObject) arr.get(i);
             htmlContent = fetcher.fetchHTMLContent(String.format(urlStep2, o.get("SYMBOL"),o.get("SMEBTSTOCK11"),
                     o.get("TDATE")));
             parseSubUrls(htmlContent,host,o.get("SYMBOL").toString(),o.get("SNAME").toString(),o.get("TDATE").toString());
+            stockDeal.add(new StockDeal(o.get("SYMBOL").toString(), o.get("SNAME").toString(), o.get("TDATE").toString(), o.get("TCLOSE").toString(), o.get("PCHG").toString()));
         }
 
         agency.save();
+        stockDeal.save();
         // 先删除指定日期的交易数据，然后再添加
         agencyDeal.clean(beginDate,endDate);
         agencyDeal.save();
