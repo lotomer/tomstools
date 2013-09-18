@@ -1,8 +1,8 @@
 @echo off
-set USER=root
-set PASSWORD=root123
+set USER=admin
+set PASSWORD=admin
 set HOST=127.0.0.1
-set DATABASE=test
+set DATABASE=gp
 set CHARSET=utf8
 set CMD=mysql
 set DIR=%1

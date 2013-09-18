@@ -12,9 +12,9 @@
             <transactionManager type="JDBC" />            
             <dataSource type="POOLED">
                 <property name="driver" value="com.mysql.jdbc.Driver" />
-                <property name="url" value="jdbc:mysql://127.0.0.1/test" />               
-                <property name="username" value="root" />
-                <property name="password" value="root123" />
+                <property name="url" value="jdbc:mysql://127.0.0.1/gp" />               
+                <property name="username" value="admin" />
+                <property name="password" value="admin" />
                 <property name="poolMaximumActiveConnections" value="100" />
                 <property name="poolMaximumIdleConnections" value="5" />               
                 <property name="poolPingEnabled" value="true"/>

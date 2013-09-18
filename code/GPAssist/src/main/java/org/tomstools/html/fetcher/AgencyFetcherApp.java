@@ -92,6 +92,8 @@ public class AgencyFetcherApp {
         }
 
         agency.save();
+        // 先删除指定日期的交易数据，然后再添加
+        stockDeal.clean(beginDate,endDate);
         stockDeal.save();
         // 先删除指定日期的交易数据，然后再添加
         agencyDeal.clean(beginDate,endDate);

@@ -1,6 +1,6 @@
 ﻿<?php
 error_reporting(E_ERROR | E_WARNING | E_PARSE);
-if ($_SESSION["online"] == "ok"){
+if ($_SESSION["loginUser"]){
     // 已经登录
     header("Location: lhb.php");
     exit;
@@ -10,9 +10,10 @@ $password = $_POST["password"];
 
 if ("" != $user){
     // 输入了用户名和密码，进行登录校验
-    if (check($user, $password)){
+    if ($loginUser = check($user, $password)){
         // 校验通过，设置session
-        $_SESSION["online"] = "ok";
+        session_register("loginUser");
+        $_SESSION["loginUser"] = $loginUser;
         header("Location: lhb.php");
     }else{
         // 校验未通过
@@ -24,20 +25,25 @@ if ("" != $user){
 }
 
 function check($user, $password){
-    $isValid = false;
+    $loginUser = false;
     include 'db.php';
-    $sql_template = "SELECT END_TIME FROM GP_USER WHERE USER='%s' AND PASSWORD='%s' AND ISVALID='1'";
+    $sql_template = "SELECT USER,NAME,END_TIME FROM GP_USER WHERE USER='%s' AND PASSWORD='%s' AND IS_VALID='1'";
     $sql = sprintf($sql_template,$user,$password);
-    echo $sql;
+    //echo $sql;
     $result = mysql_query($sql);
 
     if($row = mysql_fetch_array($result))
-    {    
-        $isValid = true;
+    {
+        echo '1' . $row["END_TIME"];
+        $loginUser["USER"] = $row["USER"];
+        $loginUser["NAME"] = $row["NAME"];
+        $loginUser["END_TIME"] = $row["END_TIME"];
+    }else{
+        echo 'aaa';
     }
         
     mysql_close($con);
     
-    return $isValid;
+    return $loginUser;
 }
 ?>
