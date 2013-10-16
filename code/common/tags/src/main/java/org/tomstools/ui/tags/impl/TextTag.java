@@ -50,7 +50,8 @@ public class TextTag extends HiddenTag {
                 if (null != value){
                     setValue(String.valueOf(value));
                 }else{
-                    setValue(null);
+                    // 如果没有获取到值，则不进行主动设置
+                    //setValue(null);
                 }
             }
             if (null != getValue()) {
