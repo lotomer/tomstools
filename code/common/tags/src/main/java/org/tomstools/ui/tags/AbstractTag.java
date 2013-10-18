@@ -13,16 +13,6 @@ import javax.servlet.jsp.tagext.TagSupport;
  */
 public abstract class AbstractTag extends TagSupport {
     private static final long serialVersionUID = -2661718471626614028L;
-    /** 标签唯一编号 */
-    private String id;
-
-    public final String getId() {
-        return id;
-    }
-
-    public final void setId(String id) {
-        this.id = id;
-    }
     
     /**
      * 获取隐藏域的html内容

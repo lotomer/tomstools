@@ -68,6 +68,8 @@ public class TextTag extends HiddenTag {
                 throw new JspException(e);
             }
         }
+        
+        release();
         return SKIP_BODY;
     }
 
@@ -85,5 +87,11 @@ public class TextTag extends HiddenTag {
 
     public final void setLabel(String label) {
         this.label = label;
+    }
+    
+    public void release(){
+        super.release();
+        this.className = null;
+        this.label = null;
     }
 }

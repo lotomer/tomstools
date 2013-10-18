@@ -93,14 +93,15 @@ public class HiddenTag extends AbstractTag {
             html.append(id);
             html.append("\" name=\"");
             html.append(id);
-
+    
             // 根据name从请求参数中获取值
             if (isValidScope()) {
                 Object value = getAttribute(id, getScope());
                 if (null != value){
                     setValue(String.valueOf(value));
                 }else{
-                    setValue(null);
+                    // 如果没有获取到值，则不进行主动设置
+                    // setValue(null);
                 }
             }
             if (null != getValue()) {
@@ -116,7 +117,14 @@ public class HiddenTag extends AbstractTag {
                 throw new JspException(e);
             }
         }
-
+        
+        release();
         return SKIP_BODY;
+    }
+    
+    public void release(){
+        super.release();
+        this.value = null;
+        this.scope = SCOPE_INVALID;
     }
 }

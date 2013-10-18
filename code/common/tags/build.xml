@@ -7,7 +7,7 @@
     <property name="module.dest.dir"        value="${module.current.dir}/dest"/>
     <property name="lib.dir"                value="${module.current.dir}/../lib"/>
     <property name="module.name"            value="TomsTools-tags"/>
-    <property name="version"                value="1.1.1"/>
+    <property name="version"                value="1.1.2"/>
     <property name="module.jar.name"        value="${module.name}-${version}.jar"/>
     
     <!--
