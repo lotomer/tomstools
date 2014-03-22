@@ -8,3 +8,4 @@ commons-logging: 1.1
 lucene£º4.1
 IKAnalyzer£º2012
 fastjson£º1.1.33
+jsoup: 1.7.3
