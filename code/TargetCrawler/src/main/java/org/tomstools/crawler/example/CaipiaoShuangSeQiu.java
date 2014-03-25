@@ -8,7 +8,6 @@ import java.util.LinkedHashMap;
 import org.tomstools.crawler.config.CrawlingRule;
 import org.tomstools.crawler.config.Target;
 import org.tomstools.crawler.extractor.ContentExtractor;
-import org.tomstools.crawler.extractor.impl.NoSubpageExtractor;
 import org.tomstools.crawler.extractor.impl.TemplatePageNavigationExtractor;
 import org.tomstools.crawler.parser.HTMLParser;
 
@@ -26,7 +25,7 @@ public class CaipiaoShuangSeQiu extends Target {
         setUrl("http://baidu.lecai.com/lottery/draw/list/50");
         setCrawlingRule(crawlingRule);
         setParser(new HTMLParser());
-        setSubpageExtractor(new NoSubpageExtractor());
+        //setContentPageExtractor(new NoSubpageExtractor());
         setNavigationExtractor(new TemplatePageNavigationExtractor("div.year_select select", "<option .*?value=\"(.*?)\">","http://baidu.lecai.com/lottery/draw/list/50?d=%s"));
         LinkedHashMap<String, String> params = new LinkedHashMap<String, String>();
         params.put("time", "td.td1");
@@ -38,7 +37,7 @@ public class CaipiaoShuangSeQiu extends Target {
         params.put("b5", "td.td3>span.result>span:eq(4)");
         params.put("b6", "td.td3>span.result>span:eq(5)");
         params.put("b7", "td.td3>span.result>span:eq(6)");
-        setContentExtractor(new ContentExtractor("table#draw_list tbody>tr",null,params,null));
+        setContentExtractor(new ContentExtractor("table#draw_list tbody>tr",null,null,params,null));
     }
     
 }

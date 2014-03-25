@@ -37,4 +37,12 @@ public interface Element {
      * @since 1.0
      */
     public void select(String cssQuery, ElementProcessor processor);
+    
+    /**
+     * 根据条件选取节点
+     * @param cssQuery 选择条件
+     * @return 节点
+     * @since 1.0
+     */
+    public Element select(String cssQuery);
 }

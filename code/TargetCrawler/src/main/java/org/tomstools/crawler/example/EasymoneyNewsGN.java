@@ -8,7 +8,7 @@ import java.util.LinkedHashMap;
 import org.tomstools.crawler.config.CrawlingRule;
 import org.tomstools.crawler.config.Target;
 import org.tomstools.crawler.extractor.ContentExtractor;
-import org.tomstools.crawler.extractor.impl.BaseSubpageExtractor;
+import org.tomstools.crawler.extractor.impl.BaseContentPageExtractor;
 import org.tomstools.crawler.extractor.impl.PageNavigationExtractor;
 import org.tomstools.crawler.parser.HTMLParser;
 
@@ -26,13 +26,13 @@ public class EasymoneyNewsGN extends Target {
         setUrl("http://finance.eastmoney.com/news/cgnjj.html");
         setCrawlingRule(crawlingRule);
         setParser(new HTMLParser());
-        setSubpageExtractor(new BaseSubpageExtractor("div.mainCont div.list li a"));  
+        setContentPageExtractor(new BaseContentPageExtractor("div.mainCont div.list li a","",""));  
         setNavigationExtractor(new PageNavigationExtractor("div.PageBox>div.Page a:containsOwn(下一页)", "<a .*?href=\"(.*?\\.html)\""));
         LinkedHashMap<String, String> params = new LinkedHashMap<String, String>();
         params.put("title", "h1");
         params.put("time", "div.info span:eq(1)");
         params.put("content", "div#ContentBody");
-        setContentExtractor(new ContentExtractor("div.newText.new",null,params,null));
+        setContentExtractor(new ContentExtractor("div.newText.new",null,null,params,null));
     }
     
 }

@@ -84,7 +84,7 @@ public class HTMLParser implements Parser {
          */
         @Override
         public String toString() {
-            return "HTMLElement [elements=" + element + "]";
+            return "{element=" + element + "}";
         }
 
         public void select(String cssQuery, ElementProcessor processor) {
@@ -102,6 +102,18 @@ public class HTMLParser implements Parser {
             } else {
                 processor.process(null);
             }
+        }
+
+        @Override
+        public org.tomstools.crawler.common.Element select(String cssQuery) {
+            if (!Utils.isEmpty(cssQuery)) {
+                Elements es = element.select(cssQuery);
+                if (!es.isEmpty()) {
+                    return new HTMLElement(es.first());
+                }
+            }
+
+            return null;
         }
     }
 

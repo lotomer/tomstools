@@ -26,9 +26,12 @@ public class CrawlingRule {
     private int batchIntervalStep;
     /** 最大数目 */
     private int maxSize;
+    /** 连接超时时间。单位毫秒 */
+    private int connectionTimeOut = 8000;
+    /** socket超时时间。单位毫秒 */
+    private int socketTimeOut = 10000;
 
     /**
-     * 
      * @since 1.0
      */
     public CrawlingRule() {
@@ -39,6 +42,8 @@ public class CrawlingRule {
         this.batchIntervalInit = 0;
         this.batchIntervalFinal = 0;
         this.batchIntervalStep = 0;
+        this.connectionTimeOut = 8000;
+        this.socketTimeOut = 10000;
     }
 
     /**
@@ -153,6 +158,38 @@ public class CrawlingRule {
         this.maxSize = maxSize;
     }
 
+    /**
+     * @return 返回 连接超时时间。单位毫秒
+     * @since 1.0
+     */
+    public final int getConnectionTimeOut() {
+        return connectionTimeOut;
+    }
+
+    /**
+     * @param connectionTimeOut 设置 连接超时时间。单位毫秒
+     * @since 1.0
+     */
+    public final void setConnectionTimeOut(int connectionTimeOut) {
+        this.connectionTimeOut = connectionTimeOut;
+    }
+
+    /**
+     * @return 返回 socket超时时间。单位毫秒
+     * @since 1.0
+     */
+    public final int getSocketTimeOut() {
+        return socketTimeOut;
+    }
+
+    /**
+     * @param socketTimeOut 设置 socket超时时间。单位毫秒
+     * @since 1.0
+     */
+    public final void setSocketTimeOut(int socketTimeOut) {
+        this.socketTimeOut = socketTimeOut;
+    }
+
     /*
      * @since 1.0
      */
@@ -162,7 +199,9 @@ public class CrawlingRule {
                 .append(", batchSizeFinal=").append(batchSizeFinal).append(", batchSizeStep=")
                 .append(batchSizeStep).append(", batchIntervalInit=").append(batchIntervalInit)
                 .append(", batchIntervalFinal=").append(batchIntervalFinal)
-                .append(", batchIntervalStep=").append(batchIntervalStep).append(", maxSize=")
+                .append(", batchIntervalStep=").append(batchIntervalStep)
+                .append(", connectionTimeOut=").append(connectionTimeOut)
+                .append(", socketTimeOut=").append(socketTimeOut).append(", maxSize=")
                 .append(maxSize).append("}").toString();
     }
 }

@@ -4,7 +4,9 @@
 package org.tomstools.crawler.http;
 
 import java.io.IOException;
+import java.net.SocketTimeoutException;
 import java.net.URL;
+import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -18,6 +20,7 @@ import org.apache.http.HttpStatus;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.conn.ConnectTimeoutException;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.CoreConnectionPNames;
@@ -82,6 +85,8 @@ public class PageFetcher {
         initHttp(httpget);
         logger.debug("executing request " + httpget.getURI());
         for (int i = 0; i < 3; ++i) {
+            // 设置连接持续时间，每次失败则延长5秒
+            httpclient.getParams().setIntParameter(CoreConnectionPNames.SO_TIMEOUT, socketTimeOut + i * 5000);
             try {
                 HttpResponse response = httpclient.execute(httpget);
                 HttpEntity entity = response.getEntity();
@@ -111,10 +116,18 @@ public class PageFetcher {
                 break;
             } catch (ClientProtocolException e) {
                 logger.error(e.getMessage(), e);
-            } catch (IOException e) {
+            } catch(UnknownHostException e){
+                logger.error(e.getMessage(), e);
+                // 没有找到主机，则可以直接退出
+                //break;
+            }  catch(ConnectTimeoutException e){
+                logger.error(e.getMessage(), e);
+            }catch(SocketTimeoutException e){
+                logger.error(e.getMessage(), e);
+            }catch (IOException e) {
                 logger.error(e.getMessage(), e);
             }
-            logger.info("try again...");
+            logger.info("try again..." + (i + 1));
         }
         return responseText;
     }

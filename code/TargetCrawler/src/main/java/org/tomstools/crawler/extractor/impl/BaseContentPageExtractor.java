@@ -1,0 +1,103 @@
+/**
+ * copyright (a) 2010-2014 tomstools.org. All rights reserved.
+ */
+package org.tomstools.crawler.extractor.impl;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.tomstools.crawler.common.Element;
+import org.tomstools.crawler.common.ElementProcessor;
+import org.tomstools.crawler.common.Utils;
+import org.tomstools.crawler.extractor.ContentPageExtractor;
+
+/**
+ * 子页面抽取器：包含子页面的抽取器
+ * 
+ * @author admin
+ * @date 2014年3月15日
+ * @time 上午11:17:30
+ * @version 1.0
+ */
+public class BaseContentPageExtractor implements ContentPageExtractor {
+    private String cssQuery;
+    private BaseContentPageExtractor contentPageExtractor;
+    private Pattern pattern;
+    private String format;
+
+    /**
+     * @param cssQuery 元素选取表达式
+     * @param format 子页面url模板
+     * @param regex 
+     *            提取子页面url的正则表达式，与format配合使用，将正则表达式的group数据代入format中以生成完整的子页面url
+     * @since 1.0
+     */
+    public BaseContentPageExtractor(String cssQuery, String format, String regex) {
+        this.cssQuery = cssQuery;
+        pattern = Pattern.compile(regex, Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE
+                | Pattern.DOTALL);
+        if (Utils.isEmpty(format)) {
+            this.format = "%s";
+        }else{
+            this.format = format;
+        }
+    }
+
+    @Override
+    public List<String> getContentPageUrls(Element element) {
+        final List<String> urls = new ArrayList<String>();
+        element.select(cssQuery, new ElementProcessor() {
+            public boolean process(Element element) {
+                if (null != element) {
+                    // 根据模板获取子页面url
+                    Matcher m = pattern.matcher(element.getCode());
+                    if (m.matches()) {
+                        Object[] params = new Object[m.groupCount()];
+                        for (int i = 0; i < params.length; i++) {
+                            params[i] = m.group(i + 1);
+                        }
+                        String url = String.format(format, params);
+                        // 子页面的url是节点的href属性值，标题是节点的正文
+                        // String url = element.getAttribute("href");
+                        // 如果没有href属性，则取value属性
+                        if (!Utils.isEmpty(url)) {
+                            urls.add(url);
+                        }
+                    }
+                }
+                return true;
+            }
+        });
+        return urls;
+    }
+
+    /**
+     * @return 返回 内容页面url抽取器
+     * @since 1.0
+     */
+    public final BaseContentPageExtractor getContentPageExtractor() {
+        return contentPageExtractor;
+    }
+
+    /**
+     * @param contentPageExtractor 设置 内容页面url抽取器
+     * @since 1.0
+     */
+    public final void setContentPageExtractor(BaseContentPageExtractor contentPageExtractor) {
+        this.contentPageExtractor = contentPageExtractor;
+    }
+public static void main(String[] args) {
+    Pattern p = Pattern.compile("<a\\s+?href=\"javascript:Floor\\.doAction\\('(\\d+?)', '([^']+?)', '([^']*?)'\\);\".*", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE
+            | Pattern.DOTALL);
+    Matcher m = p.matcher("<a href=\"javascript:Floor.doAction('7309', 'KF1310090036', '');\" ref=\"KF1310090036&amp;id=7309\" class=\"top\">一期15栋</a>");
+    if (m.matches()){
+        System.out.println(m.groupCount());
+        System.out.println(m.group(1));
+    }
+    else{
+        System.out.println("===");
+    }
+}
+}

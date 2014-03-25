@@ -13,7 +13,6 @@ import org.tomstools.crawler.config.CrawlingRule;
 import org.tomstools.crawler.config.Target;
 import org.tomstools.crawler.extractor.ContentExtractor;
 import org.tomstools.crawler.extractor.impl.ExpressionNavigationExtractor;
-import org.tomstools.crawler.extractor.impl.NoSubpageExtractor;
 import org.tomstools.crawler.parser.HTMLParser;
 
 /**
@@ -31,13 +30,13 @@ public class HuNanGuoTuZiYuanCaiKuangZhuanRang extends Target {
         setUrl("http://www.gtzy.hunan.gov.cn/application/hdpt_422/spgl/ckzr/index_539.html");
         setCrawlingRule(crawlingRule);
         setParser(new HTMLParser());
-        setSubpageExtractor(new NoSubpageExtractor());
+        //setContentPageExtractor(new NoSubpageExtractor());
         setNavigationExtractor(new ExpressionNavigationExtractor(
                 "http://www.gtzy.hunan.gov.cn/application/hdpt_422/spgl/ckzr/index_539_%s.html",
                 "1|20|1"));
         LinkedHashMap<String, String> params = new LinkedHashMap<String, String>();
         params.put("value", "td[title]"); // \u4E00-\u9FA5 是汉字区间
-        setContentExtractor(new ContentExtractor("tr",null,params,null) {
+        setContentExtractor(new ContentExtractor("tr",null,null,params,null) {
             private int index = 0;
 
             @Override

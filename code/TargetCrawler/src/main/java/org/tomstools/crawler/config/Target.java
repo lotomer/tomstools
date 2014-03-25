@@ -5,7 +5,7 @@ package org.tomstools.crawler.config;
 
 import org.tomstools.crawler.extractor.ContentExtractor;
 import org.tomstools.crawler.extractor.NavigationExtractor;
-import org.tomstools.crawler.extractor.SubpageExtractor;
+import org.tomstools.crawler.extractor.ContentPageExtractor;
 import org.tomstools.crawler.parser.Parser;
 
 /**
@@ -22,7 +22,7 @@ public class Target {
     private String name; // 目标名称
     private String regex4topDataFalg; // 匹配置顶数据的正则表达式
     private Parser parser; // 目标主页面解析器
-    private SubpageExtractor subpageExtractor; // 子页面抽取工具
+    private ContentPageExtractor contentPageExtractor; // 内容页面抽取工具
     private NavigationExtractor navigationExtractor; // 分页导航抽取工具
     private ContentExtractor contentExtractor; // 正文内容抽取工具
     private CrawlingRule crawlingRule; // 爬取规则
@@ -92,19 +92,19 @@ public class Target {
     }
 
     /**
-     * @return 返回 子页面抽取器
+     * @return 返回 内容页面抽取器，可能为null
      * @since 1.0
      */
-    public final SubpageExtractor getSubpageExtractor() {
-        return subpageExtractor;
+    public final ContentPageExtractor getContentPageExtractor() {
+        return contentPageExtractor;
     }
 
     /**
-     * @param subpageExtractor 设置 子页面抽取器。
+     * @param contentPageExtractor 设置 内容页面抽取器。
      * @since 1.0
      */
-    public final void setSubpageExtractor(SubpageExtractor subpageExtractor) {
-        this.subpageExtractor = subpageExtractor;
+    public final void setContentPageExtractor(ContentPageExtractor contentPageExtractor) {
+        this.contentPageExtractor = contentPageExtractor;
     }
 
     /**

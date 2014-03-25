@@ -29,20 +29,25 @@ public class ContentExtractor {
     private String cssQuery;
     private Map<String, FieldSplitter> fieldSplitters;
     private String[] titles;
+    private LinkedHashMap<String, String> constantFieldSelectors;
 
     /**
      * 构造函数
      * 
      * @param cssQuery 正文所在元素的选择表达式
+     * @param titles 表头信息
+     * @param constantFieldSelectors 固定字段选择器，不随每次属性提取而变化
      * @param params 提取属性配置信息
      * @param fieldSplitters 字段拆分器
      * @since 1.0
      */
-    public ContentExtractor(String cssQuery, String[] titles, LinkedHashMap<String, String> params,
-            Map<String, FieldSplitter> fieldSplitters) {
+    public ContentExtractor(String cssQuery, String[] titles,
+            LinkedHashMap<String, String> constantFieldSelectors,
+            LinkedHashMap<String, String> params, Map<String, FieldSplitter> fieldSplitters) {
         this.params = params;
         this.cssQuery = cssQuery;
         this.titles = titles;
+        this.constantFieldSelectors = constantFieldSelectors;
         if (null != fieldSplitters) {
             this.fieldSplitters = fieldSplitters;
         } else {
@@ -59,10 +64,23 @@ public class ContentExtractor {
      */
     public List<Map<String, String>> extractContent(Element element) {
         final List<Map<String, String>> records = new ArrayList<Map<String, String>>();
+        final Map<String, String> constantFieldValues = new LinkedHashMap<String, String>();
+        if (null != constantFieldSelectors) {
+            for (Entry<String, String> entry : constantFieldSelectors.entrySet()) {
+                FieldSplitter fieldSplitter = fieldSplitters.get(entry.getKey());
+                if (null != fieldSplitter) {
+                    // 该字段指定了拆分器，则进行拆分
+                    fieldSplitter.process(element.select(entry.getValue()).getText(), constantFieldValues);
+                } else {
+                    constantFieldValues.put(entry.getKey(), element.select(entry.getValue()).getText());
+                }
+            }
+        }
         element.select(cssQuery, new ElementProcessor() {
             public boolean process(Element e) {
                 if (null != e) {
                     Map<String, String> aRecord = new LinkedHashMap<String, String>();
+                    aRecord.putAll(constantFieldValues);
                     processValue(aRecord, e, params);
                     records.add(aRecord);
                 }

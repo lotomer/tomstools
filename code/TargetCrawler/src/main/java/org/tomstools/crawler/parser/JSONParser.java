@@ -63,6 +63,12 @@ public class JSONParser implements Parser {
             // TODO Auto-generated method stub
             
         }
+
+        @Override
+        public Element select(String cssQuery) {
+            // TODO Auto-generated method stub
+            return null;
+        }
         
     }
 }

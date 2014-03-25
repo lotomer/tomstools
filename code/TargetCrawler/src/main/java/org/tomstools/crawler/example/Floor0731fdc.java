@@ -8,7 +8,6 @@ import java.util.LinkedHashMap;
 import org.tomstools.crawler.config.CrawlingRule;
 import org.tomstools.crawler.config.Target;
 import org.tomstools.crawler.extractor.ContentExtractor;
-import org.tomstools.crawler.extractor.impl.NoSubpageExtractor;
 import org.tomstools.crawler.extractor.impl.PageNavigationExtractor;
 import org.tomstools.crawler.parser.HTMLParser;
 
@@ -27,7 +26,7 @@ public class Floor0731fdc extends Target {
         setUrl("http://floor.0731fdc.com/search.php");
         setCrawlingRule(crawlingRule);
         setParser(new HTMLParser());
-        setSubpageExtractor(new NoSubpageExtractor()); 
+        //ssetContentPageExtractor(new NoSubpageExtractor()); 
         setNavigationExtractor(new PageNavigationExtractor("div#page ul.pageno a[title=下一页]",
                 "<a .*?href=\"(.*?)\""));
         LinkedHashMap<String, String> params = new LinkedHashMap<String, String>();
@@ -38,7 +37,7 @@ public class Floor0731fdc extends Target {
         params.put("comp", "dl>dd:eq(2)");
         params.put("addr", "dl>dd:eq(3)");
         
-        setContentExtractor(new ContentExtractor("div#ddd>div.list-con",null,params,null));
+        setContentExtractor(new ContentExtractor("div#ddd>div.list-con",null,null,params,null));
     }
 
 }

@@ -16,6 +16,7 @@ import org.tomstools.crawler.common.Logger;
 import org.tomstools.crawler.common.Utils;
 import org.tomstools.crawler.config.Target;
 import org.tomstools.crawler.dao.ResultDAO;
+import org.tomstools.crawler.extractor.ContentPageExtractor;
 import org.tomstools.crawler.http.PageFetcher;
 import org.tomstools.crawler.http.UrlManager;
 import org.tomstools.crawler.parser.Parser;
@@ -35,10 +36,10 @@ public class TargetCrawler implements Runnable {
     private int totalPage;
     private UrlManager urlManager;
     private int totalSubPage;
-    //private Map<String, String> latestUrls;
 
     /**
      * 构造函数
+     * 
      * @param targetBusis 定向爬取目标业务对象列表
      * @since 1.0
      */
@@ -50,7 +51,8 @@ public class TargetCrawler implements Runnable {
 
     /**
      * 构造函数
-     * @param targets   定向爬取目标列表
+     * 
+     * @param targets 定向爬取目标列表
      * @param resultDAO 结果数据操作对象
      * @since 1.0
      */
@@ -62,7 +64,7 @@ public class TargetCrawler implements Runnable {
             targetBusis.add(new TargetBusi(target, resultDAO));
         }
     }
-    
+
     public void run() {
         long startTime = System.currentTimeMillis();
         if (null != targetBusis && 0 != targetBusis.size()) {
@@ -71,6 +73,8 @@ public class TargetCrawler implements Runnable {
                 // LOGGER.info(target);
                 if (targetBusi.prepare()) {
                     PageFetcher fetcher = new PageFetcher();
+                    fetcher.setConnectionTimeOut(targetBusi.getTarget().getCrawlingRule().getConnectionTimeOut());
+                    fetcher.setSocketTimeOut(targetBusi.getTarget().getCrawlingRule().getSocketTimeOut());
                     processMainPage(targetBusi, fetcher);
                     targetBusi.finish();
                     // 清理已经处理过的url
@@ -94,7 +98,8 @@ public class TargetCrawler implements Runnable {
             processPageWithoutNavigation(targetBusi, fetcher);
             if (!targetBusi.isFinished()) {
                 // 生成其他主页面url列表
-                List<String> urls = targetBusi.getTarget().getNavigationExtractor().getPageUrls(null);
+                List<String> urls = targetBusi.getTarget().getNavigationExtractor()
+                        .getPageUrls(null);
                 for (String url : urls) {
                     targetBusi.getTarget().setUrl(url);
                     processPageWithoutNavigation(targetBusi, fetcher);
@@ -106,11 +111,13 @@ public class TargetCrawler implements Runnable {
         } else {
             // 爬取主页面并返回下一页url集合
             List<String> pageUrls = processPageWithNavigation(targetBusi, fetcher);
-            for (int i = 0; i < pageUrls.size(); i++) {
-                targetBusi.getTarget().setUrl(pageUrls.get(i));
-                pageUrls.addAll(processPageWithNavigation(targetBusi, fetcher));
-                if (targetBusi.isFinished()) {
-                    break;
+            if (!targetBusi.isFinished()) {
+                for (int i = 0; i < pageUrls.size(); i++) {
+                    targetBusi.getTarget().setUrl(pageUrls.get(i));
+                    pageUrls.addAll(processPageWithNavigation(targetBusi, fetcher));
+                    if (targetBusi.isFinished()) {
+                        break;
+                    }
                 }
             }
         }
@@ -194,6 +201,9 @@ public class TargetCrawler implements Runnable {
     private Element doProcess(final TargetBusi targetBusi, PageFetcher fetcher,
             final String webRoot, final String parentPath) {
         // LOGGER.info("do process: " + target.getUrl());
+        if (isProcessed(targetBusi.getTarget().getUrl())){
+            
+        }
         // 判断这一批是否已经处理完成，如果处理完成了就要休息一下
         if (!targetBusi.checkBatchInfo()) {
             LOGGER.info(targetBusi.getTarget().getName() + " check failed!");
@@ -210,26 +220,35 @@ public class TargetCrawler implements Runnable {
         if (null == parser) {
             return null;
         }
-        // 解析子页面url
+        // 解析文档
         Element document = parser.parse(content, null);
         ++totalPage;
         targetBusi.incFetchPageCount();
-        List<String> urls = targetBusi.getTarget().getSubpageExtractor().getSubpageUrls(document);
-        if (!Utils.isEmpty(urls)) {
+        ContentPageExtractor subpageExtractor = targetBusi.getTarget().getContentPageExtractor();
+        if (null != subpageExtractor) {
+            List<String> urls = subpageExtractor.getContentPageUrls(document);
             // 有子页面抽取器，则使用子页面抽取器抽取子页面url，并逐个处理
-            List<String> nextPages = new ArrayList<String>();
-            for (String aUrl : urls) {
-                nextPages.addAll(processSubPage(targetBusi,fetcher,
-                        HTMLUtil.getRealUrl(aUrl, webRoot, parentPath)));
+            List<String> contentPages = urls;// new ArrayList<String>();
+            // 判断是否还包含子页面抽取器，如果包含，则需要继续处理
+            while (null != (subpageExtractor = subpageExtractor.getContentPageExtractor())) {
+                contentPages = getContentPages(subpageExtractor, fetcher, parser, contentPages,
+                        webRoot, parentPath);
+            }
+            // List<String> nextPages = new ArrayList<String>();
+            for (String aUrl : contentPages) {
+                // nextPages.addAll(processSubPage(targetBusi,fetcher,
+                // HTMLUtil.getRealUrl(aUrl, webRoot, parentPath)));
+                processSubPage(targetBusi, fetcher, HTMLUtil.getRealUrl(aUrl, webRoot, parentPath));
                 if (targetBusi.isFinished()) {
                     return null;
                 }
             }
             // 处理下一页
-            for (String nextPage : nextPages) {
-                targetBusi.getTarget().setUrl(HTMLUtil.getRealUrl(nextPage, webRoot, parentPath));
-                processPageWithNavigation(targetBusi, fetcher);
-            }
+            // for (String nextPage : nextPages) {
+            // targetBusi.getTarget().setUrl(HTMLUtil.getRealUrl(nextPage,
+            // webRoot, parentPath));
+            // processPageWithNavigation(targetBusi, fetcher);
+            // }
         } else {
             // 没有子页面时，则直接使用内容抽取器处理页面，最近处理的标记已数据内容为准
             List<Map<String, String>> records = targetBusi.getTarget().getContentExtractor()
@@ -240,7 +259,7 @@ public class TargetCrawler implements Runnable {
                     continue;
                 }
                 // 判断该内容是否已经保存过，如果已经保存过，则表示已经处理完成了
-                if (targetBusi.willFinish(record.toString())){
+                if (targetBusi.willFinish(record.toString())) {
                     break;
                 }
                 targetBusi.incRecordCount();
@@ -255,11 +274,26 @@ public class TargetCrawler implements Runnable {
         return document;
     }
 
+    private List<String> getContentPages(ContentPageExtractor subpageExtractor,
+            PageFetcher fetcher, Parser parser, List<String> urls, String webRoot, String parentPath) {
+        List<String> subpages = new ArrayList<String>();
+        for (String aUrl : urls) {
+            String content = fetcher.fetchPageContent(HTMLUtil
+                    .getRealUrl(aUrl, webRoot, parentPath));
+            if (null != content) {
+                Element doc = parser.parse(content, null);
+                subpages.addAll(subpageExtractor.getContentPageUrls(doc));
+            }
+        }
+
+        return subpages;
+    }
+
     /**
      * 处理单个子页面
      * 
      * @param targetBusi
-     * @param fetcher 
+     * @param fetcher
      * @param subUrl
      * @return 返回下一页的url集合，不为null
      * @since 1.0
@@ -281,7 +315,7 @@ public class TargetCrawler implements Runnable {
             return nextPages;
         }
         // 判断是否是最后一条
-        if (targetBusi.willFinish(subUrl)){
+        if (targetBusi.willFinish(subUrl)) {
             return nextPages;
         }
         ++totalSubPage;
@@ -307,8 +341,9 @@ public class TargetCrawler implements Runnable {
                 targetBusi.saveRecord(subUrl, record);
             }
 
-            // 获取下一页url集合
-            nextPages = targetBusi.getTarget().getNavigationExtractor().getPageUrls(doc);
+            // XXX 貌似没必要这样处理：获取下一页url集合
+            // nextPages =
+            // targetBusi.getTarget().getNavigationExtractor().getPageUrls(doc);
         }
         setCompleted(subUrl);
 
@@ -342,8 +377,8 @@ public class TargetCrawler implements Runnable {
      * @param urlManager 设置 url管理器
      * @since 1.0
      */
-//    public final void setUrlManager(UrlManager urlManager) {
-//        this.urlManager = urlManager;
-//    }
+    // public final void setUrlManager(UrlManager urlManager) {
+    // this.urlManager = urlManager;
+    // }
 
 }

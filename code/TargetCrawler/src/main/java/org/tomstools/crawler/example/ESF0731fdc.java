@@ -13,7 +13,6 @@ import org.tomstools.crawler.common.ValueConvertible;
 import org.tomstools.crawler.config.CrawlingRule;
 import org.tomstools.crawler.config.Target;
 import org.tomstools.crawler.extractor.ContentExtractor;
-import org.tomstools.crawler.extractor.impl.NoSubpageExtractor;
 import org.tomstools.crawler.extractor.impl.PageNavigationExtractor;
 import org.tomstools.crawler.parser.HTMLParser;
 
@@ -33,7 +32,7 @@ public class ESF0731fdc extends Target {
         setRegex4topDataFalg("\\[置顶\\]");
         setCrawlingRule(crawlingRule);
         setParser(new HTMLParser());
-        setSubpageExtractor(new NoSubpageExtractor()); 
+        //setContentPageExtractor(new NoSubpageExtractor()); 
         setNavigationExtractor(new PageNavigationExtractor("div.pagination a:containsOwn(下一页)",
                 "<a .*?href=\"(.*?)\">"));
         LinkedHashMap<String, String> params = new LinkedHashMap<String, String>();
@@ -50,7 +49,7 @@ public class ESF0731fdc extends Target {
         fieldSplitters.put("price", new FieldSplitter(" ", 2, new int[]{0,1}, new String[]{"totalPrice","price"},null));
         fieldSplitters.put("time", new FieldSplitter(" ", 3, new int[]{0,1,2}, new String[]{"role","owner","time"},valueConverter ));
         
-        setContentExtractor(new ContentExtractor("li>div.item",null,params,fieldSplitters));
+        setContentExtractor(new ContentExtractor("li>div.item",null,null,params,fieldSplitters));
     }
 
 }
