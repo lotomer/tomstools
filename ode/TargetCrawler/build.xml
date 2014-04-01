@@ -1,0 +1,88 @@
+﻿<?xml version="1.0" encoding="GBK"?>
+<project name="targetCrawler.build" default="all" basedir=".">
+    <property name="module.current.dir"     value="${basedir}"/>
+    <property name="module.src.dir"         value="${module.current.dir}/src/main/java"/>
+    <property name="module.resource.dir"    value="${module.current.dir}/src/main/resources"/>
+    <property name="module.script.dir"      value="${module.current.dir}/src/main/scripts"/>
+    <property name="module.build.dir"       value="${module.current.dir}/classes"/>
+    <property name="module.dest.dir"        value="${module.current.dir}/dest"/>
+    <property name="lib.dir"                value="${module.current.dir}/../common/lib"/>
+    <property name="module.name"            value="TomsTools-targetCrawler"/>
+    <property name="version"                value="1.0.0"/>
+    <property name="module.jar.name"        value="${module.name}-${version}.jar"/>
+    <property name="product.output.name"    value="${module.name}-app.zip"/>
+    <property name="product.output.dir"     value="${module.current.dir}/product"/>    
+    <!--
+        引用自动化脚本模板。（作者：龙昌茂）
+            提供任务:
+                1、clean         清理。依赖compile.clean,jar.clean,jar.output.clean
+                2、compile       编译
+                3、build         打包。依赖jar,confuse,jar.output
+                4、all           先清理(clean)，在打jar包(build)，然后再打发布包(product.package)
+            依赖属性（必须在import这个文件之前定义）：
+                1、module.name              模块名
+                2、module.src.dir           源文件目录
+                3、module.build.dir         编译结果目录
+                4、module.dest.dir          打包输出目录
+                5、module.jar.name          jar包的名字
+                6、lib.dir                  依赖的jar所在目录
+                7、module.resource.dir      定义资源文件目录。如果指定了该属性，则会将该目录下的资源文件全部copy到编译后目录进行打包
+                8、version                  版本
+
+            可自定义的属性：
+                1、jar.output.dir           打包后输出的目录
+                2、need_confuse             是否对jar包进行加扰。默认不加扰。如果需要加扰则定义该属性即可 
+                3、copyright                版权信息
+                4、tool.proguard.name       加扰工具包完整文件名
+                5、COMPILE_JAVA_HOME        编译时使用的jdk目录
+            可自定义的钩子任务（必须在import这个文件之后定义）：
+                1、compile.before           编译前钩子任务
+                2、compile.after            编译后钩子任务（将源文件目录下的非JAVA文件copy到编译后结果目录不在此列）
+                3、jar.before               打包前钩子任务
+                4、jar.after                打包后钩子任务
+                5、product.package          产品打包（不是打jar包）
+                
+            可自定义的文件集合（必须在import这个文件之后定义）：
+                1、compile.patternset.id    编译时的文件集合
+                2、jar.patternset.id        打包时的文件集合
+                3、copy.resource.id         编译后需要copy的资源文件集合
+    -->
+    <import file="${module.current.dir}/../build.template"/>
+    <target name="compile.before" >
+        <subant target="all">
+            <fileset dir="${module.current.dir}/../common/common" includes="build.xml"/>
+        </subant>
+    </target>
+    
+    <!-- 清理(覆盖模板中的，加入package.clean) -->
+    <target name="clean" depends="compile.clean,jar.clean,jar.output.clean,package.clean" />
+    
+    <target name="product.package">
+        <mkdir dir="${product.output.dir}"/>
+        <mkdir dir="${product.output.dir}/bin"/>
+        <mkdir dir="${product.output.dir}/lib"/>
+        <mkdir dir="${product.output.dir}/resources"/>
+        
+        <copy todir="${product.output.dir}/bin">
+            <fileset dir="${module.script.dir}" includes="**"/>
+        </copy>
+        <copy todir="${product.output.dir}/lib">
+            <fileset dir="${jar.output.dir}" includes="*common*.jar"/>            
+            <fileset dir="${jar.output.dir}" includes="${module.jar.name}"/>            
+            <fileset dir="${lib.dir}/logger" includes="log4j.jar"/>
+            <fileset dir="${lib.dir}/logger" includes="commons-logging.jar"/>
+            <fileset dir="${lib.dir}/http"   includes="*.jar"/>
+            <fileset dir="${lib.dir}/spring"   includes="*.jar"/>
+        </copy>
+        <copy todir="${product.output.dir}/resources">
+            <fileset dir="${module.resource.dir}" includes="**"/>
+        </copy>
+        <zip destfile="${module.current.dir}/${product.output.name}" basedir="${product.output.dir}">
+        </zip>
+    </target>
+    
+    <target name="package.clean">
+        <delete dir="${product.output.dir}"/>
+        <delete file="${module.current.dir}/${product.output.name}"/>
+    </target>
+</project>
