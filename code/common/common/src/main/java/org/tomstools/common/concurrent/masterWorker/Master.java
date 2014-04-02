@@ -4,10 +4,12 @@
 package org.tomstools.common.concurrent.masterWorker;
 
 import java.lang.Thread.State;
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Queue;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -18,11 +20,11 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  * @time 下午10:59:39
  * @version 1.0
  */
-public class Master<TASK,OUT> {
+public class Master<TASK,OUT> implements Iterable<OUT> {
     // 任务队列
     private Queue<TASK> taskQueue = new ConcurrentLinkedQueue<TASK>();
     // 进行队列
-    private Map<String, Thread> threadMap = new HashMap<String, Thread>();
+    private List<Thread> threads = new ArrayList<Thread>();
     // 处理结果
     private Map<String,OUT> resultMap = new ConcurrentHashMap<String, OUT>();
     
@@ -37,7 +39,7 @@ public class Master<TASK,OUT> {
         worker.setTaskQueue(taskQueue);
         // 生成业务处理器
         for (int i = 0; i < workerCount; i++) {
-            threadMap.put(Integer.toString(i), new Thread(worker, Integer.toString(i)));
+            threads.add(new Thread(worker, Integer.toString(i)));
         }
     }
     
@@ -47,8 +49,8 @@ public class Master<TASK,OUT> {
      * @since 1.0
      */
     public void execute(){
-        for (Entry<String, Thread> entry : threadMap.entrySet()) {
-            entry.getValue().start();
+        for (Thread thread : threads) {
+            thread.start();
         }
     }
     
@@ -67,8 +69,8 @@ public class Master<TASK,OUT> {
      * @since 1.0
      */
     public boolean isComplete(){
-        for (Entry<String, Thread> entry : threadMap.entrySet()) {
-            if (entry.getValue().getState() != State.TERMINATED){
+        for (Thread thread : threads) {
+            if (thread.getState() != State.TERMINATED){
                 // 还未结束
                 return false;
             }
@@ -76,13 +78,54 @@ public class Master<TASK,OUT> {
         
         return true;
     }
+
+    public Iterator<OUT> iterator() {
+        return new ResultIterator<OUT>(this);
+    }
     
     /**
-     * 获取处理结果
-     * @return 处理结果
-     * @since 1.0
+     * master-worker模式的结果收集器
+     * @author admin
+     * @date 2014年4月2日 
+     * @time 下午2:17:15
+     * @version 1.0
      */
-    public Map<String, OUT> getResult(){
-        return resultMap;
+    public static class ResultIterator<OUT> implements Iterator<OUT> {
+        private Master<?, OUT> master;
+        private Map<String, OUT> resultData;
+        private OUT value;
+
+        public ResultIterator(Master<?, OUT> master) {
+            this.master = master;
+            resultData = master.resultMap;
+        }
+
+        public boolean hasNext() {
+            value = null;
+            while (!resultData.isEmpty() || !master.isComplete()) {
+                // 收集结果，并在收集之后删除
+                Set<String> keys = resultData.keySet();
+                String key = null;
+                for (String k : keys) {
+                    // 一次只处理一条
+                    key = k;
+                    break;
+                }
+                if (null != key) {
+                    value = resultData.remove(key);
+                    break;
+                }
+            }
+            
+            return null != value;
+        }
+
+        public void remove() {
+            // do nonthing
+        }
+
+        public OUT next() {
+            return value;
+        }
     }
 }

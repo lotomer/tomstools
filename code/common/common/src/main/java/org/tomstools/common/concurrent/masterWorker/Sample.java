@@ -3,8 +3,7 @@
  */
 package org.tomstools.common.concurrent.masterWorker;
 
-import java.util.Map;
-import java.util.Set;
+
 
 /**
  * master-worker模式测试代码
@@ -16,39 +15,55 @@ import java.util.Set;
  */
 public class Sample {
     public static void main(String[] args) {
+        long st = System.currentTimeMillis();
+        for (int i = 0; i < 1000; i++) {
+            test();
+        }
+        System.out.println(System.currentTimeMillis() - st);
+    }
+
+    private static void test() {
         Master<Integer, Integer> master = new Master<Integer, Integer>(new PlusWorker(), 5);
         // 添加任务处理对象
-        for (int i = 0; i < 1000; i++) {
+        for (int i = 0; i < 10000; i++) {
             master.submit(i);
         }
         // 开始执行任务
         master.execute();
         // 收集处理结果
         long sum = 0;
-        Map<String, Integer> resultData = master.getResult();
-        while (!resultData.isEmpty() || !master.isComplete()) {
-            // 收集结果，并在收集之后删除
-            Set<String> keys = resultData.keySet();
-            String key = null;
-            for (String k : keys) {
-                // 一次只处理一条
-                key = k;
-                break;
-            }
-            if (null != key) {
-                Integer v = resultData.get(key);
-                if (null != v){
-                    // 收集结果
-                    System.out.println(v);
-                    sum += v;
-                }
-                // 删除已收集的结果
-                resultData.remove(key);
-            }
-            resultData = master.getResult();
-            System.out.println("=== " + sum);
+        for (Integer integer : master) {
+            sum +=integer;
         }
+//        Iterator<Integer> collector = master.iterator();
+//        while(collector.hasNext()){
+//            sum += collector.next();
+//        }
         
+//        Map<String, Integer> resultData = master.getResult();
+//        while (!resultData.isEmpty() || !master.isComplete()) {
+//            // 收集结果，并在收集之后删除
+//            Set<String> keys = resultData.keySet();
+//            String key = null;
+//            for (String k : keys) {
+//                // 一次只处理一条
+//                key = k;
+//                break;
+//            }
+//            if (null != key) {
+//                Integer v = resultData.get(key);
+//                if (null != v){
+//                    // 收集结果
+//                    //System.out.println(v);
+//                    sum += v;
+//                }
+//                // 删除已收集的结果
+//                resultData.remove(key);
+//            }
+//            resultData = master.getResult();
+//            //System.out.println("=== " + sum);
+//        }
+//        
         System.out.println("********* " + sum);
     }
 
