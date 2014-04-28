@@ -24,17 +24,19 @@ import org.tomstools.crawler.extractor.ContentPageExtractor;
 public class BaseContentPageExtractor implements ContentPageExtractor {
     private String cssQuery;
     private BaseContentPageExtractor contentPageExtractor;
-    private Pattern pattern;
+    private Pattern pattern;        // 提取规则
     private String format;
+    private Pattern patternFilter;  // 过滤规则
 
     /**
      * @param cssQuery 元素选取表达式
      * @param format 子页面url模板
      * @param regex 
      *            提取子页面url的正则表达式，与format配合使用，将正则表达式的group数据代入format中以生成完整的子页面url
+     * @param filterRegex 过滤规则的正则表达式，如果匹配上，则直接过滤不进行子页面的提取
      * @since 1.0
      */
-    public BaseContentPageExtractor(String cssQuery, String format, String regex) {
+    public BaseContentPageExtractor(String cssQuery, String format, String regex,String filterRegex) {
         this.cssQuery = cssQuery;
         pattern = Pattern.compile(regex, Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE
                 | Pattern.DOTALL);
@@ -42,6 +44,12 @@ public class BaseContentPageExtractor implements ContentPageExtractor {
             this.format = "%s";
         }else{
             this.format = format;
+        }
+        if (!Utils.isEmpty(filterRegex)){
+            patternFilter = Pattern.compile(filterRegex, Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE
+                    | Pattern.DOTALL);
+        }else{
+            patternFilter = null;
         }
     }
 
@@ -51,6 +59,10 @@ public class BaseContentPageExtractor implements ContentPageExtractor {
         element.select(cssQuery, new ElementProcessor() {
             public boolean process(Element element) {
                 if (null != element) {
+                    // 首先看是否符合过滤规则，如果符合则直接过滤
+                    if (null != patternFilter && patternFilter.matcher(element.getCode()).matches()){
+                        return true;
+                    }
                     // 根据模板获取子页面url
                     Matcher m = pattern.matcher(element.getCode());
                     if (m.matches()) {

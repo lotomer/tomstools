@@ -3,11 +3,13 @@
  */
 package org.tomstools.crawler.example;
 
-import java.util.LinkedHashMap;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.tomstools.crawler.config.CrawlingRule;
 import org.tomstools.crawler.config.Target;
 import org.tomstools.crawler.extractor.ContentExtractor;
+import org.tomstools.crawler.extractor.ContentExtractor.Field;
 import org.tomstools.crawler.extractor.impl.PageNavigationExtractor;
 import org.tomstools.crawler.parser.HTMLParser;
 
@@ -29,15 +31,15 @@ public class Floor0731fdc extends Target {
         //ssetContentPageExtractor(new NoSubpageExtractor()); 
         setNavigationExtractor(new PageNavigationExtractor("div#page ul.pageno a[title=下一页]",
                 "<a .*?href=\"(.*?)\""));
-        LinkedHashMap<String, String> params = new LinkedHashMap<String, String>();
-        params.put("floorName", "dl>dt>ul>li.floorname");
-        params.put("type", "dl>dt>ul>li.type");
-        params.put("price", "dl>dt>ul>li.price");
-        params.put("tel", "dl>dd:eq(1)");
-        params.put("comp", "dl>dd:eq(2)");
-        params.put("addr", "dl>dd:eq(3)");
+        List<Field> fields = new ArrayList<>();
+        fields.add(new ContentExtractor.TextField("floorName", "dl>dt>ul>li.floorname"));
+        fields.add(new ContentExtractor.TextField("type", "dl>dt>ul>li.type"));
+        fields.add(new ContentExtractor.TextField("price", "dl>dt>ul>li.price"));
+        fields.add(new ContentExtractor.TextField("tel", "dl>dd:eq(1)"));
+        fields.add(new ContentExtractor.TextField("comp", "dl>dd:eq(2)"));
+        fields.add(new ContentExtractor.TextField("addr", "dl>dd:eq(3)"));
         
-        setContentExtractor(new ContentExtractor("div#ddd>div.list-con",null,null,params,null));
+        setContentExtractor(new ContentExtractor("div#ddd>div.list-con",null,null,fields));
     }
 
 }

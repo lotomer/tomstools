@@ -3,16 +3,24 @@
  */
 package org.tomstools.crawler.example;
 
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import org.tomstools.crawler.common.FieldSplitter;
+import org.tomstools.crawler.common.Logger;
 import org.tomstools.crawler.common.String2DateTimeString;
 import org.tomstools.crawler.common.ValueConvertible;
 import org.tomstools.crawler.config.CrawlingRule;
 import org.tomstools.crawler.config.Target;
 import org.tomstools.crawler.extractor.ContentExtractor;
+import org.tomstools.crawler.extractor.ContentExtractor.Field;
 import org.tomstools.crawler.extractor.impl.PageNavigationExtractor;
 import org.tomstools.crawler.parser.HTMLParser;
 
@@ -25,6 +33,7 @@ import org.tomstools.crawler.parser.HTMLParser;
  * @version 1.0
  */
 public class ESF0731fdc extends Target {
+    private static final Logger LOGGER = Logger.getLogger(ESF0731fdc.class);
     public ESF0731fdc(CrawlingRule crawlingRule) {
         super();
         setName("0731fdc-esf");
@@ -35,21 +44,42 @@ public class ESF0731fdc extends Target {
         //setContentPageExtractor(new NoSubpageExtractor()); 
         setNavigationExtractor(new PageNavigationExtractor("div.pagination a:containsOwn(下一页)",
                 "<a .*?href=\"(.*?)\">"));
-        LinkedHashMap<String, String> params = new LinkedHashMap<String, String>();
-        params.put("title", "div.title>a>h5");
-        params.put("info", "div.title");
-        params.put("area", "div.area");
-        params.put("price", "div.price");
-        params.put("time", "div.time");
-        
         Map<String, ValueConvertible<String, String>> valueConverter = new HashMap<String, ValueConvertible<String,String>>();
         valueConverter.put("time", new String2DateTimeString("yyyy-MM-dd", "yyyy-MM-dd hh"));
-        Map<String,FieldSplitter> fieldSplitters = new HashMap<String, FieldSplitter>();
-        fieldSplitters.put("area", new FieldSplitter(" ", 2, new int[]{0}, new String[]{"area"},null));
-        fieldSplitters.put("price", new FieldSplitter(" ", 2, new int[]{0,1}, new String[]{"totalPrice","price"},null));
-        fieldSplitters.put("time", new FieldSplitter(" ", 3, new int[]{0,1,2}, new String[]{"role","owner","time"},valueConverter ));
+        List<Field> fields = new ArrayList<>();
+        fields.add(new ContentExtractor.TextField("title", "div.title>a>h5"));
+        fields.add(new ContentExtractor.TextField("info", "div.title"));
+        fields.add(new ContentExtractor.TextField("area", "div.area",new FieldSplitter(" ", 2, new int[]{0}, new String[]{"area"},null)));
+        fields.add(new ContentExtractor.TextField("price", "div.price",new FieldSplitter(" ", 2, new int[]{0,1}, new String[]{"totalPrice","price"},null)));
+        fields.add(new ContentExtractor.TextField("time", "div.time",new FieldSplitter(" ", 3, new int[]{0,1,2}, new String[]{"role","owner","time"},valueConverter)));
         
-        setContentExtractor(new ContentExtractor("li>div.item",null,null,params,fieldSplitters));
+        setContentExtractor(new ContentExtractor("li>div.item",null,null,fields));
     }
 
+    static class TaskData implements Callable<String>{
+        private String data;
+        public TaskData(String a){
+            this.data =a ;
+        }
+        @Override
+        public String call() throws Exception {
+            Thread.sleep(1000 * 5);
+            return data;
+        }
+        
+    }
+    public static void main(String[] args) throws InterruptedException, ExecutionException {
+        TaskData taskData = new TaskData("aa");
+        ExecutorService executor = Executors.newFixedThreadPool(1);
+        Future<?> f = executor.submit(taskData);
+        LOGGER.info("start");
+//        while(!f.isDone()){
+//            LOGGER.info("is not done!" + f);
+//            Thread.sleep(500);
+//        }
+        LOGGER.info(f.get());
+        LOGGER.info(executor.isShutdown());
+        executor.shutdown();
+        LOGGER.info(executor.isShutdown());
+    }
 }

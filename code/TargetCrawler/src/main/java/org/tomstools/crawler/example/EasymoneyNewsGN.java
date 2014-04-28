@@ -3,11 +3,13 @@
  */
 package org.tomstools.crawler.example;
 
-import java.util.LinkedHashMap;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.tomstools.crawler.config.CrawlingRule;
 import org.tomstools.crawler.config.Target;
 import org.tomstools.crawler.extractor.ContentExtractor;
+import org.tomstools.crawler.extractor.ContentExtractor.Field;
 import org.tomstools.crawler.extractor.impl.BaseContentPageExtractor;
 import org.tomstools.crawler.extractor.impl.PageNavigationExtractor;
 import org.tomstools.crawler.parser.HTMLParser;
@@ -26,13 +28,13 @@ public class EasymoneyNewsGN extends Target {
         setUrl("http://finance.eastmoney.com/news/cgnjj.html");
         setCrawlingRule(crawlingRule);
         setParser(new HTMLParser());
-        setContentPageExtractor(new BaseContentPageExtractor("div.mainCont div.list li a","",""));  
+        setContentPageExtractor(new BaseContentPageExtractor("div.mainCont div.list li a","","",null));  
         setNavigationExtractor(new PageNavigationExtractor("div.PageBox>div.Page a:containsOwn(下一页)", "<a .*?href=\"(.*?\\.html)\""));
-        LinkedHashMap<String, String> params = new LinkedHashMap<String, String>();
-        params.put("title", "h1");
-        params.put("time", "div.info span:eq(1)");
-        params.put("content", "div#ContentBody");
-        setContentExtractor(new ContentExtractor("div.newText.new",null,null,params,null));
+        List<Field> fields = new ArrayList<>();
+        fields.add(new ContentExtractor.TextField("title", "h1"));
+        fields.add(new ContentExtractor.TextField("time", "div.info span:eq(1)"));
+        fields.add(new ContentExtractor.TextField("content", "div#ContentBody"));
+        setContentExtractor(new ContentExtractor("div.newText.new",null,null,fields));
     }
     
 }

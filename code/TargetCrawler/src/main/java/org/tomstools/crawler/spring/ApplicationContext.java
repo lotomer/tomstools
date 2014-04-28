@@ -22,7 +22,7 @@ public class ApplicationContext {
     
     public ApplicationContext() {
         super();
-        String configFile = System.getProperty("SPRING_CONFIG_FILE");
+        String configFile = System.getProperty("application_xml");
         if (null == configFile){
             context = new ClassPathXmlApplicationContext(DEFALUT_CONFIG_FILE);
         }else{
