@@ -44,7 +44,7 @@ public class FileResultDAO implements ResultDAO {
     private String separator;
     private Set<String> specialWords;
     private String newLine;
-
+    private String fileCharset = "GBK";
     /**
      * 默认构造函数
      * 
@@ -106,6 +106,7 @@ public class FileResultDAO implements ResultDAO {
             }
             line.append(trimSpecial(entry.getValue()));
         }
+        //LOGGER.info(line.toString());
         line.append("\n");
         return line.toString();
     }
@@ -163,7 +164,7 @@ public class FileResultDAO implements ResultDAO {
                 file.getParentFile().mkdirs();
             }
             FileOutputStream fos = new FileOutputStream(file, false);
-            OutputStreamWriter w = new OutputStreamWriter(fos, "GB2312");
+            OutputStreamWriter w = new OutputStreamWriter(fos, fileCharset);
             // 输出表头
             String[] titles = target.getContentExtractor().getTitles();
             if (null != titles){
@@ -233,6 +234,15 @@ public class FileResultDAO implements ResultDAO {
     public final void setNewLine(String newLine) {
         this.newLine = newLine;
         this.specialWords.add(newLine);
+    }
+
+    
+    /**
+     * @param fileCharset 设置 输出文件编码格式。默认GBK
+     * @since 1.0
+     */
+    public final void setFileCharset(String fileCharset) {
+        this.fileCharset = fileCharset;
     }
 
     public static void main(String[] args) {

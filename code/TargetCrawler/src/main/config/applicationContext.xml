@@ -8,7 +8,7 @@
 
     <!-- in-memory database and a datasource -->
     <!-- 配置文件导入 -->
-    <context:property-placeholder location="jdbc.properties"
+    <context:property-placeholder location="config.properties"
         ignore-unresolvable="true" />
     <!-- 注册自定义属性编辑器 <bean id="customEditorConfigure" class="org.springframework.beans.factory.config.CustomEditorConfigurer"> 
         <property name="customEditors"> <map> <entry key="java.util.Map"> <bean class="cn.com.talkweb.classify.spring.MapEditor"> 
@@ -41,11 +41,12 @@
     </bean>
 
     <import resource="0731fdc-floor-cs.xml"/>
-    
+    <import resource="0731fdc-floor-zz.xml"/>
+    <import resource="0731fdc-floor-xt.xml"/>
     <!-- 结果数据操作对象：文件方式。对应 org.tomstools.crawler.dao.ResultDAO -->
     <bean id="fileResultDAO" class="org.tomstools.crawler.dao.FileResultDAO" scope="prototype">
         <!-- 构造函数参数 1: 文件保存的根目录 -->
-        <constructor-arg index="0" type="java.lang.String" value="e:\work"></constructor-arg>
+        <constructor-arg index="0" type="java.lang.String" value="${file.result.dir}"></constructor-arg>
         <!-- 构造函数参数 2: 结果数据保存时各字段之间的分隔符 -->
         <constructor-arg index="1" type="java.lang.String">
             <value>,</value>
@@ -67,8 +68,15 @@
         <!-- 构造函数参数 1: 定向爬取目标列表 List<org.tomstools.crawler.config.Target> -->
         <constructor-arg index="0">
             <list>
-                <!-- <ref bean="target-0731fdc-floor-cs" /> -->
+                <!-- <ref bean="target-0731fdc-floor-cs" />
                 <ref bean="target-0731fdc-floor-cs-detail"/>
+                <ref bean="target-0731fdc-floor-zz" />
+                <ref bean="target-0731fdc-floor-xt" />
+                 -->
+                 <ref bean="target-0731fdc-floor-xt" />
+                 <ref bean="target-0731fdc-floor-zz" />
+                 <ref bean="target-0731fdc-floor-cs" />
+                 <ref bean="target-0731fdc-floor-cs-detail"/>
             </list>
         </constructor-arg>
         <!-- 构造函数参数 2: 结果数据操作对象。对应 接口 org.tomstools.crawler.dao.ResultDAO -->

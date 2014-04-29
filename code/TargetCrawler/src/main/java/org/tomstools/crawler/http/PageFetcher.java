@@ -7,6 +7,9 @@ import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.net.UnknownHostException;
+import java.nio.charset.Charset;
+import java.nio.charset.IllegalCharsetNameException;
+import java.nio.charset.UnsupportedCharsetException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -21,13 +24,13 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.conn.ConnectTimeoutException;
+import org.apache.http.entity.ContentType;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.util.EntityUtils;
 import org.tomstools.crawler.common.Logger;
 import org.tomstools.crawler.common.Utils;
-import org.tomstools.crawler.util.HTMLUtil;
 
 
 /**
@@ -42,9 +45,23 @@ public class PageFetcher {
     private Map<String, RequestInfo> requestInfos = new HashMap<String, RequestInfo>();
     private int connectionTimeOut = 8000;
     private int socketTimeOut = 10000;
-
+    private int tryCount = 3;
+    private Charset defaultCharset;
+    private static final String DEFAULT_CHARSET_NAME = "UTF8";
     public PageFetcher() {
-        super();
+        this(DEFAULT_CHARSET_NAME);
+    }
+
+    public PageFetcher(String defaultCharsetName) {
+        try{
+            defaultCharset = Charset.forName(defaultCharsetName);
+        }catch(IllegalCharsetNameException e){
+            defaultCharset = Charset.forName(DEFAULT_CHARSET_NAME);
+        }catch(UnsupportedCharsetException e){
+            defaultCharset = Charset.forName(DEFAULT_CHARSET_NAME);
+        }catch(IllegalArgumentException e){
+            defaultCharset = Charset.forName(DEFAULT_CHARSET_NAME);
+        }
     }
 
     public boolean login(URL url) {
@@ -84,23 +101,24 @@ public class PageFetcher {
         // 初始化连接
         initHttp(httpget);
         logger.debug("executing request " + httpget.getURI());
-        for (int i = 0; i < 3; ++i) {
+        for (int i = 0; i < tryCount; ++i) {
             // 设置连接持续时间，每次失败则延长5秒
-            httpclient.getParams().setIntParameter(CoreConnectionPNames.SO_TIMEOUT, socketTimeOut + i * 5000);
+            httpclient.getParams().setIntParameter(CoreConnectionPNames.SO_TIMEOUT, socketTimeOut + i * i * 5000);
             try {
                 HttpResponse response = httpclient.execute(httpget);
                 HttpEntity entity = response.getEntity();
                 logger.debug("Response status code: " + response.getStatusLine().getStatusCode());
                 if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
                     if (entity != null) {
-                        byte[] contents = EntityUtils.toByteArray(entity);
-                        String charset = EntityUtils.getContentCharSet(entity);
-                        if (Utils.isEmpty(charset)) {
-                            charset = HTMLUtil.parseCharset(new String(contents)).toUpperCase();
+                        //byte[] contents = EntityUtils.toByteArray(entity);
+                        Charset charset = ContentType.getOrDefault(entity).getCharset();
+                        if (!Utils.isEmpty(charset)) {
+                            //charsetName = HTMLUtil.parseCharset(new String(contents)).toUpperCase();
+                            charset = defaultCharset;
                         }
-                        logger.debug("page charset: " + charset);
-                        responseText = new String(contents, charset);
-                        logger.debug(responseText);
+                        logger.info("page charset: " + charset);
+                        responseText = EntityUtils.toString(entity, charset);
+                        logger.info(responseText);
                     }
                 }
 

@@ -57,7 +57,7 @@
                 </constructor-arg>
                 <!-- 构造函数参数 2: 表头 -->
                 <constructor-arg index="1" type="java.lang.String[]">
-                    <value><![CDATA[楼盘名,曾用名,装修状态,所属区域,项目地址,参考价格,开盘时间,竣工时间,容积率,物业费,建筑结构]]></value>
+                    <value><![CDATA[楼盘名,曾用名,装修状态,所属区域,项目地址,售楼电话,申报公示价格区间,参考价格,住宅最高成交价,住宅最低成交价格,开盘时间,竣工时间,总占地面积,总建筑面积,容积率,绿化率,物业费,建筑结构,交通状况]]></value>
                 </constructor-arg>
                 <!-- 构造函数参数 3: 固定属性 -->
                 <constructor-arg index="2">
@@ -123,11 +123,51 @@
                         <bean class="org.tomstools.crawler.extractor.ContentExtractor.TextField">
                             <!-- 构造函数参数 1: 名称 -->
                             <constructor-arg index="0" type="java.lang.String">
+                                <value><![CDATA[售楼电话]]></value>
+                            </constructor-arg>
+                            <!-- 构造函数参数 2: 元素选择表达式 -->
+                            <constructor-arg index="1" type="java.lang.String">
+                                <value><![CDATA[div#item-right-con>dl:eq(0)>dt:eq(7)]]></value>
+                            </constructor-arg>
+                        </bean>
+                        <bean class="org.tomstools.crawler.extractor.ContentExtractor.TextField">
+                            <!-- 构造函数参数 1: 名称 -->
+                            <constructor-arg index="0" type="java.lang.String">
+                                <value><![CDATA[申报公示价格区间]]></value>
+                            </constructor-arg>
+                            <!-- 构造函数参数 2: 元素选择表达式 -->
+                            <constructor-arg index="1" type="java.lang.String">
+                                <value><![CDATA[div#item-right-con>dl:eq(1)>dd:eq(2)>font]]></value>
+                            </constructor-arg>
+                        </bean>
+                        <bean class="org.tomstools.crawler.extractor.ContentExtractor.TextField">
+                            <!-- 构造函数参数 1: 名称 -->
+                            <constructor-arg index="0" type="java.lang.String">
                                 <value><![CDATA[参考价格]]></value>
                             </constructor-arg>
                             <!-- 构造函数参数 2: 元素选择表达式 -->
                             <constructor-arg index="1" type="java.lang.String">
                                 <value><![CDATA[div#item-right-con>dl:eq(1)>dd:eq(3)>font]]></value>
+                            </constructor-arg>
+                        </bean>
+                        <bean class="org.tomstools.crawler.extractor.ContentExtractor.TextField">
+                            <!-- 构造函数参数 1: 名称 -->
+                            <constructor-arg index="0" type="java.lang.String">
+                                <value><![CDATA[住宅最高成交价]]></value>
+                            </constructor-arg>
+                            <!-- 构造函数参数 2: 元素选择表达式 -->
+                            <constructor-arg index="1" type="java.lang.String">
+                                <value><![CDATA[div#item-right-con>dl:eq(1)>dd:eq(4)>font]]></value>
+                            </constructor-arg>
+                        </bean>
+                        <bean class="org.tomstools.crawler.extractor.ContentExtractor.TextField">
+                            <!-- 构造函数参数 1: 名称 -->
+                            <constructor-arg index="0" type="java.lang.String">
+                                <value><![CDATA[住宅最低成交价格]]></value>
+                            </constructor-arg>
+                            <!-- 构造函数参数 2: 元素选择表达式 -->
+                            <constructor-arg index="1" type="java.lang.String">
+                                <value><![CDATA[div#item-right-con>dl:eq(1)>dd:eq(5)>font]]></value>
                             </constructor-arg>
                         </bean>
                         <bean class="org.tomstools.crawler.extractor.ContentExtractor.TextField">
@@ -153,11 +193,41 @@
                         <bean class="org.tomstools.crawler.extractor.ContentExtractor.TextField">
                             <!-- 构造函数参数 1: 名称 -->
                             <constructor-arg index="0" type="java.lang.String">
+                                <value><![CDATA[总占地面积]]></value>
+                            </constructor-arg>
+                            <!-- 构造函数参数 2: 元素选择表达式 -->
+                            <constructor-arg index="1" type="java.lang.String">
+                                <value><![CDATA[div#item-right-con>dl:eq(2)>dd:eq(2)]]></value>
+                            </constructor-arg>
+                        </bean>
+                        <bean class="org.tomstools.crawler.extractor.ContentExtractor.TextField">
+                            <!-- 构造函数参数 1: 名称 -->
+                            <constructor-arg index="0" type="java.lang.String">
+                                <value><![CDATA[总建筑面积]]></value>
+                            </constructor-arg>
+                            <!-- 构造函数参数 2: 元素选择表达式 -->
+                            <constructor-arg index="1" type="java.lang.String">
+                                <value><![CDATA[div#item-right-con>dl:eq(2)>dd:eq(3)]]></value>
+                            </constructor-arg>
+                        </bean>
+                        <bean class="org.tomstools.crawler.extractor.ContentExtractor.TextField">
+                            <!-- 构造函数参数 1: 名称 -->
+                            <constructor-arg index="0" type="java.lang.String">
                                 <value><![CDATA[容积率]]></value>
                             </constructor-arg>
                             <!-- 构造函数参数 2: 元素选择表达式 -->
                             <constructor-arg index="1" type="java.lang.String">
                                 <value><![CDATA[div#item-right-con>dl:eq(2)>dd:eq(4)]]></value>
+                            </constructor-arg>
+                        </bean>
+                        <bean class="org.tomstools.crawler.extractor.ContentExtractor.TextField">
+                            <!-- 构造函数参数 1: 名称 -->
+                            <constructor-arg index="0" type="java.lang.String">
+                                <value><![CDATA[绿化率]]></value>
+                            </constructor-arg>
+                            <!-- 构造函数参数 2: 元素选择表达式 -->
+                            <constructor-arg index="1" type="java.lang.String">
+                                <value><![CDATA[div#item-right-con>dl:eq(2)>dd:eq(5)]]></value>
                             </constructor-arg>
                         </bean>
                         <bean class="org.tomstools.crawler.extractor.ContentExtractor.TextField">
@@ -178,6 +248,16 @@
                             <!-- 构造函数参数 2: 元素选择表达式 -->
                             <constructor-arg index="1" type="java.lang.String">
                                 <value><![CDATA[div#item-right-con>dl:eq(2)>dd:eq(8)]]></value>
+                            </constructor-arg>
+                        </bean>
+                        <bean class="org.tomstools.crawler.extractor.ContentExtractor.TextField">
+                            <!-- 构造函数参数 1: 名称 -->
+                            <constructor-arg index="0" type="java.lang.String">
+                                <value><![CDATA[交通状况]]></value>
+                            </constructor-arg>
+                            <!-- 构造函数参数 2: 元素选择表达式 -->
+                            <constructor-arg index="1" type="java.lang.String">
+                                <value><![CDATA[div#item-right-con>dl:eq(2)>dd:eq(13)]]></value>
                             </constructor-arg>
                         </bean>
                     </list>

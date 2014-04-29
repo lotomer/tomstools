@@ -21,6 +21,7 @@ public class Target {
     private String url; // 目标主页面URL
     private String name; // 目标名称
     private String regex4topDataFalg; // 匹配置顶数据的正则表达式
+    private String defaultCharsetName; // 默认字符集
     private Parser parser; // 目标主页面解析器
     private ContentPageExtractor contentPageExtractor; // 内容页面抽取工具
     private NavigationExtractor navigationExtractor; // 分页导航抽取工具
@@ -73,6 +74,22 @@ public class Target {
      */
     public final void setRegex4topDataFalg(String regex4topDataFalg) {
         this.regex4topDataFalg = regex4topDataFalg;
+    }
+
+    /**
+     * @return 返回 默认字符集
+     * @since 1.0
+     */
+    public final String getDefaultCharsetName() {
+        return defaultCharsetName;
+    }
+
+    /**
+     * @param defaultCharsetName 设置 默认字符集
+     * @since 1.0
+     */
+    public final void setDefaultCharsetName(String defaultCharsetName) {
+        this.defaultCharsetName = defaultCharsetName;
     }
 
     /**

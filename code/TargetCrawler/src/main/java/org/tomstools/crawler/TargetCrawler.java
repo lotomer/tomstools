@@ -72,7 +72,7 @@ public class TargetCrawler implements Runnable {
             for (final TargetBusi targetBusi : targetBusis) {
                 // LOGGER.info(target);
                 if (targetBusi.prepare()) {
-                    PageFetcher fetcher = new PageFetcher();
+                    PageFetcher fetcher = new PageFetcher(targetBusi.getTarget().getDefaultCharsetName());
                     fetcher.setConnectionTimeOut(targetBusi.getTarget().getCrawlingRule().getConnectionTimeOut());
                     fetcher.setSocketTimeOut(targetBusi.getTarget().getCrawlingRule().getSocketTimeOut());
                     processMainPage(targetBusi, fetcher);
