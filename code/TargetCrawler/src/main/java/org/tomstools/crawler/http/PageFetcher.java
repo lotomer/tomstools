@@ -116,9 +116,9 @@ public class PageFetcher {
                             //charsetName = HTMLUtil.parseCharset(new String(contents)).toUpperCase();
                             charset = defaultCharset;
                         }
-                        logger.info("page charset: " + charset);
+                        logger.debug("page charset: " + charset);
                         responseText = EntityUtils.toString(entity, charset);
-                        logger.info(responseText);
+                        logger.debug(responseText);
                     }
                 }
 

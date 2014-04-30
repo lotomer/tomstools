@@ -165,6 +165,7 @@ public class TargetBusi {
                 // 第一个标识是最后处理过的标识，其他都是置顶数据
                 if (null == latestFlag) {
                     latestFlag = flag;
+                    LOGGER.warn("The old flag is: " + latestFlag);
                 } else {
                     // 保存置顶数据
                     topDatas.add(flag);
