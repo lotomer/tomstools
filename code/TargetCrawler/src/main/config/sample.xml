@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xsi:schemaLocation="   
+     http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd   
+     http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+
+    <!-- 待爬取对象：0731fdc 株洲新房咨询。对应 org.tomstools.crawler.config.Target -->
+    <bean id="target-lecai-shuangseqiu" class="org.tomstools.crawler.config.Target" scope="prototype">
+        <property name="name" value="lecai-shuangseqiu"></property>
+        <property name="url" value="http://baidu.lecai.com/lottery/draw/list/50"></property>
+        <property name="crawlingRule" ref="crawlingRule"></property>
+        <property name="parser" ref="htmlParser"></property>
+        <property name="contentPageExtractor">
+            <null></null>
+        </property>
+        <property name="navigationExtractor">
+            <bean class="org.tomstools.crawler.extractor.impl.TemplatePageNavigationExtractor"
+                scope="prototype">
+                <!-- 构造函数参数 1: 元素选择表达式 -->
+                <constructor-arg index="0" type="java.lang.String">
+                    <value><![CDATA[div.year_select select]]></value>
+                </constructor-arg>
+                <!-- 构造函数参数 2: 下一页对应的url的正则表达式，group 1对应url值 -->
+                <constructor-arg index="1" type="java.lang.String">
+                    <value><![CDATA[<option .*?value=\"(.*?)\">]]></value>
+                </constructor-arg>
+                <!-- 构造函数参数 3: url模板字符串，使用%s做数字的占位符 -->
+                <constructor-arg index="2" type="java.lang.String">
+                    <value><![CDATA[http://baidu.lecai.com/lottery/draw/list/50?d=%s]]></value>
+                </constructor-arg>
+            </bean>
+        </property>
+        <property name="contentExtractor">
+            <!-- 内容抽取器。对应 org.tomstools.crawler.extractor.ContentExtractor -->
+            <bean class="org.tomstools.crawler.extractor.ContentExtractor" scope="prototype">
+                <!-- 构造函数参数 1: 元素选择表达式 -->
+                <constructor-arg index="0" type="java.lang.String">
+                    <value><![CDATA[table#draw_list tbody>tr]]></value>
+                </constructor-arg>
+                <!-- 构造函数参数 2: 表头。列名之间用英文逗号“,”分隔 -->
+                <constructor-arg index="1" type="java.lang.String[]">
+                    <null></null>
+                </constructor-arg>
+                <!-- 构造函数参数 3: 固定属性 -->
+                <constructor-arg index="2">
+                    <list>
+                    </list>
+                </constructor-arg>
+                <!-- 构造函数参数 4: 提取属性配置信息 -->
+                <constructor-arg index="3">
+                    <list>
+                        <bean class="org.tomstools.crawler.extractor.ContentExtractor.TextField">
+                            <!-- 构造函数参数 1: 名称 -->
+                            <constructor-arg index="0" type="java.lang.String">
+                                <value><![CDATA[time]]></value>
+                            </constructor-arg>
+                            <!-- 构造函数参数 2: 元素选择表达式 -->
+                            <constructor-arg index="1" type="java.lang.String">
+                                <value><![CDATA[td.td1]]></value>
+                            </constructor-arg>
+                            <!-- 构造函数参数3: 字段拆分器 
+                            <constructor-arg index="2" type="org.tomstools.crawler.common.FieldSplitter">
+                            </constructor-arg>-->
+                        </bean>
+                        <bean class="org.tomstools.crawler.extractor.ContentExtractor.TextField">
+                            <!-- 构造函数参数 1: 名称 -->
+                            <constructor-arg index="0" type="java.lang.String">
+                                <value><![CDATA[qishu]]></value>
+                            </constructor-arg>
+                            <!-- 构造函数参数 2: 元素选择表达式 -->
+                            <constructor-arg index="1" type="java.lang.String">
+                                <value><![CDATA[td.td2>a]]></value>
+                            </constructor-arg>
+                        </bean>
+                        <bean class="org.tomstools.crawler.extractor.ContentExtractor.TextField">
+                            <!-- 构造函数参数 1: 名称 -->
+                            <constructor-arg index="0" type="java.lang.String">
+                                <value><![CDATA[b1]]></value>
+                            </constructor-arg>
+                            <!-- 构造函数参数 2: 元素选择表达式 -->
+                            <constructor-arg index="1" type="java.lang.String">
+                                <value><![CDATA[td.td3>span.result>span:eq(0)]]></value>
+                            </constructor-arg>
+                        </bean>
+                        <bean class="org.tomstools.crawler.extractor.ContentExtractor.TextField">
+                            <!-- 构造函数参数 1: 名称 -->
+                            <constructor-arg index="0" type="java.lang.String">
+                                <value><![CDATA[b2]]></value>
+                            </constructor-arg>
+                            <!-- 构造函数参数 2: 元素选择表达式 -->
+                            <constructor-arg index="1" type="java.lang.String">
+                                <value><![CDATA[td.td3>span.result>span:eq(1)]]></value>
+                            </constructor-arg>
+                        </bean>
+                        <bean class="org.tomstools.crawler.extractor.ContentExtractor.TextField">
+                            <!-- 构造函数参数 1: 名称 -->
+                            <constructor-arg index="0" type="java.lang.String">
+                                <value><![CDATA[b3]]></value>
+                            </constructor-arg>
+                            <!-- 构造函数参数 2: 元素选择表达式 -->
+                            <constructor-arg index="1" type="java.lang.String">
+                                <value><![CDATA[td.td3>span.result>span:eq(2)]]></value>
+                            </constructor-arg>
+                        </bean>
+                        <bean class="org.tomstools.crawler.extractor.ContentExtractor.TextField">
+                            <!-- 构造函数参数 1: 名称 -->
+                            <constructor-arg index="0" type="java.lang.String">
+                                <value><![CDATA[b4]]></value>
+                            </constructor-arg>
+                            <!-- 构造函数参数 2: 元素选择表达式 -->
+                            <constructor-arg index="1" type="java.lang.String">
+                                <value><![CDATA[td.td3>span.result>span:eq(3)]]></value>
+                            </constructor-arg>
+                        </bean>
+                        <bean class="org.tomstools.crawler.extractor.ContentExtractor.TextField">
+                            <!-- 构造函数参数 1: 名称 -->
+                            <constructor-arg index="0" type="java.lang.String">
+                                <value><![CDATA[b5]]></value>
+                            </constructor-arg>
+                            <!-- 构造函数参数 2: 元素选择表达式 -->
+                            <constructor-arg index="1" type="java.lang.String">
+                                <value><![CDATA[td.td3>span.result>span:eq(4)]]></value>
+                            </constructor-arg>
+                        </bean>
+                        <bean class="org.tomstools.crawler.extractor.ContentExtractor.TextField">
+                            <!-- 构造函数参数 1: 名称 -->
+                            <constructor-arg index="0" type="java.lang.String">
+                                <value><![CDATA[b6]]></value>
+                            </constructor-arg>
+                            <!-- 构造函数参数 2: 元素选择表达式 -->
+                            <constructor-arg index="1" type="java.lang.String">
+                                <value><![CDATA[td.td3>span.result>span:eq(5)]]></value>
+                            </constructor-arg>
+                        </bean>
+                        <bean class="org.tomstools.crawler.extractor.ContentExtractor.TextField">
+                            <!-- 构造函数参数 1: 名称 -->
+                            <constructor-arg index="0" type="java.lang.String">
+                                <value><![CDATA[b7]]></value>
+                            </constructor-arg>
+                            <!-- 构造函数参数 2: 元素选择表达式 -->
+                            <constructor-arg index="1" type="java.lang.String">
+                                <value><![CDATA[td.td3>span.result>span:eq(6)]]></value>
+                            </constructor-arg>
+                        </bean>
+                    </list>
+                </constructor-arg>
+            </bean>
+        </property>
+    </bean>
+    
+</beans>

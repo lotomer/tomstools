@@ -47,7 +47,7 @@ public class PageFetcher {
     private int socketTimeOut = 10000;
     private int tryCount = 3;
     private Charset defaultCharset;
-    private static final String DEFAULT_CHARSET_NAME = "UTF8";
+    private static final String DEFAULT_CHARSET_NAME = "UTF-8";
     public PageFetcher() {
         this(DEFAULT_CHARSET_NAME);
     }
@@ -100,26 +100,30 @@ public class PageFetcher {
         httpclient.getParams().setIntParameter(CoreConnectionPNames.SO_TIMEOUT, socketTimeOut);
         // 初始化连接
         initHttp(httpget);
-        logger.debug("executing request " + httpget.getURI());
+        logger.info("executing request " + httpget.getURI());
         for (int i = 0; i < tryCount; ++i) {
             // 设置连接持续时间，每次失败则延长5秒
             httpclient.getParams().setIntParameter(CoreConnectionPNames.SO_TIMEOUT, socketTimeOut + i * i * 5000);
             try {
                 HttpResponse response = httpclient.execute(httpget);
                 HttpEntity entity = response.getEntity();
-                logger.debug("Response status code: " + response.getStatusLine().getStatusCode());
+                
                 if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
                     if (entity != null) {
                         //byte[] contents = EntityUtils.toByteArray(entity);
                         Charset charset = ContentType.getOrDefault(entity).getCharset();
-                        if (!Utils.isEmpty(charset)) {
+                        if (Utils.isEmpty(charset)) {
                             //charsetName = HTMLUtil.parseCharset(new String(contents)).toUpperCase();
                             charset = defaultCharset;
+                            logger.warn("parse page's charset failed! Use default charset: " + charset + " the request url is " + httpget.getURI());
+                        }else{
+                            logger.debug("page charset: " + charset);
                         }
-                        logger.debug("page charset: " + charset);
                         responseText = EntityUtils.toString(entity, charset);
                         logger.debug(responseText);
                     }
+                }else{
+                    logger.warn("Response status code: " + response.getStatusLine().getStatusCode());
                 }
 
                 // Do not feel like reading the response body
@@ -239,5 +243,9 @@ public class PageFetcher {
     public final void setSocketTimeOut(int socketTimeOut) {
         this.socketTimeOut = socketTimeOut;
     }
-
+    public static void main(String[] args) {
+        PageFetcher f = new PageFetcher("GBK");
+        String s = f.fetchPageContent("http://floor.0731fdc.com/detail.php?id=30537");
+        System.out.println(s);
+    }
 }

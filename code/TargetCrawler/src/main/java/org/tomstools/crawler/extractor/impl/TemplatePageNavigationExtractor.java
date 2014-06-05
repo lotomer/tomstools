@@ -3,7 +3,6 @@
  */
 package org.tomstools.crawler.extractor.impl;
 
-
 /**
  * 分页导航抽取器：从页面的分页信息中抽取数据，并将数据填入模板以生成新的分页
  * @author admin

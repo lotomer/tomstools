@@ -178,8 +178,8 @@ public class FileResultDAO implements ResultDAO {
                         isFirst = false;
                     }
                 }
+                w.write("\n");
             }
-            w.write("\n");
             //BufferedWriter writer = new BufferedWriter(new FileWriter(file, true));
             writers.put(target.getName(), w);
         }
