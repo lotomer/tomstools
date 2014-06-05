@@ -149,7 +149,7 @@ public class PageFetcher {
             }catch (IOException e) {
                 logger.error(e.getMessage(), e);
             }
-            logger.info("try again..." + (i + 1));
+            logger.warn("try again..." + (i + 1));
         }
         return responseText;
     }
