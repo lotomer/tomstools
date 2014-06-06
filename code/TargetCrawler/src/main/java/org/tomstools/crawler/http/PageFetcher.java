@@ -47,6 +47,7 @@ public class PageFetcher {
     private int socketTimeOut = 10000;
     private int tryCount = 3;
     private Charset defaultCharset;
+    //private static final Charset GBK = Charset.forName("GBK");
     private static final String DEFAULT_CHARSET_NAME = "UTF-8";
     public PageFetcher() {
         this(DEFAULT_CHARSET_NAME);
@@ -118,6 +119,11 @@ public class PageFetcher {
                             logger.warn("parse page's charset failed! Use default charset: " + charset + " the request url is " + httpget.getURI());
                         }else{
                             logger.debug("page charset: " + charset);
+                            // 如果是GB2312，则改用GBK
+                            //if ("GB2312".equalsIgnoreCase(charset.displayName())){
+                            //   logger.warn("change gb2312 to gbk!");
+                            //    charset = GBK;
+                            //}
                         }
                         responseText = EntityUtils.toString(entity, charset);
                         logger.debug(responseText);

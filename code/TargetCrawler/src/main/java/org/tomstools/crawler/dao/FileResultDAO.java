@@ -12,6 +12,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -44,7 +45,7 @@ public class FileResultDAO implements ResultDAO {
     private String separator;
     private Set<String> specialWords;
     private String newLine;
-    private String fileCharset = "GBK";
+    private String fileCharset;
     /**
      * 默认构造函数
      * 
@@ -164,7 +165,15 @@ public class FileResultDAO implements ResultDAO {
                 file.getParentFile().mkdirs();
             }
             FileOutputStream fos = new FileOutputStream(file, false);
-            OutputStreamWriter w = new OutputStreamWriter(fos, fileCharset);
+            if (null == fileCharset){
+                fileCharset = Charset.defaultCharset().displayName();
+            }
+            OutputStreamWriter w = new OutputStreamWriter(fos,fileCharset);
+            if ("UTF-8".equalsIgnoreCase(fileCharset)){
+                // UTF-8的csv用excel打开时出现乱码，需要显示输出BOM
+                w.write(new String(new byte[]{(byte) 0xEF,(byte) 0xBB,(byte) 0xBF}));
+            }
+            
             // 输出表头
             String[] titles = target.getContentExtractor().getTitles();
             if (null != titles){

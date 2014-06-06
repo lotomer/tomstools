@@ -73,10 +73,10 @@
                 <ref bean="target-0731fdc-floor-zz" />
                 <ref bean="target-0731fdc-floor-xt" />
                  -->
-                 <ref bean="target-0731fdc-floor-xt" />
-                 <ref bean="target-0731fdc-floor-zz" />
-                 <ref bean="target-0731fdc-floor-cs" />
-                 <ref bean="target-0731fdc-floor-cs-detail"/>
+                <ref bean="target-0731fdc-floor-cs" />
+                <ref bean="target-0731fdc-floor-cs-detail"/>
+                <ref bean="target-0731fdc-floor-zz" />
+                <ref bean="target-0731fdc-floor-xt" />
             </list>
         </constructor-arg>
         <!-- 构造函数参数 2: 结果数据操作对象。对应 接口 org.tomstools.crawler.dao.ResultDAO -->

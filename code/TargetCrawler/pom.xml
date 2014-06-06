@@ -5,7 +5,7 @@
     <groupId>org.tomstools.crawler</groupId>
     <artifactId>TargetCrawler</artifactId>
     <packaging>jar</packaging>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.1-SNAPSHOT</version>
     <name>TargetCrawler</name>
     <url>http://www.tomstools.org</url>
     <properties>
@@ -41,7 +41,7 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
-            <version>4.0.2.RELEASE</version>
+            <version>4.0.5.RELEASE</version>
         </dependency>
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
@@ -56,11 +56,11 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.1</version>
-                <!-- <configuration>
+                <configuration>
                     <source>1.7</source>
                     <target>1.7</target>
                     <encoding>utf8</encoding>
-                </configuration> -->
+                </configuration><!--  -->
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -75,7 +75,6 @@
                         <configuration>
                             <appendAssemblyId>false</appendAssemblyId>
                             <descriptors>
-                                <descriptor>src/main/assembly/jar.xml</descriptor>
                                 <descriptor>src/main/assembly/zip.xml</descriptor>
                             </descriptors>
                         </configuration>

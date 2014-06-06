@@ -6,6 +6,7 @@
     <format>zip</format>
   </formats>
   <includeBaseDirectory>false</includeBaseDirectory>
+  <!-- 添加源码及编译结果包 -->
   <fileSets>
     <fileSet>
         <directory>src/main/bin</directory>
@@ -25,4 +26,14 @@
         </includes>
     </fileSet>
   </fileSets>
+  
+  <!-- 添加依赖包 -->
+  <dependencySets>
+    <dependencySet>
+        <outputDirectory>/lib</outputDirectory>
+        <useProjectArtifact>true</useProjectArtifact>
+        <scope>runtime</scope>
+        <unpack>false</unpack>
+    </dependencySet>
+  </dependencySets>
 </assembly>

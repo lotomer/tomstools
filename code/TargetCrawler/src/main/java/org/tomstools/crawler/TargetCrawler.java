@@ -36,6 +36,7 @@ public class TargetCrawler implements Runnable {
     private int totalPage;
     private UrlManager urlManager;
     private int totalSubPage;
+    private int totalRecords;
 
     /**
      * 构造函数
@@ -84,7 +85,7 @@ public class TargetCrawler implements Runnable {
         }
 
         LOGGER.info("Process finished. Total page: " + this.totalPage + ", total sub page: "
-                + this.totalSubPage + ", total cost " + (System.currentTimeMillis() - startTime)
+                + this.totalSubPage + ", total records: " + totalRecords + ", total cost " + (System.currentTimeMillis() - startTime)
                 / 1000 + "s.");
     }
 
@@ -240,6 +241,7 @@ public class TargetCrawler implements Runnable {
                 // HTMLUtil.getRealUrl(aUrl, webRoot, parentPath)));
                 processSubPage(targetBusi, fetcher, HTMLUtil.getRealUrl(aUrl, webRoot, parentPath));
                 if (targetBusi.isFinished()) {
+                    LOGGER.warn("is finished!");
                     return null;
                 }
             }
@@ -253,6 +255,7 @@ public class TargetCrawler implements Runnable {
             // 没有子页面时，则直接使用内容抽取器处理页面，最近处理的标记已数据内容为准
             List<Map<String, String>> records = targetBusi.getTarget().getContentExtractor()
                     .extractContent(document);
+            int count = 0;
             // 保存页面内容
             for (Map<String, String> record : records) {
                 if (record.isEmpty()) {
@@ -264,9 +267,12 @@ public class TargetCrawler implements Runnable {
                 }
                 targetBusi.incRecordCount();
                 targetBusi.saveRecord(targetBusi.getTarget().getUrl(), record);
+                ++count;
             }
-
+            LOGGER.info("records count: " + count);
+            totalRecords += count;
             if (targetBusi.isFinished()) {
+                LOGGER.warn("is finished!");
                 return null;
             }
         }
@@ -285,7 +291,10 @@ public class TargetCrawler implements Runnable {
                 subpages.addAll(subpageExtractor.getContentPageUrls(doc));
             }
         }
-
+        if (LOGGER.isDebugEnabled()){
+            LOGGER.debug("urls: " + urls);
+            LOGGER.debug("subpages: " + subpages);
+        }
         return subpages;
     }
 
@@ -326,6 +335,7 @@ public class TargetCrawler implements Runnable {
             return nextPages;
         }
         targetBusi.incFetchPageCount();
+        int count = 0;
         // 3、解析页面内容
         // 3.1、获取解析器
         Parser parser = targetBusi.getTarget().getParser();
@@ -335,16 +345,20 @@ public class TargetCrawler implements Runnable {
             Element doc = parser.parse(content, null);
             List<Map<String, String>> records = targetBusi.getTarget().getContentExtractor()
                     .extractContent(doc);
+            
             // 保存页面内容
             for (Map<String, String> record : records) {
                 targetBusi.incRecordCount();
                 targetBusi.saveRecord(subUrl, record);
+                ++count;
             }
 
             // XXX 貌似没必要这样处理：获取下一页url集合
             // nextPages =
             // targetBusi.getTarget().getNavigationExtractor().getPageUrls(doc);
         }
+        LOGGER.info("get records count: " + count);
+        totalRecords += totalRecords;
         setCompleted(subUrl);
 
         return nextPages;

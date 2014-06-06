@@ -30,7 +30,12 @@ public class Logger {
     {
         logger = org.apache.log4j.Logger.getLogger(clazzName);
     }
-    
+    public boolean isDebugEnabled(){
+        return logger.isDebugEnabled();
+    }
+    public boolean isInfoEnabled(){
+        return logger.isInfoEnabled();
+    }
     public void debug(Object message)
     {
         logger.debug(message);
