@@ -9,7 +9,7 @@
     <!-- 待爬取对象：0731fdc 株洲新房咨询。对应 org.tomstools.crawler.config.Target -->
     <bean id="target-lecai-shuangseqiu" class="org.tomstools.crawler.config.Target" scope="prototype">
         <property name="name" value="lecai-shuangseqiu"></property>
-        <property name="url" value="http://baidu.lecai.com/lottery/draw/list/50"></property>
+        <property name="url" value="http://baidu.lecai.com/lottery/draw/list/50?d=2014-01-01"></property>
         <property name="crawlingRule" ref="crawlingRule"></property>
         <property name="parser" ref="htmlParser"></property>
         <property name="contentPageExtractor">
