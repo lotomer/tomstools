@@ -10,7 +10,6 @@ import org.tomstools.crawler.config.CrawlingRule;
 import org.tomstools.crawler.config.Target;
 import org.tomstools.crawler.extractor.ContentExtractor;
 import org.tomstools.crawler.extractor.ContentExtractor.Field;
-import org.tomstools.crawler.extractor.impl.TemplatePageNavigationExtractor;
 import org.tomstools.crawler.parser.HTMLParser;
 
 /**
@@ -28,7 +27,7 @@ public class CaipiaoShuangSeQiu extends Target {
         setCrawlingRule(crawlingRule);
         setParser(new HTMLParser());
         //setContentPageExtractor(new NoSubpageExtractor());
-        setNavigationExtractor(new TemplatePageNavigationExtractor("div.year_select select", "<option .*?value=\"(.*?)\">","http://baidu.lecai.com/lottery/draw/list/50?d=%s"));
+        //XXX 需要修改，暂时屏蔽 setNavigationExtractor(new TemplatePageNavigationExtractor("div.year_select select", "<option .*?value=\"(.*?)\">","http://baidu.lecai.com/lottery/draw/list/50?d=%s"));
         List<Field> fields = new ArrayList<>();
         fields.add(new ContentExtractor.TextField("time", "td.td1"));
         fields.add(new ContentExtractor.TextField("qishu", "td.td2"));

@@ -9,6 +9,7 @@ import java.util.List;
 import org.tomstools.crawler.common.Element;
 import org.tomstools.crawler.common.Utils;
 import org.tomstools.crawler.extractor.NavigationExtractor;
+import org.tomstools.crawler.http.RequestInfo;
 
 /**
  * 使用表达式自动生成导航页面的抽取器
@@ -21,7 +22,7 @@ import org.tomstools.crawler.extractor.NavigationExtractor;
 public class ExpressionNavigationExtractor implements NavigationExtractor {
     private String urlTemplate;
     private String expression;
-    
+    private RequestInfo requestInfo;
     /**
      * @param urlTemplate url模板字符串，使用%s做数字的占位符
      * @param expression 表达式：开始值|结束值|递增或递减的步长
@@ -40,18 +41,16 @@ public class ExpressionNavigationExtractor implements NavigationExtractor {
         return true;
     }
 
-    /*
-     * @since 1.0
-     */
-    public List<String> getPageUrls(Element element) {
-        List<String> urls = new ArrayList<String>();
+    @Override
+    public List<RequestInfo> getNextPageRequestInfos(Element element) {
+        List<RequestInfo> pageRequestInfos = new ArrayList<RequestInfo>();
         if (Utils.isEmpty(urlTemplate) || Utils.isEmpty(expression)) {
-            return urls;
+            return pageRequestInfos;
         }
 
         String[] vs = expression.split("\\|", 3);
         if (3 != vs.length) {
-            return urls;
+            return pageRequestInfos;
         }
         // 纯数字
         int startValue = Integer.valueOf(vs[0]);
@@ -61,17 +60,38 @@ public class ExpressionNavigationExtractor implements NavigationExtractor {
             // 逐步增加
             for (int i = startValue; i < endValue; i = i + stepValue) {
                 String nextPageUrl = String.format(urlTemplate, String.valueOf(i));
-                urls.add(nextPageUrl);
+                RequestInfo pageRequestInfo = new RequestInfo(requestInfo);
+                pageRequestInfo.setUrl(nextPageUrl);
+                pageRequestInfos.add(pageRequestInfo);
             }
         } else {
             // 逐步递减
             for (int i = startValue; i > endValue; i = i - stepValue) {
                 String nextPageUrl = String.format(urlTemplate, String.valueOf(i));
-                urls.add(nextPageUrl);
+                RequestInfo pageRequestInfo = new RequestInfo(requestInfo);
+                pageRequestInfo.setUrl(nextPageUrl);
+                pageRequestInfos.add(pageRequestInfo);
             }
         }
 
-        return urls;
+        return pageRequestInfos;
     }
 
+    /**
+     * @return 返回 requestInfo
+     * @since 1.0
+     */
+    public final RequestInfo getRequestInfo() {
+        return requestInfo;
+    }
+
+    /**
+     * @param requestInfo 设置 requestInfo
+     * @since 1.0
+     */
+    public final void setRequestInfo(RequestInfo requestInfo) {
+        this.requestInfo = requestInfo;
+    }
+
+    
 }

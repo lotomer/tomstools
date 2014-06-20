@@ -189,9 +189,12 @@ public class TargetBusi {
     public void finish() {
         LOGGER.info("finish. " + toString());
         LOGGER.info("last save: " + newFlagDatas);
-        this.resultDAO.finish(target);
-        // 结束之前需要保存 处理过的数据标识
-        resultDAO.saveProcessedFlagDatas(target, newFlagDatas);
+        if (!Utils.isEmpty(newFlagDatas)){
+            // 标识不为空才更新
+            this.resultDAO.finish(target);
+            // 结束之前需要保存 处理过的数据标识
+            resultDAO.saveProcessedFlagDatas(target, newFlagDatas);
+        }
         isDown = true;
     }
 

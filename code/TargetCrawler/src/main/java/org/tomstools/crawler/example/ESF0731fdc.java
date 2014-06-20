@@ -21,7 +21,6 @@ import org.tomstools.crawler.config.CrawlingRule;
 import org.tomstools.crawler.config.Target;
 import org.tomstools.crawler.extractor.ContentExtractor;
 import org.tomstools.crawler.extractor.ContentExtractor.Field;
-import org.tomstools.crawler.extractor.impl.PageNavigationExtractor;
 import org.tomstools.crawler.parser.HTMLParser;
 
 /**
@@ -42,8 +41,7 @@ public class ESF0731fdc extends Target {
         setCrawlingRule(crawlingRule);
         setParser(new HTMLParser());
         //setContentPageExtractor(new NoSubpageExtractor()); 
-        setNavigationExtractor(new PageNavigationExtractor("div.pagination a:containsOwn(下一页)",
-                "<a .*?href=\"(.*?)\">"));
+      //XXX 需要修改，暂时屏蔽 setNavigationExtractor(new PageNavigationExtractor("div.pagination a:containsOwn(下一页)", "<a .*?href=\"(.*?)\">"));
         Map<String, ValueConvertible<String, String>> valueConverter = new HashMap<String, ValueConvertible<String,String>>();
         valueConverter.put("time", new String2DateTimeString("yyyy-MM-dd", "yyyy-MM-dd hh"));
         List<Field> fields = new ArrayList<>();

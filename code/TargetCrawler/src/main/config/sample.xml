@@ -26,9 +26,17 @@
                 <constructor-arg index="1" type="java.lang.String">
                     <value><![CDATA[<option .*?value=\"(.*?)\">]]></value>
                 </constructor-arg>
-                <!-- 构造函数参数 3: url模板字符串，使用%s做数字的占位符 -->
-                <constructor-arg index="2" type="java.lang.String">
-                    <value><![CDATA[http://baidu.lecai.com/lottery/draw/list/50?d=%s]]></value>
+                <!-- 构造函数参数 3: 正则表达式中group的索引号对应的参数名称，参数名如form_pageno -->
+                <constructor-arg index="2">
+                    <map>
+                        <entry key="1"><value><![CDATA[url]]></value></entry>
+                    </map>
+                </constructor-arg>
+                <!-- 构造函数参数 4: 参数对应的模板。需要替换的参数名使用“${”和“}”包裹，如：${form_pageno} -->
+                <constructor-arg index="3">
+                    <map>
+                        <entry key="url"><value><![CDATA[http://baidu.lecai.com/lottery/draw/list/50?d=${url}]]></value></entry>
+                    </map>
                 </constructor-arg>
             </bean>
         </property>
@@ -51,7 +59,7 @@
                 <!-- 构造函数参数 4: 提取属性配置信息 -->
                 <constructor-arg index="3">
                     <list>
-                        <bean class="org.tomstools.crawler.extractor.ContentExtractor.TextField">
+                        <bean class="org.tomstools.crawler.extractor.ContentExtractor.OwnTextField">
                             <!-- 构造函数参数 1: 名称 -->
                             <constructor-arg index="0" type="java.lang.String">
                                 <value><![CDATA[time]]></value>
@@ -64,7 +72,7 @@
                             <constructor-arg index="2" type="org.tomstools.crawler.common.FieldSplitter">
                             </constructor-arg>-->
                         </bean>
-                        <bean class="org.tomstools.crawler.extractor.ContentExtractor.TextField">
+                        <bean class="org.tomstools.crawler.extractor.ContentExtractor.OwnTextField">
                             <!-- 构造函数参数 1: 名称 -->
                             <constructor-arg index="0" type="java.lang.String">
                                 <value><![CDATA[qishu]]></value>
@@ -74,7 +82,7 @@
                                 <value><![CDATA[td.td2>a]]></value>
                             </constructor-arg>
                         </bean>
-                        <bean class="org.tomstools.crawler.extractor.ContentExtractor.TextField">
+                        <bean class="org.tomstools.crawler.extractor.ContentExtractor.OwnTextField">
                             <!-- 构造函数参数 1: 名称 -->
                             <constructor-arg index="0" type="java.lang.String">
                                 <value><![CDATA[b1]]></value>
@@ -84,7 +92,7 @@
                                 <value><![CDATA[td.td3>span.result>span:eq(0)]]></value>
                             </constructor-arg>
                         </bean>
-                        <bean class="org.tomstools.crawler.extractor.ContentExtractor.TextField">
+                        <bean class="org.tomstools.crawler.extractor.ContentExtractor.OwnTextField">
                             <!-- 构造函数参数 1: 名称 -->
                             <constructor-arg index="0" type="java.lang.String">
                                 <value><![CDATA[b2]]></value>
@@ -94,7 +102,7 @@
                                 <value><![CDATA[td.td3>span.result>span:eq(1)]]></value>
                             </constructor-arg>
                         </bean>
-                        <bean class="org.tomstools.crawler.extractor.ContentExtractor.TextField">
+                        <bean class="org.tomstools.crawler.extractor.ContentExtractor.OwnTextField">
                             <!-- 构造函数参数 1: 名称 -->
                             <constructor-arg index="0" type="java.lang.String">
                                 <value><![CDATA[b3]]></value>
@@ -104,7 +112,7 @@
                                 <value><![CDATA[td.td3>span.result>span:eq(2)]]></value>
                             </constructor-arg>
                         </bean>
-                        <bean class="org.tomstools.crawler.extractor.ContentExtractor.TextField">
+                        <bean class="org.tomstools.crawler.extractor.ContentExtractor.OwnTextField">
                             <!-- 构造函数参数 1: 名称 -->
                             <constructor-arg index="0" type="java.lang.String">
                                 <value><![CDATA[b4]]></value>
@@ -114,7 +122,7 @@
                                 <value><![CDATA[td.td3>span.result>span:eq(3)]]></value>
                             </constructor-arg>
                         </bean>
-                        <bean class="org.tomstools.crawler.extractor.ContentExtractor.TextField">
+                        <bean class="org.tomstools.crawler.extractor.ContentExtractor.OwnTextField">
                             <!-- 构造函数参数 1: 名称 -->
                             <constructor-arg index="0" type="java.lang.String">
                                 <value><![CDATA[b5]]></value>
@@ -124,7 +132,7 @@
                                 <value><![CDATA[td.td3>span.result>span:eq(4)]]></value>
                             </constructor-arg>
                         </bean>
-                        <bean class="org.tomstools.crawler.extractor.ContentExtractor.TextField">
+                        <bean class="org.tomstools.crawler.extractor.ContentExtractor.OwnTextField">
                             <!-- 构造函数参数 1: 名称 -->
                             <constructor-arg index="0" type="java.lang.String">
                                 <value><![CDATA[b6]]></value>
@@ -134,7 +142,7 @@
                                 <value><![CDATA[td.td3>span.result>span:eq(5)]]></value>
                             </constructor-arg>
                         </bean>
-                        <bean class="org.tomstools.crawler.extractor.ContentExtractor.TextField">
+                        <bean class="org.tomstools.crawler.extractor.ContentExtractor.OwnTextField">
                             <!-- 构造函数参数 1: 名称 -->
                             <constructor-arg index="0" type="java.lang.String">
                                 <value><![CDATA[b7]]></value>

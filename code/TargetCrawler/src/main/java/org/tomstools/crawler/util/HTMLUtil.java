@@ -7,6 +7,8 @@ import java.net.URL;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.tomstools.crawler.common.Utils;
+
 /**
  * @author lotomer
  * @date 2012-6-11
@@ -27,33 +29,50 @@ public class HTMLUtil {
         return cs;
     }
 
-    private static Pattern pattern = Pattern.compile(
-            "(\\.htm|\\.html|\\.dhtml|\\.jsp|\\.asp|\\.aspx|\\.php)$", Pattern.CASE_INSENSITIVE
-                    | Pattern.UNICODE_CASE);
+    /**
+     * 匹配html文件
+     */
+    final static Pattern PATTERN_DIRECTORY = Pattern.compile("(/$|/\\?\\S*$)",
+            Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
+    /**
+     * 匹配包含协议的url
+     */
+    final static Pattern PATTERN_PROTOCOL = Pattern.compile("[^:/]+?://\\S+?");
 
-    public static String getRealUrl(String htmlUrl, String webRoot, String parentPath) {
-        if (htmlUrl.startsWith("http://") || htmlUrl.startsWith("https://")) { // 已经是完整的URL，则直接返回
-            return htmlUrl;
-        } else if (htmlUrl.startsWith("/")) { // 完整的绝对路径，则加上服务器地址返回
-            return webRoot + htmlUrl;
-        } else if (htmlUrl.startsWith("?")) {
-            return webRoot + parentPath + htmlUrl;
+    /**
+     * 获取完整的url。
+     * 
+     * @param url 可能不完整的url
+     * @param webRoot 网站域名及根目录（含协议）
+     * @param referUrl 关联的url。相对路径时需要
+     * @return 完整的url
+     * @since 1.0
+     */
+    public static String getRealUrl(String url, String webRoot, String referUrl) {
+        if (Utils.isEmpty(url)) {
+            return null;
+        } else if (PATTERN_PROTOCOL.matcher(url).find()) { // 已经是完整的URL，则直接返回
+            return url;
+        } else if (url.startsWith("/")) { // 完整的绝对路径，则加上服务器地址返回
+            return webRoot + url;
+        } else if (url.startsWith("?")) {
+            return webRoot + referUrl + url;
         } else { // 相对路径，则生成相对于parentUrl的相对路径
-            if (parentPath.endsWith("/")) { // 目录，则直接加上相对路径
-                return webRoot + parentPath + htmlUrl;
+            if (referUrl.endsWith("/")) { // 目录，则直接加上相对路径
+                return webRoot + referUrl + url;
             } else {
                 // 不是目录，则看输入的url是否只带了查询参数，即以问号?开头
-                Matcher matcher = pattern.matcher(parentPath);
+                Matcher matcher = PATTERN_DIRECTORY.matcher(referUrl);
                 if (matcher.find()) {
                     // 是文件，则取其父目录
-                    int index = parentPath.lastIndexOf("/");
+                    int index = referUrl.lastIndexOf("/");
                     if (-1 < index) {
-                        return webRoot + parentPath.substring(0, index + 1) + htmlUrl;
+                        return webRoot + referUrl.substring(0, index + 1) + url;
                     } else {
-                        return webRoot + htmlUrl;
+                        return webRoot + url;
                     }
                 } else {
-                    return webRoot + parentPath + "/" + htmlUrl;
+                    return webRoot + referUrl + "/" + url;
                 }
             }
         }
@@ -72,5 +91,9 @@ public class HTMLUtil {
         } else {
             return url.getProtocol() + "://" + url.getHost();
         }
+    }
+
+    public static void main(String[] args) {
+
     }
 }

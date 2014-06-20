@@ -108,7 +108,7 @@ public class FileResultDAO implements ResultDAO {
             line.append(trimSpecial(entry.getValue()));
         }
         //LOGGER.info(line.toString());
-        line.append("\n");
+        line.append(newLine);
         return line.toString();
     }
 
@@ -136,7 +136,7 @@ public class FileResultDAO implements ResultDAO {
         if (Utils.isEmpty(target.getName()) || Utils.isEmpty(flagDatas)) {
             return;
         }
-        File file = new File(getFlagFileName(target.getName()));
+        File file = new File(getFlagFileName(target.getName(),""));
         if (!file.getParentFile().exists()) {
             file.getParentFile().mkdirs();
         }
@@ -148,7 +148,7 @@ public class FileResultDAO implements ResultDAO {
                 }else{
                     writer.write(flagData);
                 }
-                writer.write("\n");
+                writer.write(newLine);
             }
             
             writer.close();
@@ -159,8 +159,10 @@ public class FileResultDAO implements ResultDAO {
     }
 
     public Collection<String> prepare(Target target) throws Exception {
+        String flag = SIMPLE_DATE_FORMAT.format(new Date());
         if (null == writers.get(target.getName())) {
-            File file = new File(getDataFileName(target.getName()));
+            // 结果输出
+            File file = new File(getDataFileName(target.getName(),flag));
             if (!file.getParentFile().exists()) {
                 file.getParentFile().mkdirs();
             }
@@ -187,32 +189,37 @@ public class FileResultDAO implements ResultDAO {
                         isFirst = false;
                     }
                 }
-                w.write("\n");
+                w.write(newLine);
             }
             //BufferedWriter writer = new BufferedWriter(new FileWriter(file, true));
             writers.put(target.getName(), w);
         }
+        // 标识文件
         List<String> datas = new ArrayList<String>();
-        File file = new File(getFlagFileName(target.getName()));
+        File file = new File(getFlagFileName(target.getName(),""));
         if (file.exists()) {
+            // 将标识文件数据备份
+            BufferedWriter writer = new BufferedWriter(new FileWriter(getFlagFileName(target.getName(),flag)));
             BufferedReader reader = new BufferedReader(new FileReader(file));
             String line = null;
             while (null != (line = reader.readLine())){
                 datas.add(line);
+                writer.write(line);
+                writer.write(newLine);
             }
-            reader.close();
-            reader = null;
+            Utils.close(reader);
+            Utils.close(writer);
         }
         
         return datas;
     }
 
-    private String getFlagFileName(String targetName) {
-        return rootDir + File.separator + targetName+ File.separator + FILE_LATEST_URL;
+    private String getFlagFileName(String targetName, String flag) {
+        return rootDir + File.separator + targetName+ File.separator + flag + FILE_LATEST_URL;
     }
 
-    private String getDataFileName(String targetName) {
-        return rootDir + File.separator + targetName+ File.separator+targetName + "_" + SIMPLE_DATE_FORMAT.format(new Date()) + ".csv";
+    private String getDataFileName(String targetName,String flag) {
+        return rootDir + File.separator + targetName+ File.separator+targetName + "_" + flag + ".csv";
     }
 
     public void finish(Target target) {

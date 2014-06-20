@@ -19,37 +19,44 @@ import org.tomstools.crawler.common.Utils;
  * @version 1.0
  */
 public class HTMLParser implements Parser {
-
-    public org.tomstools.crawler.common.Element parse(String content, String param) {
+    /**
+     * 将经过HTML转义后的字符串转换为转义之前的字符串。<br>
+     * <pre>
+     * 比如：
+     *      > 转义之后就变成了 &amp;gt;
+     *      < 转义之后就变成了 &amp;lt;
+     *      & 转义之后就变成了 &amp;amp;
+     * </pre>
+     * @param text HTML escaped string
+     * @return 没有经过HTML转移的字符串
+     * @since 1.0
+     */
+    public static String unescape(String text){
+        return org.jsoup.parser.Parser.unescapeEntities(text, false);
+    }
+    
+    public org.tomstools.crawler.common.Element parse(String content, String selector) {
         Document doc = Jsoup.parse(content);
-        if (Utils.isEmpty(param)) {
+        if (Utils.isEmpty(selector)) {
             return new HTMLElement(doc);
         } else {
-            return new HTMLElement(doc.select(param).first());
+            return new HTMLElement(doc.select(selector).first());
         }
     }
 
-    // public void parse(String content, Map<String, String> params,
-    // ContentHandle handle) {
-    // Document doc = Jsoup.parse(content);
-    // for (Entry<String, String> entry : params.entrySet()) {
-    // Elements es = doc.select(entry.getValue());
-    // for (Element element : es) {
-    // handle.handle(entry.getKey(), new HTMLElement(element));
-    // }
-    // }
-    // }
-
     public static void main(String[] args) {
         HTMLParser p = new HTMLParser();
+        String s = "http://www.landchina.com/default.aspx/default.aspx?tabid=382&ampcomname=default&amp;wmguid=75c72564-ffd9-426a-954b-8ac2df0903b7&amp;recorderguid=9520adbe-5a22-4eb0-91bb-53f105a202f7";
         String html = "<html><head><title>开源中国社区</title></head>"
-                + "<body><p class='aa bb'>这里是jsoup 项目的相关文章</p><div id='dd'><p>ppp <a>wasdfasdf</a> qqq</p></div><p class='bb'>这文章</p><div class='cc'><p>XXX <a>bbbbbb</a> 5555</p></div></body></html>";
-        // System.out.println("!!!" + p.parse(html, ""));
+                + "<body><p>000</p><div><p>11111</p><p><span title=\"222222\">22...</span></p><p>3333</p></div><p><span title=\"444444\">44...</span></p></body></html>";
+        System.out.println(org.jsoup.parser.Parser.unescapeEntities(s, false));
+        System.out.println("" + p.parse(s, "").getText());
         org.tomstools.crawler.common.Element e = p.parse(html, null);
-        e.select("body p", new ElementProcessor() {
+        e.select("div>p>span,div>p:not(:has(span))", new ElementProcessor() {
             public boolean process(org.tomstools.crawler.common.Element element) {
-                if (null != element)
-                    System.out.println(element.getText());
+                if (null != element){
+                    System.out.println(element.getOwnText());
+                }
                 return true;
             }
         });
@@ -76,7 +83,15 @@ public class HTMLParser implements Parser {
         }
 
         public String getText() {
-            return element.ownText();
+            return element.text();
+        }
+        public String getOwnText() {
+            // 先判断是否包含title属性，如果包含title属性则直接返回title属性
+            if(element.hasAttr("title")){
+                return element.attr("title");
+            }else{
+                return element.ownText();
+            }
         }
 
         /*
@@ -84,7 +99,7 @@ public class HTMLParser implements Parser {
          */
         @Override
         public String toString() {
-            return "{element=" + element + "}";
+            return "{element=" + element.outerHtml() + "}";
         }
 
         public void select(String cssQuery, ElementProcessor processor) {
@@ -114,6 +129,16 @@ public class HTMLParser implements Parser {
             }
 
             return null;
+        }
+
+        @Override
+        public String getUnescapedText() {
+            return unescape(getText());
+        }
+
+        @Override
+        public String getUnescapedOwnText() {
+            return unescape(getOwnText());
         }
     }
 

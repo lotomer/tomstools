@@ -3,6 +3,10 @@
  */
 package org.tomstools.crawler.extractor;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -11,6 +15,10 @@ import java.util.Map;
 import org.tomstools.crawler.common.Element;
 import org.tomstools.crawler.common.ElementProcessor;
 import org.tomstools.crawler.common.FieldSplitter;
+import org.tomstools.crawler.common.Logger;
+import org.tomstools.crawler.config.Target;
+import org.tomstools.crawler.parser.HTMLParser;
+import org.tomstools.crawler.spring.ApplicationContext;
 
 /**
  * 内容抽取器
@@ -21,52 +29,31 @@ import org.tomstools.crawler.common.FieldSplitter;
  * @version 1.0
  */
 public class ContentExtractor {
-    // private final static Logger LOGGER =
-    // Logger.getLogger(BaseContentHandle.class);
-    //private LinkedHashMap<String, String> params;
+    private final static Logger LOGGER = Logger.getLogger(ContentExtractor.class);
+    // private LinkedHashMap<String, String> params;
     private String cssQuery;
     private List<Field> fields;
     private List<Field> constantField;
-//    private Map<String, FieldSplitter> fieldSplitters;
+    // private Map<String, FieldSplitter> fieldSplitters;
     private String[] titles;
-//    private LinkedHashMap<String, String> constantFieldSelectors;
-    /**
-     * 构造函数
-     * @param cssQuery  正文所在元素的选择表达式
-     * @param titles 表头信息
-     * @param constantField 常量字段
-     * @param fields 正文字段
-     * @since 1.0
-     */
-    public ContentExtractor(String cssQuery,String[] titles,List<Field> constantField,List<Field> fields){
-        this.cssQuery = cssQuery;
-        this.titles = titles;
-        this.fields = fields;
-        this.constantField = constantField;
-    }
+
+    // private LinkedHashMap<String, String> constantFieldSelectors;
     /**
      * 构造函数
      * 
      * @param cssQuery 正文所在元素的选择表达式
      * @param titles 表头信息
-     * @param constantFieldSelectors 固定字段选择器，不随每次属性提取而变化
-     * @param params 提取固定属性配置信息
-     * @param fieldSplitters 字段拆分器
+     * @param constantField 常量字段
+     * @param fields 正文字段
      * @since 1.0
      */
-//    public ContentExtractor(String cssQuery, String[] titles,
-//            LinkedHashMap<String, String> constantFieldSelectors,
-//            LinkedHashMap<String, String> params, Map<String, FieldSplitter> fieldSplitters) {
-//        this.params = params;
-//        this.cssQuery = cssQuery;
-//        this.titles = titles;
-//        this.constantFieldSelectors = constantFieldSelectors;
-//        if (null != fieldSplitters) {
-//            this.fieldSplitters = fieldSplitters;
-//        } else {
-//            this.fieldSplitters = Collections.emptyMap();
-//        }
-//    }
+    public ContentExtractor(String cssQuery, String[] titles, List<Field> constantField,
+            List<Field> fields) {
+        this.cssQuery = cssQuery;
+        this.titles = titles;
+        this.fields = fields;
+        this.constantField = constantField;
+    }
 
     /**
      * 从节点中提取内容
@@ -84,22 +71,20 @@ public class ContentExtractor {
                 FieldSplitter fieldSplitter = field.fieldSplitter;
                 if (null != fieldSplitter) {
                     // 该字段指定了拆分器，则进行拆分
-                    if (field.valueType == Field.VALUE_TYPE_TEXT){
-                        fieldSplitter.process(element.select(field.selector).getText(), constantFieldValues);
-                    }else{
-                        fieldSplitter.process(element.select(field.selector).getCode(), constantFieldValues);
-                    }
+                    fieldSplitter.process(field.getText(element.select(field.selector)), constantFieldValues);
                 } else {
-                    if (field.valueType == Field.VALUE_TYPE_TEXT){
-                        constantFieldValues.put(field.name, element.select(field.selector).getText());
-                    }else{
-                        constantFieldValues.put(field.name, element.select(field.selector).getCode());
-                    }
+                    constantFieldValues.put(field.name, field.getText(element.select(field.selector)));
                 }
             }
         }
+        if (LOGGER.isDebugEnabled()){
+            LOGGER.debug(element + ",cssQuery:" + cssQuery);;
+        }
         element.select(cssQuery, new ElementProcessor() {
             public boolean process(Element e) {
+                if (LOGGER.isDebugEnabled()){
+                    LOGGER.debug(e);;
+                }
                 if (null != e) {
                     Map<String, String> aRecord = new LinkedHashMap<String, String>();
                     aRecord.putAll(constantFieldValues);
@@ -123,19 +108,19 @@ public class ContentExtractor {
      */
     protected void processValue(final Map<String, String> result, Element element,
             List<Field> fields) {
-        for (final Field entry : fields) {
-            element.select(entry.selector, new ElementProcessor() {
+        for (final Field field : fields) {
+            element.select(field.selector, new ElementProcessor() {
                 public boolean process(Element element) {
                     if (null != element) {
-                        FieldSplitter fieldSplitter = entry.fieldSplitter;
+                        FieldSplitter fieldSplitter = field.fieldSplitter;
                         if (null != fieldSplitter) {
                             // 该字段指定了拆分器，则进行拆分
-                            fieldSplitter.process(element.getText(), result);
+                            fieldSplitter.process(field.getText(element), result);
                         } else {
-                            result.put(entry.name, element.getText());
+                            result.put(field.name, field.getText(element));
                         }
                     } else {
-                        result.put(entry.name, "");
+                        result.put(field.name, "");
                     }
                     return true;
                 }
@@ -153,35 +138,46 @@ public class ContentExtractor {
 
     /**
      * 字段对象
+     * 
      * @author admin
-     * @date 2014年4月28日 
+     * @date 2014年4月28日
      * @time 上午11:23:10
      * @version 1.0
      */
-    public static class Field {
+    public static abstract class Field {
         private final String name;
         private final String selector;
         private final int valueType;
         private final FieldSplitter fieldSplitter;
-        /** 字段值类型：源码*/
+        /** 字段值类型：源码 */
         public static int VALUE_TYPE_CODE = 0;
-        /** 字段值类型：正文文本*/
-        public static int VALUE_TYPE_TEXT = 1;
+        /** 字段值类型：正文文本，不包含子节点的文本内容 */
+        public static int VALUE_TYPE_OWN_TEXT = 1;
+        /** 字段值类型：正文文本，包含子节点的文本内容 */
+        public static int VALUE_TYPE_TEXT = 2;
+        /** 字段值类型：解码过的正文文本，包含子节点的文本内容 */
+        public static int VALUE_TYPE_TEXT_UNESCAPED = 3;
+        /** 字段值类型：解码过的正文文本，不包含子节点的文本内容 */
+        public static int VALUE_TYPE_OWN_TEXT_UNESCAPED = 4;
+
         /**
          * 构造函数
-         * @param name      字段名
-         * @param selector  字段选择器
-         * @param valueType 字段值类别。源码{@link Field#VALUE_TYPE_CODE}或正文文本{@link Field#VALUE_TYPE_CODE}。
+         * 
+         * @param name 字段名
+         * @param selector 字段选择器
+         * @param valueType 字段值类别。源码{@link Field#VALUE_TYPE_CODE}或正文文本
+         *            {@link Field#VALUE_TYPE_CODE}。
          * @param fieldSplitter 字段拆分器
          * @since 1.0
          */
-        public Field(String name, String selector, int valueType,FieldSplitter fieldSplitter) {
+        public Field(String name, String selector, int valueType, FieldSplitter fieldSplitter) {
             super();
             this.name = name;
             this.selector = selector;
             this.valueType = valueType;
             this.fieldSplitter = fieldSplitter;
         }
+
         /**
          * @return 返回 name
          * @since 1.0
@@ -189,6 +185,7 @@ public class ContentExtractor {
         public final String getName() {
             return name;
         }
+
         /**
          * @return 返回 selector
          * @since 1.0
@@ -196,6 +193,7 @@ public class ContentExtractor {
         public final String getSelector() {
             return selector;
         }
+
         /**
          * @return 返回 valueType
          * @since 1.0
@@ -203,6 +201,7 @@ public class ContentExtractor {
         public final int getValueType() {
             return valueType;
         }
+
         /**
          * @return 返回 fieldSplitter
          * @since 1.0
@@ -210,37 +209,144 @@ public class ContentExtractor {
         public final FieldSplitter getFieldSplitter() {
             return fieldSplitter;
         }
+        
+        /**
+         * 从节点中获取文本内容
+         * @param e 节点
+         * @return 文本内容
+         * @since 1.0
+         */
+        public abstract String getText(Element e);
     }
+
     /**
      * 源码字段，字段内容取源码
      * 
      * @author admin
-     * @date 2014年4月28日 
+     * @date 2014年4月28日
      * @time 上午11:25:25
      * @version 1.0
      */
-    public static class CodeField extends Field{
+    public static class CodeField extends Field {
         public CodeField(String name, String selector) {
-            super(name, selector, VALUE_TYPE_CODE,null);
+            super(name, selector, VALUE_TYPE_CODE, null);
         }
-        public CodeField(String name, String selector,FieldSplitter fieldSplitter) {
-            super(name, selector, VALUE_TYPE_CODE,fieldSplitter);
+
+        public CodeField(String name, String selector, FieldSplitter fieldSplitter) {
+            super(name, selector, VALUE_TYPE_CODE, fieldSplitter);
+        }
+
+        @Override
+        public String getText(Element e) {
+            return e.getCode();
         }
     }
+
     /**
-     * 正文文本字段，字段内容取正文文本
+     * 正文文本字段，字段内容取正文文本。包含子节点的文本内容
      * 
      * @author admin
-     * @date 2014年4月28日 
+     * @date 2014年4月28日
      * @time 上午11:29:20
      * @version 1.0
      */
-    public static class TextField extends Field{
+    public static class TextField extends Field {
         public TextField(String name, String selector) {
-            super(name, selector, VALUE_TYPE_TEXT,null);
+            super(name, selector, VALUE_TYPE_TEXT, null);
         }
-        public TextField(String name, String selector,FieldSplitter fieldSplitter) {
-            super(name, selector, VALUE_TYPE_TEXT,fieldSplitter);
+
+        public TextField(String name, String selector, FieldSplitter fieldSplitter) {
+            super(name, selector, VALUE_TYPE_TEXT, fieldSplitter);
         }
+
+        @Override
+        public String getText(Element e) {
+            return e.getText();
+        }
+    }
+    /**
+     * 正文文本字段，字段内容取正文文本。包含子节点的文本内容
+     * 
+     * @author admin
+     * @date 2014年4月28日
+     * @time 上午11:29:20
+     * @version 1.0
+     */
+    public static class UnescapedTextField extends Field {
+        public UnescapedTextField(String name, String selector) {
+            super(name, selector, VALUE_TYPE_TEXT_UNESCAPED, null);
+        }
+
+        public UnescapedTextField(String name, String selector, FieldSplitter fieldSplitter) {
+            super(name, selector, VALUE_TYPE_TEXT_UNESCAPED, fieldSplitter);
+        }
+
+        @Override
+        public String getText(Element e) {
+            return e.getUnescapedText();
+        }
+    }
+
+    /**
+     * 正文文本字段，字段内容取正文文本。不包含子节点的文本内容
+     * 
+     * @author admin
+     * @date 2014年4月28日
+     * @time 上午11:29:20
+     * @version 1.0
+     */
+    public static class OwnTextField extends Field {
+        public OwnTextField(String name, String selector) {
+            super(name, selector, VALUE_TYPE_OWN_TEXT, null);
+        }
+
+        public OwnTextField(String name, String selector, FieldSplitter fieldSplitter) {
+            super(name, selector, VALUE_TYPE_OWN_TEXT, fieldSplitter);
+        }
+
+        @Override
+        public String getText(Element e) {
+            return e.getOwnText();
+        }
+    }
+    /**
+     * 正文文本字段，字段内容取解码后的正文文本。不包含子节点的文本内容
+     * 
+     * @author admin
+     * @date 2014年4月28日
+     * @time 上午11:29:20
+     * @version 1.0
+     */
+    public static class UnescapedOwnTextField extends Field {
+        public UnescapedOwnTextField(String name, String selector) {
+            super(name, selector, VALUE_TYPE_OWN_TEXT_UNESCAPED, null);
+        }
+
+        public UnescapedOwnTextField(String name, String selector, FieldSplitter fieldSplitter) {
+            super(name, selector, VALUE_TYPE_OWN_TEXT_UNESCAPED, fieldSplitter);
+        }
+
+        @Override
+        public String getText(Element e) {
+            return e.getUnescapedOwnText();
+        }
+    }
+    
+    public static void main(String[] args) throws IOException {
+        BufferedReader reader = new BufferedReader(new FileReader(new File("C:\\Users\\admin\\Desktop\\aaaa.html")));
+        StringBuilder msg = new StringBuilder();
+        String line = null;
+        while (null != (line = reader.readLine())){
+            msg.append(line);
+            msg.append("\r\n");
+        }
+        reader.close();
+        reader = null;
+        Target target = (Target) ApplicationContext.getInstance().getBean("target-landchina-gonggaojieguo-hunan-xycr");
+        ContentExtractor ex = target.getContentExtractor();
+        HTMLParser p = new HTMLParser();
+        Element body = p.parse(msg.toString(), null);
+        List<Map<String, String>> aa = ex.extractContent(body);
+        System.out.println(aa);
     }
 }

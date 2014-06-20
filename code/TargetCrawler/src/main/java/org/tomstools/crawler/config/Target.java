@@ -6,6 +6,7 @@ package org.tomstools.crawler.config;
 import org.tomstools.crawler.extractor.ContentExtractor;
 import org.tomstools.crawler.extractor.NavigationExtractor;
 import org.tomstools.crawler.extractor.ContentPageExtractor;
+import org.tomstools.crawler.http.PageFetcher;
 import org.tomstools.crawler.parser.Parser;
 
 /**
@@ -27,13 +28,29 @@ public class Target {
     private NavigationExtractor navigationExtractor; // 分页导航抽取工具
     private ContentExtractor contentExtractor; // 正文内容抽取工具
     private CrawlingRule crawlingRule; // 爬取规则
-
+    private PageFetcher pageFetcher;  // 页面抓取器
     /**
      * @return 返回 url
      * @since 1.0
      */
     public final String getUrl() {
         return url;
+    }
+
+    /**
+     * @return 返回 页面抓取器
+     * @since 1.0
+     */
+    public final PageFetcher getPageFetcher() {
+        return pageFetcher;
+    }
+
+    /**
+     * @param pageFetcher 设置 页面抓取器
+     * @since 1.0
+     */
+    public final void setPageFetcher(PageFetcher pageFetcher) {
+        this.pageFetcher = pageFetcher;
     }
 
     /**

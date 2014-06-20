@@ -4,7 +4,6 @@
 package org.tomstools.crawler.example;
 
 import org.tomstools.crawler.config.CrawlingRule;
-import org.tomstools.crawler.extractor.impl.TemplatePageNavigationExtractor;
 
 /**
  * 彩票：大乐透
@@ -18,7 +17,7 @@ public class CaipiaoDaLeTou extends CaipiaoShuangSeQiu {
         super(crawlingRule);
         setName("lecai-daletou");
         setUrl("http://baidu.lecai.com/lottery/draw/list/1");
-        setNavigationExtractor(new TemplatePageNavigationExtractor("div.year_select select", "<option .*?value=\"(.*?)\">","http://baidu.lecai.com/lottery/draw/list/1?d=%s"));
+      //XXX 需要修改，暂时屏蔽 setNavigationExtractor(new TemplatePageNavigationExtractor("div.year_select select", "<option .*?value=\"(.*?)\">","http://baidu.lecai.com/lottery/draw/list/1?d=%s"));
     }
     
 }

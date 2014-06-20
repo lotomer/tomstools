@@ -25,11 +25,17 @@ public interface Element {
      */
     public String getAttribute(String attributeName);
     /**
-     * 获取元素文本内容
+     * 获取元素文本内容。包含子节点的文本内容
      * @return 文本内容
      * @since 1.0
      */
     public String getText();
+    /**
+     * 获取元素文本内容。不包含子节点的文本内容
+     * @return 文本内容
+     * @since 1.0
+     */
+    public String getOwnText();
     /**
      * 选择符合条件的节点并逐个处理
      * @param cssQuery  选择条件
@@ -45,4 +51,8 @@ public interface Element {
      * @since 1.0
      */
     public Element select(String cssQuery);
+    /** 获取元素解码后的文本内容。包含子节点的文本内容 */
+    public String getUnescapedText();
+    /** 获取元素解码后的文本内容。不包含子节点的文本内容 */
+    public String getUnescapedOwnText();
 }

@@ -1,0 +1,305 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xsi:schemaLocation="   
+     http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd   
+     http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+
+    <!-- 待爬取对象：langchina 公告结果：湖南-协议出让。对应 org.tomstools.crawler.config.Target -->
+    <bean id="target-landchina-gonggaojieguo-hunan-xycr" class="org.tomstools.crawler.config.Target" scope="prototype">
+        <property name="name" value="landchina-gonggaojieguo-hunan-xycr"></property>
+        <property name="url"><value><![CDATA[http://www.landchina.com/default.aspx?tabid=263#1]]></value></property>
+        <property name="defaultCharsetName" value="GBK"></property>
+        <property name="crawlingRule" ref="crawlingRule"></property>
+        <property name="parser" ref="htmlParser"></property>
+        <property name="pageFetcher">
+            <bean class="org.tomstools.crawler.http.PageFetcher" scope="prototype">
+                <property name="method" value="POST"></property>
+                <property name="tryCount" value="5"></property>
+                <property name="requestInfo">
+                    <bean class="org.tomstools.crawler.http.RequestInfo" scope="prototype">
+                        <property name="formDatas">
+                            <map>
+                                <entry key="hidComName"><value><![CDATA[default]]></value></entry>
+                                <!-- <entry key="__VIEWSTATE"><value><![CDATA[/wEPDwUJNjkzNzgyNTU4D2QWAmYPZBYIZg9kFgICAQ9kFgJmDxYCHgdWaXNpYmxlaGQCAQ9kFgICAQ8WAh4Fc3R5bGUFIEJBQ0tHUk9VTkQtQ09MT1I6I2YzZjVmNztDT0xPUjo7ZAICD2QWAgIBD2QWAmYPZBYCZg9kFgJmD2QWBGYPZBYCZg9kFgJmD2QWAmYPZBYCZg9kFgJmDxYEHwEFIENPTE9SOiNEM0QzRDM7QkFDS0dST1VORC1DT0xPUjo7HwBoFgJmD2QWAgIBD2QWAmYPDxYCHgRUZXh0ZWRkAgEPZBYCZg9kFgJmD2QWAmYPZBYEZg9kFgJmDxYEHwEFhwFDT0xPUjojRDNEM0QzO0JBQ0tHUk9VTkQtQ09MT1I6O0JBQ0tHUk9VTkQtSU1BR0U6dXJsKGh0dHA6Ly93d3cubGFuZGNoaW5hLmNvbS9Vc2VyL2RlZmF1bHQvVXBsb2FkL3N5c0ZyYW1lSW1nL3hfdGRzY3dfc3lfamhnZ18wMDAuZ2lmKTseBmhlaWdodAUBMxYCZg9kFgICAQ9kFgJmDw8WAh8CZWRkAgIPZBYCZg9kFgJmD2QWAmYPZBYCZg9kFgJmD2QWAmYPZBYEZg9kFgJmDxYEHwEFIENPTE9SOiNEM0QzRDM7QkFDS0dST1VORC1DT0xPUjo7HwBoFgJmD2QWAgIBD2QWAmYPDxYCHwJlZGQCAg9kFgJmD2QWBGYPZBYCZg9kFgJmD2QWAmYPZBYCZg9kFgJmD2QWAmYPFgQfAQUgQ09MT1I6I0QzRDNEMztCQUNLR1JPVU5ELUNPTE9SOjsfAGgWAmYPZBYCAgEPZBYCZg8PFgIfAmVkZAICD2QWBGYPZBYCZg9kFgJmD2QWAmYPZBYCAgEPZBYCZg8WBB8BBYYBQ09MT1I6I0QzRDNEMztCQUNLR1JPVU5ELUNPTE9SOjtCQUNLR1JPVU5ELUlNQUdFOnVybChodHRwOi8vd3d3LmxhbmRjaGluYS5jb20vVXNlci9kZWZhdWx0L1VwbG9hZC9zeXNGcmFtZUltZy94X3Rkc2N3X3p5X2pnZ2dfMDEuZ2lmKTsfAwUCNDYWAmYPZBYCAgEPZBYCZg8PFgIfAmVkZAIBD2QWAmYPZBYCZg9kFgJmD2QWAgIBD2QWAmYPFgQfAQUgQ09MT1I6I0QzRDNEMztCQUNLR1JPVU5ELUNPTE9SOjsfAGgWAmYPZBYCAgEPZBYCZg8PFgIfAmVkZAIDD2QWAgIDDxYEHglpbm5lcmh0bWwFtwY8cCBhbGlnbj0iY2VudGVyIj48c3BhbiBzdHlsZT0iZm9udC1zaXplOiB4LXNtYWxsIj4mbmJzcDs8YnIgLz4NCiZuYnNwOzxhIHRhcmdldD0iX3NlbGYiIGhyZWY9Imh0dHA6Ly93d3cubGFuZGNoaW5hLmNvbS8iPjxpbWcgYm9yZGVyPSIwIiBhbHQ9IiIgd2lkdGg9IjI2MCIgaGVpZ2h0PSI2MSIgc3JjPSIvVXNlci9kZWZhdWx0L1VwbG9hZC9mY2svaW1hZ2UvdGRzY3dfbG9nZS5wbmciIC8+PC9hPiZuYnNwOzxiciAvPg0KJm5ic3A7PHNwYW4gc3R5bGU9ImNvbG9yOiAjZmZmZmZmIj5Db3B5cmlnaHQgMjAwOC0yMDE0IERSQ25ldC4gQWxsIFJpZ2h0cyBSZXNlcnZlZCZuYnNwOyZuYnNwOyZuYnNwOyA8c2NyaXB0IHR5cGU9InRleHQvamF2YXNjcmlwdCI+DQp2YXIgX2JkaG1Qcm90b2NvbCA9ICgoImh0dHBzOiIgPT0gZG9jdW1lbnQubG9jYXRpb24ucHJvdG9jb2wpID8gIiBodHRwczovLyIgOiAiIGh0dHA6Ly8iKTsNCmRvY3VtZW50LndyaXRlKHVuZXNjYXBlKCIlM0NzY3JpcHQgc3JjPSciICsgX2JkaG1Qcm90b2NvbCArICJobS5iYWlkdS5jb20vaC5qcyUzRjgzODUzODU5YzcyNDdjNWIwM2I1Mjc4OTQ2MjJkM2ZhJyB0eXBlPSd0ZXh0L2phdmFzY3JpcHQnJTNFJTNDL3NjcmlwdCUzRSIpKTsNCjwvc2NyaXB0PiZuYnNwOzxiciAvPg0K54mI5p2D5omA5pyJJm5ic3A7IOS4reWbveWcn+WcsOW4guWcuue9kTxiciAvPg0K5aSH5qGI5Y+3OiDkuqxJQ1DlpIcwOTA3NDk5MuWPtyDkuqzlhaznvZHlronlpIcxMTAxMDIwMDA2NjYoMikmbmJzcDs8YnIgLz4NCjwvc3Bhbj4mbmJzcDsmbmJzcDsmbmJzcDs8YnIgLz4NCiZuYnNwOzwvc3Bhbj48L3A+HwEFZEJBQ0tHUk9VTkQtSU1BR0U6dXJsKGh0dHA6Ly93d3cubGFuZGNoaW5hLmNvbS9Vc2VyL2RlZmF1bHQvVXBsb2FkL3N5c0ZyYW1lSW1nL3hfdGRzY3cyMDEzX3l3XzEuanBnKTtkZKrNl4XBeIoFuKml0NNd/V52hNDa1jXsmJLeE515eSAL]]></value></entry>
+                                <entry key="__EVENTVALIDATION"><value><![CDATA[/wEWAgKEttqaDQLN3cj/BBnwgJPvvxrmHZuVlbSHVu5Ri0n2JSAdKRtumFTzwHNK]]></value></entry>
+                                <entry key="TAB_QueryConditionItem"><value><![CDATA[42ad98ae-c46a-40aa-aacc-c0884036eeaf]]></value></entry>
+                                <entry key="TAB_QueryConditionItem"><value><![CDATA[8fd0232c-aff0-45d1-a726-63fc4c3d8ea9]]></value></entry>
+                                 -->
+                                <entry key="TAB_QuerySortItemList"><value><![CDATA[b42f6ce1-d810-4548-9581-725c9a501fc5:False]]></value></entry>
+                                <entry key="TAB_QuerySubmitOrderData"><value><![CDATA[b42f6ce1-d810-4548-9581-725c9a501fc5:False]]></value></entry>
+                                <entry key="TAB_QuerySubmitPagerData"><value><![CDATA[1]]></value></entry>
+                                <entry key="TAB_QuerySubmitConditionData"><value><![CDATA[42ad98ae-c46a-40aa-aacc-c0884036eeaf:43%~湖南省|8fd0232c-aff0-45d1-a726-63fc4c3d8ea9:3%~协议出让]]></value></entry>
+                            </map>
+                        </property>
+                        <property name="headers">
+                            <map>
+                                <entry key="Content-Type"><value><![CDATA[application/x-www-form-urlencoded]]></value></entry>
+                                <entry key="Accept"><value><![CDATA[text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8]]></value></entry>
+                                <entry key="Accept-Encoding"><value><![CDATA[gzip,deflate,sdch]]></value></entry>
+                                <entry key="Accept-Language"><value><![CDATA[zh-CN,zh;q=0.8]]></value></entry>
+                                <entry key="Cache-Control"><value><![CDATA[max-age=0]]></value></entry>
+                                <entry key="Connection"><value><![CDATA[keep-alive]]></value></entry>
+                                <entry key="Origin"><value><![CDATA[http://www.landchina.com]]></value></entry>
+                                <entry key="Referer"><value><![CDATA[]]></value></entry>
+                                <entry key="User-Agent"><value><![CDATA[Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.66 Safari/537.36 LBBROWSER]]></value></entry>
+                            </map>
+                        </property>
+                    </bean>
+                </property>
+            </bean>
+        </property>
+        <property name="contentPageExtractor">
+            <bean class="org.tomstools.crawler.extractor.impl.BaseContentPageExtractor" scope="prototype">
+                <!-- 构造函数参数 1: 元素选择表达式 -->
+                <constructor-arg index="0" type="java.lang.String">
+                    <value><![CDATA[table#TAB_contentTable>tbody>tr:not(.gridHeader)>td:eq(2)>a]]></value>
+                </constructor-arg>
+                <!-- 构造函数参数 2: 子页面url模板 -->
+                <constructor-arg index="1" type="java.lang.String">
+                    <value><![CDATA[%s]]></value>
+                </constructor-arg>
+                <!-- 构造函数参数3: 提取子页面url的正则表达式，与format配合使用，将正则表达式的group数据代入format中以生成完整的子页面url -->
+                <constructor-arg index="2" type="java.lang.String">
+                    <value><![CDATA[<a .*?href="([^"]+?)".*]]></value>
+                </constructor-arg>
+                <!-- 构造函数参数4: 过滤规则的正则表达式，如果匹配上，则直接过滤不进行子页面的提取 -->
+                <constructor-arg index="3" type="java.lang.String">
+                    <value><![CDATA[]]></value>
+                </constructor-arg>
+                <property name="contentPageExtractor">
+                    <null></null>
+                </property>
+                <property name="pageFetcher">
+                    <bean class="org.tomstools.crawler.http.PageFetcher" scope="prototype">
+                        <property name="method" value="GET"></property>
+                        <property name="tryCount" value="5"></property>
+                        <property name="requestInfo">
+                            <bean class="org.tomstools.crawler.http.RequestInfo" scope="prototype">
+                                <property name="formDatas">
+                                    <map>
+                                        <entry key="hidComName"><value><![CDATA[default]]></value></entry>
+                                        <!-- <entry key="__VIEWSTATE"><value><![CDATA[/wEPDwUJNjkzNzgyNTU4D2QWAmYPZBYIZg9kFgICAQ9kFgJmDxYCHgdWaXNpYmxlaGQCAQ9kFgICAQ8WAh4Fc3R5bGUFIEJBQ0tHUk9VTkQtQ09MT1I6I2YzZjVmNztDT0xPUjo7ZAICD2QWAgIBD2QWAmYPZBYCZg9kFgJmD2QWBGYPZBYCZg9kFgJmD2QWAmYPZBYCZg9kFgJmDxYEHwEFIENPTE9SOiNEM0QzRDM7QkFDS0dST1VORC1DT0xPUjo7HwBoFgJmD2QWAgIBD2QWAmYPDxYCHgRUZXh0ZWRkAgEPZBYCZg9kFgJmD2QWAmYPZBYEZg9kFgJmDxYEHwEFhwFDT0xPUjojRDNEM0QzO0JBQ0tHUk9VTkQtQ09MT1I6O0JBQ0tHUk9VTkQtSU1BR0U6dXJsKGh0dHA6Ly93d3cubGFuZGNoaW5hLmNvbS9Vc2VyL2RlZmF1bHQvVXBsb2FkL3N5c0ZyYW1lSW1nL3hfdGRzY3dfc3lfamhnZ18wMDAuZ2lmKTseBmhlaWdodAUBMxYCZg9kFgICAQ9kFgJmDw8WAh8CZWRkAgIPZBYCZg9kFgJmD2QWAmYPZBYCZg9kFgJmD2QWAmYPZBYEZg9kFgJmDxYEHwEFIENPTE9SOiNEM0QzRDM7QkFDS0dST1VORC1DT0xPUjo7HwBoFgJmD2QWAgIBD2QWAmYPDxYCHwJlZGQCAg9kFgJmD2QWBGYPZBYCZg9kFgJmD2QWAmYPZBYCZg9kFgJmD2QWAmYPFgQfAQUgQ09MT1I6I0QzRDNEMztCQUNLR1JPVU5ELUNPTE9SOjsfAGgWAmYPZBYCAgEPZBYCZg8PFgIfAmVkZAICD2QWBGYPZBYCZg9kFgJmD2QWAmYPZBYCAgEPZBYCZg8WBB8BBYYBQ09MT1I6I0QzRDNEMztCQUNLR1JPVU5ELUNPTE9SOjtCQUNLR1JPVU5ELUlNQUdFOnVybChodHRwOi8vd3d3LmxhbmRjaGluYS5jb20vVXNlci9kZWZhdWx0L1VwbG9hZC9zeXNGcmFtZUltZy94X3Rkc2N3X3p5X2pnZ2dfMDEuZ2lmKTsfAwUCNDYWAmYPZBYCAgEPZBYCZg8PFgIfAmVkZAIBD2QWAmYPZBYCZg9kFgJmD2QWAgIBD2QWAmYPFgQfAQUgQ09MT1I6I0QzRDNEMztCQUNLR1JPVU5ELUNPTE9SOjsfAGgWAmYPZBYCAgEPZBYCZg8PFgIfAmVkZAIDD2QWAgIDDxYEHglpbm5lcmh0bWwFtwY8cCBhbGlnbj0iY2VudGVyIj48c3BhbiBzdHlsZT0iZm9udC1zaXplOiB4LXNtYWxsIj4mbmJzcDs8YnIgLz4NCiZuYnNwOzxhIHRhcmdldD0iX3NlbGYiIGhyZWY9Imh0dHA6Ly93d3cubGFuZGNoaW5hLmNvbS8iPjxpbWcgYm9yZGVyPSIwIiBhbHQ9IiIgd2lkdGg9IjI2MCIgaGVpZ2h0PSI2MSIgc3JjPSIvVXNlci9kZWZhdWx0L1VwbG9hZC9mY2svaW1hZ2UvdGRzY3dfbG9nZS5wbmciIC8+PC9hPiZuYnNwOzxiciAvPg0KJm5ic3A7PHNwYW4gc3R5bGU9ImNvbG9yOiAjZmZmZmZmIj5Db3B5cmlnaHQgMjAwOC0yMDE0IERSQ25ldC4gQWxsIFJpZ2h0cyBSZXNlcnZlZCZuYnNwOyZuYnNwOyZuYnNwOyA8c2NyaXB0IHR5cGU9InRleHQvamF2YXNjcmlwdCI+DQp2YXIgX2JkaG1Qcm90b2NvbCA9ICgoImh0dHBzOiIgPT0gZG9jdW1lbnQubG9jYXRpb24ucHJvdG9jb2wpID8gIiBodHRwczovLyIgOiAiIGh0dHA6Ly8iKTsNCmRvY3VtZW50LndyaXRlKHVuZXNjYXBlKCIlM0NzY3JpcHQgc3JjPSciICsgX2JkaG1Qcm90b2NvbCArICJobS5iYWlkdS5jb20vaC5qcyUzRjgzODUzODU5YzcyNDdjNWIwM2I1Mjc4OTQ2MjJkM2ZhJyB0eXBlPSd0ZXh0L2phdmFzY3JpcHQnJTNFJTNDL3NjcmlwdCUzRSIpKTsNCjwvc2NyaXB0PiZuYnNwOzxiciAvPg0K54mI5p2D5omA5pyJJm5ic3A7IOS4reWbveWcn+WcsOW4guWcuue9kTxiciAvPg0K5aSH5qGI5Y+3OiDkuqxJQ1DlpIcwOTA3NDk5MuWPtyDkuqzlhaznvZHlronlpIcxMTAxMDIwMDA2NjYoMikmbmJzcDs8YnIgLz4NCjwvc3Bhbj4mbmJzcDsmbmJzcDsmbmJzcDs8YnIgLz4NCiZuYnNwOzwvc3Bhbj48L3A+HwEFZEJBQ0tHUk9VTkQtSU1BR0U6dXJsKGh0dHA6Ly93d3cubGFuZGNoaW5hLmNvbS9Vc2VyL2RlZmF1bHQvVXBsb2FkL3N5c0ZyYW1lSW1nL3hfdGRzY3cyMDEzX3l3XzEuanBnKTtkZKrNl4XBeIoFuKml0NNd/V52hNDa1jXsmJLeE515eSAL]]></value></entry>
+                                        <entry key="__EVENTVALIDATION"><value><![CDATA[/wEWAgKEttqaDQLN3cj/BBnwgJPvvxrmHZuVlbSHVu5Ri0n2JSAdKRtumFTzwHNK]]></value></entry>
+                                        <entry key="TAB_QueryConditionItem"><value><![CDATA[42ad98ae-c46a-40aa-aacc-c0884036eeaf]]></value></entry>
+                                        <entry key="TAB_QueryConditionItem"><value><![CDATA[8fd0232c-aff0-45d1-a726-63fc4c3d8ea9]]></value></entry>
+                                         -->
+                                        <entry key="TAB_QuerySortItemList"><value><![CDATA[b42f6ce1-d810-4548-9581-725c9a501fc5:False]]></value></entry>
+                                        <entry key="TAB_QuerySubmitOrderData"><value><![CDATA[b42f6ce1-d810-4548-9581-725c9a501fc5:False]]></value></entry>
+                                        <entry key="TAB_QuerySubmitPagerData"><value><![CDATA[1]]></value></entry>
+                                        <entry key="TAB_QuerySubmitConditionData"><value><![CDATA[42ad98ae-c46a-40aa-aacc-c0884036eeaf:43%~湖南省|8fd0232c-aff0-45d1-a726-63fc4c3d8ea9:3%~协议出让]]></value></entry>
+                                    </map>
+                                </property>
+                                <property name="headers">
+                                    <map>
+                                        <entry key="Content-Type"><value><![CDATA[application/x-www-form-urlencoded]]></value></entry>
+                                        <entry key="Accept"><value><![CDATA[text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8]]></value></entry>
+                                        <entry key="Accept-Encoding"><value><![CDATA[gzip,deflate,sdch]]></value></entry>
+                                        <entry key="Accept-Language"><value><![CDATA[zh-CN,zh;q=0.8]]></value></entry>
+                                        <entry key="Cache-Control"><value><![CDATA[max-age=0]]></value></entry>
+                                        <entry key="Connection"><value><![CDATA[keep-alive]]></value></entry>
+                                        <entry key="Origin"><value><![CDATA[http://www.landchina.com]]></value></entry>
+                                        <entry key="Referer"><value><![CDATA[]]></value></entry>
+                                        <entry key="User-Agent"><value><![CDATA[Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.66 Safari/537.36 LBBROWSER]]></value></entry>
+                                    </map>
+                                </property>
+                            </bean>
+                        </property>
+                    </bean>
+                </property>
+            </bean>
+        </property>
+        <property name="navigationExtractor">
+            <bean class="org.tomstools.crawler.extractor.impl.TemplatePageNavigationExtractor"
+                scope="prototype">
+                <!-- 构造函数参数 1: 元素选择表达式 -->
+                <constructor-arg index="0" type="java.lang.String">
+                    <value><![CDATA[div.pager td.pager>a:contains(下页)]]></value>
+                </constructor-arg>
+                <!-- 构造函数参数 2: 正则表达式 -->
+                <constructor-arg index="1" type="java.lang.String">
+                    <value><![CDATA[<a .*?onclick="QueryAction.GoPage\('TAB',(\d+)\)"]]></value> 
+                </constructor-arg>
+                <!-- 构造函数参数 3: 正则表达式中group的索引号对应的参数名称，参数名如form_pageno -->
+                <constructor-arg index="2">
+                    <map>
+                        <entry key="1"><value><![CDATA[url,form_TAB_QuerySubmitPagerData]]></value></entry>
+                    </map>
+                </constructor-arg>
+                <!-- 构造函数参数 4: 参数对应的模板。需要替换的参数名使用“${”和“}”包裹，如：${form_pageno} -->
+                <constructor-arg index="3">
+                    <map>
+                        <entry key="url"><value><![CDATA[http://www.landchina.com/default.aspx?tabid=263#${url}]]></value></entry>
+                        <entry key="form_TAB_QuerySubmitPagerData"><value><![CDATA[${form_TAB_QuerySubmitPagerData}]]></value></entry>
+                    </map>
+                </constructor-arg>
+            </bean>
+        </property>
+        <property name="contentExtractor">
+            <!-- 内容抽取器。对应 org.tomstools.crawler.extractor.ContentExtractor -->
+            <bean class="org.tomstools.crawler.extractor.ContentExtractor" scope="prototype">
+                <!-- 构造函数参数 1: 元素选择表达式 -->
+                <constructor-arg index="0" type="java.lang.String">
+                    <value><![CDATA[table#FormView21_1]]></value>
+                </constructor-arg>
+                <!-- 构造函数参数 2: 表头 -->
+                <constructor-arg index="1" type="java.lang.String[]">
+                    <value><![CDATA[行政区域,电子监管号,土地坐落,总面积,土地用途,供应方式,土地使用年限,土地级别,成交价格,约定支付金额,土地使用权人,容积率(下限),容积率(上限),签订日期]]></value>
+                </constructor-arg>
+                <!-- 构造函数参数 3: 固定属性 -->
+                <constructor-arg index="2">
+                    <list>
+                    </list>
+                </constructor-arg>
+                <!-- 构造函数参数 4: 提取属性配置信息 -->
+                <constructor-arg index="3">
+                    <list>
+                        <bean class="org.tomstools.crawler.extractor.ContentExtractor.TextField">
+                            <!-- 构造函数参数 1: 名称 -->
+                            <constructor-arg index="0" type="java.lang.String">
+                                <value><![CDATA[行政区域]]></value>
+                            </constructor-arg>
+                            <!-- 构造函数参数 2: 元素选择表达式 -->
+                            <constructor-arg index="1" type="java.lang.String">
+                                <value><![CDATA[table#FormView21_1>tbody>tr:eq(1)>td:eq(1)>span]]></value>
+                            </constructor-arg>
+                            <!-- 构造函数参数3: 字段拆分器 
+                            <constructor-arg index="2" type="org.tomstools.crawler.common.FieldSplitter">
+                            </constructor-arg>-->
+                        </bean>
+                        <bean class="org.tomstools.crawler.extractor.ContentExtractor.TextField">
+                            <!-- 构造函数参数 1: 名称 -->
+                            <constructor-arg index="0" type="java.lang.String">
+                                <value><![CDATA[电子监管号]]></value>
+                            </constructor-arg>
+                            <!-- 构造函数参数 2: 元素选择表达式 -->
+                            <constructor-arg index="1" type="java.lang.String">
+                                <value><![CDATA[table#FormView21_1>tbody>tr:eq(1)>td:eq(3)>span]]></value>
+                            </constructor-arg>
+                        </bean>
+                        <bean class="org.tomstools.crawler.extractor.ContentExtractor.OwnTextField">
+                            <!-- 构造函数参数 1: 名称 -->
+                            <constructor-arg index="0" type="java.lang.String">
+                                <value><![CDATA[土地坐落]]></value>
+                            </constructor-arg>
+                            <!-- 构造函数参数 2: 元素选择表达式 -->
+                            <constructor-arg index="1" type="java.lang.String">
+                                <value><![CDATA[table#FormView21_1>tbody>tr:eq(3)>td:eq(1)>span]]></value>
+                            </constructor-arg>
+                        </bean>
+                        <bean class="org.tomstools.crawler.extractor.ContentExtractor.OwnTextField">
+                            <!-- 构造函数参数 1: 名称 -->
+                            <constructor-arg index="0" type="java.lang.String">
+                                <value><![CDATA[总面积]]></value>
+                            </constructor-arg>
+                            <!-- 构造函数参数 2: 元素选择表达式 -->
+                            <constructor-arg index="1" type="java.lang.String">
+                                <value><![CDATA[table#FormView21_1>tbody>tr:eq(4)>td:eq(1)>span]]></value>
+                            </constructor-arg>
+                        </bean>
+                        <bean class="org.tomstools.crawler.extractor.ContentExtractor.OwnTextField">
+                            <!-- 构造函数参数 1: 名称 -->
+                            <constructor-arg index="0" type="java.lang.String">
+                                <value><![CDATA[土地用途]]></value>
+                            </constructor-arg>
+                            <!-- 构造函数参数 2: 元素选择表达式 -->
+                            <constructor-arg index="1" type="java.lang.String">
+                                <value><![CDATA[table#FormView21_1>tbody>tr:eq(5)>td:eq(1)>span]]></value>
+                            </constructor-arg>
+                        </bean>
+                        <bean class="org.tomstools.crawler.extractor.ContentExtractor.OwnTextField">
+                            <!-- 构造函数参数 1: 名称 -->
+                            <constructor-arg index="0" type="java.lang.String">
+                                <value><![CDATA[供应方式]]></value>
+                            </constructor-arg>
+                            <!-- 构造函数参数 2: 元素选择表达式 -->
+                            <constructor-arg index="1" type="java.lang.String">
+                                <value><![CDATA[table#FormView21_1>tbody>tr:eq(5)>td:eq(3)>span]]></value>
+                            </constructor-arg>
+                        </bean>
+                        <bean class="org.tomstools.crawler.extractor.ContentExtractor.OwnTextField">
+                            <!-- 构造函数参数 1: 名称 -->
+                            <constructor-arg index="0" type="java.lang.String">
+                                <value><![CDATA[土地使用年限]]></value>
+                            </constructor-arg>
+                            <!-- 构造函数参数 2: 元素选择表达式 -->
+                            <constructor-arg index="1" type="java.lang.String">
+                                <value><![CDATA[table#FormView21_1>tbody>tr:eq(6)>td:eq(1)>span]]></value>
+                            </constructor-arg>
+                        </bean>
+                        <bean class="org.tomstools.crawler.extractor.ContentExtractor.OwnTextField">
+                            <!-- 构造函数参数 1: 名称 -->
+                            <constructor-arg index="0" type="java.lang.String">
+                                <value><![CDATA[土地级别]]></value>
+                            </constructor-arg>
+                            <!-- 构造函数参数 2: 元素选择表达式 -->
+                            <constructor-arg index="1" type="java.lang.String">
+                                <value><![CDATA[table#FormView21_1>tbody>tr:eq(7)>td:eq(1)>span]]></value>
+                            </constructor-arg>
+                        </bean>
+                        <bean class="org.tomstools.crawler.extractor.ContentExtractor.OwnTextField">
+                            <!-- 构造函数参数 1: 名称 -->
+                            <constructor-arg index="0" type="java.lang.String">
+                                <value><![CDATA[成交价格]]></value>
+                            </constructor-arg>
+                            <!-- 构造函数参数 2: 元素选择表达式 -->
+                            <constructor-arg index="1" type="java.lang.String">
+                                <value><![CDATA[table#FormView21_1>tbody>tr:eq(7)>td:eq(3)>span]]></value>
+                            </constructor-arg>
+                        </bean>
+                        <bean class="org.tomstools.crawler.extractor.ContentExtractor.TextField">
+                            <!-- 构造函数参数 1: 名称 -->
+                            <constructor-arg index="0" type="java.lang.String">
+                                <value><![CDATA[约定支付金额]]></value>
+                            </constructor-arg>
+                            <!-- 构造函数参数 2: 元素选择表达式 -->
+                            <constructor-arg index="1" type="java.lang.String">
+                                <value><![CDATA[table#FormView21_1>tbody>tr:eq(8)>td:eq(1)>table>tbody>tr:eq(1)>td:eq(2)]]></value>
+                            </constructor-arg>
+                        </bean>
+                        <bean class="org.tomstools.crawler.extractor.ContentExtractor.OwnTextField">
+                            <!-- 构造函数参数 1: 名称 -->
+                            <constructor-arg index="0" type="java.lang.String">
+                                <value><![CDATA[土地使用权人]]></value>
+                            </constructor-arg>
+                            <!-- 构造函数参数 2: 元素选择表达式 -->
+                            <constructor-arg index="1" type="java.lang.String">
+                                <value><![CDATA[table#FormView21_1>tbody>tr:eq(9)>td:eq(1)>span]]></value>
+                            </constructor-arg>
+                        </bean>
+                        <bean class="org.tomstools.crawler.extractor.ContentExtractor.TextField">
+                            <!-- 构造函数参数 1: 名称 -->
+                            <constructor-arg index="0" type="java.lang.String">
+                                <value><![CDATA[容积率(下限)]]></value>
+                            </constructor-arg>
+                            <!-- 构造函数参数 2: 元素选择表达式 -->
+                            <constructor-arg index="1" type="java.lang.String">
+                                <value><![CDATA[table#FormView21_1>tbody>tr:eq(11)>td:eq(1)>table>tbody>tr:eq(0)>td:eq(1)]]></value>
+                            </constructor-arg>
+                        </bean>
+                        <bean class="org.tomstools.crawler.extractor.ContentExtractor.TextField">
+                            <!-- 构造函数参数 1: 名称 -->
+                            <constructor-arg index="0" type="java.lang.String">
+                                <value><![CDATA[容积率(上限)]]></value>
+                            </constructor-arg>
+                            <!-- 构造函数参数 2: 元素选择表达式 -->
+                            <constructor-arg index="1" type="java.lang.String">
+                                <value><![CDATA[table#FormView21_1>tbody>tr:eq(11)>td:eq(1)>table>tbody>tr:eq(0)>td:eq(3)]]></value>
+                            </constructor-arg>
+                        </bean>
+                        <bean class="org.tomstools.crawler.extractor.ContentExtractor.OwnTextField">
+                            <!-- 构造函数参数 1: 名称 -->
+                            <constructor-arg index="0" type="java.lang.String">
+                                <value><![CDATA[签订日期]]></value>
+                            </constructor-arg>
+                            <!-- 构造函数参数 2: 元素选择表达式 -->
+                            <constructor-arg index="1" type="java.lang.String">
+                                <value><![CDATA[table#FormView21_1>tbody>tr:eq(14)>td:eq(3)>span]]></value>
+                            </constructor-arg>
+                        </bean>
+                    </list>
+                </constructor-arg>
+            </bean>
+        </property>
+    </bean>
+</beans>

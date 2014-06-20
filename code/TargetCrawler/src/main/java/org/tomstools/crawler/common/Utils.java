@@ -19,6 +19,7 @@ import java.util.regex.Pattern;
  * @time 下午02:42:29
  */
 public final class Utils {
+    private static final Logger LOGGER = Logger.getLogger(Utils.class);
     private Utils() {
     }
 
@@ -54,7 +55,7 @@ public final class Utils {
                 c.close();
                 c = null;
             } catch (IOException e) {
-                e.printStackTrace();
+                LOGGER.warn(e.getMessage(),e);
             }
         }
     }

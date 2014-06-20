@@ -43,6 +43,8 @@
     <import resource="0731fdc-floor-cs.xml"/>
     <import resource="0731fdc-floor-zz.xml"/>
     <import resource="0731fdc-floor-xt.xml"/>
+    <import resource="landchina-gonggaojieguo-hunan-xycr.xml"/>
+    <import resource="landchina-gonggaojieguo-hunan-zpgcr.xml"/>
     <!-- 结果数据操作对象：文件方式。对应 org.tomstools.crawler.dao.ResultDAO -->
     <bean id="fileResultDAO" class="org.tomstools.crawler.dao.FileResultDAO" scope="prototype">
         <!-- 构造函数参数 1: 文件保存的根目录 -->
@@ -72,11 +74,15 @@
                 <ref bean="target-0731fdc-floor-cs-detail"/>
                 <ref bean="target-0731fdc-floor-zz" />
                 <ref bean="target-0731fdc-floor-xt" />
+                <ref bean="target-landchina-gonggaojieguo-hunan-xycr" />
+                <ref bean="target-landchina-gonggaojieguo-hunan-zpgcr" />
                  -->
                 <ref bean="target-0731fdc-floor-cs" />
                 <ref bean="target-0731fdc-floor-cs-detail"/>
                 <ref bean="target-0731fdc-floor-zz" />
                 <ref bean="target-0731fdc-floor-xt" />
+                <ref bean="target-landchina-gonggaojieguo-hunan-xycr" />
+                <ref bean="target-landchina-gonggaojieguo-hunan-zpgcr" />
             </list>
         </constructor-arg>
         <!-- 构造函数参数 2: 结果数据操作对象。对应 接口 org.tomstools.crawler.dao.ResultDAO -->

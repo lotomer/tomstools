@@ -11,7 +11,6 @@ import org.tomstools.crawler.config.Target;
 import org.tomstools.crawler.extractor.ContentExtractor;
 import org.tomstools.crawler.extractor.ContentExtractor.Field;
 import org.tomstools.crawler.extractor.impl.BaseContentPageExtractor;
-import org.tomstools.crawler.extractor.impl.PageNavigationExtractor;
 import org.tomstools.crawler.parser.HTMLParser;
 
 /**
@@ -29,7 +28,7 @@ public class EasymoneyNewsGN extends Target {
         setCrawlingRule(crawlingRule);
         setParser(new HTMLParser());
         setContentPageExtractor(new BaseContentPageExtractor("div.mainCont div.list li a","","",null));  
-        setNavigationExtractor(new PageNavigationExtractor("div.PageBox>div.Page a:containsOwn(下一页)", "<a .*?href=\"(.*?\\.html)\""));
+      //XXX 需要修改，暂时屏蔽 setNavigationExtractor(new PageNavigationExtractor("div.PageBox>div.Page a:containsOwn(下一页)", "<a .*?href=\"(.*?\\.html)\""));
         List<Field> fields = new ArrayList<>();
         fields.add(new ContentExtractor.TextField("title", "h1"));
         fields.add(new ContentExtractor.TextField("time", "div.info span:eq(1)"));

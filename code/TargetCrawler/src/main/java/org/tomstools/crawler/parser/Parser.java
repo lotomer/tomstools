@@ -19,21 +19,9 @@ public interface Parser {
     /**
      * 根据参数解析内容
      * @param content 待解析的内容
-     * @param param 参数
+     * @param selector 节点选择表达式。可谓空或null
      * @return  解析后的内容。解析失败则返回null
      * @since 1.0
      */
-    public Element parse(String content, String param);
-    //public String parse(String content, String param);
-    //public void parse(String content, ContentHandle handle, Map<String,String> params, boolean onlyText);
-    /**
-     * 根据参数解析内容
-     * @param content   待解析的内容
-     * @param params    参数列表
-     * @param handle    解析出结果后的处理钩子
-     * @param onlyText  是否仅保留文本（去除html标签等）
-     * @since 1.0
-     */
-    //public void parse(String content, Map<String,String> params, ContentHandle handle);
-    //public void parse(String content, ContentHandle handle);
+    public Element parse(String content, String selector);
 }

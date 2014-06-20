@@ -6,6 +6,7 @@ package org.tomstools.crawler.extractor;
 import java.util.List;
 
 import org.tomstools.crawler.common.Element;
+import org.tomstools.crawler.http.RequestInfo;
 
 /**
  * 分页导航抽取器
@@ -17,8 +18,8 @@ import org.tomstools.crawler.common.Element;
 public interface NavigationExtractor {
 
     /**
-     * 
-     * @return
+     * 是否使用表达式自动生成导航页面信息
+     * @return true 使用表达式自动生成导航页面信息；false 不使用表达式，而是从页面提取
      * @since 1.0
      */
     public boolean useExpression();
@@ -29,6 +30,6 @@ public interface NavigationExtractor {
      * @return 分页导航url列表。不会为null，但允许集合为空
      * @since 1.0
      */
-    public List<String> getPageUrls(Element element);
+    public List<RequestInfo> getNextPageRequestInfos(Element element);
 
 }
