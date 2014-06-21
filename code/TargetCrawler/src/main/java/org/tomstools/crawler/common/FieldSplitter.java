@@ -5,6 +5,8 @@ package org.tomstools.crawler.common;
 
 import java.util.Collections;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * 字段拆分器
@@ -14,34 +16,32 @@ import java.util.Map;
  * @version 1.0
  */
 public class FieldSplitter {
-    private String separator; // 拆分时的分隔符
-    private int fieldSize;  // 拆分的字段个数
-    private int[] fieldIndexes; // 需要收集的字段的索引数组。从0开始计数。索引必须小于{@link #fieldSize}
+    private static final Logger LOG = Logger.getLogger(FieldSplitter.class);
+    private Pattern pattern; // 提取字段的正则表达式
+    private int[] fieldIndexes; // 需要收集的字段的索引数组。从1开始计数。索引不能大于正则表达式regex中的分组数（即圆括号数）
     private String[] fieldNames; // 需要收集的字段的名称数组。索引数组和名称数组必须匹配
     private Map<String,ValueConvertible<String, String>> valueConverters; // 索引对应的字段值转换器
     /**
-     * @param separator 拆分时的分隔符
-     * @param fieldSize 拆分的字段个数
-     * @param fieldIndexes 需要收集的字段的索引数组。从0开始计数。索引必须小于{@link #fieldSize}
+     * @param regex 提取内容是的正则表达式
+     * @param fieldIndexes 需要收集的字段的索引数组。从1开始计数。索引不能大于正则表达式regex中的分组数（即圆括号数）
      * @param fieldNames 需要收集的字段的名称数组。索引数组和名称数组必须匹配
      * @param valueConverters 字段名对应的字段值转换器
      * @since 1.0
      */
-    public FieldSplitter(String separator, int fieldSize, int[] fieldIndexes, String[] fieldNames,Map<String, ValueConvertible<String, String>> valueConverters) {
+    public FieldSplitter(String regex, int[] fieldIndexes, String[] fieldNames,Map<String, ValueConvertible<String, String>> valueConverters) {
         super();
-        if (null == separator || fieldSize < 2 || null == fieldIndexes || null == fieldNames || fieldIndexes.length != fieldNames.length){
+        if (null == regex || null == fieldIndexes || null == fieldNames || fieldIndexes.length != fieldNames.length){
             throw new RuntimeException("arguments is invalid!");
         }
-        this.separator = separator;
-        this.fieldSize = fieldSize;
+        pattern = Pattern.compile(regex, Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
         this.fieldIndexes = fieldIndexes;
         this.fieldNames = fieldNames;
         // 对索引进行校验
-        for (int i = 0; i < fieldIndexes.length; i++) {
-            if (fieldIndexes[i] >= fieldSize){
-                throw new ArrayIndexOutOfBoundsException("Array index out of range: " + fieldIndexes[i] + ", array size is " + fieldSize);
-            }
-        }
+//        for (int i = 0; i < fieldIndexes.length; i++) {
+//            if (fieldIndexes[i] >= fieldSize){
+//                throw new ArrayIndexOutOfBoundsException("Array index out of range: " + fieldIndexes[i] + ", array size is " + fieldSize);
+//            }
+//        }
         
         if (null != valueConverters){
             this.valueConverters = valueConverters;
@@ -60,18 +60,21 @@ public class FieldSplitter {
         if (Utils.isEmpty(text) || null == result){
             return;
         }
-        
-        String[] values = text.split(this.separator,this.fieldSize);
-        // 将拆分的字段保存
-        for (int i = 0; i < fieldIndexes.length; i++) {
-            // 需要校验索引是否超出拆分后的数值大小
-            int index = fieldIndexes[i];
-            if (index < values.length){
-                if (null != valueConverters.get(this.fieldNames[i])){
-                    // 需要转换值
-                    result.put(this.fieldNames[i], valueConverters.get(this.fieldNames[i]).valueOf(values[index]));
+        Matcher m = pattern.matcher(text);
+        if(m.find()){
+         // 将拆分的字段保存
+            for (int i = 0; i < fieldIndexes.length; i++) {
+                // 需要校验索引是否超出拆分后的数值大小
+                int index = fieldIndexes[i];
+                if (m.groupCount() < index){
+                    LOG.warn(text + " index is out of range! Real group count: " + m.groupCount() + ", index: " + index);
                 }else{
-                    result.put(this.fieldNames[i], values[index]);
+                    if (null != valueConverters.get(this.fieldNames[i])){
+                        // 需要转换值
+                        result.put(this.fieldNames[i], valueConverters.get(this.fieldNames[i]).valueOf(m.group(index)));
+                    }else{
+                        result.put(this.fieldNames[i], m.group(index));
+                    }
                 }
             }
         }

@@ -6,6 +6,7 @@ package org.tomstools.crawler.config;
 import org.tomstools.crawler.extractor.ContentExtractor;
 import org.tomstools.crawler.extractor.NavigationExtractor;
 import org.tomstools.crawler.extractor.ContentPageExtractor;
+import org.tomstools.crawler.handle.CompletedHandleable;
 import org.tomstools.crawler.http.PageFetcher;
 import org.tomstools.crawler.parser.Parser;
 
@@ -29,6 +30,7 @@ public class Target {
     private ContentExtractor contentExtractor; // 正文内容抽取工具
     private CrawlingRule crawlingRule; // 爬取规则
     private PageFetcher pageFetcher;  // 页面抓取器
+    private CompletedHandleable completedHandler;
     /**
      * @return 返回 url
      * @since 1.0
@@ -196,6 +198,22 @@ public class Target {
     public String toString() {
         return new StringBuilder().append("{url=").append(url).append(", name=").append(name)
                 .append(", crawlingRule=").append(crawlingRule).append("}").toString();
+    }
+
+    /**
+     * @return 获取完成后的钩子
+     * @since 1.0
+     */
+    public CompletedHandleable getCompletedHandler() {
+        return completedHandler;
+    }
+
+    /**
+     * @param completedHandler 设置 完成后的钩子
+     * @since 1.0
+     */
+    public final void setCompletedHandler(CompletedHandleable completedHandler) {
+        this.completedHandler = completedHandler;
     }
 
 }

@@ -191,9 +191,9 @@ public class TargetBusi {
         LOGGER.info("last save: " + newFlagDatas);
         if (!Utils.isEmpty(newFlagDatas)){
             // 标识不为空才更新
-            this.resultDAO.finish(target);
-            // 结束之前需要保存 处理过的数据标识
-            resultDAO.saveProcessedFlagDatas(target, newFlagDatas);
+            this.resultDAO.finish(target, newFlagDatas);
+            // 结束之前需要保存 处理过的数据标识。已融合到finish中
+            // resultDAO.saveProcessedFlagDatas(target, newFlagDatas);
         }
         isDown = true;
     }

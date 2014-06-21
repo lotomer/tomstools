@@ -63,7 +63,7 @@ public class HTMLUtil {
             } else {
                 // 不是目录，则看输入的url是否只带了查询参数，即以问号?开头
                 Matcher matcher = PATTERN_DIRECTORY.matcher(referUrl);
-                if (matcher.find()) {
+                if (!matcher.find()) {
                     // 是文件，则取其父目录
                     int index = referUrl.lastIndexOf("/");
                     if (-1 < index) {

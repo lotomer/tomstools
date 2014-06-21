@@ -47,9 +47,9 @@ public class ESF0731fdc extends Target {
         List<Field> fields = new ArrayList<>();
         fields.add(new ContentExtractor.TextField("title", "div.title>a>h5"));
         fields.add(new ContentExtractor.TextField("info", "div.title"));
-        fields.add(new ContentExtractor.TextField("area", "div.area",new FieldSplitter(" ", 2, new int[]{0}, new String[]{"area"},null)));
-        fields.add(new ContentExtractor.TextField("price", "div.price",new FieldSplitter(" ", 2, new int[]{0,1}, new String[]{"totalPrice","price"},null)));
-        fields.add(new ContentExtractor.TextField("time", "div.time",new FieldSplitter(" ", 3, new int[]{0,1,2}, new String[]{"role","owner","time"},valueConverter)));
+        fields.add(new ContentExtractor.TextField("area", "div.area",new FieldSplitter("(\\S*).*", new int[]{0}, new String[]{"area"},null)));
+        fields.add(new ContentExtractor.TextField("price", "div.price",new FieldSplitter("(\\S+)\\s+(\\S+)", new int[]{0,1}, new String[]{"totalPrice","price"},null)));
+        fields.add(new ContentExtractor.TextField("time", "div.time",new FieldSplitter("(\\S+)\\s+(\\S+)\\s+(\\S+)", new int[]{0,1,2}, new String[]{"role","owner","time"},valueConverter)));
         
         setContentExtractor(new ContentExtractor("li>div.item",null,null,fields));
     }

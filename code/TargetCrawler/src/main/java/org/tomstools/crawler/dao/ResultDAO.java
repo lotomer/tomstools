@@ -60,7 +60,8 @@ public interface ResultDAO {
      * 结束处理
      * 
      * @param target 目标对象
+     * @param newFlagDatas 结束标志
      * @since 1.0
      */
-    public void finish(Target target);
+    public void finish(Target target, Collection<String> newFlagDatas);
 }

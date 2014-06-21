@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,26 +31,24 @@ import org.tomstools.crawler.spring.ApplicationContext;
  */
 public class ContentExtractor {
     private final static Logger LOGGER = Logger.getLogger(ContentExtractor.class);
-    // private LinkedHashMap<String, String> params;
-    private String cssQuery;
+    private String contentSelector;
     private List<Field> fields;
     private List<Field> constantField;
-    // private Map<String, FieldSplitter> fieldSplitters;
     private String[] titles;
+    private ContentExtractor contentExtractor;
 
-    // private LinkedHashMap<String, String> constantFieldSelectors;
     /**
      * 构造函数
      * 
-     * @param cssQuery 正文所在元素的选择表达式
+     * @param contentSelector 正文所在元素的选择表达式
      * @param titles 表头信息
      * @param constantField 常量字段
      * @param fields 正文字段
      * @since 1.0
      */
-    public ContentExtractor(String cssQuery, String[] titles, List<Field> constantField,
+    public ContentExtractor(String contentSelector, String[] titles, List<Field> constantField,
             List<Field> fields) {
-        this.cssQuery = cssQuery;
+        this.contentSelector = contentSelector;
         this.titles = titles;
         this.fields = fields;
         this.constantField = constantField;
@@ -62,34 +61,57 @@ public class ContentExtractor {
      * @return 提取出来的内容
      * @since 1.0
      */
-    public List<Map<String, String>> extractContent(Element element) {
+    public List<Map<String, String>> extractContent(final Element element) {
+        return extractContent(element, null);
+    }
+
+    List<Map<String, String>> extractContent(final Element element,
+            final Map<String, String> constantFieldValues) {
+        if (null == element) {
+            return Collections.emptyList();
+        }
         final List<Map<String, String>> records = new ArrayList<Map<String, String>>();
-        final Map<String, String> constantFieldValues = new LinkedHashMap<String, String>();
+        final Map<String, String> tmpConstantFieldValues = new LinkedHashMap<String, String>();
+        if (null != constantFieldValues) {
+            tmpConstantFieldValues.putAll(constantFieldValues);
+        }
         // 获取常量字段
         if (null != constantField) {
             for (Field field : constantField) {
                 FieldSplitter fieldSplitter = field.fieldSplitter;
                 if (null != fieldSplitter) {
                     // 该字段指定了拆分器，则进行拆分
-                    fieldSplitter.process(field.getText(element.select(field.selector)), constantFieldValues);
+                    fieldSplitter.process(field.getText(element.select(field.selector)),
+                            tmpConstantFieldValues);
                 } else {
-                    constantFieldValues.put(field.name, field.getText(element.select(field.selector)));
+                    tmpConstantFieldValues.put(field.name,
+                            field.getText(element.select(field.selector)));
                 }
             }
         }
-        if (LOGGER.isDebugEnabled()){
-            LOGGER.debug(element + ",cssQuery:" + cssQuery);;
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug(element + ",cssQuery:" + contentSelector);
         }
-        element.select(cssQuery, new ElementProcessor() {
+
+        // 处理正文
+        element.select(contentSelector, new ElementProcessor() {
             public boolean process(Element e) {
-                if (LOGGER.isDebugEnabled()){
-                    LOGGER.debug(e);;
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug(e);
                 }
                 if (null != e) {
-                    Map<String, String> aRecord = new LinkedHashMap<String, String>();
-                    aRecord.putAll(constantFieldValues);
-                    processValue(aRecord, e, fields);
-                    records.add(aRecord);
+                    // 如果包含子内容抽取器，则使用子内容抽取器进行抽取
+                    if (null != contentExtractor) {
+                        records.addAll(contentExtractor.extractContent(e, tmpConstantFieldValues));
+                    } else {
+                        // 直接自己抽取
+                        Map<String, String> aRecord = new LinkedHashMap<String, String>();
+                        aRecord.putAll(tmpConstantFieldValues);
+                        processValue(aRecord, e, fields);
+                        if (!aRecord.isEmpty()) {
+                            records.add(aRecord);
+                        }
+                    }
                 }
                 return true;
             }
@@ -108,23 +130,25 @@ public class ContentExtractor {
      */
     protected void processValue(final Map<String, String> result, Element element,
             List<Field> fields) {
-        for (final Field field : fields) {
-            element.select(field.selector, new ElementProcessor() {
-                public boolean process(Element element) {
-                    if (null != element) {
-                        FieldSplitter fieldSplitter = field.fieldSplitter;
-                        if (null != fieldSplitter) {
-                            // 该字段指定了拆分器，则进行拆分
-                            fieldSplitter.process(field.getText(element), result);
+        if (null != element) {
+            for (final Field field : fields) {
+                element.select(field.selector, new ElementProcessor() {
+                    public boolean process(Element element) {
+                        if (null != element) {
+                            FieldSplitter fieldSplitter = field.fieldSplitter;
+                            if (null != fieldSplitter) {
+                                // 该字段指定了拆分器，则进行拆分
+                                fieldSplitter.process(field.getText(element), result);
+                            } else {
+                                result.put(field.name, field.getText(element));
+                            }
                         } else {
-                            result.put(field.name, field.getText(element));
+                            result.put(field.name, "");
                         }
-                    } else {
-                        result.put(field.name, "");
+                        return true;
                     }
-                    return true;
-                }
-            });
+                });
+            }
         }
     }
 
@@ -133,7 +157,19 @@ public class ContentExtractor {
      * @since 1.0
      */
     public final String[] getTitles() {
-        return titles;
+        if (null != contentExtractor) {
+            return contentExtractor.titles;
+        } else {
+            return titles;
+        }
+    }
+
+    /**
+     * @param contentExtractor 设置子内容抽取器
+     * @since 1.0
+     */
+    public final void setContentExtractor(ContentExtractor contentExtractor) {
+        this.contentExtractor = contentExtractor;
     }
 
     /**
@@ -209,9 +245,10 @@ public class ContentExtractor {
         public final FieldSplitter getFieldSplitter() {
             return fieldSplitter;
         }
-        
+
         /**
          * 从节点中获取文本内容
+         * 
          * @param e 节点
          * @return 文本内容
          * @since 1.0
@@ -264,6 +301,7 @@ public class ContentExtractor {
             return e.getText();
         }
     }
+
     /**
      * 正文文本字段，字段内容取正文文本。包含子节点的文本内容
      * 
@@ -309,6 +347,7 @@ public class ContentExtractor {
             return e.getOwnText();
         }
     }
+
     /**
      * 正文文本字段，字段内容取解码后的正文文本。不包含子节点的文本内容
      * 
@@ -331,18 +370,20 @@ public class ContentExtractor {
             return e.getUnescapedOwnText();
         }
     }
-    
+
     public static void main(String[] args) throws IOException {
-        BufferedReader reader = new BufferedReader(new FileReader(new File("C:\\Users\\admin\\Desktop\\aaaa.html")));
+        BufferedReader reader = new BufferedReader(new FileReader(new File(
+                "C:\\Users\\admin\\Desktop\\aaaa.html")));
         StringBuilder msg = new StringBuilder();
         String line = null;
-        while (null != (line = reader.readLine())){
+        while (null != (line = reader.readLine())) {
             msg.append(line);
             msg.append("\r\n");
         }
         reader.close();
         reader = null;
-        Target target = (Target) ApplicationContext.getInstance().getBean("target-landchina-gonggaojieguo-hunan-xycr");
+        Target target = (Target) ApplicationContext.getInstance().getBean(
+                "target-landchina-gonggaojieguo-hunan-xycr");
         ContentExtractor ex = target.getContentExtractor();
         HTMLParser p = new HTMLParser();
         Element body = p.parse(msg.toString(), null);

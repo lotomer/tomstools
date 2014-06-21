@@ -13,6 +13,7 @@
         <property name="defaultCharsetName" value="GBK"></property>
         <property name="crawlingRule" ref="crawlingRule"></property>
         <property name="parser" ref="htmlParser"></property>
+        <property name="completedHandler" ref="shellCompletedHandler"></property>
         <property name="contentPageExtractor">
             <bean class="org.tomstools.crawler.extractor.impl.BaseContentPageExtractor" scope="prototype">
                 <!-- 构造函数参数 1: 元素选择表达式 -->
@@ -64,7 +65,7 @@
                 </constructor-arg>
                 <!-- 构造函数参数 2: 表头 -->
                 <constructor-arg index="1" type="java.lang.String[]">
-                    <value><![CDATA[楼盘名,曾用名,装修状态,所属区域,项目地址,售楼电话,申报公示价格区间,参考价格,住宅最高成交价,住宅最低成交价格,开盘时间,竣工时间,总占地面积,总建筑面积,容积率,绿化率,物业费,建筑结构,交通状况]]></value>
+                    <value><![CDATA[buildings_name,decorate_status,city_name,address,phone_number,public_price_range,reference_price,highest_price,lowest_price,complete_time,total_area,total_construction_area,volume_rate,greening_rate,manage_fee,structure,traffic]]></value>
                 </constructor-arg>
                 <!-- 构造函数参数 3: 固定属性 -->
                 <constructor-arg index="2">
@@ -77,7 +78,7 @@
                         <bean class="org.tomstools.crawler.extractor.ContentExtractor.OwnTextField">
                             <!-- 构造函数参数 1: 名称 -->
                             <constructor-arg index="0" type="java.lang.String">
-                                <value><![CDATA[楼盘名]]></value>
+                                <value><![CDATA[buildings_name]]></value>
                             </constructor-arg>
                             <!-- 构造函数参数 2: 元素选择表达式 -->
                             <constructor-arg index="1" type="java.lang.String">
@@ -90,7 +91,7 @@
                         <bean class="org.tomstools.crawler.extractor.ContentExtractor.OwnTextField">
                             <!-- 构造函数参数 1: 名称 -->
                             <constructor-arg index="0" type="java.lang.String">
-                                <value><![CDATA[曾用名]]></value>
+                                <value><![CDATA[decorate_status]]></value>
                             </constructor-arg>
                             <!-- 构造函数参数 2: 元素选择表达式 -->
                             <constructor-arg index="1" type="java.lang.String">
@@ -100,17 +101,7 @@
                         <bean class="org.tomstools.crawler.extractor.ContentExtractor.OwnTextField">
                             <!-- 构造函数参数 1: 名称 -->
                             <constructor-arg index="0" type="java.lang.String">
-                                <value><![CDATA[装修状态]]></value>
-                            </constructor-arg>
-                            <!-- 构造函数参数 2: 元素选择表达式 -->
-                            <constructor-arg index="1" type="java.lang.String">
-                                <value><![CDATA[div#item-right-con-novalue]]></value>
-                            </constructor-arg>
-                        </bean>
-                        <bean class="org.tomstools.crawler.extractor.ContentExtractor.OwnTextField">
-                            <!-- 构造函数参数 1: 名称 -->
-                            <constructor-arg index="0" type="java.lang.String">
-                                <value><![CDATA[所属区域]]></value>
+                                <value><![CDATA[city_name]]></value>
                             </constructor-arg>
                             <!-- 构造函数参数 2: 元素选择表达式 -->
                             <constructor-arg index="1" type="java.lang.String">
@@ -120,7 +111,7 @@
                         <bean class="org.tomstools.crawler.extractor.ContentExtractor.OwnTextField">
                             <!-- 构造函数参数 1: 名称 -->
                             <constructor-arg index="0" type="java.lang.String">
-                                <value><![CDATA[项目地址]]></value>
+                                <value><![CDATA[address]]></value>
                             </constructor-arg>
                             <!-- 构造函数参数 2: 元素选择表达式 -->
                             <constructor-arg index="1" type="java.lang.String">
@@ -130,7 +121,7 @@
                         <bean class="org.tomstools.crawler.extractor.ContentExtractor.OwnTextField">
                             <!-- 构造函数参数 1: 名称 -->
                             <constructor-arg index="0" type="java.lang.String">
-                                <value><![CDATA[售楼电话]]></value>
+                                <value><![CDATA[phone_number]]></value>
                             </constructor-arg>
                             <!-- 构造函数参数 2: 元素选择表达式 -->
                             <constructor-arg index="1" type="java.lang.String">
@@ -140,7 +131,7 @@
                         <bean class="org.tomstools.crawler.extractor.ContentExtractor.OwnTextField">
                             <!-- 构造函数参数 1: 名称 -->
                             <constructor-arg index="0" type="java.lang.String">
-                                <value><![CDATA[申报公示价格区间]]></value>
+                                <value><![CDATA[public_price_range]]></value>
                             </constructor-arg>
                             <!-- 构造函数参数 2: 元素选择表达式 -->
                             <constructor-arg index="1" type="java.lang.String">
@@ -150,7 +141,7 @@
                         <bean class="org.tomstools.crawler.extractor.ContentExtractor.OwnTextField">
                             <!-- 构造函数参数 1: 名称 -->
                             <constructor-arg index="0" type="java.lang.String">
-                                <value><![CDATA[参考价格]]></value>
+                                <value><![CDATA[reference_price]]></value>
                             </constructor-arg>
                             <!-- 构造函数参数 2: 元素选择表达式 -->
                             <constructor-arg index="1" type="java.lang.String">
@@ -160,7 +151,7 @@
                         <bean class="org.tomstools.crawler.extractor.ContentExtractor.OwnTextField">
                             <!-- 构造函数参数 1: 名称 -->
                             <constructor-arg index="0" type="java.lang.String">
-                                <value><![CDATA[住宅最高成交价]]></value>
+                                <value><![CDATA[highest_price]]></value>
                             </constructor-arg>
                             <!-- 构造函数参数 2: 元素选择表达式 -->
                             <constructor-arg index="1" type="java.lang.String">
@@ -170,7 +161,7 @@
                         <bean class="org.tomstools.crawler.extractor.ContentExtractor.OwnTextField">
                             <!-- 构造函数参数 1: 名称 -->
                             <constructor-arg index="0" type="java.lang.String">
-                                <value><![CDATA[住宅最低成交价格]]></value>
+                                <value><![CDATA[lowest_price]]></value>
                             </constructor-arg>
                             <!-- 构造函数参数 2: 元素选择表达式 -->
                             <constructor-arg index="1" type="java.lang.String">
@@ -180,17 +171,7 @@
                         <bean class="org.tomstools.crawler.extractor.ContentExtractor.OwnTextField">
                             <!-- 构造函数参数 1: 名称 -->
                             <constructor-arg index="0" type="java.lang.String">
-                                <value><![CDATA[开盘时间]]></value>
-                            </constructor-arg>
-                            <!-- 构造函数参数 2: 元素选择表达式 -->
-                            <constructor-arg index="1" type="java.lang.String">
-                                <value><![CDATA[div#floor-cnt>ul:eq(1)>li:eq(3)]]></value>
-                            </constructor-arg>
-                        </bean>
-                        <bean class="org.tomstools.crawler.extractor.ContentExtractor.OwnTextField">
-                            <!-- 构造函数参数 1: 名称 -->
-                            <constructor-arg index="0" type="java.lang.String">
-                                <value><![CDATA[竣工时间]]></value>
+                                <value><![CDATA[complete_time]]></value>
                             </constructor-arg>
                             <!-- 构造函数参数 2: 元素选择表达式 -->
                             <constructor-arg index="1" type="java.lang.String">
@@ -200,7 +181,7 @@
                         <bean class="org.tomstools.crawler.extractor.ContentExtractor.OwnTextField">
                             <!-- 构造函数参数 1: 名称 -->
                             <constructor-arg index="0" type="java.lang.String">
-                                <value><![CDATA[总占地面积]]></value>
+                                <value><![CDATA[total_area]]></value>
                             </constructor-arg>
                             <!-- 构造函数参数 2: 元素选择表达式 -->
                             <constructor-arg index="1" type="java.lang.String">
@@ -210,7 +191,7 @@
                         <bean class="org.tomstools.crawler.extractor.ContentExtractor.OwnTextField">
                             <!-- 构造函数参数 1: 名称 -->
                             <constructor-arg index="0" type="java.lang.String">
-                                <value><![CDATA[总建筑面积]]></value>
+                                <value><![CDATA[total_construction_area]]></value>
                             </constructor-arg>
                             <!-- 构造函数参数 2: 元素选择表达式 -->
                             <constructor-arg index="1" type="java.lang.String">
@@ -220,7 +201,7 @@
                         <bean class="org.tomstools.crawler.extractor.ContentExtractor.OwnTextField">
                             <!-- 构造函数参数 1: 名称 -->
                             <constructor-arg index="0" type="java.lang.String">
-                                <value><![CDATA[容积率]]></value>
+                                <value><![CDATA[volume_rate]]></value>
                             </constructor-arg>
                             <!-- 构造函数参数 2: 元素选择表达式 -->
                             <constructor-arg index="1" type="java.lang.String">
@@ -230,7 +211,7 @@
                         <bean class="org.tomstools.crawler.extractor.ContentExtractor.OwnTextField">
                             <!-- 构造函数参数 1: 名称 -->
                             <constructor-arg index="0" type="java.lang.String">
-                                <value><![CDATA[绿化率]]></value>
+                                <value><![CDATA[greening_rate]]></value>
                             </constructor-arg>
                             <!-- 构造函数参数 2: 元素选择表达式 -->
                             <constructor-arg index="1" type="java.lang.String">
@@ -240,7 +221,7 @@
                         <bean class="org.tomstools.crawler.extractor.ContentExtractor.OwnTextField">
                             <!-- 构造函数参数 1: 名称 -->
                             <constructor-arg index="0" type="java.lang.String">
-                                <value><![CDATA[物业费]]></value>
+                                <value><![CDATA[manage_fee]]></value>
                             </constructor-arg>
                             <!-- 构造函数参数 2: 元素选择表达式 -->
                             <constructor-arg index="1" type="java.lang.String">
@@ -250,7 +231,7 @@
                         <bean class="org.tomstools.crawler.extractor.ContentExtractor.OwnTextField">
                             <!-- 构造函数参数 1: 名称 -->
                             <constructor-arg index="0" type="java.lang.String">
-                                <value><![CDATA[建筑结构]]></value>
+                                <value><![CDATA[structure]]></value>
                             </constructor-arg>
                             <!-- 构造函数参数 2: 元素选择表达式 -->
                             <constructor-arg index="1" type="java.lang.String">
@@ -260,7 +241,7 @@
                         <bean class="org.tomstools.crawler.extractor.ContentExtractor.OwnTextField">
                             <!-- 构造函数参数 1: 名称 -->
                             <constructor-arg index="0" type="java.lang.String">
-                                <value><![CDATA[交通状况]]></value>
+                                <value><![CDATA[traffic]]></value>
                             </constructor-arg>
                             <!-- 构造函数参数 2: 元素选择表达式 -->
                             <constructor-arg index="1" type="java.lang.String">

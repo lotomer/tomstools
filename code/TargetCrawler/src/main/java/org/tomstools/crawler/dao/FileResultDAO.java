@@ -42,6 +42,7 @@ public class FileResultDAO implements ResultDAO {
     private static final SimpleDateFormat SIMPLE_DATE_FORMAT = new SimpleDateFormat("yyyyMMddHHmmss");
     private String rootDir;
     private Map<String, Writer> writers;
+    private Map<String, String> outFileNames;
     private String separator;
     private Set<String> specialWords;
     private String newLine;
@@ -70,6 +71,7 @@ public class FileResultDAO implements ResultDAO {
         this.specialWords.add(newLine);
         this.specialWords.add(separator);
         writers = new HashMap<String, Writer>();
+        outFileNames = new HashMap<>();
     }
 
     public void save(Target target, String url, Map<String, String> datas) {
@@ -166,6 +168,8 @@ public class FileResultDAO implements ResultDAO {
             if (!file.getParentFile().exists()) {
                 file.getParentFile().mkdirs();
             }
+            outFileNames.put(target.getName(), file.getAbsolutePath());
+            
             FileOutputStream fos = new FileOutputStream(file, false);
             if (null == fileCharset){
                 fileCharset = Charset.defaultCharset().displayName();
@@ -222,7 +226,7 @@ public class FileResultDAO implements ResultDAO {
         return rootDir + File.separator + targetName+ File.separator+targetName + "_" + flag + ".csv";
     }
 
-    public void finish(Target target) {
+    public void finish(Target target, Collection<String> newFlagDatas) {
         Writer writer = writers.get(target.getName());
         if (null != writer) {
             try {
@@ -232,6 +236,14 @@ public class FileResultDAO implements ResultDAO {
             }
             writers.remove(target.getName());
             writer = null;
+        }
+        
+        // 保存最新处理标识
+        saveProcessedFlagDatas(target, newFlagDatas);
+        
+        // 进行可能需要的扫尾工作
+        if (null != target.getCompletedHandler()){
+            target.getCompletedHandler().handle(outFileNames.get(target.getName()));
         }
     }
 

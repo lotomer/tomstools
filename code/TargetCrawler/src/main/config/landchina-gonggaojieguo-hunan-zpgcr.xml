@@ -12,6 +12,7 @@
         <property name="defaultCharsetName" value="GBK"></property>
         <property name="crawlingRule" ref="crawlingRule"></property>
         <property name="parser" ref="htmlParser"></property>
+        <property name="completedHandler" ref="shellCompletedHandler"></property>
         <property name="pageFetcher">
             <bean class="org.tomstools.crawler.http.PageFetcher" scope="prototype">
                 <property name="method" value="POST"></property>
@@ -72,7 +73,7 @@
                 </property>
                 <property name="pageFetcher">
                     <bean class="org.tomstools.crawler.http.PageFetcher" scope="prototype">
-                        <property name="method" value="GET"></property>
+                        <property name="method" value="POST"></property>
                         <property name="tryCount" value="5"></property>
                         <property name="requestInfo">
                             <bean class="org.tomstools.crawler.http.RequestInfo" scope="prototype">
