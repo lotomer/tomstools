@@ -6,7 +6,7 @@ package org.tomstools.crawler.handle;
 import java.io.IOException;
 import java.util.StringTokenizer;
 
-import org.tomstools.crawler.common.Logger;
+import org.tomstools.common.Logger;
 
 /**
  * shell命令钩子。使用shell命令来执行

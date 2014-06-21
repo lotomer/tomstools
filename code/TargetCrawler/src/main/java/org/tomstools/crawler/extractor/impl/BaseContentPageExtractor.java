@@ -8,9 +8,9 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.tomstools.common.Utils;
 import org.tomstools.crawler.common.Element;
 import org.tomstools.crawler.common.ElementProcessor;
-import org.tomstools.crawler.common.Utils;
 import org.tomstools.crawler.extractor.ContentPageExtractor;
 import org.tomstools.crawler.http.PageFetcher;
 import org.tomstools.crawler.parser.HTMLParser;

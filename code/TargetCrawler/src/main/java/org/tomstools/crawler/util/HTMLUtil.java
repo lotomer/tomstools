@@ -7,7 +7,7 @@ import java.net.URL;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.tomstools.crawler.common.Utils;
+import org.tomstools.common.Utils;
 
 /**
  * @author lotomer

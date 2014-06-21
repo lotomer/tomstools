@@ -8,6 +8,9 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.tomstools.common.Logger;
+import org.tomstools.common.Utils;
+
 /**
  * 字段拆分器
  * @author admin

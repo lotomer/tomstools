@@ -5,7 +5,7 @@ package org.tomstools.crawler.extractor.impl;
 
 import java.util.Map;
 
-import org.tomstools.crawler.common.Utils;
+import org.tomstools.common.Utils;
 
 /**
  * 分页导航抽取器：从页面的分页信息中抽取数据，并将数据填入模板以生成新的分页

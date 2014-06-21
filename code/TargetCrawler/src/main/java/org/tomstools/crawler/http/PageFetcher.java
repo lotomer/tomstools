@@ -32,8 +32,8 @@ import org.apache.http.conn.ConnectTimeoutException;
 import org.apache.http.entity.ContentType;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
-import org.tomstools.crawler.common.Logger;
-import org.tomstools.crawler.common.Utils;
+import org.tomstools.common.Logger;
+import org.tomstools.common.Utils;
 import org.tomstools.crawler.util.HTMLUtil;
 
 /**

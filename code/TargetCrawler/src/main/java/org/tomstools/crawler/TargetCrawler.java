@@ -10,10 +10,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import org.tomstools.common.Logger;
+import org.tomstools.common.Utils;
 import org.tomstools.crawler.busi.TargetBusi;
 import org.tomstools.crawler.common.Element;
-import org.tomstools.crawler.common.Logger;
-import org.tomstools.crawler.common.Utils;
 import org.tomstools.crawler.config.CrawlingRule;
 import org.tomstools.crawler.config.Target;
 import org.tomstools.crawler.dao.ResultDAO;

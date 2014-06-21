@@ -5,7 +5,7 @@ package org.tomstools.crawler.http;
 
 import java.util.Map.Entry;
 
-import org.tomstools.crawler.common.Utils;
+import org.tomstools.common.Utils;
 
 /**
  * http请求信息

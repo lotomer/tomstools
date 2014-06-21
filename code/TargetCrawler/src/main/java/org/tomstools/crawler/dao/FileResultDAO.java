@@ -24,8 +24,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.tomstools.crawler.common.Logger;
-import org.tomstools.crawler.common.Utils;
+import org.tomstools.common.Logger;
+import org.tomstools.common.Utils;
 import org.tomstools.crawler.config.Target;
 
 /**

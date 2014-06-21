@@ -13,8 +13,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+import org.tomstools.common.Logger;
 import org.tomstools.crawler.common.FieldSplitter;
-import org.tomstools.crawler.common.Logger;
 import org.tomstools.crawler.common.String2DateTimeString;
 import org.tomstools.crawler.common.ValueConvertible;
 import org.tomstools.crawler.config.CrawlingRule;

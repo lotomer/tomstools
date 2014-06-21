@@ -7,8 +7,8 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.tomstools.common.Utils;
 import org.tomstools.crawler.common.ElementProcessor;
-import org.tomstools.crawler.common.Utils;
 
 /**
  * html文档解析器

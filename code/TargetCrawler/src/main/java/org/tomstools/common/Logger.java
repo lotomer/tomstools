@@ -1,7 +1,7 @@
 /**
  * copyright (a) 2010-2011 tomstools.org. All rights reserved.
  */
-package org.tomstools.crawler.common;
+package org.tomstools.common;
 
 /**
  * 日志管理类

@@ -6,8 +6,8 @@ package org.tomstools.crawler.extractor.impl;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.tomstools.common.Utils;
 import org.tomstools.crawler.common.Element;
-import org.tomstools.crawler.common.Utils;
 import org.tomstools.crawler.extractor.NavigationExtractor;
 import org.tomstools.crawler.http.RequestInfo;
 
