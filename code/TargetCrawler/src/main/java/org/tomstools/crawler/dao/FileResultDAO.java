@@ -21,7 +21,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import org.tomstools.common.Logger;
@@ -43,6 +42,7 @@ public class FileResultDAO implements ResultDAO {
     private String rootDir;
     private Map<String, Writer> writers;
     private Map<String, String> outFileNames;
+    private Map<String, String[]> targetTitles;
     private String separator;
     private Set<String> specialWords;
     private String newLine;
@@ -72,14 +72,17 @@ public class FileResultDAO implements ResultDAO {
         this.specialWords.add(separator);
         writers = new HashMap<String, Writer>();
         outFileNames = new HashMap<>();
+        targetTitles = new HashMap<>();
     }
 
     public void save(Target target, String url, Map<String, String> datas) {
         // 保存结果数据
         Writer writer = writers.get(target.getName());
-        if (null != writer) {
+        // 表头。输出到文件的内容需要依据表头数据的顺序
+        String []titles = targetTitles.get(target.getName());
+        if (null != writer && null != titles && 0 != titles.length) {
             try {
-                writer.write(getLineValue(url, datas));
+                writer.write(getLineValue(titles,url, datas));
             } catch (IOException e) {
                 LOGGER.error(e.getMessage(), e);
             }
@@ -87,27 +90,27 @@ public class FileResultDAO implements ResultDAO {
     }
 
     /**
-     * 获取一行数据
-     * 
+     * 获取一行数据。根据表头字段顺序获取内容
+     * @param titles 表头
      * @param name 名称
      * @param url 对应的url
      * @param datas 数据内容
      * @return 整合成一行数据
      * @since 1.0
      */
-    protected String getLineValue(String url, Map<String, String> datas) {
+    protected String getLineValue(String[] titles, String url, Map<String, String> datas) {
         if (Utils.isEmpty(datas.keySet())) {
             return "";
         }
         StringBuilder line = new StringBuilder();
         boolean isFirst = true;
-        for (Entry<String, String> entry : datas.entrySet()) {
+        for (int i = 0; i < titles.length; i++) {
             if (!isFirst) {
                 line.append(getSeparator());
             }else{
                 isFirst = false;
             }
-            line.append(trimSpecial(entry.getValue()));
+            line.append(trimSpecial(datas.get(titles[i])));
         }
         //LOGGER.info(line.toString());
         line.append(newLine);
@@ -183,6 +186,7 @@ public class FileResultDAO implements ResultDAO {
             // 输出表头
             String[] titles = target.getContentExtractor().getTitles();
             if (null != titles){
+                targetTitles.put(target.getName(), titles);
                 boolean isFirst = true;
                 for (String title : titles) {
                     if (!isFirst){
@@ -194,6 +198,8 @@ public class FileResultDAO implements ResultDAO {
                     }
                 }
                 w.write(newLine);
+            }else{
+                LOGGER.error("The content extractor need titles! " + target.getName());
             }
             //BufferedWriter writer = new BufferedWriter(new FileWriter(file, true));
             writers.put(target.getName(), w);

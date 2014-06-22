@@ -86,7 +86,7 @@ public class TargetCrawler implements Runnable {
             }
         }
 
-        LOGGER.info("Process finished. Total page: " + this.totalPage + ", total sub page: "
+        LOGGER.warn("Process finished. Total page: " + this.totalPage + ", total sub page: "
                 + this.totalSubPage + ", total records: " + totalRecords + ", total cost " + (System.currentTimeMillis() - startTime)
                 / 1000 + "s.");
     }
@@ -389,7 +389,7 @@ public class TargetCrawler implements Runnable {
             // targetBusi.getTarget().getNavigationExtractor().getPageUrls(doc);
         }
         LOGGER.info("get records count: " + count);
-        totalRecords += totalRecords;
+        totalRecords += count;
         setCompleted(subUrl);
 
         return nextPages;

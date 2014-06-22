@@ -134,7 +134,7 @@ public class PageFetcher {
                             // charsetName = HTMLUtil.parseCharset(new
                             // String(contents)).toUpperCase();
                             charset = defaultCharset;
-                            logger.warn("parse page's charset failed! Use default charset: "
+                            logger.info("parse page's charset failed! Use default charset: "
                                     + charset + " the request url is " + requestBuilder.getUri());
                         } else {
                             logger.debug("page charset: " + charset);
