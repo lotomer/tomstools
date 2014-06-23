@@ -4,6 +4,7 @@
 package org.tomstools.crawler.handle;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.StringTokenizer;
 
 import org.tomstools.common.Logger;
@@ -18,6 +19,7 @@ import org.tomstools.common.Logger;
 public class ShellHandle implements CompletedHandleable {
     private static final Logger LOG = Logger.getLogger(ShellHandle.class);
     private String command;
+    private boolean waitFor;
     /**
      * 构造函数
      * @param command   shell命令。执行时将加上完整的文件名参数
@@ -25,6 +27,7 @@ public class ShellHandle implements CompletedHandleable {
      */
     public ShellHandle(String command){
         this.command = command;
+        waitFor = false;
     }
     /*
      * @since 1.0
@@ -42,6 +45,32 @@ public class ShellHandle implements CompletedHandleable {
             }
             
             cmdarray[cmdarray.length - 1] = flag;
+            Runner runner = new Runner(cmdarray);
+            Thread thread = new Thread(runner);
+            thread.start();
+            if (waitFor){
+                while(thread.isAlive()){
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                        LOG.error(e.getMessage(),e);
+                    }
+                }
+            }
+        }
+    }
+
+    static class Runner implements Runnable{
+        private static final Logger LOG = Logger.getLogger(ShellHandle.class);
+        private String[] cmdarray;
+
+        public Runner(String[] cmdarray) {
+            this.cmdarray = cmdarray;
+        }
+
+        @Override
+        public void run() {
+            LOG.info("execute command: " + Arrays.toString(cmdarray));
             try {
                 Process process = Runtime.getRuntime().exec(cmdarray);
                 if (null != process){
@@ -55,11 +84,25 @@ public class ShellHandle implements CompletedHandleable {
             }
         }
     }
-
-    public static void main(String[] args) {
-        ShellHandle s = new ShellHandle("cmd /c e:/work/todatabase.bat");
-        s.handle("asdf we.csv");
+    
+    
+    /**
+     * @param waitFor 设置 waitFor
+     * @since 1.0
+     */
+    public final void setWaitFor(boolean waitFor) {
+        this.waitFor = waitFor;
+    }
+    public static void main(String[] args) throws InterruptedException {
+        ShellHandle s = new ShellHandle("cmd /c e:/work/todatabase.bat 11");
+        s.setWaitFor(false);
+        s.handle("10");
         System.out.println("9999999999999999999999999");
-        System.exit(1);
+        Thread.sleep(3000);
+        ShellHandle ss = new ShellHandle("cmd /c e:/work/todatabase.bat 22");
+        ss.setWaitFor(false);
+        ss.handle("15");
+        System.out.println("777");
+        //System.exit(1);
     }
 }

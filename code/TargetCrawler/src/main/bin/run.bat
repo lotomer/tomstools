@@ -8,9 +8,7 @@ REM echo CLASSPATH=%CLASSPATH%
 
 set EXE_CMD=call java
 set MAIN_CLASS=org.tomstools.crawler.TargetCrawlerAppWithSpring
-set JAVA_ARGS=-Dfile.encoding=UTF8 -Xms256m -Xmx1024m -Dapplication_xml=applicationContext-sample.xml
+set JAVA_ARGS=-Dfile.encoding=UTF8 -Xms256m -Xmx1024m -Dapplication_xml=applicationContext.xml -DAPP_NAME=crawler
 set APP_ARGS=
 
 %EXE_CMD% %JAVA_ARGS% -cp %CLASSPATH% %MAIN_CLASS% %APP_ARGS%
-
-pause

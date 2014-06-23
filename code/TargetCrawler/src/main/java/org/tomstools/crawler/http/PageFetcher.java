@@ -191,7 +191,7 @@ public class PageFetcher {
     private String redirect(String pageUrl, String locationUrl) throws MalformedURLException {
         String weburl = HTMLUtil.getRealUrl(locationUrl, HTMLUtil.getWebRoot(new URL(pageUrl)), pageUrl);
         logger.warn("redirect:" + weburl);
-        PageFetcher fetcher = new PageFetcher(this.defaultCharset.name());
+        PageFetcher fetcher = this;//new PageFetcher(this.defaultCharset.name());
         // 设置Referer
         if (fetcher.getRequestInfo() == null){
             fetcher.setRequestInfo(new RequestInfo());
