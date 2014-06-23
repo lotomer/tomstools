@@ -16,7 +16,7 @@
             <!-- 任务完成后需要执行的钩子。对应org.tomstools.crawler.handle.CompletedHandleable -->
             <bean id="shellCompletedHandler" class="org.tomstools.crawler.handle.ShellHandle" scope="prototype">
                 <!-- 构造函数参数 1: shell命令。执行时将加上完整的文件名参数 -->
-                <constructor-arg index="0" type="java.lang.String" value="${cmd_completed_handler_prefix}/land2db 43"></constructor-arg>
+                <constructor-arg index="0" type="java.lang.String" value="${cmd_completed_handler_prefix}\land2db 43"></constructor-arg>
             </bean>
         </property>
         <property name="pageFetcher">

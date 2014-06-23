@@ -59,6 +59,10 @@ public class PageFetcher {
     }
 
     public PageFetcher(String defaultCharsetName) {
+        setDefaultCharsetName(defaultCharsetName);
+    }
+
+    public void setDefaultCharsetName(String defaultCharsetName) {
         try {
             defaultCharset = Charset.forName(defaultCharsetName);
         } catch (IllegalCharsetNameException e) {

@@ -53,6 +53,10 @@ public class Target {
      */
     public final void setPageFetcher(PageFetcher pageFetcher) {
         this.pageFetcher = pageFetcher;
+        if (null != defaultCharsetName){
+            // 指定了字符集，则使用指定的字符集
+            this.pageFetcher.setDefaultCharsetName(defaultCharsetName);
+        }
     }
 
     /**
@@ -109,6 +113,10 @@ public class Target {
      */
     public final void setDefaultCharsetName(String defaultCharsetName) {
         this.defaultCharsetName = defaultCharsetName;
+        if (null != pageFetcher){
+            // 如果有网页抓取器，则设置字符集
+            pageFetcher.setDefaultCharsetName(defaultCharsetName);
+        }
     }
 
     /**

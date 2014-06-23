@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.tomstools.common.Logger;
+import org.tomstools.common.Utils;
 import org.tomstools.crawler.common.Element;
 import org.tomstools.crawler.common.ElementProcessor;
 import org.tomstools.crawler.common.FieldSplitter;
@@ -78,15 +79,12 @@ public class ContentExtractor {
         // 获取常量字段
         if (null != constantField) {
             for (Field field : constantField) {
-                FieldSplitter fieldSplitter = field.fieldSplitter;
-                if (null != fieldSplitter) {
-                    // 该字段指定了拆分器，则进行拆分
-                    fieldSplitter.process(field.getText(element.select(field.selector)),
-                            tmpConstantFieldValues);
-                } else {
-                    tmpConstantFieldValues.put(field.name,
-                            field.getText(element.select(field.selector)));
+                if (field instanceof MultipleField) {
+                    field.processData(null, tmpConstantFieldValues);
+                }else{
+                    field.processData(element.select(field.selector), tmpConstantFieldValues);
                 }
+                
             }
         }
         if (LOGGER.isDebugEnabled()) {
@@ -132,22 +130,20 @@ public class ContentExtractor {
             List<Field> fields) {
         if (null != element) {
             for (final Field field : fields) {
-                element.select(field.selector, new ElementProcessor() {
-                    public boolean process(Element element) {
-                        if (null != element) {
-                            FieldSplitter fieldSplitter = field.fieldSplitter;
-                            if (null != fieldSplitter) {
-                                // 该字段指定了拆分器，则进行拆分
-                                fieldSplitter.process(field.getText(element), result);
+                if (field instanceof MultipleField) {
+                    field.processData(null, result);
+                }else{
+                    element.select(field.selector, new ElementProcessor() {
+                        public boolean process(Element element) {
+                            if (null != element) {
+                                field.processData(element, result);
                             } else {
-                                result.put(field.name, field.getText(element));
+                                result.put(field.name, "");
                             }
-                        } else {
-                            result.put(field.name, "");
+                            return true;
                         }
-                        return true;
-                    }
-                });
+                    });
+                }
             }
         }
     }
@@ -181,8 +177,8 @@ public class ContentExtractor {
      * @version 1.0
      */
     public static abstract class Field {
-        private final String name;
-        private final String selector;
+        protected final String name;
+        protected final String selector;
         private final int valueType;
         private final FieldSplitter fieldSplitter;
         /** 字段值类型：源码 */
@@ -195,6 +191,10 @@ public class ContentExtractor {
         public static int VALUE_TYPE_TEXT_UNESCAPED = 3;
         /** 字段值类型：解码过的正文文本，不包含子节点的文本内容 */
         public static int VALUE_TYPE_OWN_TEXT_UNESCAPED = 4;
+        /** 字段值类型：标签属性值 */
+        public static int VALUE_TYPE_ATTRIBUTE = 5;
+        /** 字段值类型：组合字段 */
+        public static int VALUE_TYPE_MULTIPLE = 6;
 
         /**
          * 构造函数
@@ -212,6 +212,17 @@ public class ContentExtractor {
             this.selector = selector;
             this.valueType = valueType;
             this.fieldSplitter = fieldSplitter;
+        }
+
+        public void processData(Element element, Map<String, String> fieldValueCollector) {
+            if (null != element){
+                if (null != fieldSplitter) {
+                    // 该字段指定了拆分器，则进行拆分
+                    fieldSplitter.process(getText(element), fieldValueCollector);
+                } else {
+                    fieldValueCollector.put(name, getText(element));
+                }
+            }
         }
 
         /**
@@ -253,7 +264,7 @@ public class ContentExtractor {
          * @return 文本内容
          * @since 1.0
          */
-        public abstract String getText(Element e);
+        protected abstract String getText(Element e);
     }
 
     /**
@@ -274,7 +285,7 @@ public class ContentExtractor {
         }
 
         @Override
-        public String getText(Element e) {
+        protected String getText(Element e) {
             return e.getCode();
         }
     }
@@ -297,7 +308,7 @@ public class ContentExtractor {
         }
 
         @Override
-        public String getText(Element e) {
+        protected String getText(Element e) {
             return e.getText();
         }
     }
@@ -320,7 +331,7 @@ public class ContentExtractor {
         }
 
         @Override
-        public String getText(Element e) {
+        protected String getText(Element e) {
             return e.getUnescapedText();
         }
     }
@@ -343,7 +354,7 @@ public class ContentExtractor {
         }
 
         @Override
-        public String getText(Element e) {
+        protected String getText(Element e) {
             return e.getOwnText();
         }
     }
@@ -366,8 +377,98 @@ public class ContentExtractor {
         }
 
         @Override
-        public String getText(Element e) {
+        protected String getText(Element e) {
             return e.getUnescapedOwnText();
+        }
+    }
+
+    /**
+     * 多字段组合
+     * 
+     * @author admin
+     * @date 2014年4月28日
+     * @time 上午11:29:20
+     * @version 1.0
+     */
+    public static class MultipleField extends Field {
+        public MultipleField(String name, String selector) {
+            super(name, selector, VALUE_TYPE_MULTIPLE, null);
+        }
+
+        public MultipleField(String name, String selector, FieldSplitter fieldSplitter) {
+            super(name, selector, VALUE_TYPE_MULTIPLE, fieldSplitter);
+        }
+
+        /*
+         * @since 1.0
+         */
+        @Override
+        public void processData(Element element, Map<String, String> fieldValueCollector) {
+            if (!Utils.isEmpty(selector)){
+                String[] vs = selector.split(",",2);
+                if (0 < vs.length){
+                    String[] fields = vs[0].split("\\|");
+                    if (2 == vs.length){
+                        //包含内容输出模式
+                        String mode = vs[1];
+                        // 组个变量替换
+                        String fieldValue;
+                        for (int i = 0; i < fields.length; i++) {
+                            fieldValue = fieldValueCollector.get(fields[i]);
+                            if (null != fieldValue){
+                                //LOGGER.info("name:" +name+",selector:" +selector+",field:" + fields[i] + ",value:" + fieldValue);
+                                mode = mode.replaceAll("\\$\\{" + fields[i] + "\\}", fieldValue);
+                            }
+                        }
+                        fieldValueCollector.put(name, mode);
+                    }else{
+                        // 不包含内容输出模式则依次输出内容
+                        StringBuilder msg = new StringBuilder();
+                        for (int i = 0; i < fields.length; i++) {
+                            msg.append(fields[i]);
+                        }
+                        fieldValueCollector.put(name, msg.toString());
+                    }
+                }
+            }
+        }
+
+        @Override
+        protected String getText(Element e) {
+            return e.getUnescapedOwnText();
+        }
+    }
+
+    /**
+     * 标签属性字段
+     * 
+     * @author admin
+     * @date 2014年6月23日
+     * @time 上午11:34:20
+     * @version 1.0
+     */
+    public static class AttributeField extends Field {
+        private String attributeName;
+
+        public AttributeField(String name, String selector) {
+            super(name, selector, VALUE_TYPE_ATTRIBUTE, null);
+        }
+
+        public AttributeField(String name, String selector, FieldSplitter fieldSplitter) {
+            super(name, selector, VALUE_TYPE_ATTRIBUTE, fieldSplitter);
+        }
+
+        /**
+         * @param attributeName 设置属性名
+         * @since 1.0
+         */
+        public final void setAttributeName(String attributeName) {
+            this.attributeName = attributeName;
+        }
+
+        @Override
+        protected String getText(Element e) {
+            return e.getAttribute(attributeName);
         }
     }
 

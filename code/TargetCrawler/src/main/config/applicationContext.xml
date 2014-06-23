@@ -36,6 +36,30 @@
         <property name="socketTimeOut" value="30000"></property>
     </bean>
 
+    <bean name="pageFetcher" class="org.tomstools.crawler.http.PageFetcher" scope="prototype">
+        <!-- 构造函数参数 1: 网页字符集 -->
+        <constructor-arg index="0" type="java.lang.String" value="GBK"></constructor-arg>
+        <property name="method" value="GET"></property>
+        <property name="tryCount" value="5"></property>
+        <property name="requestInfo">
+            <bean class="org.tomstools.crawler.http.RequestInfo" scope="prototype">
+                <property name="formDatas">
+                    <map>
+                    </map>
+                </property>
+                <property name="headers">
+                    <map>
+                        <entry key="Accept"><value><![CDATA[text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8]]></value></entry>
+                        <entry key="Accept-Encoding"><value><![CDATA[gzip,deflate,sdch]]></value></entry>
+                        <entry key="Accept-Language"><value><![CDATA[zh-CN,zh;q=0.8]]></value></entry>
+                        <entry key="Cache-Control"><value><![CDATA[max-age=0]]></value></entry>
+                        <entry key="Connection"><value><![CDATA[keep-alive]]></value></entry>
+                        <entry key="User-Agent"><value><![CDATA[Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.66 Safari/537.36 LBBROWSER]]></value></entry>
+                    </map>
+                </property>
+            </bean>
+        </property>
+    </bean>
     <!-- 文档解析器：HTML。对应 org.tomstools.crawler.parser.Parser -->
     <bean id="htmlParser" class="org.tomstools.crawler.parser.HTMLParser" scope="prototype">
     </bean>
@@ -80,11 +104,12 @@
                 <ref bean="target-landchina-gonggaojieguo-hunan-xycr" />
                 <ref bean="target-landchina-gonggaojieguo-hunan-zpgcr" />
                 -->
+                
                 <ref bean="target-landchina-gonggaojieguo-hunan-xycr" />
                 <ref bean="target-landchina-gonggaojieguo-hunan-zpgcr" />
-                <ref bean="target-0731fdc-floor-cs" />
                 <ref bean="target-0731fdc-floor-zz" />
                 <ref bean="target-0731fdc-floor-xt" />
+                <ref bean="target-0731fdc-floor-cs" />
                 <ref bean="target-0731fdc-floor-cs-detail" />
             </list>
         </constructor-arg>
