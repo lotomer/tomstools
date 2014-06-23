@@ -223,8 +223,9 @@ public class TargetBusi {
         // 保存新的处理标识。不能是置顶数据
         if (null == newFlagDatas.get(0) && !isTopData(data)) {
             newFlagDatas.set(0, data);
-            LOGGER.info("middle save: "+newFlagDatas);
-            resultDAO.saveProcessedFlagDatas(target, newFlagDatas);
+            // 不中途保存状态，需最后处理完了再保存，以防止中途终止导致数据丢失
+            //LOGGER.info("middle save: "+newFlagDatas);
+            //resultDAO.saveProcessedFlagDatas(target, newFlagDatas);
         }
         
         return false;
