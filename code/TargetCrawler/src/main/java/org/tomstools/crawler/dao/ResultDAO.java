@@ -44,10 +44,10 @@ public interface ResultDAO {
      * @param flagDatas 处理过的标识数据
      * @since 1.0
      */
-    public void saveProcessedFlagDatas(Target target, Collection<String> flagDatas);
+    //public void saveProcessedFlagDatas(Target target, Collection<String> flagDatas);
 
     /**
-     * 开始处理
+     * 处理前的准备工作
      * 
      * @param target 目标对象
      * @return 处理标记数据。不为null，可能为空

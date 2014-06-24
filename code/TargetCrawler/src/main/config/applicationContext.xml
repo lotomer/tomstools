@@ -44,17 +44,16 @@
         <property name="requestInfo">
             <bean class="org.tomstools.crawler.http.RequestInfo" scope="prototype">
                 <property name="formDatas">
-                    <map>
-                    </map>
+                    <list></list>
                 </property>
                 <property name="headers">
                     <map>
-                        <entry key="Accept"><value><![CDATA[text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8]]></value></entry>
-                        <entry key="Accept-Encoding"><value><![CDATA[gzip,deflate,sdch]]></value></entry>
-                        <entry key="Accept-Language"><value><![CDATA[zh-CN,zh;q=0.8]]></value></entry>
-                        <entry key="Cache-Control"><value><![CDATA[max-age=0]]></value></entry>
+                        <entry key="Accept"><value><![CDATA[text/html, application/xhtml+xml, */*]]></value></entry>
+                        <entry key="Accept-Encoding"><value><![CDATA[gzip, deflate]]></value></entry>
+                        <entry key="Accept-Language"><value><![CDATA[zh-CN]]></value></entry>
+                        <entry key="Cache-Control"><value><![CDATA[no-cache]]></value></entry>
                         <entry key="Connection"><value><![CDATA[keep-alive]]></value></entry>
-                        <entry key="User-Agent"><value><![CDATA[Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.66 Safari/537.36 LBBROWSER]]></value></entry>
+                        <entry key="User-Agent"><value><![CDATA[Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/5.0)]]></value></entry>
                     </map>
                 </property>
             </bean>
@@ -97,20 +96,20 @@
         <constructor-arg index="0">
             <list>
                 <!-- 
-                <ref bean="target-0731fdc-floor-cs" />
-                <ref bean="target-0731fdc-floor-cs-detail"/>
                 <ref bean="target-0731fdc-floor-zz" />
                 <ref bean="target-0731fdc-floor-xt" />
+                <ref bean="target-0731fdc-floor-cs" />
+                <ref bean="target-0731fdc-floor-cs-detail"/>
                 <ref bean="target-landchina-gonggaojieguo-hunan-xycr" />
                 <ref bean="target-landchina-gonggaojieguo-hunan-zpgcr" />
                 -->
-                
-                <ref bean="target-landchina-gonggaojieguo-hunan-xycr" />
-                <ref bean="target-landchina-gonggaojieguo-hunan-zpgcr" />
+               
                 <ref bean="target-0731fdc-floor-zz" />
                 <ref bean="target-0731fdc-floor-xt" />
                 <ref bean="target-0731fdc-floor-cs" />
-                <ref bean="target-0731fdc-floor-cs-detail" />
+                <ref bean="target-0731fdc-floor-cs-detail"/>
+                <ref bean="target-landchina-gonggaojieguo-hunan-xycr" />
+                <ref bean="target-landchina-gonggaojieguo-hunan-zpgcr" />
             </list>
         </constructor-arg>
         <!-- 构造函数参数 2: 结果数据操作对象。对应 接口 org.tomstools.crawler.dao.ResultDAO -->

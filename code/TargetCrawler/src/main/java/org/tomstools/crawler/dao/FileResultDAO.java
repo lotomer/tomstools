@@ -38,15 +38,18 @@ import org.tomstools.crawler.config.Target;
 public class FileResultDAO implements ResultDAO {
     private final static Logger LOGGER = Logger.getLogger(FileResultDAO.class);
     private static final String FILE_LATEST_URL = ".latest";
-    private static final SimpleDateFormat SIMPLE_DATE_FORMAT = new SimpleDateFormat("yyyyMMddHHmmss");
+    private static final SimpleDateFormat SIMPLE_DATE_FORMAT = new SimpleDateFormat(
+            "yyyyMMddHHmmss");
     private String rootDir;
     private Map<String, Writer> writers;
     private Map<String, String> outFileNames;
     private Map<String, String[]> targetTitles;
+    private Map<String, Boolean> isPrepareWrite4targets; // 是否已经准备好写了，true表示准备好了，null或false表示没准备好
     private String separator;
     private Set<String> specialWords;
     private String newLine;
     private String fileCharset;
+
     /**
      * 默认构造函数
      * 
@@ -60,7 +63,7 @@ public class FileResultDAO implements ResultDAO {
         this.rootDir = rootDir;
         this.separator = separator;
         this.specialWords = new HashSet<String>();
-        if (null != specialWords && 0 < specialWords.length){
+        if (null != specialWords && 0 < specialWords.length) {
             for (int i = 0; i < specialWords.length; i++) {
                 this.specialWords.add(specialWords[i]);
             }
@@ -73,24 +76,70 @@ public class FileResultDAO implements ResultDAO {
         writers = new HashMap<String, Writer>();
         outFileNames = new HashMap<>();
         targetTitles = new HashMap<>();
+        isPrepareWrite4targets = new HashMap<>();
     }
 
     public void save(Target target, String url, Map<String, String> datas) {
-        // 保存结果数据
-        Writer writer = writers.get(target.getName());
-        // 表头。输出到文件的内容需要依据表头数据的顺序
-        String []titles = targetTitles.get(target.getName());
-        if (null != writer && null != titles && 0 != titles.length) {
-            try {
-                writer.write(getLineValue(titles,url, datas));
-            } catch (IOException e) {
-                LOGGER.error(e.getMessage(), e);
+        if (!Utils.isEmpty(datas)) {
+            String[] titles = target.getContentExtractor().getTitles();
+            if (null != titles) {
+                Boolean isPrepared = isPrepareWrite4targets.get(target.getName());
+                // 是否已经准备好了
+                if (isPrepared) {
+                    // 保存结果数据
+                    Writer w = writers.get(target.getName());
+                    if (null == w) {
+                        // 还没有写过文件，则先输出表头
+                        String fileName = this.outFileNames.get(target.getName());
+                        try {
+                            FileOutputStream fos = new FileOutputStream(fileName, false);
+                            w = new OutputStreamWriter(fos, null != fileCharset ? fileCharset
+                                    : Charset.defaultCharset().displayName());
+                            if ("UTF-8".equalsIgnoreCase(fileCharset)) {
+                                // UTF-8的csv用excel打开时出现乱码，需要显示输出BOM
+                                w.write(new String(new byte[] { (byte) 0xEF, (byte) 0xBB,
+                                        (byte) 0xBF }));
+                            }
+
+                            // 输出表头
+
+                            targetTitles.put(target.getName(), titles);
+                            boolean isFirst = true;
+                            for (String title : titles) {
+                                if (!isFirst) {
+                                    w.write(separator);
+                                }
+                                if (!Utils.isEmpty(title)) {
+                                    w.write(title);
+                                    isFirst = false;
+                                }
+                            }
+                            w.write(newLine);
+                            writers.put(target.getName(), w);
+                            // 准备好写数据了
+                            isPrepareWrite4targets.put(target.getName(), true);
+                        } catch (IOException e) {
+                            LOGGER.error(e.getMessage(), e);
+                        }
+                    }
+                    // 表头。输出到文件的内容需要依据表头数据的顺序
+                    if (null != w) {
+                        try {
+                            w.write(getLineValue(titles, url, datas));
+                        } catch (IOException e) {
+                            LOGGER.error(e.getMessage(), e);
+                        }
+                    }
+                }
+            } else {
+                LOGGER.error("The content extractor need titles! " + target.getName());
             }
         }
     }
 
     /**
      * 获取一行数据。根据表头字段顺序获取内容
+     * 
      * @param titles 表头
      * @param name 名称
      * @param url 对应的url
@@ -107,12 +156,12 @@ public class FileResultDAO implements ResultDAO {
         for (int i = 0; i < titles.length; i++) {
             if (!isFirst) {
                 line.append(getSeparator());
-            }else{
+            } else {
                 isFirst = false;
             }
             line.append(trimSpecial(datas.get(titles[i])));
         }
-        //LOGGER.info(line.toString());
+        // LOGGER.info(line.toString());
         line.append(newLine);
         return line.toString();
     }
@@ -129,33 +178,41 @@ public class FileResultDAO implements ResultDAO {
             for (String word : this.specialWords) {
                 value = value.replaceAll(word, " ");
             }
-            
+
             return value.trim();
-        }else{
+        } else {
             return "";
         }
     }
 
-    public void saveProcessedFlagDatas(Target target, Collection<String> flagDatas) {
-        //LOGGER.info("saveProcessedFlagDatas. " + targetName + "," + flagDatas);
+    /**
+     * 保存主页面最后处理过的标识数据
+     * 
+     * @param target 目标对象
+     * @param flagDatas 处理过的标识数据
+     * @since 1.0
+     */
+    private void saveProcessedFlagDatas(Target target, Collection<String> flagDatas) {
+        // LOGGER.info("saveProcessedFlagDatas. " + targetName + "," +
+        // flagDatas);
         if (Utils.isEmpty(target.getName()) || Utils.isEmpty(flagDatas)) {
             return;
         }
-        File file = new File(getFlagFileName(target.getName(),""));
+        File file = new File(getFlagFileName(target.getName(), ""));
         if (!file.getParentFile().exists()) {
             file.getParentFile().mkdirs();
         }
         try {
             BufferedWriter writer = new BufferedWriter(new FileWriter(file));
             for (String flagData : flagDatas) {
-                if (null == flagData){
+                if (null == flagData) {
                     writer.write("");
-                }else{
+                } else {
                     writer.write(flagData);
                 }
                 writer.write(newLine);
             }
-            
+
             writer.close();
             writer = null;
         } catch (IOException e) {
@@ -167,52 +224,22 @@ public class FileResultDAO implements ResultDAO {
         String flag = SIMPLE_DATE_FORMAT.format(new Date());
         if (null == writers.get(target.getName())) {
             // 结果输出
-            File file = new File(getDataFileName(target.getName(),flag));
-            if (!file.getParentFile().exists()) {
+            File file = new File(getDataFileName(target.getName(), flag));
+            if (null != file.getParentFile() && !file.getParentFile().exists()) {
                 file.getParentFile().mkdirs();
             }
             outFileNames.put(target.getName(), file.getAbsolutePath());
-            
-            FileOutputStream fos = new FileOutputStream(file, false);
-            if (null == fileCharset){
-                fileCharset = Charset.defaultCharset().displayName();
-            }
-            OutputStreamWriter w = new OutputStreamWriter(fos,fileCharset);
-            if ("UTF-8".equalsIgnoreCase(fileCharset)){
-                // UTF-8的csv用excel打开时出现乱码，需要显示输出BOM
-                w.write(new String(new byte[]{(byte) 0xEF,(byte) 0xBB,(byte) 0xBF}));
-            }
-            
-            // 输出表头
-            String[] titles = target.getContentExtractor().getTitles();
-            if (null != titles){
-                targetTitles.put(target.getName(), titles);
-                boolean isFirst = true;
-                for (String title : titles) {
-                    if (!isFirst){
-                        w.write(separator);
-                    }
-                    if (!Utils.isEmpty(title)){
-                        w.write(title);
-                        isFirst = false;
-                    }
-                }
-                w.write(newLine);
-            }else{
-                LOGGER.error("The content extractor need titles! " + target.getName());
-            }
-            //BufferedWriter writer = new BufferedWriter(new FileWriter(file, true));
-            writers.put(target.getName(), w);
         }
         // 标识文件
         List<String> datas = new ArrayList<String>();
-        File file = new File(getFlagFileName(target.getName(),""));
+        File file = new File(getFlagFileName(target.getName(), ""));
         if (file.exists()) {
             // 将标识文件数据备份
-            BufferedWriter writer = new BufferedWriter(new FileWriter(getFlagFileName(target.getName(),flag)));
+            BufferedWriter writer = new BufferedWriter(new FileWriter(getFlagFileName(
+                    target.getName(), flag)));
             BufferedReader reader = new BufferedReader(new FileReader(file));
             String line = null;
-            while (null != (line = reader.readLine())){
+            while (null != (line = reader.readLine())) {
                 datas.add(line);
                 writer.write(line);
                 writer.write(newLine);
@@ -220,16 +247,17 @@ public class FileResultDAO implements ResultDAO {
             Utils.close(reader);
             Utils.close(writer);
         }
-        
+
         return datas;
     }
 
     private String getFlagFileName(String targetName, String flag) {
-        return rootDir + File.separator + targetName+ File.separator + flag + FILE_LATEST_URL;
+        return rootDir + File.separator + targetName + File.separator + flag + FILE_LATEST_URL;
     }
 
-    private String getDataFileName(String targetName,String flag) {
-        return rootDir + File.separator + targetName+ File.separator+targetName + "_" + flag + ".csv";
+    private String getDataFileName(String targetName, String flag) {
+        return rootDir + File.separator + targetName + File.separator + targetName + "_" + flag
+                + ".csv";
     }
 
     public void finish(Target target, Collection<String> newFlagDatas) {
@@ -243,13 +271,16 @@ public class FileResultDAO implements ResultDAO {
             writers.remove(target.getName());
             writer = null;
         }
-        
-        // 保存最新处理标识
-        saveProcessedFlagDatas(target, newFlagDatas);
-        
-        // 进行可能需要的扫尾工作
-        if (null != target.getCompletedHandler()){
-            target.getCompletedHandler().handle(outFileNames.get(target.getName()));
+        Boolean isPrepared = isPrepareWrite4targets.get(target.getName());
+        // 只有准备好了才继续后续的操作
+        if (isPrepared) {
+            // 保存最新处理标识
+            saveProcessedFlagDatas(target, newFlagDatas);
+
+            // 进行可能需要的扫尾工作
+            if (null != target.getCompletedHandler()) {
+                target.getCompletedHandler().handle(outFileNames.get(target.getName()));
+            }
         }
     }
 
@@ -260,7 +291,7 @@ public class FileResultDAO implements ResultDAO {
     public final String getSeparator() {
         return separator;
     }
-    
+
     /**
      * @param newLine 设置 newLine
      * @since 1.0
@@ -270,7 +301,6 @@ public class FileResultDAO implements ResultDAO {
         this.specialWords.add(newLine);
     }
 
-    
     /**
      * @param fileCharset 设置 输出文件编码格式。默认GBK
      * @since 1.0

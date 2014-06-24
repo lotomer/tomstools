@@ -3,7 +3,8 @@
  */
 package org.tomstools.crawler.http;
 
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -13,7 +14,7 @@ import java.util.Map;
  * @time 下午1:56:22
  * @version 1.0
  */
-public class Parameters extends HashMap<String, String> {
+public class Parameters extends ArrayList<Map<String, String>> {
     private static final long serialVersionUID = 1443661890549268192L;
     
     /**
@@ -21,8 +22,8 @@ public class Parameters extends HashMap<String, String> {
      * @param params 参数列表
      * @since 1.0
      */
-    public Parameters(Map<String,String> params){
-        super(params);
+    public Parameters(List<Map<String, String>> params){
+        addAll(params);
     }
 
     public Parameters() {

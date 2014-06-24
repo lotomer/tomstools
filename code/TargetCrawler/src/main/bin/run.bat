@@ -1,5 +1,6 @@
 @echo off
 setlocal enabledelayedexpansion
+title 网页爬虫紧张工作中，勿关我......
 set curr_dir=%~dp0
 set LIBDIR=%curr_dir%..\lib
 call %curr_dir%setEnv.cmd "%LIBDIR%"

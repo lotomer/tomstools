@@ -18,6 +18,7 @@ import java.util.regex.Pattern;
 import org.tomstools.crawler.common.Element;
 import org.tomstools.crawler.common.ElementProcessor;
 import org.tomstools.crawler.extractor.NavigationExtractor;
+import org.tomstools.crawler.http.Header;
 import org.tomstools.crawler.http.Parameters;
 import org.tomstools.crawler.http.RequestInfo;
 import org.tomstools.crawler.parser.HTMLParser;
@@ -62,21 +63,28 @@ public class PageNavigationExtractor implements NavigationExtractor {
                     String value = null;
                     while (matcher.find()) {
                         RequestInfo requestInfo = new RequestInfo();
-                        Parameters headers = null;
+                        Header headers = null;
                         Parameters formDatas = null;
                         for (Entry<Integer, String> entry : regexGroupIndex4parameterNames.entrySet()) {
                             value = matcher.group(entry.getKey());
                             if (null != value){
+                                // 需要将value进行html的反转义，即将&amp;转为&，将&lt;转为<，等等
+                                value = HTMLParser.unescape(value);
                                 // 根据参数名的前缀判断是什么类型
                                 String[] paramNames = entry.getValue().split(",");
                                 for (String paramName : paramNames) {
                                     if (paramName.startsWith("header_")){
-                                        if (null == headers) headers = new Parameters();
+                                        if (null == headers) headers = new Header();
                                         headers.put(new String(paramName.substring("header_".length())), getParameterValue(paramName, value));
                                     }else if (paramName.startsWith("form_")){
-                                        // 表单参数
-                                        if (null == formDatas) formDatas = new Parameters();
-                                        formDatas.put(new String(paramName.substring("form_".length())), getParameterValue(paramName, value));
+                                        // 表单参数，这里的数据统一放到第一个map中
+                                        if (null == formDatas) {
+                                            formDatas = new Parameters();
+                                        }
+                                        if (formDatas.size() < 1){
+                                            formDatas.add(new HashMap<String,String>());
+                                        }
+                                        formDatas.get(0).put(new String(paramName.substring("form_".length())), getParameterValue(paramName, value));
                                         
                                     }else{
                                         // url

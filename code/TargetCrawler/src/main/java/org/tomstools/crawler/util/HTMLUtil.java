@@ -3,10 +3,23 @@
  */
 package org.tomstools.crawler.util;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.io.UnsupportedEncodingException;
 import java.net.URL;
+import java.nio.charset.Charset;
+import java.nio.charset.UnsupportedCharsetException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.http.HttpEntity;
+import org.apache.http.ParseException;
+import org.apache.http.entity.ContentType;
+import org.apache.http.protocol.HTTP;
+import org.apache.http.util.Args;
+import org.apache.http.util.CharArrayBuffer;
 import org.tomstools.common.Utils;
 
 /**
@@ -92,7 +105,63 @@ public class HTMLUtil {
             return url.getProtocol() + "://" + url.getHost();
         }
     }
-
+    
+    private static final Charset CHARSET_GBK = Charset.forName("GBK");
+    private static final Charset CHARSET_GB2312 = Charset.forName("GB2312");
+    /**
+     * 提取http请求返回的正文内容
+     * @param entity    http请求返回的内容
+     * @param defaultCharset 使用默认字符集
+     * @return 正文内容。可能为null
+     * @throws IOException
+     * @throws ParseException
+     * @since 1.0
+     */
+    public static String toString(
+            final HttpEntity entity, final Charset defaultCharset) throws IOException, ParseException {
+        Args.notNull(entity, "Entity");
+        final InputStream instream = entity.getContent();
+        if (instream == null) {
+            return null;
+        }
+        try {
+            Args.check(entity.getContentLength() <= Integer.MAX_VALUE,
+                    "HTTP entity too large to be buffered in memory");
+            int i = (int)entity.getContentLength();
+            if (i < 0) {
+                i = 4096;
+            }
+            Charset charset = null;
+            try {
+                final ContentType contentType = ContentType.get(entity);
+                if (contentType != null) {
+                    charset = contentType.getCharset();
+                }
+            } catch (final UnsupportedCharsetException ex) {
+                throw new UnsupportedEncodingException(ex.getMessage());
+            }
+            if (charset == null) {
+                charset = defaultCharset;
+            }
+            if (charset == null) {
+                charset = HTTP.DEF_CONTENT_CHARSET;
+            }
+            // 如果是GB2312，则改用GBK
+            if (CHARSET_GB2312.name().equalsIgnoreCase(charset.name())){
+                charset = CHARSET_GBK;
+            }
+            final Reader reader = new InputStreamReader(instream, charset);
+            final CharArrayBuffer buffer = new CharArrayBuffer(i);
+            final char[] tmp = new char[1024];
+            int l;
+            while((l = reader.read(tmp)) != -1) {
+                buffer.append(tmp, 0, l);
+            }
+            return buffer.toString();
+        } finally {
+            instream.close();
+        }
+    }
     public static void main(String[] args) {
 
     }

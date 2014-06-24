@@ -18,13 +18,13 @@ public class RequestInfo {
     //private static final Logger LOGGER = Logger.getLogger(RequestInfo.class);
     private String url;
     private Parameters formDatas; // 表单数据
-    private Parameters headers; // 请求头
+    private Header headers; // 请求头
 
     public RequestInfo(RequestInfo other) {
         if (null != other){
             this.url = other.url;
             this.formDatas = new Parameters(other.formDatas);
-            this.headers = new Parameters(other.headers);
+            this.headers = new Header(other.headers);
         }
     }
 
@@ -67,7 +67,7 @@ public class RequestInfo {
      * @return 返回 headers
      * @since 1.0
      */
-    public final Parameters getHeaders() {
+    public final Header getHeaders() {
         return headers;
     }
 
@@ -75,7 +75,7 @@ public class RequestInfo {
      * @param headers 设置 headers
      * @since 1.0
      */
-    public final void setHeaders(Parameters headers) {
+    public final void setHeaders(Header headers) {
         this.headers = headers;
     }
 
@@ -96,7 +96,7 @@ public class RequestInfo {
                 for (Entry<String, String> header : other.headers.entrySet()) {
                     if (null != header.getValue()) {
                         if (null == headers){
-                            headers = new Parameters();
+                            headers = new Header();
                         }
                         headers.put(header.getKey(), header.getValue());
                     }
@@ -104,12 +104,15 @@ public class RequestInfo {
             }
             // 复制表单数据
             if (!Utils.isEmpty(other.formDatas)) {
-                for (Entry<String, String> formData : other.formDatas.entrySet()) {
-                    if (null != formData.getValue()) {
-                        if (null == formDatas){
-                            formDatas = new Parameters();
-                        }
-                        formDatas.put(formData.getKey(), formData.getValue());
+                // 所有不能重复的属性全部在第一个map中，其他重复的属性在后面的map中
+                if (null == formDatas){
+                    formDatas = new Parameters();
+                }
+                for (int i = 0; i < other.formDatas.size(); i++) {
+                    if (formDatas.size() < i + 1){
+                        formDatas.add(other.formDatas.get(i));
+                    }else{
+                        formDatas.get(i).putAll(other.formDatas.get(i));
                     }
                 }
             }
