@@ -82,4 +82,14 @@ public class FieldSplitter {
             }
         }
     }
+    
+    public static void main(String[] args) {
+        Pattern p = Pattern.compile("(.*)-(.+)$", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
+        String s = "满庭芳-NONO国际公寓-10栋";
+        Matcher m = p.matcher(s);
+        if (m.find()){
+            System.out.println(m.group(1));
+            System.out.println(m.group(2));
+        }
+        }
 }

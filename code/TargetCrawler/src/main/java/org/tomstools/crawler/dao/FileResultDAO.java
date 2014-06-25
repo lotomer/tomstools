@@ -84,17 +84,21 @@ public class FileResultDAO implements ResultDAO {
             String[] titles = target.getContentExtractor().getTitles();
             if (null != titles) {
                 Boolean isPrepared = isPrepareWrite4targets.get(target.getName());
-                // 是否已经准备好了
-                if (isPrepared) {
+                // 是否已经尝试过输出。null表示没有尝试过输出；true 已经准备好输出；false 没有准备好输出
+                if (null == isPrepared) {
+                    // 首先假定没有准备好输出
+                    isPrepareWrite4targets.put(target.getName(),false);
                     // 保存结果数据
                     Writer w = writers.get(target.getName());
                     if (null == w) {
                         // 还没有写过文件，则先输出表头
                         String fileName = this.outFileNames.get(target.getName());
+                        if (null == fileCharset){
+                            fileCharset = Charset.defaultCharset().displayName();
+                        }
                         try {
                             FileOutputStream fos = new FileOutputStream(fileName, false);
-                            w = new OutputStreamWriter(fos, null != fileCharset ? fileCharset
-                                    : Charset.defaultCharset().displayName());
+                            w = new OutputStreamWriter(fos, fileCharset);
                             if ("UTF-8".equalsIgnoreCase(fileCharset)) {
                                 // UTF-8的csv用excel打开时出现乱码，需要显示输出BOM
                                 w.write(new String(new byte[] { (byte) 0xEF, (byte) 0xBB,
@@ -102,7 +106,6 @@ public class FileResultDAO implements ResultDAO {
                             }
 
                             // 输出表头
-
                             targetTitles.put(target.getName(), titles);
                             boolean isFirst = true;
                             for (String title : titles) {
@@ -122,7 +125,17 @@ public class FileResultDAO implements ResultDAO {
                             LOGGER.error(e.getMessage(), e);
                         }
                     }
-                    // 表头。输出到文件的内容需要依据表头数据的顺序
+                    // 输出到文件的内容需要依据表头数据的顺序
+                    if (null != w) {
+                        try {
+                            w.write(getLineValue(titles, url, datas));
+                        } catch (IOException e) {
+                            LOGGER.error(e.getMessage(), e);
+                        }
+                    }
+                }else if (isPrepared){
+                    // 输出到文件的内容需要依据表头数据的顺序
+                    Writer w = writers.get(target.getName());
                     if (null != w) {
                         try {
                             w.write(getLineValue(titles, url, datas));
@@ -273,7 +286,7 @@ public class FileResultDAO implements ResultDAO {
         }
         Boolean isPrepared = isPrepareWrite4targets.get(target.getName());
         // 只有准备好了才继续后续的操作
-        if (isPrepared) {
+        if (null != isPrepared && isPrepared) {
             // 保存最新处理标识
             saveProcessedFlagDatas(target, newFlagDatas);
 
