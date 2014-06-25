@@ -8,7 +8,7 @@
     <!-- 待爬取对象：langchina 公告结果：湖南-招拍挂出让。对应 org.tomstools.crawler.config.Target -->
     <bean id="target-landchina-gonggaojieguo-hunan-zpgcr" class="org.tomstools.crawler.config.Target" scope="prototype">
         <property name="name" value="landchina-gonggaojieguo-hunan-zpgcr"></property>
-        <property name="url"><value><![CDATA[http://www.landchina.com/default.aspx?tabid=263#1]]></value></property>
+        <property name="url"><value><![CDATA[http://www.landchina.com/default.aspx?tabid=263&p=42ad98ae-c46a-40aa-aacc-c0884036eeaf%3A43%25%7E%BA%FE%C4%CF%CA%A1%7C8fd0232c-aff0-45d1-a726-63fc4c3d8ea9%3A2%25%7E%D5%D0%C5%C4%B9%D2%B3%F6%C8%C3]]></value></property>
         <property name="defaultCharsetName" value="GBK"></property>
         <property name="crawlingRule" ref="crawlingRule"></property>
         <property name="parser" ref="htmlParser"></property>
@@ -21,25 +21,19 @@
         </property>
         <property name="pageFetcher">
             <bean class="org.tomstools.crawler.http.PageFetcher" scope="prototype">
-                <property name="method" value="POST"></property>
+                <property name="method" value="GET"></property>
                 <property name="tryCount" value="5"></property>
                 <property name="requestInfo">
                     <bean class="org.tomstools.crawler.http.RequestInfo" scope="prototype">
                         <property name="formDatas">
                             <list>
                                 <map>
-                                    <!--  <entry key="__VIEWSTATE"><value><![CDATA[/wEPDwUJNjkzNzgyNTU4D2QWAmYPZBYIZg9kFgICAQ9kFgJmDxYCHgdWaXNpYmxlaGQCAQ9kFgICAQ8WAh4Fc3R5bGUFIEJBQ0tHUk9VTkQtQ09MT1I6I2YzZjVmNztDT0xPUjo7ZAICD2QWAgIBD2QWAmYPZBYCZg9kFgJmD2QWBGYPZBYCZg9kFgJmD2QWAmYPZBYCZg9kFgJmDxYEHwEFIENPTE9SOiNEM0QzRDM7QkFDS0dST1VORC1DT0xPUjo7HwBoFgJmD2QWAgIBD2QWAmYPDxYCHgRUZXh0ZWRkAgEPZBYCZg9kFgJmD2QWAmYPZBYEZg9kFgJmDxYEHwEFhwFDT0xPUjojRDNEM0QzO0JBQ0tHUk9VTkQtQ09MT1I6O0JBQ0tHUk9VTkQtSU1BR0U6dXJsKGh0dHA6Ly93d3cubGFuZGNoaW5hLmNvbS9Vc2VyL2RlZmF1bHQvVXBsb2FkL3N5c0ZyYW1lSW1nL3hfdGRzY3dfc3lfamhnZ18wMDAuZ2lmKTseBmhlaWdodAUBMxYCZg9kFgICAQ9kFgJmDw8WAh8CZWRkAgIPZBYCZg9kFgJmD2QWAmYPZBYCZg9kFgJmD2QWAmYPZBYEZg9kFgJmDxYEHwEFIENPTE9SOiNEM0QzRDM7QkFDS0dST1VORC1DT0xPUjo7HwBoFgJmD2QWAgIBD2QWAmYPDxYCHwJlZGQCAg9kFgJmD2QWBGYPZBYCZg9kFgJmD2QWAmYPZBYCZg9kFgJmD2QWAmYPFgQfAQUgQ09MT1I6I0QzRDNEMztCQUNLR1JPVU5ELUNPTE9SOjsfAGgWAmYPZBYCAgEPZBYCZg8PFgIfAmVkZAICD2QWBGYPZBYCZg9kFgJmD2QWAmYPZBYCAgEPZBYCZg8WBB8BBYYBQ09MT1I6I0QzRDNEMztCQUNLR1JPVU5ELUNPTE9SOjtCQUNLR1JPVU5ELUlNQUdFOnVybChodHRwOi8vd3d3LmxhbmRjaGluYS5jb20vVXNlci9kZWZhdWx0L1VwbG9hZC9zeXNGcmFtZUltZy94X3Rkc2N3X3p5X2pnZ2dfMDEuZ2lmKTsfAwUCNDYWAmYPZBYCAgEPZBYCZg8PFgIfAmVkZAIBD2QWAmYPZBYCZg9kFgJmD2QWAgIBD2QWAmYPFgQfAQUgQ09MT1I6I0QzRDNEMztCQUNLR1JPVU5ELUNPTE9SOjsfAGgWAmYPZBYCAgEPZBYCZg8PFgIfAmVkZAIDD2QWAgIDDxYEHglpbm5lcmh0bWwFtwY8cCBhbGlnbj0iY2VudGVyIj48c3BhbiBzdHlsZT0iZm9udC1zaXplOiB4LXNtYWxsIj4mbmJzcDs8YnIgLz4NCiZuYnNwOzxhIHRhcmdldD0iX3NlbGYiIGhyZWY9Imh0dHA6Ly93d3cubGFuZGNoaW5hLmNvbS8iPjxpbWcgYm9yZGVyPSIwIiBhbHQ9IiIgd2lkdGg9IjI2MCIgaGVpZ2h0PSI2MSIgc3JjPSIvVXNlci9kZWZhdWx0L1VwbG9hZC9mY2svaW1hZ2UvdGRzY3dfbG9nZS5wbmciIC8%2BPC9hPiZuYnNwOzxiciAvPg0KJm5ic3A7PHNwYW4gc3R5bGU9ImNvbG9yOiAjZmZmZmZmIj5Db3B5cmlnaHQgMjAwOC0yMDE0IERSQ25ldC4gQWxsIFJpZ2h0cyBSZXNlcnZlZCZuYnNwOyZuYnNwOyZuYnNwOyA8c2NyaXB0IHR5cGU9InRleHQvamF2YXNjcmlwdCI%2BDQp2YXIgX2JkaG1Qcm90b2NvbCA9ICgoImh0dHBzOiIgPT0gZG9jdW1lbnQubG9jYXRpb24ucHJvdG9jb2wpID8gIiBodHRwczovLyIgOiAiIGh0dHA6Ly8iKTsNCmRvY3VtZW50LndyaXRlKHVuZXNjYXBlKCIlM0NzY3JpcHQgc3JjPSciICsgX2JkaG1Qcm90b2NvbCArICJobS5iYWlkdS5jb20vaC5qcyUzRjgzODUzODU5YzcyNDdjNWIwM2I1Mjc4OTQ2MjJkM2ZhJyB0eXBlPSd0ZXh0L2phdmFzY3JpcHQnJTNFJTNDL3NjcmlwdCUzRSIpKTsNCjwvc2NyaXB0PiZuYnNwOzxiciAvPg0K54mI5p2D5omA5pyJJm5ic3A7IOS4reWbveWcn%2BWcsOW4guWcuue9kTxiciAvPg0K5aSH5qGI5Y%2B3OiDkuqxJQ1DlpIcwOTA3NDk5MuWPtyDkuqzlhaznvZHlronlpIcxMTAxMDIwMDA2NjYoMikmbmJzcDs8YnIgLz4NCjwvc3Bhbj4mbmJzcDsmbmJzcDsmbmJzcDs8YnIgLz4NCiZuYnNwOzwvc3Bhbj48L3A%2BHwEFZEJBQ0tHUk9VTkQtSU1BR0U6dXJsKGh0dHA6Ly93d3cubGFuZGNoaW5hLmNvbS9Vc2VyL2RlZmF1bHQvVXBsb2FkL3N5c0ZyYW1lSW1nL3hfdGRzY3cyMDEzX3l3XzEuanBnKTtkZKrNl4XBeIoFuKml0NNd/V52hNDa1jXsmJLeE515eSAL]]></value></entry>
-                                    <entry key="__EVENTVALIDATION"><value><![CDATA[/wEWAgKEttqaDQLN3cj/BBnwgJPvvxrmHZuVlbSHVu5Ri0n2JSAdKRtumFTzwHNK]]></value></entry>
-                                    -->
                                     <entry key="hidComName"><value><![CDATA[default]]></value></entry>
                                     <entry key="TAB_QueryConditionItem"><value><![CDATA[42ad98ae-c46a-40aa-aacc-c0884036eeaf]]></value></entry>
                                     <entry key="TAB_QuerySortItemList"><value><![CDATA[b42f6ce1-d810-4548-9581-725c9a501fc5:False]]></value></entry>
                                     <entry key="TAB_QuerySubmitOrderData"><value><![CDATA[b42f6ce1-d810-4548-9581-725c9a501fc5:False]]></value></entry>
                                     <entry key="TAB_QuerySubmitPagerData"><value><![CDATA[1]]></value></entry>
                                     <entry key="TAB_QuerySubmitConditionData"><value><![CDATA[42ad98ae-c46a-40aa-aacc-c0884036eeaf:43%~湖南省|8fd0232c-aff0-45d1-a726-63fc4c3d8ea9:2%~招拍挂出让]]></value></entry>
-                                </map>
-                                <map>
-                                    <entry key="TAB_QueryConditionItem"><value><![CDATA[8fd0232c-aff0-45d1-a726-63fc4c3d8ea9]]></value></entry>
                                 </map>
                             </list>
                         </property>
@@ -89,20 +83,7 @@
                                 <property name="formDatas">
                                     <list>
                                         <map>
-                                            <!-- <entry key="__VIEWSTATE"><value><![CDATA[/wEPDwUJNjkzNzgyNTU4D2QWAmYPZBYIZg9kFgICAQ9kFgJmDxYCHgdWaXNpYmxlaGQCAQ9kFgICAQ8WAh4Fc3R5bGUFIEJBQ0tHUk9VTkQtQ09MT1I6I2YzZjVmNztDT0xPUjo7ZAICD2QWAgIBD2QWAmYPZBYCZg9kFgJmD2QWBGYPZBYCZg9kFgJmD2QWAmYPZBYCZg9kFgJmDxYEHwEFIENPTE9SOiNEM0QzRDM7QkFDS0dST1VORC1DT0xPUjo7HwBoFgJmD2QWAgIBD2QWAmYPDxYCHgRUZXh0ZWRkAgEPZBYCZg9kFgJmD2QWAmYPZBYEZg9kFgJmDxYEHwEFhwFDT0xPUjojRDNEM0QzO0JBQ0tHUk9VTkQtQ09MT1I6O0JBQ0tHUk9VTkQtSU1BR0U6dXJsKGh0dHA6Ly93d3cubGFuZGNoaW5hLmNvbS9Vc2VyL2RlZmF1bHQvVXBsb2FkL3N5c0ZyYW1lSW1nL3hfdGRzY3dfc3lfamhnZ18wMDAuZ2lmKTseBmhlaWdodAUBMxYCZg9kFgICAQ9kFgJmDw8WAh8CZWRkAgIPZBYCZg9kFgJmD2QWAmYPZBYCZg9kFgJmD2QWAmYPZBYEZg9kFgJmDxYEHwEFIENPTE9SOiNEM0QzRDM7QkFDS0dST1VORC1DT0xPUjo7HwBoFgJmD2QWAgIBD2QWAmYPDxYCHwJlZGQCAg9kFgJmD2QWBGYPZBYCZg9kFgJmD2QWAmYPZBYCZg9kFgJmD2QWAmYPFgQfAQUgQ09MT1I6I0QzRDNEMztCQUNLR1JPVU5ELUNPTE9SOjsfAGgWAmYPZBYCAgEPZBYCZg8PFgIfAmVkZAICD2QWBGYPZBYCZg9kFgJmD2QWAmYPZBYCAgEPZBYCZg8WBB8BBYYBQ09MT1I6I0QzRDNEMztCQUNLR1JPVU5ELUNPTE9SOjtCQUNLR1JPVU5ELUlNQUdFOnVybChodHRwOi8vd3d3LmxhbmRjaGluYS5jb20vVXNlci9kZWZhdWx0L1VwbG9hZC9zeXNGcmFtZUltZy94X3Rkc2N3X3p5X2pnZ2dfMDEuZ2lmKTsfAwUCNDYWAmYPZBYCAgEPZBYCZg8PFgIfAmVkZAIBD2QWAmYPZBYCZg9kFgJmD2QWAgIBD2QWAmYPFgQfAQUgQ09MT1I6I0QzRDNEMztCQUNLR1JPVU5ELUNPTE9SOjsfAGgWAmYPZBYCAgEPZBYCZg8PFgIfAmVkZAIDD2QWAgIDDxYEHglpbm5lcmh0bWwFtwY8cCBhbGlnbj0iY2VudGVyIj48c3BhbiBzdHlsZT0iZm9udC1zaXplOiB4LXNtYWxsIj4mbmJzcDs8YnIgLz4NCiZuYnNwOzxhIHRhcmdldD0iX3NlbGYiIGhyZWY9Imh0dHA6Ly93d3cubGFuZGNoaW5hLmNvbS8iPjxpbWcgYm9yZGVyPSIwIiBhbHQ9IiIgd2lkdGg9IjI2MCIgaGVpZ2h0PSI2MSIgc3JjPSIvVXNlci9kZWZhdWx0L1VwbG9hZC9mY2svaW1hZ2UvdGRzY3dfbG9nZS5wbmciIC8%2BPC9hPiZuYnNwOzxiciAvPg0KJm5ic3A7PHNwYW4gc3R5bGU9ImNvbG9yOiAjZmZmZmZmIj5Db3B5cmlnaHQgMjAwOC0yMDE0IERSQ25ldC4gQWxsIFJpZ2h0cyBSZXNlcnZlZCZuYnNwOyZuYnNwOyZuYnNwOyA8c2NyaXB0IHR5cGU9InRleHQvamF2YXNjcmlwdCI%2BDQp2YXIgX2JkaG1Qcm90b2NvbCA9ICgoImh0dHBzOiIgPT0gZG9jdW1lbnQubG9jYXRpb24ucHJvdG9jb2wpID8gIiBodHRwczovLyIgOiAiIGh0dHA6Ly8iKTsNCmRvY3VtZW50LndyaXRlKHVuZXNjYXBlKCIlM0NzY3JpcHQgc3JjPSciICsgX2JkaG1Qcm90b2NvbCArICJobS5iYWlkdS5jb20vaC5qcyUzRjgzODUzODU5YzcyNDdjNWIwM2I1Mjc4OTQ2MjJkM2ZhJyB0eXBlPSd0ZXh0L2phdmFzY3JpcHQnJTNFJTNDL3NjcmlwdCUzRSIpKTsNCjwvc2NyaXB0PiZuYnNwOzxiciAvPg0K54mI5p2D5omA5pyJJm5ic3A7IOS4reWbveWcn%2BWcsOW4guWcuue9kTxiciAvPg0K5aSH5qGI5Y%2B3OiDkuqxJQ1DlpIcwOTA3NDk5MuWPtyDkuqzlhaznvZHlronlpIcxMTAxMDIwMDA2NjYoMikmbmJzcDs8YnIgLz4NCjwvc3Bhbj4mbmJzcDsmbmJzcDsmbmJzcDs8YnIgLz4NCiZuYnNwOzwvc3Bhbj48L3A%2BHwEFZEJBQ0tHUk9VTkQtSU1BR0U6dXJsKGh0dHA6Ly93d3cubGFuZGNoaW5hLmNvbS9Vc2VyL2RlZmF1bHQvVXBsb2FkL3N5c0ZyYW1lSW1nL3hfdGRzY3cyMDEzX3l3XzEuanBnKTtkZKrNl4XBeIoFuKml0NNd/V52hNDa1jXsmJLeE515eSAL]]></value></entry>
-                                            <entry key="__EVENTVALIDATION"><value><![CDATA[/wEWAgKEttqaDQLN3cj/BBnwgJPvvxrmHZuVlbSHVu5Ri0n2JSAdKRtumFTzwHNK]]></value></entry>
-                                            -->
-                                            <entry key="hidComName"><value><![CDATA[default]]></value></entry>
-                                            <entry key="TAB_QueryConditionItem"><value><![CDATA[8fd0232c-aff0-45d1-a726-63fc4c3d8ea9]]></value></entry>
-                                            <entry key="TAB_QuerySortItemList"><value><![CDATA[b42f6ce1-d810-4548-9581-725c9a501fc5:False]]></value></entry>
-                                            <entry key="TAB_QuerySubmitOrderData"><value><![CDATA[b42f6ce1-d810-4548-9581-725c9a501fc5:False]]></value></entry>
                                             <entry key="TAB_QuerySubmitPagerData"><value><![CDATA[1]]></value></entry>
-                                            <entry key="TAB_RowButtonActionControl"><value><![CDATA[]]></value></entry>
-                                            <entry key="TAB_QuerySubmitSortData"><value><![CDATA[]]></value></entry>
-                                            <entry key="TAB_QuerySubmitConditionData"><value><![CDATA[42ad98ae-c46a-40aa-aacc-c0884036eeaf:43%~湖南省|8fd0232c-aff0-45d1-a726-63fc4c3d8ea9:2%~招拍挂出让]]></value></entry>
-                                        </map>
-                                        <map>
-                                            <entry key="TAB_QueryConditionItem"><value><![CDATA[42ad98ae-c46a-40aa-aacc-c0884036eeaf]]></value></entry>
                                         </map>
                                     </list>
                                 </property>
@@ -144,7 +125,7 @@
                 <!-- 构造函数参数 4: 参数对应的模板。需要替换的参数名使用“${”和“}”包裹，如：${form_pageno} -->
                 <constructor-arg index="3">
                     <map>
-                        <entry key="url"><value><![CDATA[http://www.landchina.com/default.aspx?tabid=263#${url}]]></value></entry>
+                        <entry key="url"><value><![CDATA[http://www.landchina.com/default.aspx?tabid=263&p=42ad98ae-c46a-40aa-aacc-c0884036eeaf%3A43%25%7E%BA%FE%C4%CF%CA%A1%7C8fd0232c-aff0-45d1-a726-63fc4c3d8ea9%3A2%25%7E%D5%D0%C5%C4%B9%D2%B3%F6%C8%C3#${url}]]></value></entry>
                         <entry key="form_TAB_QuerySubmitPagerData"><value><![CDATA[${form_TAB_QuerySubmitPagerData}]]></value></entry>
                     </map>
                 </constructor-arg>

@@ -4,6 +4,7 @@
 package org.tomstools.crawler.http;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.SocketTimeoutException;
 import java.net.URL;
@@ -12,6 +13,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.IllegalCharsetNameException;
 import java.nio.charset.UnsupportedCharsetException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -74,6 +76,7 @@ public class PageFetcher {
 
     /**
      * 设置默认编码。GBK与GB2312是不同的编码，其中有细微差别，一定要根据网页本身的编码来指定默认编码
+     * 
      * @param defaultCharsetName 默认编码
      * @since 1.0
      */
@@ -148,7 +151,8 @@ public class PageFetcher {
                 if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
                     if (entity != null) {
                         responseText = HTMLUtil.toString(entity, defaultCharset);
-                        //responseText = EntityUtils.toString(entity, defaultCharset);
+                        // responseText = EntityUtils.toString(entity,
+                        // defaultCharset);
                         // 查看是否包含self.location自动跳转
                         if (response.getEntity().getContentLength() < 800) {
                             // 内容较少时判断是否包含跳转命令
@@ -234,7 +238,7 @@ public class PageFetcher {
                 }
                 // 防止乱码
                 HttpEntity entity = new UrlEncodedFormEntity(params, this.defaultCharset);
-                requestBuilder.setEntity(entity );
+                requestBuilder.setEntity(entity);
             }
             // 设置请求头信息
             Header headers = requestInfo.getHeaders();
@@ -297,15 +301,28 @@ public class PageFetcher {
         this.method = method;
     }
 
-    public static void main(String[] args) {
-        Matcher m = locationPattern
-                .matcher("<html><head><meta http-equiv=\"Content-Type\"content=\"text/html; charset=gb2312\" /><meta http-equiv=\"pragma\" content=\"no-cache\" /><meta http-equiv=\"cache-control\" content=\"no-store\" /><meta http-equiv=\"Connection\" content=\"Close\" /><script>function JumpSelf(){ self.location=\"/default.aspx?tabid=263&WebShieldSessionVerify=j2Ns4fh5u1QXCHuaGDfp\";}</script><script>setTimeout(\"JumpSelf()\",700);</script></head><body></body></html>");
-        if (m.find()) {
-            System.out.println(m.group(1));
-        }
-        // PageFetcher f = new PageFetcher("GBK");
-        // String s =
-        // f.fetchPageContent("http://floor.0731fdc.com/detail.php?id=30537");
-        // System.out.println(s);
+    public static void main(String[] args) throws UnsupportedEncodingException {
+
+        // Matcher m = locationPattern
+        // .matcher("<html><head><meta http-equiv=\"Content-Type\"content=\"text/html; charset=gb2312\" /><meta http-equiv=\"pragma\" content=\"no-cache\" /><meta http-equiv=\"cache-control\" content=\"no-store\" /><meta http-equiv=\"Connection\" content=\"Close\" /><script>function JumpSelf(){ self.location=\"/default.aspx?tabid=263&WebShieldSessionVerify=j2Ns4fh5u1QXCHuaGDfp\";}</script><script>setTimeout(\"JumpSelf()\",700);</script></head><body></body></html>");
+        // if (m.find()) {
+        // System.out.println(m.group(1));
+        // }
+        // String data =
+        // "42ad98ae-c46a-40aa-aacc-c0884036eeaf:43%~湖南省|8fd0232c-aff0-45d1-a726-63fc4c3d8ea9:3%~协议出让";
+        // System.out.println(URLEncoder.encode(data, "gbk"));
+
+        PageFetcher f = new PageFetcher("GBK");
+        f.setMethod("POST");
+        RequestInfo r = new RequestInfo();
+        Parameters d = new Parameters();
+        Map<String, String> m = new HashMap<>();
+        m.put("TAB_QuerySubmitPagerData", "202");
+        d.add(m);
+        r.setFormDatas(d);
+        f.setRequestInfo(r);
+        String s = f
+                .fetchPageContent("http://www.landchina.com/default.aspx?tabid=263&p=42ad98ae-c46a-40aa-aacc-c0884036eeaf%3A43%25%7E%BA%FE%C4%CF%CA%A1%7C8fd0232c-aff0-45d1-a726-63fc4c3d8ea9%3A2%25%7E%D5%D0%C5%C4%B9%D2%B3%F6%C8%C3");
+        System.out.println(s);
     }
 }
