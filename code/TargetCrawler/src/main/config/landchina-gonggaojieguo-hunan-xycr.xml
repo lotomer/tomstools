@@ -7,7 +7,7 @@
 
     <!-- 待爬取对象：langchina 公告结果：湖南-协议出让。对应 org.tomstools.crawler.config.Target -->
     <bean id="target-landchina-gonggaojieguo-hunan-xycr" class="org.tomstools.crawler.config.Target" scope="prototype">
-        <property name="name" value="landchina-gonggaojieguo-hunan-xycr"></property>
+        <property name="name" value="landchina-gonggaojieguo-hunan-xycr-1-200"></property>
         <property name="url"><value><![CDATA[http://www.landchina.com/default.aspx?tabid=263&p=42ad98ae-c46a-40aa-aacc-c0884036eeaf%3A43%25%7E%BA%FE%C4%CF%CA%A1%7C8fd0232c-aff0-45d1-a726-63fc4c3d8ea9%3A3%25%7E%D0%AD%D2%E9%B3%F6%C8%C3]]></value></property>
         <property name="defaultCharsetName" value="GBK"></property>
         <property name="crawlingRule" ref="crawlingRule"></property>
@@ -55,26 +55,16 @@
             </bean>
         </property>
         <property name="navigationExtractor">
-            <bean class="org.tomstools.crawler.extractor.impl.TemplatePageNavigationExtractor"
+            <bean class="org.tomstools.crawler.extractor.impl.ExpressionNavigationExtractor"
                 scope="prototype">
-                <!-- 构造函数参数 1: 元素选择表达式 -->
+                <!-- 构造函数参数 1: 表达式：开始值|结束值|递增或递减的步长 -->
                 <constructor-arg index="0" type="java.lang.String">
-                    <value><![CDATA[div.pager td.pager>a:contains(下页)]]></value>
+                    <value><![CDATA[2|201|1]]></value>
                 </constructor-arg>
-                <!-- 构造函数参数 2: 正则表达式 -->
-                <constructor-arg index="1" type="java.lang.String">
-                    <value><![CDATA[<a .*?onclick="QueryAction.GoPage\('TAB',(\d+)\)"]]></value> 
-                </constructor-arg>
-                <!-- 构造函数参数 3: 正则表达式中group的索引号对应的参数名称，参数名如form_pageno -->
-                <constructor-arg index="2">
+                <!-- 构造函数参数 2: 参数对应的模板。需要替换的内容使用%s代替 -->
+                <constructor-arg index="1">
                     <map>
-                        <entry key="1"><value><![CDATA[url,form_TAB_QuerySubmitPagerData]]></value></entry>
-                    </map>
-                </constructor-arg>
-                <!-- 构造函数参数 4: 参数对应的模板。需要替换的参数名使用“${”和“}”包裹，如：${form_pageno} -->
-                <constructor-arg index="3">
-                    <map>
-                        <entry key="url"><value><![CDATA[http://www.landchina.com/default.aspx?tabid=263&p=42ad98ae-c46a-40aa-aacc-c0884036eeaf%3A43%25%7E%BA%FE%C4%CF%CA%A1%7C8fd0232c-aff0-45d1-a726-63fc4c3d8ea9%3A3%25%7E%D0%AD%D2%E9%B3%F6%C8%C3#${url}]]></value></entry>
+                        <entry key="url"><value><![CDATA[http://www.landchina.com/default.aspx?tabid=263&p=42ad98ae-c46a-40aa-aacc-c0884036eeaf%3A43%25%7E%BA%FE%C4%CF%CA%A1%7C8fd0232c-aff0-45d1-a726-63fc4c3d8ea9%3A3%25%7E%D0%AD%D2%E9%B3%F6%C8%C3&pageNum=${url}]]></value></entry>
                         <entry key="form_TAB_QuerySubmitPagerData"><value><![CDATA[${form_TAB_QuerySubmitPagerData}]]></value></entry>
                     </map>
                 </constructor-arg>

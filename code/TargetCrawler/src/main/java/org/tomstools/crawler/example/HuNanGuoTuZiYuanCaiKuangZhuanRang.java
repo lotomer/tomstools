@@ -13,7 +13,6 @@ import org.tomstools.crawler.config.CrawlingRule;
 import org.tomstools.crawler.config.Target;
 import org.tomstools.crawler.extractor.ContentExtractor;
 import org.tomstools.crawler.extractor.ContentExtractor.Field;
-import org.tomstools.crawler.extractor.impl.ExpressionNavigationExtractor;
 import org.tomstools.crawler.parser.HTMLParser;
 
 /**
@@ -32,9 +31,9 @@ public class HuNanGuoTuZiYuanCaiKuangZhuanRang extends Target {
         setCrawlingRule(crawlingRule);
         setParser(new HTMLParser());
         //setContentPageExtractor(new NoSubpageExtractor());
-        setNavigationExtractor(new ExpressionNavigationExtractor(
-                "http://www.gtzy.hunan.gov.cn/application/hdpt_422/spgl/ckzr/index_539_%s.html",
-                "1|20|1"));
+//        setNavigationExtractor(new ExpressionNavigationExtractor(
+//                "http://www.gtzy.hunan.gov.cn/application/hdpt_422/spgl/ckzr/index_539_%s.html",
+//                "1|20|1"));
         List<Field> fields = new ArrayList<>();
         fields.add(new ContentExtractor.TextField("value", "td[title]")); // \u4E00-\u9FA5 是汉字区间
         setContentExtractor(new ContentExtractor("tr",null,null,fields) {

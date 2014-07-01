@@ -107,9 +107,16 @@ public class TargetCrawler implements Runnable {
                 List<RequestInfo> requestInfos = targetBusi.getTarget().getNavigationExtractor()
                         .getNextPageRequestInfos(null);
                 for (RequestInfo requestInfo : requestInfos) {
-                    targetBusi.getTarget().setUrl(requestInfo.getUrl());
+                    if (!Utils.isEmpty(requestInfo.getUrl())){
+                        // 如果设置了url，则使用新的url
+                        targetBusi.getTarget().setUrl(requestInfo.getUrl());
+                    }
                     // 复制有效配置数据给页面爬取器
-                    fetcher.getRequestInfo().copyValidDatas(requestInfo);
+                    if (null != fetcher.getRequestInfo()){
+                        fetcher.getRequestInfo().copyValidDatas(requestInfo);
+                    }else{
+                        fetcher.setRequestInfo(requestInfo);
+                    }
                     processPageWithoutNavigation(targetBusi, fetcher);
                     if (targetBusi.isFinished()) {
                         break;
