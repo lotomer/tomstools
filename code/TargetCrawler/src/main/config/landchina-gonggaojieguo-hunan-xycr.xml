@@ -7,7 +7,7 @@
 
     <!-- 待爬取对象：langchina 公告结果：湖南-协议出让。对应 org.tomstools.crawler.config.Target -->
     <bean id="target-landchina-gonggaojieguo-hunan-xycr" class="org.tomstools.crawler.config.Target" scope="prototype">
-        <property name="name" value="landchina-gonggaojieguo-hunan-xycr-1-200"></property>
+        <property name="name" value="landchina-gonggaojieguo-hunan-xycr"></property>
         <property name="url"><value><![CDATA[http://www.landchina.com/default.aspx?tabid=263&p=42ad98ae-c46a-40aa-aacc-c0884036eeaf%3A43%25%7E%BA%FE%C4%CF%CA%A1%7C8fd0232c-aff0-45d1-a726-63fc4c3d8ea9%3A3%25%7E%D0%AD%D2%E9%B3%F6%C8%C3]]></value></property>
         <property name="defaultCharsetName" value="GBK"></property>
         <property name="crawlingRule" ref="crawlingRule"></property>
