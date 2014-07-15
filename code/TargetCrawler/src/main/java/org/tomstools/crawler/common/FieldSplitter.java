@@ -84,12 +84,41 @@ public class FieldSplitter {
     }
     
     public static void main(String[] args) {
-        Pattern p = Pattern.compile("(.*)-(.+)$", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
-        String s = "满庭芳-NONO国际公寓-10栋";
+        assertEqualBuilding("满庭芳-NONO国际公寓-10栋","满庭芳-NONO国际公寓","10栋");
+        assertEqualBuilding("金科东方大院-1-1栋","金科东方大院","1-1栋");
+        assertEqualBuilding("金科东方大院-3-2#-A栋","金科东方大院","3-2#-A栋");
+        assertEqualBuilding("金科东方大院-二期2-23栋","金科东方大院","二期2-23栋");
+        assertEqualBuilding("金科东方大院-4-1栋-B","金科东方大院","4-1栋-B");
+        System.out.println("========================================");
+        assertEqualFloor("·4-1栋-B1层（5户）","4-1栋-B","1");
+        assertEqualFloor("·1-18栋1层（4户）","1-18栋","1");
+        assertEqualFloor("·二期16栋1层（1户）","二期16栋","1");
+    }
+
+    private static void assertEqualBuilding(String s, String s1, String s2) {
+        Pattern p = Pattern.compile("(.*)", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
         Matcher m = p.matcher(s);
         if (m.find()){
-            System.out.println(m.group(1));
-            System.out.println(m.group(2));
+            System.out.println(s1 + "=" + m.group(1) + ": " + s1.equals(m.group(1)));
+            //System.out.println(s2 + "=" + m.group(2) + ": " + s2.equals(m.group(2)));
+            
+            String buildings_name = m.group(1);
+            String building_name = s2;
+            if (buildings_name.endsWith("-" + building_name)){
+                buildings_name = new String(buildings_name.substring(0, buildings_name.length() - building_name.length() - "-".length()));
+            }
+            System.out.println(buildings_name +"-----"+ building_name);
         }
+        
+        
+    }
+    private static void assertEqualFloor(String s, String s1, String s2) {
+        Pattern p = Pattern.compile("·(.*?栋.*)(\\d+)层.*", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
+        Matcher m = p.matcher(s);
+        if (m.find()){
+            System.out.println(s1 + "=" + m.group(1) + ": " + s1.equals(m.group(1)));
+            System.out.println(s2 + "=" + m.group(2) + ": " + s2.equals(m.group(2)));
         }
+        
+    }
 }
