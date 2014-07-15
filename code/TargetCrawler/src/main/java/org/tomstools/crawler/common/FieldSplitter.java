@@ -36,7 +36,8 @@ public class FieldSplitter {
         if (null == regex || null == fieldIndexes || null == fieldNames || fieldIndexes.length != fieldNames.length){
             throw new RuntimeException("arguments is invalid!");
         }
-        pattern = Pattern.compile(regex, Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
+        
+        pattern = Pattern.compile(regex, Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE | Pattern.CANON_EQ);
         this.fieldIndexes = fieldIndexes;
         this.fieldNames = fieldNames;
         // 对索引进行校验
@@ -63,6 +64,7 @@ public class FieldSplitter {
         if (Utils.isEmpty(text) || null == result){
             return;
         }
+        
         Matcher m = pattern.matcher(text);
         if(m.find()){
          // 将拆分的字段保存
@@ -93,13 +95,15 @@ public class FieldSplitter {
         assertEqualFloor("·4-1栋-B1层（5户）","4-1栋-B","1");
         assertEqualFloor("·1-18栋1层（4户）","1-18栋","1");
         assertEqualFloor("·二期16栋1层（1户）","二期16栋","1");
+        assertEqualFloor("·1栋-1层（20户）","1栋","-1");
+        assertEqualFloor("·1、2栋及地下室-0.9层（3户）","1、2栋及地下室","-0.9");
+        assertEqualFloor("·16栋-1-2层（1户）","16栋","1-2");
     }
 
     private static void assertEqualBuilding(String s, String s1, String s2) {
         Pattern p = Pattern.compile("(.*)", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
         Matcher m = p.matcher(s);
         if (m.find()){
-            System.out.println(s1 + "=" + m.group(1) + ": " + s1.equals(m.group(1)));
             //System.out.println(s2 + "=" + m.group(2) + ": " + s2.equals(m.group(2)));
             
             String buildings_name = m.group(1);
@@ -107,13 +111,12 @@ public class FieldSplitter {
             if (buildings_name.endsWith("-" + building_name)){
                 buildings_name = new String(buildings_name.substring(0, buildings_name.length() - building_name.length() - "-".length()));
             }
+            System.out.println(s1 + "=" + buildings_name + ": " + s1.equals(buildings_name));
             System.out.println(buildings_name +"-----"+ building_name);
         }
-        
-        
     }
     private static void assertEqualFloor(String s, String s1, String s2) {
-        Pattern p = Pattern.compile("·(.*?栋.*)(\\d+)层.*", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
+        Pattern p = Pattern.compile("·(.*?)([\\-0-9\\.]{0,3}\\d+)层.*$", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
         Matcher m = p.matcher(s);
         if (m.find()){
             System.out.println(s1 + "=" + m.group(1) + ": " + s1.equals(m.group(1)));

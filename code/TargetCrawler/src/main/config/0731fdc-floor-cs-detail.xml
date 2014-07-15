@@ -162,7 +162,7 @@
                                         <bean class="org.tomstools.crawler.common.FieldSplitter" scope="prototype">
                                         <!-- 构造函数参数 1: 提取内容是的正则表达式  -->
                                         <constructor-arg index="0" type="java.lang.String">
-                                            <value><![CDATA[·(.*?栋.*)(\\d+)层.*]]></value>
+                                            <value><![CDATA[·(.*?)([\-0-9\.]{0,3}\d+)层.*$]]></value>
                                         </constructor-arg>
                                         <!-- 构造函数参数 2: 需要收集的字段的索引数组。从1开始计数。索引不能大于正则表达式regex中的分组数（即圆括号数） -->
                                         <constructor-arg index="1" type="int[]">
