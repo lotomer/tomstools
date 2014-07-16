@@ -97,7 +97,12 @@ public class FieldSplitter {
         assertEqualFloor("·二期16栋1层（1户）","二期16栋","1");
         assertEqualFloor("·1栋-1层（20户）","1栋","-1");
         assertEqualFloor("·1、2栋及地下室-0.9层（3户）","1、2栋及地下室","-0.9");
-        assertEqualFloor("·16栋-1-2层（1户）","16栋","1-2");
+        assertEqualFloor("·16栋-1-2层（1户）","16栋","-1-2");
+        assertEqualFloor("·1栋1层（15户）","1栋","1");
+        assertEqualFloor("·1栋17B层（8户）","1栋","17B");
+        assertEqualFloor("·　栋1层（18户）","　栋","1");
+        assertEqualFloor("·B13栋JKC层（19户）","B13栋","JKC");
+        assertEqualFloor("·商业中心栋夹层层（12户）","商业中心栋","夹层");
     }
 
     private static void assertEqualBuilding(String s, String s1, String s2) {
@@ -112,15 +117,18 @@ public class FieldSplitter {
                 buildings_name = new String(buildings_name.substring(0, buildings_name.length() - building_name.length() - "-".length()));
             }
             System.out.println(s1 + "=" + buildings_name + ": " + s1.equals(buildings_name));
-            System.out.println(buildings_name +"-----"+ building_name);
+            //System.out.println(buildings_name +"-----"+ building_name);
+        }else{
+            System.out.println("false==" + s);
         }
     }
     private static void assertEqualFloor(String s, String s1, String s2) {
-        Pattern p = Pattern.compile("·(.*?)([\\-0-9\\.]{0,3}\\d+)层.*$", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
+        Pattern p = Pattern.compile("·(.*?栋.*?(-[^\\d]+|[^-\\d]*?))(-\\d+.*|\\d+.*|[^-]*)层.*$", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
         Matcher m = p.matcher(s);
         if (m.find()){
-            System.out.println(s1 + "=" + m.group(1) + ": " + s1.equals(m.group(1)));
-            System.out.println(s2 + "=" + m.group(2) + ": " + s2.equals(m.group(2)));
+            System.out.println(s1 + "=" + m.group(1) + ": " + s1.equals(m.group(1)) + "  |  " +s2 + "=" + m.group(3) + ": " + s2.equals(m.group(3)));
+        }else{
+            System.out.println("false=" + s);
         }
         
     }
