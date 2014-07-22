@@ -107,7 +107,8 @@
                 <ref bean="target-landchina-gonggaojieguo-hunan-xycr" />
                 <ref bean="target-landchina-gonggaojieguo-hunan-zpgcr" />
                 -->
-                <ref bean="target-landchina-gonggaojieguo-hunan-zpgcr" />
+                <ref bean="target-caipiao-shuangseqiu" />
+                <ref bean="target-caipiao-liuhecai" />
             </list>
         </constructor-arg>
         <!-- 构造函数参数 2: 结果数据操作对象。对应 接口 org.tomstools.crawler.dao.ResultDAO -->

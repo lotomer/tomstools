@@ -39,13 +39,14 @@
         <property name="navigationExtractor">
             <bean class="org.tomstools.crawler.extractor.impl.ExpressionNavigationExtractor"
                 scope="prototype">
-                <!-- 构造函数参数 1: url模板字符串，使用%s做数字的占位符 -->
+                <!-- 构造函数参数 1: 表达式：开始值|结束值|递增或递减的步长 -->
                 <constructor-arg index="0" type="java.lang.String">
                     <value><![CDATA[]]></value>
                 </constructor-arg>
-                <!-- 构造函数参数 2: 表达式：开始值|结束值|递增或递减的步长 -->
-                <constructor-arg index="1" type="java.lang.String">
-                    <value><![CDATA[]]></value>
+                <!-- 构造函数参数 2: 参数对应的模板。需要替换的内容使用%s代替 -->
+                <constructor-arg index="1">
+                    <map>
+                    </map>
                 </constructor-arg>
             </bean>
         </property>
