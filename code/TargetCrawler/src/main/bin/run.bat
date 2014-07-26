@@ -3,8 +3,9 @@ setlocal enabledelayedexpansion
 title 网页爬虫紧张工作中，勿关我......
 set curr_dir=%~dp0
 set LIBDIR=%curr_dir%..\lib
+set CLASSPATH="%curr_dir%..\resources"
 call %curr_dir%setEnv.cmd "%LIBDIR%"
-set CLASSPATH=%CLASSPATH%;%curr_dir%..\resources
+
 REM echo CLASSPATH=%CLASSPATH%
 
 set EXE_CMD=call java
