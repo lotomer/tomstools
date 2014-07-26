@@ -67,6 +67,7 @@
     <import resource="sample-caipiao-liuhecai.xml"/>
     <import resource="0731fdc-floor-cs.xml"/>
     <import resource="0731fdc-floor-cs-detail.xml"/>
+    <import resource="0731fdc-floor-cs-detail2.xml"/>
     <import resource="0731fdc-floor-zz.xml"/>
     <import resource="0731fdc-floor-xt.xml"/>
     <import resource="landchina-gonggaojieguo-hunan-xycr.xml"/>
@@ -102,13 +103,12 @@
                 <ref bean="target-caipiao-liuhecai" />
                 <ref bean="target-0731fdc-floor-zz" />
                 <ref bean="target-0731fdc-floor-xt" />
-                <ref bean="target-0731fdc-floor-cs" />
-                <ref bean="target-0731fdc-floor-cs-detail"/>
                 <ref bean="target-landchina-gonggaojieguo-hunan-xycr" />
                 <ref bean="target-landchina-gonggaojieguo-hunan-zpgcr" />
                 -->
-                <ref bean="target-caipiao-shuangseqiu" />
-                <ref bean="target-caipiao-liuhecai" />
+                <ref bean="target-0731fdc-floor-cs" />
+                <ref bean="target-0731fdc-floor-cs-detail"/>
+                <ref bean="target-0731fdc-floor-cs-detail2"/>
             </list>
         </constructor-arg>
         <!-- 构造函数参数 2: 结果数据操作对象。对应 接口 org.tomstools.crawler.dao.ResultDAO -->
