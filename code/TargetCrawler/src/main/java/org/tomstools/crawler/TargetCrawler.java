@@ -74,6 +74,7 @@ public class TargetCrawler implements Runnable {
             // XXX 暂时采用串行方式执行，以后根据需要改为并行
             for (final TargetBusi targetBusi : targetBusis) {
                 // LOGGER.info(target);
+                try{
                 if (targetBusi.prepare()) {
                     PageFetcher fetcher = new PageFetcher(targetBusi.getTarget()
                             .getDefaultCharsetName());
@@ -85,6 +86,9 @@ public class TargetCrawler implements Runnable {
                     targetBusi.finish();
                     // 清理已经处理过的url
                     urlManager.clean();
+                }
+                }catch(Throwable e){
+                    LOGGER.error("run target failed! Target name: " + targetBusi.getTarget().getName() + ", errors: " + e.getMessage(),e);
                 }
             }
         }
