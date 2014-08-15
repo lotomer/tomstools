@@ -4,7 +4,9 @@
 package org.tomstools.crawler.extractor.impl;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -12,6 +14,8 @@ import org.tomstools.common.Utils;
 import org.tomstools.crawler.common.Element;
 import org.tomstools.crawler.common.ElementProcessor;
 import org.tomstools.crawler.extractor.ContentPageExtractor;
+import org.tomstools.crawler.extractor.ContentExtractor.Field;
+import org.tomstools.crawler.extractor.ContentExtractor.MultipleField;
 import org.tomstools.crawler.http.PageFetcher;
 import org.tomstools.crawler.parser.HTMLParser;
 
@@ -30,6 +34,7 @@ public class BaseContentPageExtractor implements ContentPageExtractor {
     private String format;
     private Pattern patternFilter; // 过滤规则
     private PageFetcher pageFetcher;
+    private List<Field> constantField; // 固定属性字段
 
     /**
      * @param cssQuery 元素选取表达式
@@ -104,7 +109,7 @@ public class BaseContentPageExtractor implements ContentPageExtractor {
     public final void setContentPageExtractor(BaseContentPageExtractor contentPageExtractor) {
         this.contentPageExtractor = contentPageExtractor;
     }
-    
+
     /**
      * @param pageFetcher 设置 页面抓取器
      * @since 1.0
@@ -117,7 +122,7 @@ public class BaseContentPageExtractor implements ContentPageExtractor {
     public PageFetcher getPageFetcher() {
         return pageFetcher;
     }
-    
+
     public static void main(String[] args) {
         Pattern p = Pattern
                 .compile(
@@ -131,5 +136,33 @@ public class BaseContentPageExtractor implements ContentPageExtractor {
         } else {
             System.out.println("===");
         }
+    }
+
+    /**
+     * @param constantField 设置 固定属性字段
+     * @since 1.0
+     */
+    public final void setConstantField(List<Field> constantField) {
+        this.constantField = constantField;
+    }
+
+    @Override
+    public Map<String, String> getConstantValues(Element element) {
+        if (null != constantField && null != element) {
+            if (null != constantField) {
+                final Map<String, String> tmpConstantFieldValues = new LinkedHashMap<String, String>();
+                for (Field field : constantField) {
+                    if (field instanceof MultipleField) {
+                        field.processData(null, tmpConstantFieldValues);
+                    } else {
+                        field.processData(element.select(field.getSelector()),
+                                tmpConstantFieldValues);
+                    }
+
+                }
+                return tmpConstantFieldValues;
+            }
+        }
+        return null;
     }
 }

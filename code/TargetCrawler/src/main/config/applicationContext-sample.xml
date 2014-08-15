@@ -103,11 +103,11 @@
                 <ref bean="target-caipiao-liuhecai" />
                 <ref bean="target-0731fdc-floor-zz" />
                 <ref bean="target-0731fdc-floor-xt" />
+                <ref bean="target-0731fdc-floor-cs" />
+                <ref bean="target-0731fdc-floor-cs-detail"/>
                 <ref bean="target-landchina-gonggaojieguo-hunan-xycr" />
                 <ref bean="target-landchina-gonggaojieguo-hunan-zpgcr" />
                 -->
-                <ref bean="target-0731fdc-floor-cs" />
-                <ref bean="target-0731fdc-floor-cs-detail"/>
                 <ref bean="target-0731fdc-floor-cs-detail2"/>
             </list>
         </constructor-arg>

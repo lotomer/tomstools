@@ -7,6 +7,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -33,6 +34,39 @@ import org.tomstools.crawler.util.HTMLUtil;
  * @version 1.0
  */
 public class TargetCrawler implements Runnable {
+    /**
+     * 
+     * @author admin
+     * @date 2014年8月14日
+     * @time 下午7:12:38
+     * @version 1.0
+     */
+    public static class Page {
+        private String url;
+        private Map<String, String> constantValues;
+
+        public Page(String url, Map<String, String> constantValues) {
+            this.url = url;
+            this.constantValues = constantValues;
+        }
+
+        public final String getUrl() {
+            return url;
+        }
+
+        public final Map<String, String> getConstantValues() {
+            return constantValues;
+        }
+
+        @Override
+        public String toString() {
+            StringBuilder builder = new StringBuilder();
+            builder.append("Page [url=").append(url).append(", constantValues=")
+                    .append(constantValues).append("]");
+            return builder.toString();
+        }
+    }
+
     private final static Logger LOGGER = Logger.getLogger(TargetCrawler.class);
     private List<TargetBusi> targetBusis; // 定向爬取目标列表
     private int totalPage;
@@ -74,21 +108,22 @@ public class TargetCrawler implements Runnable {
             // XXX 暂时采用串行方式执行，以后根据需要改为并行
             for (final TargetBusi targetBusi : targetBusis) {
                 // LOGGER.info(target);
-                try{
-                if (targetBusi.prepare()) {
-                    PageFetcher fetcher = new PageFetcher(targetBusi.getTarget()
-                            .getDefaultCharsetName());
-                    fetcher.setConnectionTimeOut(targetBusi.getTarget().getCrawlingRule()
-                            .getConnectionTimeOut());
-                    fetcher.setSocketTimeOut(targetBusi.getTarget().getCrawlingRule()
-                            .getSocketTimeOut());
-                    processMainPage(targetBusi, fetcher);
-                    targetBusi.finish();
-                    // 清理已经处理过的url
-                    urlManager.clean();
-                }
-                }catch(Throwable e){
-                    LOGGER.error("run target failed! Target name: " + targetBusi.getTarget().getName() + ", errors: " + e.getMessage(),e);
+                try {
+                    if (targetBusi.prepare()) {
+                        PageFetcher fetcher = new PageFetcher(targetBusi.getTarget()
+                                .getDefaultCharsetName());
+                        fetcher.setConnectionTimeOut(targetBusi.getTarget().getCrawlingRule()
+                                .getConnectionTimeOut());
+                        fetcher.setSocketTimeOut(targetBusi.getTarget().getCrawlingRule()
+                                .getSocketTimeOut());
+                        processMainPage(targetBusi, fetcher);
+                        targetBusi.finish();
+                        // 清理已经处理过的url
+                        urlManager.clean();
+                    }
+                } catch (Throwable e) {
+                    LOGGER.error("run target failed! Target name: "
+                            + targetBusi.getTarget().getName() + ", errors: " + e.getMessage(), e);
                 }
             }
         }
@@ -111,14 +146,14 @@ public class TargetCrawler implements Runnable {
                 List<RequestInfo> requestInfos = targetBusi.getTarget().getNavigationExtractor()
                         .getNextPageRequestInfos(null);
                 for (RequestInfo requestInfo : requestInfos) {
-                    if (!Utils.isEmpty(requestInfo.getUrl())){
+                    if (!Utils.isEmpty(requestInfo.getUrl())) {
                         // 如果设置了url，则使用新的url
                         targetBusi.getTarget().setUrl(requestInfo.getUrl());
                     }
                     // 复制有效配置数据给页面爬取器
-                    if (null != fetcher.getRequestInfo()){
+                    if (null != fetcher.getRequestInfo()) {
                         fetcher.getRequestInfo().copyValidDatas(requestInfo);
-                    }else{
+                    } else {
                         fetcher.setRequestInfo(requestInfo);
                     }
                     processPageWithoutNavigation(targetBusi, fetcher);
@@ -270,19 +305,28 @@ public class TargetCrawler implements Runnable {
         targetBusi.incFetchPageCount();
         ContentPageExtractor subpageExtractor = targetBusi.getTarget().getContentPageExtractor();
         if (null != subpageExtractor) {
+            // 内容页面抽取器对应的固定属性
+            Map<String, String> constantValues4contentPageExtractor = new HashMap<>();
             List<String> urls = subpageExtractor.getContentPageUrls(document);
+            // 添加固定属性
+            addConstantValues(constantValues4contentPageExtractor,
+                    subpageExtractor.getConstantValues(document));
+
             // 有子页面抽取器，则使用子页面抽取器抽取子页面url，并逐个处理
-            List<String> contentPages = urls;// new ArrayList<String>();
+            List<Page> contentPages = new ArrayList<Page>();
+            for (String url : urls) {
+                contentPages.add(new Page(url, constantValues4contentPageExtractor));
+            }
             // 判断是否还包含子页面抽取器，如果包含，则需要继续处理
             while (null != (subpageExtractor = subpageExtractor.getContentPageExtractor())) {
                 contentPages = getContentPages(subpageExtractor, fetcher, parser, contentPages,
                         webRoot, parentPath);
             }
             // List<String> nextPages = new ArrayList<String>();
-            for (String aUrl : contentPages) {
+            for (Page page : contentPages) {
                 // nextPages.addAll(processSubPage(targetBusi,fetcher,
                 // HTMLUtil.getRealUrl(aUrl, webRoot, parentPath)));
-                processSubPage(targetBusi, fetcher, HTMLUtil.getRealUrl(aUrl, webRoot, parentPath));
+                processSubPage(targetBusi, fetcher, HTMLUtil.getRealUrl(page.url, webRoot, parentPath),page.constantValues);
                 if (targetBusi.isFinished()) {
                     LOGGER.warn("is finished!");
                     return null;
@@ -323,22 +367,40 @@ public class TargetCrawler implements Runnable {
         return document;
     }
 
-    private List<String> getContentPages(ContentPageExtractor subpageExtractor,
-            PageFetcher fetcher, Parser parser, List<String> urls, String webRoot, String parentPath) {
+    private void addConstantValues(Map<String, String> constantValues4contentPageExtractor,
+            Map<String, String> constantValues) {
+        if (null != constantValues && null != constantValues4contentPageExtractor) {
+            constantValues4contentPageExtractor.putAll(constantValues);
+        }
+    }
+
+    private List<Page> getContentPages(ContentPageExtractor subpageExtractor, PageFetcher fetcher,
+            Parser parser, List<Page> pages, String webRoot, String parentPath
+            ) {
         PageFetcher pageFetcher = subpageExtractor.getPageFetcher();
         if (null == pageFetcher)
             pageFetcher = fetcher;
-        List<String> subpages = new ArrayList<String>();
-        for (String aUrl : urls) {
-            String content = pageFetcher.fetchPageContent(HTMLUtil.getRealUrl(aUrl, webRoot,
+        List<Page> subpages = new ArrayList<Page>();
+        for (Page page : pages) {
+            String content = pageFetcher.fetchPageContent(HTMLUtil.getRealUrl(page.url, webRoot,
                     parentPath));
             if (null != content) {
                 Element doc = parser.parse(content, null);
-                subpages.addAll(subpageExtractor.getContentPageUrls(doc));
+                // 添加固定属性
+                Map<String, String> tmpConstantValues = subpageExtractor.getConstantValues(doc);
+                if (null != tmpConstantValues) {
+                    addConstantValues(tmpConstantValues, page.constantValues);
+                } else {
+                    tmpConstantValues = page.constantValues;
+                }
+                List<String> tmpUrls = subpageExtractor.getContentPageUrls(doc);
+                for (String tmpUrl : tmpUrls) {
+                    subpages.add(new Page(tmpUrl, tmpConstantValues));
+                }
             }
         }
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("urls: " + urls);
+            LOGGER.debug("urls: " + pages);
             LOGGER.debug("subpages: " + subpages);
         }
         return subpages;
@@ -350,10 +412,12 @@ public class TargetCrawler implements Runnable {
      * @param targetBusi
      * @param fetcher
      * @param subUrl
+     * @param constantValues4contentPageExtractor
      * @return 返回下一页的url集合，不为null
      * @since 1.0
      */
-    private List<String> processSubPage(TargetBusi targetBusi, PageFetcher fetcher, String subUrl) {
+    private List<String> processSubPage(TargetBusi targetBusi, PageFetcher fetcher, String subUrl,
+            Map<String, String> constantValues4contentPageExtractor) {
         List<String> nextPages = Collections.emptyList();
         // 判断这一批是否已经处理完成，如果处理完成了就要休息一下
         if (!targetBusi.checkBatchInfo()) {
@@ -393,7 +457,7 @@ public class TargetCrawler implements Runnable {
             // 3.2.1、解析页面内容
             Element doc = parser.parse(content, null);
             List<Map<String, String>> records = targetBusi.getTarget().getContentExtractor()
-                    .extractContent(doc);
+                    .extractContent(doc, constantValues4contentPageExtractor);
 
             // 保存页面内容
             for (Map<String, String> record : records) {
@@ -409,7 +473,8 @@ public class TargetCrawler implements Runnable {
         if (0 < count) {
             LOGGER.info("get records count: " + count);
         } else {
-            LOGGER.warn(new StringBuilder().append("get record failed from ").append(subUrl).toString());
+            LOGGER.warn(new StringBuilder().append("get record failed from ").append(subUrl)
+                    .toString());
         }
         totalRecords += count;
         setCompleted(subUrl);

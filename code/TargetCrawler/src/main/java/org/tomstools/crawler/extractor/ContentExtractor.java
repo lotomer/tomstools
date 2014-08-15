@@ -65,8 +65,15 @@ public class ContentExtractor {
     public List<Map<String, String>> extractContent(final Element element) {
         return extractContent(element, null);
     }
-
-    List<Map<String, String>> extractContent(final Element element,
+    /**
+     * 从节点中提取内容
+     * 
+     * @param element 待处理的节点
+     * @param constantFieldValues 固定属性值
+     * @return 提取出来的内容
+     * @since 1.0
+     */
+    public List<Map<String, String>> extractContent(final Element element,
             final Map<String, String> constantFieldValues) {
         if (null == element) {
             return Collections.emptyList();

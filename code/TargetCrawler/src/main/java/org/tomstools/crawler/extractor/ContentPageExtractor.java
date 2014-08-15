@@ -4,6 +4,7 @@
 package org.tomstools.crawler.extractor;
 
 import java.util.List;
+import java.util.Map;
 
 import org.tomstools.crawler.common.Element;
 import org.tomstools.crawler.http.PageFetcher;
@@ -37,4 +38,12 @@ public interface ContentPageExtractor {
      * @since 1.0
      */
     public PageFetcher getPageFetcher();
+
+    /**
+     * 获取固定属性值
+     * @param element 包含固定属性的元素
+     * @return
+     * @since 1.0
+     */
+    public Map<String,String> getConstantValues(Element element);
 }

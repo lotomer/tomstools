@@ -60,6 +60,24 @@
                         <property name="contentPageExtractor">
                             <null></null>
                         </property>
+                        <property name="constantField">
+                            <list>
+                                <bean class="org.tomstools.crawler.extractor.ContentExtractor.TextField">
+                                    <!-- 构造函数参数 1: 名称 -->
+                                    <constructor-arg index="0" type="java.lang.String">
+                                        <value><![CDATA[buildings_name]]></value>
+                                    </constructor-arg>
+                                    <!-- 构造函数参数 2: 元素选择表达式 -->
+                                    <constructor-arg index="1" type="java.lang.String">
+                                        <value><![CDATA[div#dxx-left-con>h1]]></value>
+                                    </constructor-arg>
+                                    <!-- 构造函数参数3: 字段拆分器 -->
+                                    <constructor-arg index="2">
+                                        <null></null>
+                                    </constructor-arg>
+                                </bean>
+                            </list>
+                        </property>
                     </bean>
                 </property>
             </bean>
@@ -201,7 +219,7 @@
                         </constructor-arg>
                         <!-- 构造函数参数 2: 表头 -->
                         <constructor-arg index="1" type="java.lang.String[]">
-                            <value><![CDATA[building_name,floor,room,pre_sale_permit,pre_sale_time,structure_area,inside_area,house_type,price,sale_status]]></value>
+                            <value><![CDATA[buildings_name,building_name,floor,room,pre_sale_permit,pre_sale_time,structure_area,inside_area,house_type,price,sale_status]]></value>
                         </constructor-arg>
                         <!-- 构造函数参数 3: 固定属性配置信息 -->
                         <constructor-arg index="2">
