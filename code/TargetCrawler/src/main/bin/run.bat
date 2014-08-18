@@ -1,8 +1,7 @@
-ï»¿
 @echo off
-chcp 65001
+rem chcp 65001
 setlocal enabledelayedexpansion
-title ç½‘é¡µçˆ¬è™«ç´§å¼ å·¥ä½œä¸­ï¼Œå‹¿å…³æˆ‘......
+title ÍøÒ³ÅÀ³æ½ôÕÅ¹¤×÷ÖĞ£¬Îğ¹ØÎÒ......
 set curr_dir=%~dp0
 set LIBDIR=%curr_dir%..\lib
 set CLASSPATH="%curr_dir%..\resources"
