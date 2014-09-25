@@ -72,6 +72,7 @@
     <import resource="0731fdc-floor-xt.xml"/>
     <import resource="landchina-gonggaojieguo-hunan-xycr.xml"/>
     <import resource="landchina-gonggaojieguo-hunan-zpgcr.xml"/>
+    <import resource="xiaoshuo.xml"/>
     
     <!-- 结果数据操作对象：文件方式。对应 org.tomstools.crawler.dao.ResultDAO -->
     <bean id="fileResultDAO" class="org.tomstools.crawler.dao.FileResultDAO" scope="prototype">
@@ -80,7 +81,24 @@
         <!-- 构造函数参数 2: 结果数据保存时各字段之间的分隔符 -->
         <constructor-arg index="1" type="java.lang.String">
             <value>,</value>
-
+        </constructor-arg>
+        <!-- 构造函数参数3: 需要剔除的特殊字符 -->
+        <constructor-arg index="2">
+            <array>
+                <value>&#10;</value>
+                <value>&#13;</value>
+                <value>\[</value>
+                <value>\]</value>
+            </array>
+        </constructor-arg>
+    </bean>
+    <!-- 结果数据操作对象：一条记录一个文件方式。对应 org.tomstools.crawler.dao.ResultDAO -->
+    <bean id="singleRecordFileResultDAO" class="org.tomstools.crawler.dao.SingleRecordFileResultDAO" scope="prototype">
+        <!-- 构造函数参数 1: 文件保存的根目录 -->
+        <constructor-arg index="0" type="java.lang.String" value="${file.result.dir}"></constructor-arg>
+        <!-- 构造函数参数 2: 结果数据保存时各字段之间的分隔符 -->
+        <constructor-arg index="1" type="java.lang.String">
+            <value>,</value>
         </constructor-arg>
         <!-- 构造函数参数3: 需要剔除的特殊字符 -->
         <constructor-arg index="2">
@@ -105,14 +123,15 @@
                 <ref bean="target-0731fdc-floor-xt" />
                 <ref bean="target-0731fdc-floor-cs" />
                 <ref bean="target-0731fdc-floor-cs-detail"/>
+                <ref bean="target-0731fdc-floor-cs-detail2"/>
                 <ref bean="target-landchina-gonggaojieguo-hunan-xycr" />
                 <ref bean="target-landchina-gonggaojieguo-hunan-zpgcr" />
                 -->
-                <ref bean="target-0731fdc-floor-cs-detail2"/>
+                <ref bean="target-xiaoshuo"/>
             </list>
         </constructor-arg>
         <!-- 构造函数参数 2: 结果数据操作对象。对应 接口 org.tomstools.crawler.dao.ResultDAO -->
-        <constructor-arg index="1" ref="fileResultDAO"></constructor-arg>
+        <constructor-arg index="1" ref="singleRecordFileResultDAO"></constructor-arg>
     </bean>
 
 </beans>
