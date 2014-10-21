@@ -9,6 +9,7 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.nio.charset.UnsupportedCharsetException;
 import java.util.regex.Matcher;
@@ -160,6 +161,39 @@ public class HTMLUtil {
             return buffer.toString();
         } finally {
             instream.close();
+        }
+    }
+    /**
+     * 给url编码
+     * @param url 待编码url
+     * @return 编码后的url
+     * @throws UnsupportedEncodingException 
+     * @since 1.0
+     */
+    public static final String urlEncode(String url,String encoding) throws UnsupportedEncodingException{
+        if (null == url) return null;
+        int index = url.indexOf("?");
+        if (-1 < index){
+            StringBuilder retValue = new StringBuilder();
+            retValue.append(url.substring(0, index)).append("?");
+            String[] params = url.substring(index + 1).split("&");
+            boolean isFirst = true;
+            for (String param : params) {
+                if (!isFirst){
+                    retValue.append("&");
+                }else{
+                    isFirst = false;
+                }
+                String[] vs = param.split("=",2);
+                if (vs.length < 2){
+                    retValue.append(URLEncoder.encode(param, encoding));
+                }else{
+                    retValue.append(vs[0]).append("=").append(URLEncoder.encode(vs[1], encoding));
+                }
+            }
+            return retValue.toString();
+        }else{
+            return url;
         }
     }
     public static void main(String[] args) {

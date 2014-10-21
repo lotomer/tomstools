@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.SocketTimeoutException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.UnknownHostException;
 import java.nio.charset.Charset;
@@ -205,6 +207,12 @@ public class PageFetcher {
     private String redirect(String pageUrl, String locationUrl) throws MalformedURLException {
         String weburl = HTMLUtil.getRealUrl(locationUrl, HTMLUtil.getWebRoot(new URL(pageUrl)),
                 pageUrl);
+        // 需要对重定向的url进行编码
+        try {
+            weburl = HTMLUtil.urlEncode(weburl,"utf-8");
+        } catch (UnsupportedEncodingException e) {
+            logger.error(e.getMessage(), e);
+        }
         logger.warn("redirect:" + weburl);
         PageFetcher fetcher = this;// new
                                    // PageFetcher(this.defaultCharset.name());
@@ -301,7 +309,7 @@ public class PageFetcher {
         this.method = method;
     }
 
-    public static void main(String[] args) throws UnsupportedEncodingException {
+    public static void main(String[] args) throws UnsupportedEncodingException, URISyntaxException {
 
         // Matcher m = locationPattern
         // .matcher("<html><head><meta http-equiv=\"Content-Type\"content=\"text/html; charset=gb2312\" /><meta http-equiv=\"pragma\" content=\"no-cache\" /><meta http-equiv=\"cache-control\" content=\"no-store\" /><meta http-equiv=\"Connection\" content=\"Close\" /><script>function JumpSelf(){ self.location=\"/default.aspx?tabid=263&WebShieldSessionVerify=j2Ns4fh5u1QXCHuaGDfp\";}</script><script>setTimeout(\"JumpSelf()\",700);</script></head><body></body></html>");
@@ -311,7 +319,12 @@ public class PageFetcher {
         // String data =
         // "42ad98ae-c46a-40aa-aacc-c0884036eeaf:43%~湖南省|8fd0232c-aff0-45d1-a726-63fc4c3d8ea9:3%~协议出让";
         // System.out.println(URLEncoder.encode(data, "gbk"));
-
+        String u = "http://www.landchina.com/default.aspx?tabid=263&p=42ad98ae-c46a-40aa-aacc-c0884036eeaf:43~湖南省|8fd0232c-aff0-45d1-a726-63fc4c3d8ea9:3~协议出让&WebShieldSessionVerify=QzNvGXlh1e2qWktKVgij";
+        //String a = "http://www.landchina.com/default.aspx?tabid=263&p=42ad98ae-c46a-40aa-aacc-c0884036eeaf%3A43%25%7E%BA%FE%C4%CF%CA%A1%7C8fd0232c-aff0-45d1-a726-63fc4c3d8ea9%3A3%25%7E%D0%AD%D2%E9%B3%F6%C8%C3";
+        System.out.println(u);
+        u = HTMLUtil.urlEncode(u, "utf-8");
+        System.out.println(u);
+        new URI(u);
         PageFetcher f = new PageFetcher("GBK");
         f.setMethod("POST");
         RequestInfo r = new RequestInfo();
