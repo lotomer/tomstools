@@ -94,15 +94,6 @@ public class PageFetcher {
         }
     }
 
-    // public boolean login(URL url) {
-    // if (null == requestInfo) {
-    // return true;
-    // } else {
-    // // XXX 需要登录
-    // return true;
-    // }
-    // }
-
     /**
      * 根据指定的URL获取内容
      * 
@@ -160,7 +151,7 @@ public class PageFetcher {
                             // 内容较少时判断是否包含跳转命令
                             Matcher matcher = locationPattern.matcher(responseText);
                             if (matcher.find()) {
-                                return redirect(pageUrl, matcher.group(1));
+                                return redirect(pageUrl, matcher.group(1),defaultCharset.name());
                             }
                         }
                         if (logger.isDebugEnabled()) {
@@ -175,7 +166,7 @@ public class PageFetcher {
                     // 3xx 重定向
                     org.apache.http.Header location = response.getFirstHeader("Location");
                     if (null != location) {
-                        return redirect(pageUrl, location.getValue());
+                        return redirect(pageUrl, location.getValue(),"UTF-8");
                     }
                 } else {
                     logger.error("Response status code: "
@@ -204,12 +195,12 @@ public class PageFetcher {
         return responseText;
     }
 
-    private String redirect(String pageUrl, String locationUrl) throws MalformedURLException {
+    private String redirect(String pageUrl, String locationUrl, String encoding) throws MalformedURLException {
         String weburl = HTMLUtil.getRealUrl(locationUrl, HTMLUtil.getWebRoot(new URL(pageUrl)),
                 pageUrl);
         // 需要对重定向的url进行编码
         try {
-            weburl = HTMLUtil.urlEncode(weburl,"utf-8");
+            weburl = HTMLUtil.urlEncode(weburl,encoding);
         } catch (UnsupportedEncodingException e) {
             logger.error(e.getMessage(), e);
         }
@@ -322,6 +313,9 @@ public class PageFetcher {
         String u = "http://www.landchina.com/default.aspx?tabid=263&p=42ad98ae-c46a-40aa-aacc-c0884036eeaf:43~湖南省|8fd0232c-aff0-45d1-a726-63fc4c3d8ea9:3~协议出让&WebShieldSessionVerify=QzNvGXlh1e2qWktKVgij";
         //String a = "http://www.landchina.com/default.aspx?tabid=263&p=42ad98ae-c46a-40aa-aacc-c0884036eeaf%3A43%25%7E%BA%FE%C4%CF%CA%A1%7C8fd0232c-aff0-45d1-a726-63fc4c3d8ea9%3A3%25%7E%D0%AD%D2%E9%B3%F6%C8%C3";
         System.out.println(u);
+        Charset c = Charset.forName("UTF-8");
+        System.out.println(c.displayName());
+        System.out.println(c.name());
         u = HTMLUtil.urlEncode(u, "utf-8");
         System.out.println(u);
         new URI(u);
