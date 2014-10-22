@@ -148,7 +148,13 @@ public class TargetCrawler implements Runnable {
                 for (RequestInfo requestInfo : requestInfos) {
                     if (!Utils.isEmpty(requestInfo.getUrl())) {
                         // 如果设置了url，则使用新的url
-                        targetBusi.getTarget().setUrl(requestInfo.getUrl());
+                        // 如果新url以&开头，则直接追加到主页面url中
+                        if (requestInfo.getUrl().startsWith("&")){
+                            if (targetBusi.getTarget().getBaseUrl() == null) targetBusi.getTarget().setBaseUrl(targetBusi.getTarget().getUrl());
+                            targetBusi.getTarget().setUrl(targetBusi.getTarget().getBaseUrl()+requestInfo.getUrl());
+                        }else{
+                            targetBusi.getTarget().setUrl(requestInfo.getUrl());
+                        }
                     }
                     // 复制有效配置数据给页面爬取器
                     if (null != fetcher.getRequestInfo()) {

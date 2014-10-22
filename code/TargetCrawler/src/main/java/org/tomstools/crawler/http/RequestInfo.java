@@ -19,7 +19,7 @@ public class RequestInfo {
     private String url;
     private Parameters formDatas; // 表单数据
     private Header headers; // 请求头
-
+    private String baseUrl;
     public RequestInfo(RequestInfo other) {
         if (null != other){
             this.url = other.url;
@@ -89,7 +89,13 @@ public class RequestInfo {
         if (null != other) {
             // 复制url
             if (null != other.url) {
-                url = other.url;
+                // 判断新url是否以&开头，如果是，则直接追加在原url上
+                if (other.url.startsWith("&")){
+                    if (baseUrl == null) baseUrl = url;
+                    url = baseUrl + other.url;
+                }else{
+                    url = other.url;
+                }
             }
             // 复制请求头
             if (!Utils.isEmpty(other.headers)) {

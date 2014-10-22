@@ -5,236 +5,230 @@
      http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd   
      http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
 
-    <!-- 待爬取对象：langchina 公告结果：湖南-协议出让。对应 org.tomstools.crawler.config.Target -->
-    <bean id="target-landchina-gonggaojieguo-hunan-xycr" class="org.tomstools.crawler.config.Target" scope="prototype">
-        <property name="name" value="landchina-gonggaojieguo-hunan-xycr"></property>
-        <property name="url"><value><![CDATA[http://www.landchina.com/default.aspx?tabid=263&p=42ad98ae-c46a-40aa-aacc-c0884036eeaf%3A43%25%7E%BA%FE%C4%CF%CA%A1%7C8fd0232c-aff0-45d1-a726-63fc4c3d8ea9%3A3%25%7E%D0%AD%D2%E9%B3%F6%C8%C3]]></value></property>
+    <import resource="landchina-gonggaojieguo-common.xml"/>
+
+    <!-- 待爬取对象：langchina 公告结果：长沙市-协议出让。对应 org.tomstools.crawler.config.Target -->
+    <bean id="target-landchina-gonggaojieguo-cs-xycr" class="org.tomstools.crawler.config.Target"
+        scope="prototype">
+        <property name="name" value="landchina-gonggaojieguo-cs-xycr"></property>
+        <property name="url">
+            <value><![CDATA[http://www.landchina.com/default.aspx?tabid=263&p=42ad98ae-c46a-40aa-aacc-c0884036eeaf%3A4301%25%7Ea%7C8fd0232c-aff0-45d1-a726-63fc4c3d8ea9%3A3%25%7E1]]></value>
+        </property>
         <property name="defaultCharsetName" value="GBK"></property>
         <property name="crawlingRule" ref="crawlingRule"></property>
         <property name="parser" ref="htmlParser"></property>
-        <property name="completedHandler">
-            <!-- 任务完成后需要执行的钩子。对应org.tomstools.crawler.handle.CompletedHandleable -->
-            <bean id="shellCompletedHandler" class="org.tomstools.crawler.handle.ShellHandle" scope="prototype">
-                <!-- 构造函数参数 1: shell命令。执行时将加上完整的文件名参数 -->
-                <constructor-arg index="0" type="java.lang.String" value="${cmd_completed_handler_prefix}\land2db 43"></constructor-arg>
-            </bean>
+        <property name="completedHandler" ref="landShellCompletedHandler_hunan"></property>
+        <property name="pageFetcher" ref="landPageFetcher"></property>
+        <property name="contentPageExtractor" ref="landContentPageExtractor"></property>
+        <property name="navigationExtractor" ref="landNavigationExtractor"></property>
+        <property name="contentExtractor" ref="landContentExtractor"></property>
+    </bean>
+    <!-- 待爬取对象：langchina 公告结果：株洲市-协议出让。对应 org.tomstools.crawler.config.Target -->
+    <bean id="target-landchina-gonggaojieguo-zz-xycr" class="org.tomstools.crawler.config.Target"
+        scope="prototype">
+        <property name="name" value="landchina-gonggaojieguo-zz-xycr"></property>
+        <property name="url">
+            <value><![CDATA[http://www.landchina.com/default.aspx?tabid=263&p=42ad98ae-c46a-40aa-aacc-c0884036eeaf%3A4302%25%7Ea%7C8fd0232c-aff0-45d1-a726-63fc4c3d8ea9%3A3%25%7E1]]></value>
         </property>
-        <property name="pageFetcher">
-            <bean class="org.tomstools.crawler.http.PageFetcher" scope="prototype">
-                <property name="method" value="GET"></property>
-                <property name="tryCount" value="5"></property>
-            </bean>
+        <property name="defaultCharsetName" value="GBK"></property>
+        <property name="crawlingRule" ref="crawlingRule"></property>
+        <property name="parser" ref="htmlParser"></property>
+        <property name="completedHandler" ref="landShellCompletedHandler_hunan"></property>
+        <property name="pageFetcher" ref="landPageFetcher"></property>
+        <property name="contentPageExtractor" ref="landContentPageExtractor"></property>
+        <property name="navigationExtractor" ref="landNavigationExtractor"></property>
+        <property name="contentExtractor" ref="landContentExtractor"></property>
+    </bean>
+    <!-- 待爬取对象：langchina 公告结果：湘潭市-协议出让。对应 org.tomstools.crawler.config.Target -->
+    <bean id="target-landchina-gonggaojieguo-xt-xycr" class="org.tomstools.crawler.config.Target"
+        scope="prototype">
+        <property name="name" value="landchina-gonggaojieguo-xt-xycr"></property>
+        <property name="url">
+            <value><![CDATA[http://www.landchina.com/default.aspx?tabid=263&p=42ad98ae-c46a-40aa-aacc-c0884036eeaf%3A4303%25%7Ea%7C8fd0232c-aff0-45d1-a726-63fc4c3d8ea9%3A3%25%7E1]]></value>
         </property>
-        <property name="contentPageExtractor">
-            <bean class="org.tomstools.crawler.extractor.impl.BaseContentPageExtractor" scope="prototype">
-                <!-- 构造函数参数 1: 元素选择表达式 -->
-                <constructor-arg index="0" type="java.lang.String">
-                    <value><![CDATA[table#TAB_contentTable>tbody>tr:not(.gridHeader)>td:eq(2)>a]]></value>
-                </constructor-arg>
-                <!-- 构造函数参数 2: 子页面url模板 -->
-                <constructor-arg index="1" type="java.lang.String">
-                    <value><![CDATA[%s]]></value>
-                </constructor-arg>
-                <!-- 构造函数参数3: 提取子页面url的正则表达式，与format配合使用，将正则表达式的group数据代入format中以生成完整的子页面url -->
-                <constructor-arg index="2" type="java.lang.String">
-                    <value><![CDATA[<a .*?href="([^"]+?)".*]]></value>
-                </constructor-arg>
-                <!-- 构造函数参数4: 过滤规则的正则表达式，如果匹配上，则直接过滤不进行子页面的提取 -->
-                <constructor-arg index="3" type="java.lang.String">
-                    <value><![CDATA[]]></value>
-                </constructor-arg>
-                <property name="contentPageExtractor">
-                    <null></null>
-                </property>
-                <property name="pageFetcher">
-                    <bean class="org.tomstools.crawler.http.PageFetcher" scope="prototype">
-                        <property name="method" value="POST"></property>
-                        <property name="tryCount" value="5"></property>
-                    </bean>
-                </property>
-            </bean>
+        <property name="defaultCharsetName" value="GBK"></property>
+        <property name="crawlingRule" ref="crawlingRule"></property>
+        <property name="parser" ref="htmlParser"></property>
+        <property name="completedHandler" ref="landShellCompletedHandler_hunan"></property>
+        <property name="pageFetcher" ref="landPageFetcher"></property>
+        <property name="contentPageExtractor" ref="landContentPageExtractor"></property>
+        <property name="navigationExtractor" ref="landNavigationExtractor"></property>
+        <property name="contentExtractor" ref="landContentExtractor"></property>
+    </bean>
+    <!-- 待爬取对象：langchina 公告结果：衡阳市-协议出让。对应 org.tomstools.crawler.config.Target -->
+    <bean id="target-landchina-gonggaojieguo-hy-xycr" class="org.tomstools.crawler.config.Target"
+        scope="prototype">
+        <property name="name" value="landchina-gonggaojieguo-hy-xycr"></property>
+        <property name="url">
+            <value><![CDATA[http://www.landchina.com/default.aspx?tabid=263&p=42ad98ae-c46a-40aa-aacc-c0884036eeaf%3A4304%25%7Ea%7C8fd0232c-aff0-45d1-a726-63fc4c3d8ea9%3A3%25%7E1]]></value>
         </property>
-        <property name="navigationExtractor">
-            <bean class="org.tomstools.crawler.extractor.impl.ExpressionNavigationExtractor"
-                scope="prototype">
-                <!-- 构造函数参数 1: 表达式：开始值|结束值|递增或递减的步长 -->
-                <constructor-arg index="0" type="java.lang.String">
-                    <value><![CDATA[2|201|1]]></value>
-                </constructor-arg>
-                <!-- 构造函数参数 2: 参数对应的模板。需要替换的内容使用%s代替 -->
-                <constructor-arg index="1">
-                    <map>
-                        <entry key="url"><value><![CDATA[http://www.landchina.com/default.aspx?tabid=263&p=42ad98ae-c46a-40aa-aacc-c0884036eeaf%3A43%25%7E%BA%FE%C4%CF%CA%A1%7C8fd0232c-aff0-45d1-a726-63fc4c3d8ea9%3A3%25%7E%D0%AD%D2%E9%B3%F6%C8%C3&pageNum=${url}]]></value></entry>
-                        <entry key="form_TAB_QuerySubmitPagerData"><value><![CDATA[${form_TAB_QuerySubmitPagerData}]]></value></entry>
-                    </map>
-                </constructor-arg>
-            </bean>
+        <property name="defaultCharsetName" value="GBK"></property>
+        <property name="crawlingRule" ref="crawlingRule"></property>
+        <property name="parser" ref="htmlParser"></property>
+        <property name="completedHandler" ref="landShellCompletedHandler_hunan"></property>
+        <property name="pageFetcher" ref="landPageFetcher"></property>
+        <property name="contentPageExtractor" ref="landContentPageExtractor"></property>
+        <property name="navigationExtractor" ref="landNavigationExtractor"></property>
+        <property name="contentExtractor" ref="landContentExtractor"></property>
+    </bean>
+    <!-- 待爬取对象：langchina 公告结果：邵阳市-协议出让。对应 org.tomstools.crawler.config.Target -->
+    <bean id="target-landchina-gonggaojieguo-sy-xycr" class="org.tomstools.crawler.config.Target"
+        scope="prototype">
+        <property name="name" value="landchina-gonggaojieguo-sy-xycr"></property>
+        <property name="url">
+            <value><![CDATA[http://www.landchina.com/default.aspx?tabid=263&p=42ad98ae-c46a-40aa-aacc-c0884036eeaf%3A4305%25%7Ea%7C8fd0232c-aff0-45d1-a726-63fc4c3d8ea9%3A3%25%7E1]]></value>
         </property>
-        <property name="contentExtractor">
-            <!-- 内容抽取器。对应 org.tomstools.crawler.extractor.ContentExtractor -->
-            <bean class="org.tomstools.crawler.extractor.ContentExtractor" scope="prototype">
-                <!-- 构造函数参数 1: 元素选择表达式 -->
-                <constructor-arg index="0" type="java.lang.String">
-                    <value><![CDATA[table#FormView21_1]]></value>
-                </constructor-arg>
-                <!-- 构造函数参数 2: 表头 -->
-                <constructor-arg index="1" type="java.lang.String[]">
-                    <value><![CDATA[city,list_no,locate,acreage,originalUse,supply_mode,age_limit,level,unit_price1,total_price,deal_unit,originalAreaRatio1,originalAreaRatio2,deal_time]]></value>
-                </constructor-arg>
-                <!-- 构造函数参数 3: 固定属性 -->
-                <constructor-arg index="2">
-                    <list>
-                    </list>
-                </constructor-arg>
-                <!-- 构造函数参数 4: 提取属性配置信息 -->
-                <constructor-arg index="3">
-                    <list>
-                        <bean class="org.tomstools.crawler.extractor.ContentExtractor.TextField">
-                            <!-- 构造函数参数 1: 名称 -->
-                            <constructor-arg index="0" type="java.lang.String">
-                                <value><![CDATA[city]]></value>
-                            </constructor-arg>
-                            <!-- 构造函数参数 2: 元素选择表达式 -->
-                            <constructor-arg index="1" type="java.lang.String">
-                                <value><![CDATA[table#FormView21_1>tbody>tr:eq(1)>td:eq(1)>span]]></value>
-                            </constructor-arg>
-                            <!-- 构造函数参数3: 字段拆分器 
-                            <constructor-arg index="2" type="org.tomstools.crawler.common.FieldSplitter">
-                            </constructor-arg>-->
-                        </bean>
-                        <bean class="org.tomstools.crawler.extractor.ContentExtractor.TextField">
-                            <!-- 构造函数参数 1: 名称 -->
-                            <constructor-arg index="0" type="java.lang.String">
-                                <value><![CDATA[list_no]]></value>
-                            </constructor-arg>
-                            <!-- 构造函数参数 2: 元素选择表达式 -->
-                            <constructor-arg index="1" type="java.lang.String">
-                                <value><![CDATA[table#FormView21_1>tbody>tr:eq(1)>td:eq(3)>span]]></value>
-                            </constructor-arg>
-                        </bean>
-                        <bean class="org.tomstools.crawler.extractor.ContentExtractor.OwnTextField">
-                            <!-- 构造函数参数 1: 名称 -->
-                            <constructor-arg index="0" type="java.lang.String">
-                                <value><![CDATA[locate]]></value>
-                            </constructor-arg>
-                            <!-- 构造函数参数 2: 元素选择表达式 -->
-                            <constructor-arg index="1" type="java.lang.String">
-                                <value><![CDATA[table#FormView21_1>tbody>tr:eq(3)>td:eq(1)>span]]></value>
-                            </constructor-arg>
-                        </bean>
-                        <bean class="org.tomstools.crawler.extractor.ContentExtractor.OwnTextField">
-                            <!-- 构造函数参数 1: 名称 -->
-                            <constructor-arg index="0" type="java.lang.String">
-                                <value><![CDATA[acreage]]></value>
-                            </constructor-arg>
-                            <!-- 构造函数参数 2: 元素选择表达式 -->
-                            <constructor-arg index="1" type="java.lang.String">
-                                <value><![CDATA[table#FormView21_1>tbody>tr:eq(4)>td:eq(1)>span]]></value>
-                            </constructor-arg>
-                        </bean>
-                        <bean class="org.tomstools.crawler.extractor.ContentExtractor.OwnTextField">
-                            <!-- 构造函数参数 1: 名称 -->
-                            <constructor-arg index="0" type="java.lang.String">
-                                <value><![CDATA[originalUse]]></value>
-                            </constructor-arg>
-                            <!-- 构造函数参数 2: 元素选择表达式 -->
-                            <constructor-arg index="1" type="java.lang.String">
-                                <value><![CDATA[table#FormView21_1>tbody>tr:eq(5)>td:eq(1)>span]]></value>
-                            </constructor-arg>
-                        </bean>
-                        <bean class="org.tomstools.crawler.extractor.ContentExtractor.OwnTextField">
-                            <!-- 构造函数参数 1: 名称 -->
-                            <constructor-arg index="0" type="java.lang.String">
-                                <value><![CDATA[supply_mode]]></value>
-                            </constructor-arg>
-                            <!-- 构造函数参数 2: 元素选择表达式 -->
-                            <constructor-arg index="1" type="java.lang.String">
-                                <value><![CDATA[table#FormView21_1>tbody>tr:eq(5)>td:eq(3)>span]]></value>
-                            </constructor-arg>
-                        </bean>
-                        <bean class="org.tomstools.crawler.extractor.ContentExtractor.OwnTextField">
-                            <!-- 构造函数参数 1: 名称 -->
-                            <constructor-arg index="0" type="java.lang.String">
-                                <value><![CDATA[age_limit]]></value>
-                            </constructor-arg>
-                            <!-- 构造函数参数 2: 元素选择表达式 -->
-                            <constructor-arg index="1" type="java.lang.String">
-                                <value><![CDATA[table#FormView21_1>tbody>tr:eq(6)>td:eq(1)>span]]></value>
-                            </constructor-arg>
-                        </bean>
-                        <bean class="org.tomstools.crawler.extractor.ContentExtractor.OwnTextField">
-                            <!-- 构造函数参数 1: 名称 -->
-                            <constructor-arg index="0" type="java.lang.String">
-                                <value><![CDATA[level]]></value>
-                            </constructor-arg>
-                            <!-- 构造函数参数 2: 元素选择表达式 -->
-                            <constructor-arg index="1" type="java.lang.String">
-                                <value><![CDATA[table#FormView21_1>tbody>tr:eq(7)>td:eq(1)>span]]></value>
-                            </constructor-arg>
-                        </bean>
-                        <bean class="org.tomstools.crawler.extractor.ContentExtractor.OwnTextField">
-                            <!-- 构造函数参数 1: 名称 -->
-                            <constructor-arg index="0" type="java.lang.String">
-                                <value><![CDATA[unit_price1]]></value>
-                            </constructor-arg>
-                            <!-- 构造函数参数 2: 元素选择表达式 -->
-                            <constructor-arg index="1" type="java.lang.String">
-                                <value><![CDATA[table#FormView21_1>tbody>tr:eq(7)>td:eq(3)>span]]></value>
-                            </constructor-arg>
-                        </bean>
-                        <bean class="org.tomstools.crawler.extractor.ContentExtractor.TextField">
-                            <!-- 构造函数参数 1: 名称 -->
-                            <constructor-arg index="0" type="java.lang.String">
-                                <value><![CDATA[total_price]]></value>
-                            </constructor-arg>
-                            <!-- 构造函数参数 2: 元素选择表达式 -->
-                            <constructor-arg index="1" type="java.lang.String">
-                                <value><![CDATA[table#FormView21_1>tbody>tr:eq(8)>td:eq(1)>table>tbody>tr:eq(1)>td:eq(2)]]></value>
-                            </constructor-arg>
-                        </bean>
-                        <bean class="org.tomstools.crawler.extractor.ContentExtractor.OwnTextField">
-                            <!-- 构造函数参数 1: 名称 -->
-                            <constructor-arg index="0" type="java.lang.String">
-                                <value><![CDATA[deal_unit]]></value>
-                            </constructor-arg>
-                            <!-- 构造函数参数 2: 元素选择表达式 -->
-                            <constructor-arg index="1" type="java.lang.String">
-                                <value><![CDATA[table#FormView21_1>tbody>tr:eq(9)>td:eq(1)>span]]></value>
-                            </constructor-arg>
-                        </bean>
-                        <bean class="org.tomstools.crawler.extractor.ContentExtractor.TextField">
-                            <!-- 构造函数参数 1: 名称 -->
-                            <constructor-arg index="0" type="java.lang.String">
-                                <value><![CDATA[originalAreaRatio1]]></value>
-                            </constructor-arg>
-                            <!-- 构造函数参数 2: 元素选择表达式 -->
-                            <constructor-arg index="1" type="java.lang.String">
-                                <value><![CDATA[table#FormView21_1>tbody>tr:eq(11)>td:eq(1)>table>tbody>tr:eq(0)>td:eq(1)]]></value>
-                            </constructor-arg>
-                        </bean>
-                        <bean class="org.tomstools.crawler.extractor.ContentExtractor.TextField">
-                            <!-- 构造函数参数 1: 名称 -->
-                            <constructor-arg index="0" type="java.lang.String">
-                                <value><![CDATA[originalAreaRatio2]]></value>
-                            </constructor-arg>
-                            <!-- 构造函数参数 2: 元素选择表达式 -->
-                            <constructor-arg index="1" type="java.lang.String">
-                                <value><![CDATA[table#FormView21_1>tbody>tr:eq(11)>td:eq(1)>table>tbody>tr:eq(0)>td:eq(3)]]></value>
-                            </constructor-arg>
-                        </bean>
-                        <bean class="org.tomstools.crawler.extractor.ContentExtractor.OwnTextField">
-                            <!-- 构造函数参数 1: 名称 -->
-                            <constructor-arg index="0" type="java.lang.String">
-                                <value><![CDATA[deal_time]]></value>
-                            </constructor-arg>
-                            <!-- 构造函数参数 2: 元素选择表达式 -->
-                            <constructor-arg index="1" type="java.lang.String">
-                                <value><![CDATA[table#FormView21_1>tbody>tr:eq(14)>td:eq(3)>span]]></value>
-                            </constructor-arg>
-                        </bean>
-                    </list>
-                </constructor-arg>
-            </bean>
+        <property name="defaultCharsetName" value="GBK"></property>
+        <property name="crawlingRule" ref="crawlingRule"></property>
+        <property name="parser" ref="htmlParser"></property>
+        <property name="completedHandler" ref="landShellCompletedHandler_hunan"></property>
+        <property name="pageFetcher" ref="landPageFetcher"></property>
+        <property name="contentPageExtractor" ref="landContentPageExtractor"></property>
+        <property name="navigationExtractor" ref="landNavigationExtractor"></property>
+        <property name="contentExtractor" ref="landContentExtractor"></property>
+    </bean>
+    <!-- 待爬取对象：langchina 公告结果：岳阳市-协议出让。对应 org.tomstools.crawler.config.Target -->
+    <bean id="target-landchina-gonggaojieguo-yy-xycr" class="org.tomstools.crawler.config.Target"
+        scope="prototype">
+        <property name="name" value="landchina-gonggaojieguo-yy-xycr"></property>
+        <property name="url">
+            <value><![CDATA[http://www.landchina.com/default.aspx?tabid=263&p=42ad98ae-c46a-40aa-aacc-c0884036eeaf%3A4306%25%7Ea%7C8fd0232c-aff0-45d1-a726-63fc4c3d8ea9%3A3%25%7E1]]></value>
         </property>
+        <property name="defaultCharsetName" value="GBK"></property>
+        <property name="crawlingRule" ref="crawlingRule"></property>
+        <property name="parser" ref="htmlParser"></property>
+        <property name="completedHandler" ref="landShellCompletedHandler_hunan"></property>
+        <property name="pageFetcher" ref="landPageFetcher"></property>
+        <property name="contentPageExtractor" ref="landContentPageExtractor"></property>
+        <property name="navigationExtractor" ref="landNavigationExtractor"></property>
+        <property name="contentExtractor" ref="landContentExtractor"></property>
+    </bean>
+    <!-- 待爬取对象：langchina 公告结果：常德市-协议出让。对应 org.tomstools.crawler.config.Target -->
+    <bean id="target-landchina-gonggaojieguo-cd-xycr" class="org.tomstools.crawler.config.Target"
+        scope="prototype">
+        <property name="name" value="landchina-gonggaojieguo-cd-xycr"></property>
+        <property name="url">
+            <value><![CDATA[http://www.landchina.com/default.aspx?tabid=263&p=42ad98ae-c46a-40aa-aacc-c0884036eeaf%3A4307%25%7Ea%7C8fd0232c-aff0-45d1-a726-63fc4c3d8ea9%3A3%25%7E1]]></value>
+        </property>
+        <property name="defaultCharsetName" value="GBK"></property>
+        <property name="crawlingRule" ref="crawlingRule"></property>
+        <property name="parser" ref="htmlParser"></property>
+        <property name="completedHandler" ref="landShellCompletedHandler_hunan"></property>
+        <property name="pageFetcher" ref="landPageFetcher"></property>
+        <property name="contentPageExtractor" ref="landContentPageExtractor"></property>
+        <property name="navigationExtractor" ref="landNavigationExtractor"></property>
+        <property name="contentExtractor" ref="landContentExtractor"></property>
+    </bean>
+    <!-- 待爬取对象：langchina 公告结果：张家界市-协议出让。对应 org.tomstools.crawler.config.Target -->
+    <bean id="target-landchina-gonggaojieguo-zjj-xycr" class="org.tomstools.crawler.config.Target"
+        scope="prototype">
+        <property name="name" value="landchina-gonggaojieguo-zjj-xycr"></property>
+        <property name="url">
+            <value><![CDATA[http://www.landchina.com/default.aspx?tabid=263&p=42ad98ae-c46a-40aa-aacc-c0884036eeaf%3A4308%25%7Ea%7C8fd0232c-aff0-45d1-a726-63fc4c3d8ea9%3A3%25%7E1]]></value>
+        </property>
+        <property name="defaultCharsetName" value="GBK"></property>
+        <property name="crawlingRule" ref="crawlingRule"></property>
+        <property name="parser" ref="htmlParser"></property>
+        <property name="completedHandler" ref="landShellCompletedHandler_hunan"></property>
+        <property name="pageFetcher" ref="landPageFetcher"></property>
+        <property name="contentPageExtractor" ref="landContentPageExtractor"></property>
+        <property name="navigationExtractor" ref="landNavigationExtractor"></property>
+        <property name="contentExtractor" ref="landContentExtractor"></property>
+    </bean>
+    <!-- 待爬取对象：langchina 公告结果：益阳市-协议出让。对应 org.tomstools.crawler.config.Target -->
+    <bean id="target-landchina-gonggaojieguo-yiy-xycr" class="org.tomstools.crawler.config.Target"
+        scope="prototype">
+        <property name="name" value="landchina-gonggaojieguo-yiy-xycr"></property>
+        <property name="url">
+            <value><![CDATA[http://www.landchina.com/default.aspx?tabid=263&p=42ad98ae-c46a-40aa-aacc-c0884036eeaf%3A4309%25%7Ea%7C8fd0232c-aff0-45d1-a726-63fc4c3d8ea9%3A3%25%7E1]]></value>
+        </property>
+        <property name="defaultCharsetName" value="GBK"></property>
+        <property name="crawlingRule" ref="crawlingRule"></property>
+        <property name="parser" ref="htmlParser"></property>
+        <property name="completedHandler" ref="landShellCompletedHandler_hunan"></property>
+        <property name="pageFetcher" ref="landPageFetcher"></property>
+        <property name="contentPageExtractor" ref="landContentPageExtractor"></property>
+        <property name="navigationExtractor" ref="landNavigationExtractor"></property>
+        <property name="contentExtractor" ref="landContentExtractor"></property>
+    </bean>
+    <!-- 待爬取对象：langchina 公告结果：郴州市-协议出让。对应 org.tomstools.crawler.config.Target -->
+    <bean id="target-landchina-gonggaojieguo-cz-xycr" class="org.tomstools.crawler.config.Target"
+        scope="prototype">
+        <property name="name" value="landchina-gonggaojieguo-cz-xycr"></property>
+        <property name="url">
+            <value><![CDATA[http://www.landchina.com/default.aspx?tabid=263&p=42ad98ae-c46a-40aa-aacc-c0884036eeaf%3A4310%25%7Ea%7C8fd0232c-aff0-45d1-a726-63fc4c3d8ea9%3A3%25%7E1]]></value>
+        </property>
+        <property name="defaultCharsetName" value="GBK"></property>
+        <property name="crawlingRule" ref="crawlingRule"></property>
+        <property name="parser" ref="htmlParser"></property>
+        <property name="completedHandler" ref="landShellCompletedHandler_hunan"></property>
+        <property name="pageFetcher" ref="landPageFetcher"></property>
+        <property name="contentPageExtractor" ref="landContentPageExtractor"></property>
+        <property name="navigationExtractor" ref="landNavigationExtractor"></property>
+        <property name="contentExtractor" ref="landContentExtractor"></property>
+    </bean>
+    <!-- 待爬取对象：langchina 公告结果：永州市-协议出让。对应 org.tomstools.crawler.config.Target -->
+    <bean id="target-landchina-gonggaojieguo-yz-xycr" class="org.tomstools.crawler.config.Target"
+        scope="prototype">
+        <property name="name" value="landchina-gonggaojieguo-yz-xycr"></property>
+        <property name="url">
+            <value><![CDATA[http://www.landchina.com/default.aspx?tabid=263&p=42ad98ae-c46a-40aa-aacc-c0884036eeaf%3A4311%25%7Ea%7C8fd0232c-aff0-45d1-a726-63fc4c3d8ea9%3A3%25%7E1]]></value>
+        </property>
+        <property name="defaultCharsetName" value="GBK"></property>
+        <property name="crawlingRule" ref="crawlingRule"></property>
+        <property name="parser" ref="htmlParser"></property>
+        <property name="completedHandler" ref="landShellCompletedHandler_hunan"></property>
+        <property name="pageFetcher" ref="landPageFetcher"></property>
+        <property name="contentPageExtractor" ref="landContentPageExtractor"></property>
+        <property name="navigationExtractor" ref="landNavigationExtractor"></property>
+        <property name="contentExtractor" ref="landContentExtractor"></property>
+    </bean>
+    <!-- 待爬取对象：langchina 公告结果：怀化市-协议出让。对应 org.tomstools.crawler.config.Target -->
+    <bean id="target-landchina-gonggaojieguo-hh-xycr" class="org.tomstools.crawler.config.Target"
+        scope="prototype">
+        <property name="name" value="landchina-gonggaojieguo-hh-xycr"></property>
+        <property name="url">
+            <value><![CDATA[http://www.landchina.com/default.aspx?tabid=263&p=42ad98ae-c46a-40aa-aacc-c0884036eeaf%3A4312%25%7Ea%7C8fd0232c-aff0-45d1-a726-63fc4c3d8ea9%3A3%25%7E1]]></value>
+        </property>
+        <property name="defaultCharsetName" value="GBK"></property>
+        <property name="crawlingRule" ref="crawlingRule"></property>
+        <property name="parser" ref="htmlParser"></property>
+        <property name="completedHandler" ref="landShellCompletedHandler_hunan"></property>
+        <property name="pageFetcher" ref="landPageFetcher"></property>
+        <property name="contentPageExtractor" ref="landContentPageExtractor"></property>
+        <property name="navigationExtractor" ref="landNavigationExtractor"></property>
+        <property name="contentExtractor" ref="landContentExtractor"></property>
+    </bean>
+    <!-- 待爬取对象：langchina 公告结果：娄底市-协议出让。对应 org.tomstools.crawler.config.Target -->
+    <bean id="target-landchina-gonggaojieguo-ld-xycr" class="org.tomstools.crawler.config.Target"
+        scope="prototype">
+        <property name="name" value="landchina-gonggaojieguo-ld-xycr"></property>
+        <property name="url">
+            <value><![CDATA[http://www.landchina.com/default.aspx?tabid=263&p=42ad98ae-c46a-40aa-aacc-c0884036eeaf%3A4313%25%7Ea%7C8fd0232c-aff0-45d1-a726-63fc4c3d8ea9%3A3%25%7E1]]></value>
+        </property>
+        <property name="defaultCharsetName" value="GBK"></property>
+        <property name="crawlingRule" ref="crawlingRule"></property>
+        <property name="parser" ref="htmlParser"></property>
+        <property name="completedHandler" ref="landShellCompletedHandler_hunan"></property>
+        <property name="pageFetcher" ref="landPageFetcher"></property>
+        <property name="contentPageExtractor" ref="landContentPageExtractor"></property>
+        <property name="navigationExtractor" ref="landNavigationExtractor"></property>
+        <property name="contentExtractor" ref="landContentExtractor"></property>
+    </bean>
+    <!-- 待爬取对象：langchina 公告结果：湘西土家族苗族自治州-协议出让。对应 org.tomstools.crawler.config.Target -->
+    <bean id="target-landchina-gonggaojieguo-xx-xycr" class="org.tomstools.crawler.config.Target"
+        scope="prototype">
+        <property name="name" value="landchina-gonggaojieguo-xx-xycr"></property>
+        <property name="url">
+            <value><![CDATA[http://www.landchina.com/default.aspx?tabid=263&p=42ad98ae-c46a-40aa-aacc-c0884036eeaf%3A4331%25%7Ea%7C8fd0232c-aff0-45d1-a726-63fc4c3d8ea9%3A3%25%7E1]]></value>
+        </property>
+        <property name="defaultCharsetName" value="GBK"></property>
+        <property name="crawlingRule" ref="crawlingRule"></property>
+        <property name="parser" ref="htmlParser"></property>
+        <property name="completedHandler" ref="landShellCompletedHandler_hunan"></property>
+        <property name="pageFetcher" ref="landPageFetcher"></property>
+        <property name="contentPageExtractor" ref="landContentPageExtractor"></property>
+        <property name="navigationExtractor" ref="landNavigationExtractor"></property>
+        <property name="contentExtractor" ref="landContentExtractor"></property>
     </bean>
 </beans>

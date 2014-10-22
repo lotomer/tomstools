@@ -31,6 +31,7 @@ public class Target {
     private CrawlingRule crawlingRule; // 爬取规则
     private PageFetcher pageFetcher;  // 页面抓取器
     private CompletedHandleable completedHandler;
+    private String baseUrl; // 基本url
     /**
      * @return 返回 url
      * @since 1.0
@@ -222,6 +223,14 @@ public class Target {
      */
     public final void setCompletedHandler(CompletedHandleable completedHandler) {
         this.completedHandler = completedHandler;
+    }
+
+    public final String getBaseUrl() {
+        return baseUrl;
+    }
+
+    public final void setBaseUrl(String baseUrl) {
+        this.baseUrl = baseUrl;
     }
 
 }

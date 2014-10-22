@@ -10,6 +10,7 @@ import java.net.SocketTimeoutException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.URLDecoder;
 import java.net.UnknownHostException;
 import java.nio.charset.Charset;
 import java.nio.charset.IllegalCharsetNameException;
@@ -313,6 +314,7 @@ public class PageFetcher {
         String u = "http://www.landchina.com/default.aspx?tabid=263&p=42ad98ae-c46a-40aa-aacc-c0884036eeaf:43~湖南省|8fd0232c-aff0-45d1-a726-63fc4c3d8ea9:3~协议出让&WebShieldSessionVerify=QzNvGXlh1e2qWktKVgij";
         //String a = "http://www.landchina.com/default.aspx?tabid=263&p=42ad98ae-c46a-40aa-aacc-c0884036eeaf%3A43%25%7E%BA%FE%C4%CF%CA%A1%7C8fd0232c-aff0-45d1-a726-63fc4c3d8ea9%3A3%25%7E%D0%AD%D2%E9%B3%F6%C8%C3";
         System.out.println(u);
+        System.out.println(URLDecoder.decode("42ad98ae-c46a-40aa-aacc-c0884036eeaf%3A43%25%7E%BA%FE%C4%CF%CA%A1%7C8fd0232c-aff0-45d1-a726-63fc4c3d8ea9%3A2%25%7E%D5%D0%C5%C4%B9%D2%B3%F6%C8%C3","utf8"));
         Charset c = Charset.forName("UTF-8");
         System.out.println(c.displayName());
         System.out.println(c.name());
