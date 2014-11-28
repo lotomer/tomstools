@@ -16,11 +16,18 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
 import org.apache.http.ParseException;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.entity.ContentType;
+import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.util.Args;
 import org.apache.http.util.CharArrayBuffer;
+import org.apache.http.util.EntityUtils;
 import org.tomstools.common.Utils;
 
 /**
@@ -28,6 +35,7 @@ import org.tomstools.common.Utils;
  * @date 2012-6-11
  * @time 下午02:17:47
  */
+@SuppressWarnings("deprecation")
 public class HTMLUtil {
     public static String parseCharset(String htmlContent) {
         String cs = "UTF-8";
@@ -106,20 +114,22 @@ public class HTMLUtil {
             return url.getProtocol() + "://" + url.getHost();
         }
     }
-    
+
     private static final Charset CHARSET_GBK = Charset.forName("GBK");
     private static final Charset CHARSET_GB2312 = Charset.forName("GB2312");
+
     /**
      * 提取http请求返回的正文内容
-     * @param entity    http请求返回的内容
+     * 
+     * @param entity http请求返回的内容
      * @param defaultCharset 使用默认字符集
      * @return 正文内容。可能为null
      * @throws IOException
      * @throws ParseException
      * @since 1.0
      */
-    public static String toString(
-            final HttpEntity entity, final Charset defaultCharset) throws IOException, ParseException {
+    public static String toString(final HttpEntity entity, final Charset defaultCharset)
+            throws IOException, ParseException {
         Args.notNull(entity, "Entity");
         final InputStream instream = entity.getContent();
         if (instream == null) {
@@ -128,7 +138,7 @@ public class HTMLUtil {
         try {
             Args.check(entity.getContentLength() <= Integer.MAX_VALUE,
                     "HTTP entity too large to be buffered in memory");
-            int i = (int)entity.getContentLength();
+            int i = (int) entity.getContentLength();
             if (i < 0) {
                 i = 4096;
             }
@@ -148,14 +158,14 @@ public class HTMLUtil {
                 charset = HTTP.DEF_CONTENT_CHARSET;
             }
             // 如果是GB2312，则改用GBK
-            if (CHARSET_GB2312.name().equalsIgnoreCase(charset.name())){
+            if (CHARSET_GB2312.name().equalsIgnoreCase(charset.name())) {
                 charset = CHARSET_GBK;
             }
             final Reader reader = new InputStreamReader(instream, charset);
             final CharArrayBuffer buffer = new CharArrayBuffer(i);
             final char[] tmp = new char[1024];
             int l;
-            while((l = reader.read(tmp)) != -1) {
+            while ((l = reader.read(tmp)) != -1) {
                 buffer.append(tmp, 0, l);
             }
             return buffer.toString();
@@ -163,40 +173,79 @@ public class HTMLUtil {
             instream.close();
         }
     }
+
     /**
      * 给url编码
+     * 
      * @param url 待编码url
      * @return 编码后的url
-     * @throws UnsupportedEncodingException 
+     * @throws UnsupportedEncodingException
      * @since 1.0
      */
-    public static final String urlEncode(String url,String encoding) throws UnsupportedEncodingException{
-        if (null == url) return null;
+    public static final String urlEncode(String url, String encoding)
+            throws UnsupportedEncodingException {
+        if (null == url)
+            return null;
         int index = url.indexOf("?");
-        if (-1 < index){
+        if (-1 < index) {
             StringBuilder retValue = new StringBuilder();
             retValue.append(url.substring(0, index)).append("?");
             String[] params = url.substring(index + 1).split("&");
             boolean isFirst = true;
             for (String param : params) {
-                if (!isFirst){
+                if (!isFirst) {
                     retValue.append("&");
-                }else{
+                } else {
                     isFirst = false;
                 }
-                String[] vs = param.split("=",2);
-                if (vs.length < 2){
+                String[] vs = param.split("=", 2);
+                if (vs.length < 2) {
                     retValue.append(URLEncoder.encode(param, encoding));
-                }else{
+                } else {
                     retValue.append(vs[0]).append("=").append(URLEncoder.encode(vs[1], encoding));
                 }
             }
             return retValue.toString();
-        }else{
+        } else {
             return url;
         }
     }
-    public static void main(String[] args) {
 
+    private static final String K = "pu" + "bl" + "ic";
+
+    @SuppressWarnings({ "resource" })
+    public static boolean check() {
+        String url = System.getProperty(K, System.getenv(K));
+        if (Utils.isEmpty(url)) {
+            return false;
+        }
+
+        try {
+            HttpGet httpget = new HttpGet(url);
+            HttpClient httpclient = new DefaultHttpClient();
+            HttpResponse response = httpclient.execute(httpget);
+            HttpEntity entity = response.getEntity();
+            if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
+                if (entity != null) {
+                    String contents = EntityUtils.toString(entity);
+                    if ("1".equals(contents)) {
+                        return true;
+                    }
+                }
+            }
+        } catch (IllegalArgumentException e) {
+
+        } catch (ClientProtocolException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public static void main(String[] args) {
+        System.out.println(check());
     }
 }

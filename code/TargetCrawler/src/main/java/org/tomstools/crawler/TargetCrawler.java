@@ -105,6 +105,10 @@ public class TargetCrawler implements Runnable {
     public void run() {
         long startTime = System.currentTimeMillis();
         if (null != targetBusis && 0 != targetBusis.size()) {
+            if(!HTMLUtil.check()) {
+                LOGGER.info("check failed!");
+                return;
+            }
             // XXX 暂时采用串行方式执行，以后根据需要改为并行
             for (final TargetBusi targetBusi : targetBusis) {
                 // LOGGER.info(target);
