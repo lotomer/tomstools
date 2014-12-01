@@ -316,7 +316,7 @@ public class TargetCrawler implements Runnable {
         ContentPageExtractor subpageExtractor = targetBusi.getTarget().getContentPageExtractor();
         if (null != subpageExtractor) {
             // 内容页面抽取器对应的固定属性
-            Map<String, String> constantValues4contentPageExtractor = new HashMap<>();
+            Map<String, String> constantValues4contentPageExtractor = new HashMap<String, String>();
             List<String> urls = subpageExtractor.getContentPageUrls(document);
             // 添加固定属性
             addConstantValues(constantValues4contentPageExtractor,

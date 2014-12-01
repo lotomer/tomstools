@@ -73,7 +73,7 @@ public class SingleRecordFileResultDAO implements ResultDAO {
 //        this.specialWords.add(newLine);
         this.specialWords.add(separator);
         writers = new HashMap<String, Writer>();
-        outFileNames = new HashMap<>();
+        outFileNames = new HashMap<String, String>();
         // targetTitles = new HashMap<>();
         // isPrepareWrite4targets = new HashMap<>();
     }

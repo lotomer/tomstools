@@ -228,7 +228,7 @@ public class PageFetcher {
             Parameters form = requestInfo.getFormDatas();
             if (!Utils.isEmpty(form)) {
                 // 设置表单属性
-                List<NameValuePair> params = new ArrayList<>();
+                List<NameValuePair> params = new ArrayList<NameValuePair>();
                 for (Map<String, String> map : form) {
                     if (null != map) {
                         for (Entry<String, String> entry : map.entrySet()) {
@@ -325,7 +325,7 @@ public class PageFetcher {
         f.setMethod("POST");
         RequestInfo r = new RequestInfo();
         Parameters d = new Parameters();
-        Map<String, String> m = new HashMap<>();
+        Map<String, String> m = new HashMap<String, String>();
         m.put("TAB_QuerySubmitPagerData", "202");
         d.add(m);
         r.setFormDatas(d);

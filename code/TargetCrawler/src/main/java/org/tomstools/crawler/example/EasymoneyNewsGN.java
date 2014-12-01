@@ -29,7 +29,7 @@ public class EasymoneyNewsGN extends Target {
         setParser(new HTMLParser());
         setContentPageExtractor(new BaseContentPageExtractor("div.mainCont div.list li a","","",null));  
       //XXX 需要修改，暂时屏蔽 setNavigationExtractor(new PageNavigationExtractor("div.PageBox>div.Page a:containsOwn(下一页)", "<a .*?href=\"(.*?\\.html)\""));
-        List<Field> fields = new ArrayList<>();
+        List<Field> fields = new ArrayList<Field>();
         fields.add(new ContentExtractor.TextField("title", "h1"));
         fields.add(new ContentExtractor.TextField("time", "div.info span:eq(1)"));
         fields.add(new ContentExtractor.TextField("content", "div#ContentBody"));

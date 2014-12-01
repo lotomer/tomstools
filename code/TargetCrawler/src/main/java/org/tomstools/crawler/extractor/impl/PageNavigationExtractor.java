@@ -132,7 +132,7 @@ public class PageNavigationExtractor implements NavigationExtractor {
         Element element = p.parse(html, null);
         Map<Integer, String> regexGroupIndex4parameterNamess = new HashMap<Integer, String>();
         regexGroupIndex4parameterNamess.put(1, "url,form_TAB_QuerySubmitPagerData");
-        Map<String, String> parameterTemplate = new HashMap<>();
+        Map<String, String> parameterTemplate = new HashMap<String, String>();
         parameterTemplate.put("url", "http://www.landchina.com/default.aspx?tabid=263#${url}");
         parameterTemplate.put("form_TAB_QuerySubmitPagerData", "${form_TAB_QuerySubmitPagerData}");
         

@@ -28,7 +28,7 @@ public class CaipiaoShuangSeQiu extends Target {
         setParser(new HTMLParser());
         //setContentPageExtractor(new NoSubpageExtractor());
         //XXX 需要修改，暂时屏蔽 setNavigationExtractor(new TemplatePageNavigationExtractor("div.year_select select", "<option .*?value=\"(.*?)\">","http://baidu.lecai.com/lottery/draw/list/50?d=%s"));
-        List<Field> fields = new ArrayList<>();
+        List<Field> fields = new ArrayList<Field>();
         fields.add(new ContentExtractor.TextField("time", "td.td1"));
         fields.add(new ContentExtractor.TextField("qishu", "td.td2"));
         fields.add(new ContentExtractor.TextField("b1", "td.td3>span.result>span:eq(0)"));

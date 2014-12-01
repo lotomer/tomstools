@@ -34,7 +34,7 @@ public class HuNanGuoTuZiYuanCaiKuangZhuanRang extends Target {
 //        setNavigationExtractor(new ExpressionNavigationExtractor(
 //                "http://www.gtzy.hunan.gov.cn/application/hdpt_422/spgl/ckzr/index_539_%s.html",
 //                "1|20|1"));
-        List<Field> fields = new ArrayList<>();
+        List<Field> fields = new ArrayList<Field>();
         fields.add(new ContentExtractor.TextField("value", "td[title]")); // \u4E00-\u9FA5 是汉字区间
         setContentExtractor(new ContentExtractor("tr",null,null,fields) {
             private int index = 0;

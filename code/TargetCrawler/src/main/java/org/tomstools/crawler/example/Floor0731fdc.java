@@ -29,7 +29,7 @@ public class Floor0731fdc extends Target {
         setParser(new HTMLParser());
         //ssetContentPageExtractor(new NoSubpageExtractor()); 
       //XXX 需要修改，暂时屏蔽 setNavigationExtractor(new PageNavigationExtractor("div#page ul.pageno a[title=下一页]","<a .*?href=\"(.*?)\""));
-        List<Field> fields = new ArrayList<>();
+        List<Field> fields = new ArrayList<Field>();
         fields.add(new ContentExtractor.TextField("floorName", "dl>dt>ul>li.floorname"));
         fields.add(new ContentExtractor.TextField("type", "dl>dt>ul>li.type"));
         fields.add(new ContentExtractor.TextField("price", "dl>dt>ul>li.price"));

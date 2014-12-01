@@ -74,9 +74,9 @@ public class FileResultDAO implements ResultDAO {
         this.specialWords.add(newLine);
         this.specialWords.add(separator);
         writers = new HashMap<String, Writer>();
-        outFileNames = new HashMap<>();
-        targetTitles = new HashMap<>();
-        isPrepareWrite4targets = new HashMap<>();
+        outFileNames = new HashMap<String, String>();
+        targetTitles = new HashMap<String, String[]>();
+        isPrepareWrite4targets = new HashMap<String, Boolean>();
     }
 
     public void save(Target target, String url, Map<String, String> datas) {

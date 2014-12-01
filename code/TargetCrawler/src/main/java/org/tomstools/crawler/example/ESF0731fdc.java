@@ -44,7 +44,7 @@ public class ESF0731fdc extends Target {
       //XXX 需要修改，暂时屏蔽 setNavigationExtractor(new PageNavigationExtractor("div.pagination a:containsOwn(下一页)", "<a .*?href=\"(.*?)\">"));
         Map<String, ValueConvertible<String, String>> valueConverter = new HashMap<String, ValueConvertible<String,String>>();
         valueConverter.put("time", new String2DateTimeString("yyyy-MM-dd", "yyyy-MM-dd hh"));
-        List<Field> fields = new ArrayList<>();
+        List<Field> fields = new ArrayList<Field>();
         fields.add(new ContentExtractor.TextField("title", "div.title>a>h5"));
         fields.add(new ContentExtractor.TextField("info", "div.title"));
         fields.add(new ContentExtractor.TextField("area", "div.area",new FieldSplitter("(\\S*).*", new int[]{0}, new String[]{"area"},null)));

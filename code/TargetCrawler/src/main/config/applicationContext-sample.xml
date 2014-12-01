@@ -154,7 +154,19 @@
                 <ref bean="target-landchina-gonggaojieguo-xx-zpgcr" />
                 <ref bean="target-xiaoshuo"/>
                 -->
-                <ref bean="target-landchina-gonggaojieguo-xx-zpgcr"/>
+                <ref bean="target-landchina-gonggaojieguo-cs-zpgcr" />
+                <ref bean="target-landchina-gonggaojieguo-zz-zpgcr" />
+                <ref bean="target-landchina-gonggaojieguo-xt-zpgcr" />
+                <ref bean="target-landchina-gonggaojieguo-hy-zpgcr" />
+                <ref bean="target-landchina-gonggaojieguo-sy-zpgcr" />
+                <ref bean="target-landchina-gonggaojieguo-yy-zpgcr" />
+                <ref bean="target-landchina-gonggaojieguo-cd-zpgcr" />
+                <ref bean="target-landchina-gonggaojieguo-zjj-zpgcr" />
+                <ref bean="target-landchina-gonggaojieguo-yiy-zpgcr" />
+                <ref bean="target-landchina-gonggaojieguo-cz-zpgcr" />
+                <ref bean="target-landchina-gonggaojieguo-yz-zpgcr" />
+                <ref bean="target-landchina-gonggaojieguo-hh-zpgcr" />
+                <ref bean="target-landchina-gonggaojieguo-ld-zpgcr" />
             </list>
         </constructor-arg>
         <!-- 构造函数参数 2: 结果数据操作对象。对应 接口 org.tomstools.crawler.dao.ResultDAO 
