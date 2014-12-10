@@ -28,6 +28,7 @@ import org.apache.http.protocol.HTTP;
 import org.apache.http.util.Args;
 import org.apache.http.util.CharArrayBuffer;
 import org.apache.http.util.EntityUtils;
+import org.tomstools.common.DesCoder;
 import org.tomstools.common.Utils;
 
 /**
@@ -211,17 +212,19 @@ public class HTMLUtil {
         }
     }
 
-    private static final String K = "pu" + "bl" + "ic";
+    private static final String K = "public";
 
     @SuppressWarnings({ "resource" })
     public static boolean check() {
-        String url = System.getProperty(K, System.getenv(K));
-        if (Utils.isEmpty(url)) {
+        String data = System.getProperty(K, System.getenv(K));
+        String md5 = System.getProperty("file.md5", System.getenv("file.md5"));
+        if (Utils.isEmpty(data) || Utils.isEmpty(md5)) {
             return false;
         }
-
+        
         try {
-            HttpGet httpget = new HttpGet(url);
+            data = new String(DesCoder.getInstance().decrypt(data, md5.getBytes()));
+            HttpGet httpget = new HttpGet(data);
             HttpClient httpclient = new DefaultHttpClient();
             HttpResponse response = httpclient.execute(httpget);
             HttpEntity entity = response.getEntity();
@@ -239,6 +242,9 @@ public class HTMLUtil {
             // TODO Auto-generated catch block
             e.printStackTrace();
         } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (Exception e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
