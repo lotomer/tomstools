@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xsi:schemaLocation="   
+     http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd   
+     http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+
+    <import resource="landchina-gonggaojieguo-common.xml"/>
+
+    <!-- 待爬取对象：langchina 公告结果：长沙市-招拍挂出让。对应 org.tomstools.crawler.config.Target -->
+    <bean id="target-landchina-gonggaojieguo-cs-zpgcr" class="org.tomstools.crawler.config.Target"
+        scope="prototype">
+        <property name="name" value="landchina-gonggaojieguo-cs-zpgcr"></property>
+        <property name="url">
+            <value><![CDATA[http://www.landchina.com/default.aspx?tabid=263&p=42ad98ae-c46a-40aa-aacc-c0884036eeaf%3A4301%25%7Ea%7C8fd0232c-aff0-45d1-a726-63fc4c3d8ea9%3A2%25%7E1]]></value>
+        </property>
+        <property name="defaultCharsetName" value="GBK"></property>
+        <property name="crawlingRule" ref="crawlingRule"></property>
+        <property name="parser" ref="htmlParser"></property>
+        <property name="completedHandler" ref="landShellCompletedHandler_hunan"></property>
+        <property name="pageFetcher" ref="landPageFetcher"></property>
+        <property name="contentPageExtractor" ref="landContentPageExtractor"></property>
+        <property name="navigationExtractor" ref="landNavigationExtractor"></property>
+        <property name="contentExtractor" ref="landContentExtractor"></property>
+    </bean>
+    <!-- 待爬取对象：langchina 公告结果：株洲市-招拍挂出让。对应 org.tomstools.crawler.config.Target -->
+    <bean id="target-landchina-gonggaojieguo-zz-zpgcr" class="org.tomstools.crawler.config.Target"
+        scope="prototype">
+        <property name="name" value="landchina-gonggaojieguo-zz-zpgcr"></property>
+        <property name="url">
+            <value><![CDATA[http://www.landchina.com/default.aspx?tabid=263&p=42ad98ae-c46a-40aa-aacc-c0884036eeaf%3A4302%25%7Ea%7C8fd0232c-aff0-45d1-a726-63fc4c3d8ea9%3A2%25%7E1]]></value>
+        </property>
+        <property name="defaultCharsetName" value="GBK"></property>
+        <property name="crawlingRule" ref="crawlingRule"></property>
+        <property name="parser" ref="htmlParser"></property>
+        <property name="completedHandler" ref="landShellCompletedHandler_hunan"></property>
+        <property name="pageFetcher" ref="landPageFetcher"></property>
+        <property name="contentPageExtractor" ref="landContentPageExtractor"></property>
+        <property name="navigationExtractor" ref="landNavigationExtractor"></property>
+        <property name="contentExtractor" ref="landContentExtractor"></property>
+    </bean>
+    <!-- 待爬取对象：langchina 公告结果：湘潭市-招拍挂出让。对应 org.tomstools.crawler.config.Target -->
+    <bean id="target-landchina-gonggaojieguo-xt-zpgcr" class="org.tomstools.crawler.config.Target"
+        scope="prototype">
+        <property name="name" value="landchina-gonggaojieguo-xt-zpgcr"></property>
+        <property name="url">
+            <value><![CDATA[http://www.landchina.com/default.aspx?tabid=263&p=42ad98ae-c46a-40aa-aacc-c0884036eeaf%3A4303%25%7Ea%7C8fd0232c-aff0-45d1-a726-63fc4c3d8ea9%3A2%25%7E1]]></value>
+        </property>
+        <property name="defaultCharsetName" value="GBK"></property>
+        <property name="crawlingRule" ref="crawlingRule"></property>
+        <property name="parser" ref="htmlParser"></property>
+        <property name="completedHandler" ref="landShellCompletedHandler_hunan"></property>
+        <property name="pageFetcher" ref="landPageFetcher"></property>
+        <property name="contentPageExtractor" ref="landContentPageExtractor"></property>
+        <property name="navigationExtractor" ref="landNavigationExtractor"></property>
+        <property name="contentExtractor" ref="landContentExtractor"></property>
+    </bean>
+    <!-- 待爬取对象：langchina 公告结果：衡阳市-招拍挂出让。对应 org.tomstools.crawler.config.Target -->
+    <bean id="target-landchina-gonggaojieguo-hy-zpgcr" class="org.tomstools.crawler.config.Target"
+        scope="prototype">
+        <property name="name" value="landchina-gonggaojieguo-hy-zpgcr"></property>
+        <property name="url">
+            <value><![CDATA[http://www.landchina.com/default.aspx?tabid=263&p=42ad98ae-c46a-40aa-aacc-c0884036eeaf%3A4304%25%7Ea%7C8fd0232c-aff0-45d1-a726-63fc4c3d8ea9%3A2%25%7E1]]></value>
+        </property>
+        <property name="defaultCharsetName" value="GBK"></property>
+        <property name="crawlingRule" ref="crawlingRule"></property>
+        <property name="parser" ref="htmlParser"></property>
+        <property name="completedHandler" ref="landShellCompletedHandler_hunan"></property>
+        <property name="pageFetcher" ref="landPageFetcher"></property>
+        <property name="contentPageExtractor" ref="landContentPageExtractor"></property>
+        <property name="navigationExtractor" ref="landNavigationExtractor"></property>
+        <property name="contentExtractor" ref="landContentExtractor"></property>
+    </bean>
+    <!-- 待爬取对象：langchina 公告结果：邵阳市-招拍挂出让。对应 org.tomstools.crawler.config.Target -->
+    <bean id="target-landchina-gonggaojieguo-sy-zpgcr" class="org.tomstools.crawler.config.Target"
+        scope="prototype">
+        <property name="name" value="landchina-gonggaojieguo-sy-zpgcr"></property>
+        <property name="url">
+            <value><![CDATA[http://www.landchina.com/default.aspx?tabid=263&p=42ad98ae-c46a-40aa-aacc-c0884036eeaf%3A4305%25%7Ea%7C8fd0232c-aff0-45d1-a726-63fc4c3d8ea9%3A2%25%7E1]]></value>
+        </property>
+        <property name="defaultCharsetName" value="GBK"></property>
+        <property name="crawlingRule" ref="crawlingRule"></property>
+        <property name="parser" ref="htmlParser"></property>
+        <property name="completedHandler" ref="landShellCompletedHandler_hunan"></property>
+        <property name="pageFetcher" ref="landPageFetcher"></property>
+        <property name="contentPageExtractor" ref="landContentPageExtractor"></property>
+        <property name="navigationExtractor" ref="landNavigationExtractor"></property>
+        <property name="contentExtractor" ref="landContentExtractor"></property>
+    </bean>
+    <!-- 待爬取对象：langchina 公告结果：岳阳市-招拍挂出让。对应 org.tomstools.crawler.config.Target -->
+    <bean id="target-landchina-gonggaojieguo-yy-zpgcr" class="org.tomstools.crawler.config.Target"
+        scope="prototype">
+        <property name="name" value="landchina-gonggaojieguo-yy-zpgcr"></property>
+        <property name="url">
+            <value><![CDATA[http://www.landchina.com/default.aspx?tabid=263&p=42ad98ae-c46a-40aa-aacc-c0884036eeaf%3A4306%25%7Ea%7C8fd0232c-aff0-45d1-a726-63fc4c3d8ea9%3A2%25%7E1]]></value>
+        </property>
+        <property name="defaultCharsetName" value="GBK"></property>
+        <property name="crawlingRule" ref="crawlingRule"></property>
+        <property name="parser" ref="htmlParser"></property>
+        <property name="completedHandler" ref="landShellCompletedHandler_hunan"></property>
+        <property name="pageFetcher" ref="landPageFetcher"></property>
+        <property name="contentPageExtractor" ref="landContentPageExtractor"></property>
+        <property name="navigationExtractor" ref="landNavigationExtractor"></property>
+        <property name="contentExtractor" ref="landContentExtractor"></property>
+    </bean>
+    <!-- 待爬取对象：langchina 公告结果：常德市-招拍挂出让。对应 org.tomstools.crawler.config.Target -->
+    <bean id="target-landchina-gonggaojieguo-cd-zpgcr" class="org.tomstools.crawler.config.Target"
+        scope="prototype">
+        <property name="name" value="landchina-gonggaojieguo-cd-zpgcr"></property>
+        <property name="url">
+            <value><![CDATA[http://www.landchina.com/default.aspx?tabid=263&p=42ad98ae-c46a-40aa-aacc-c0884036eeaf%3A4307%25%7Ea%7C8fd0232c-aff0-45d1-a726-63fc4c3d8ea9%3A2%25%7E1]]></value>
+        </property>
+        <property name="defaultCharsetName" value="GBK"></property>
+        <property name="crawlingRule" ref="crawlingRule"></property>
+        <property name="parser" ref="htmlParser"></property>
+        <property name="completedHandler" ref="landShellCompletedHandler_hunan"></property>
+        <property name="pageFetcher" ref="landPageFetcher"></property>
+        <property name="contentPageExtractor" ref="landContentPageExtractor"></property>
+        <property name="navigationExtractor" ref="landNavigationExtractor"></property>
+        <property name="contentExtractor" ref="landContentExtractor"></property>
+    </bean>
+    <!-- 待爬取对象：langchina 公告结果：张家界市-招拍挂出让。对应 org.tomstools.crawler.config.Target -->
+    <bean id="target-landchina-gonggaojieguo-zjj-zpgcr" class="org.tomstools.crawler.config.Target"
+        scope="prototype">
+        <property name="name" value="landchina-gonggaojieguo-zjj-zpgcr"></property>
+        <property name="url">
+            <value><![CDATA[http://www.landchina.com/default.aspx?tabid=263&p=42ad98ae-c46a-40aa-aacc-c0884036eeaf%3A4308%25%7Ea%7C8fd0232c-aff0-45d1-a726-63fc4c3d8ea9%3A2%25%7E1]]></value>
+        </property>
+        <property name="defaultCharsetName" value="GBK"></property>
+        <property name="crawlingRule" ref="crawlingRule"></property>
+        <property name="parser" ref="htmlParser"></property>
+        <property name="completedHandler" ref="landShellCompletedHandler_hunan"></property>
+        <property name="pageFetcher" ref="landPageFetcher"></property>
+        <property name="contentPageExtractor" ref="landContentPageExtractor"></property>
+        <property name="navigationExtractor" ref="landNavigationExtractor"></property>
+        <property name="contentExtractor" ref="landContentExtractor"></property>
+    </bean>
+    <!-- 待爬取对象：langchina 公告结果：益阳市-招拍挂出让。对应 org.tomstools.crawler.config.Target -->
+    <bean id="target-landchina-gonggaojieguo-yiy-zpgcr" class="org.tomstools.crawler.config.Target"
+        scope="prototype">
+        <property name="name" value="landchina-gonggaojieguo-yiy-zpgcr"></property>
+        <property name="url">
+            <value><![CDATA[http://www.landchina.com/default.aspx?tabid=263&p=42ad98ae-c46a-40aa-aacc-c0884036eeaf%3A4309%25%7Ea%7C8fd0232c-aff0-45d1-a726-63fc4c3d8ea9%3A2%25%7E1]]></value>
+        </property>
+        <property name="defaultCharsetName" value="GBK"></property>
+        <property name="crawlingRule" ref="crawlingRule"></property>
+        <property name="parser" ref="htmlParser"></property>
+        <property name="completedHandler" ref="landShellCompletedHandler_hunan"></property>
+        <property name="pageFetcher" ref="landPageFetcher"></property>
+        <property name="contentPageExtractor" ref="landContentPageExtractor"></property>
+        <property name="navigationExtractor" ref="landNavigationExtractor"></property>
+        <property name="contentExtractor" ref="landContentExtractor"></property>
+    </bean>
+    <!-- 待爬取对象：langchina 公告结果：郴州市-招拍挂出让。对应 org.tomstools.crawler.config.Target -->
+    <bean id="target-landchina-gonggaojieguo-cz-zpgcr" class="org.tomstools.crawler.config.Target"
+        scope="prototype">
+        <property name="name" value="landchina-gonggaojieguo-cz-zpgcr"></property>
+        <property name="url">
+            <value><![CDATA[http://www.landchina.com/default.aspx?tabid=263&p=42ad98ae-c46a-40aa-aacc-c0884036eeaf%3A4310%25%7Ea%7C8fd0232c-aff0-45d1-a726-63fc4c3d8ea9%3A2%25%7E1]]></value>
+        </property>
+        <property name="defaultCharsetName" value="GBK"></property>
+        <property name="crawlingRule" ref="crawlingRule"></property>
+        <property name="parser" ref="htmlParser"></property>
+        <property name="completedHandler" ref="landShellCompletedHandler_hunan"></property>
+        <property name="pageFetcher" ref="landPageFetcher"></property>
+        <property name="contentPageExtractor" ref="landContentPageExtractor"></property>
+        <property name="navigationExtractor" ref="landNavigationExtractor"></property>
+        <property name="contentExtractor" ref="landContentExtractor"></property>
+    </bean>
+    <!-- 待爬取对象：langchina 公告结果：永州市-招拍挂出让。对应 org.tomstools.crawler.config.Target -->
+    <bean id="target-landchina-gonggaojieguo-yz-zpgcr" class="org.tomstools.crawler.config.Target"
+        scope="prototype">
+        <property name="name" value="landchina-gonggaojieguo-yz-zpgcr"></property>
+        <property name="url">
+            <value><![CDATA[http://www.landchina.com/default.aspx?tabid=263&p=42ad98ae-c46a-40aa-aacc-c0884036eeaf%3A4311%25%7Ea%7C8fd0232c-aff0-45d1-a726-63fc4c3d8ea9%3A2%25%7E1]]></value>
+        </property>
+        <property name="defaultCharsetName" value="GBK"></property>
+        <property name="crawlingRule" ref="crawlingRule"></property>
+        <property name="parser" ref="htmlParser"></property>
+        <property name="completedHandler" ref="landShellCompletedHandler_hunan"></property>
+        <property name="pageFetcher" ref="landPageFetcher"></property>
+        <property name="contentPageExtractor" ref="landContentPageExtractor"></property>
+        <property name="navigationExtractor" ref="landNavigationExtractor"></property>
+        <property name="contentExtractor" ref="landContentExtractor"></property>
+    </bean>
+    <!-- 待爬取对象：langchina 公告结果：怀化市-招拍挂出让。对应 org.tomstools.crawler.config.Target -->
+    <bean id="target-landchina-gonggaojieguo-hh-zpgcr" class="org.tomstools.crawler.config.Target"
+        scope="prototype">
+        <property name="name" value="landchina-gonggaojieguo-hh-zpgcr"></property>
+        <property name="url">
+            <value><![CDATA[http://www.landchina.com/default.aspx?tabid=263&p=42ad98ae-c46a-40aa-aacc-c0884036eeaf%3A4312%25%7Ea%7C8fd0232c-aff0-45d1-a726-63fc4c3d8ea9%3A2%25%7E1]]></value>
+        </property>
+        <property name="defaultCharsetName" value="GBK"></property>
+        <property name="crawlingRule" ref="crawlingRule"></property>
+        <property name="parser" ref="htmlParser"></property>
+        <property name="completedHandler" ref="landShellCompletedHandler_hunan"></property>
+        <property name="pageFetcher" ref="landPageFetcher"></property>
+        <property name="contentPageExtractor" ref="landContentPageExtractor"></property>
+        <property name="navigationExtractor" ref="landNavigationExtractor"></property>
+        <property name="contentExtractor" ref="landContentExtractor"></property>
+    </bean>
+    <!-- 待爬取对象：langchina 公告结果：娄底市-招拍挂出让。对应 org.tomstools.crawler.config.Target -->
+    <bean id="target-landchina-gonggaojieguo-ld-zpgcr" class="org.tomstools.crawler.config.Target"
+        scope="prototype">
+        <property name="name" value="landchina-gonggaojieguo-ld-zpgcr"></property>
+        <property name="url">
+            <value><![CDATA[http://www.landchina.com/default.aspx?tabid=263&p=42ad98ae-c46a-40aa-aacc-c0884036eeaf%3A4313%25%7Ea%7C8fd0232c-aff0-45d1-a726-63fc4c3d8ea9%3A2%25%7E1]]></value>
+        </property>
+        <property name="defaultCharsetName" value="GBK"></property>
+        <property name="crawlingRule" ref="crawlingRule"></property>
+        <property name="parser" ref="htmlParser"></property>
+        <property name="completedHandler" ref="landShellCompletedHandler_hunan"></property>
+        <property name="pageFetcher" ref="landPageFetcher"></property>
+        <property name="contentPageExtractor" ref="landContentPageExtractor"></property>
+        <property name="navigationExtractor" ref="landNavigationExtractor"></property>
+        <property name="contentExtractor" ref="landContentExtractor"></property>
+    </bean>
+    <!-- 待爬取对象：langchina 公告结果：湘西土家族苗族自治州-招拍挂出让。对应 org.tomstools.crawler.config.Target -->
+    <bean id="target-landchina-gonggaojieguo-xx-zpgcr" class="org.tomstools.crawler.config.Target"
+        scope="prototype">
+        <property name="name" value="landchina-gonggaojieguo-xx-zpgcr"></property>
+        <property name="url">
+            <value><![CDATA[http://www.landchina.com/default.aspx?tabid=263&p=42ad98ae-c46a-40aa-aacc-c0884036eeaf%3A4331%25%7Ea%7C8fd0232c-aff0-45d1-a726-63fc4c3d8ea9%3A2%25%7E1]]></value>
+        </property>
+        <property name="defaultCharsetName" value="GBK"></property>
+        <property name="crawlingRule" ref="crawlingRule"></property>
+        <property name="parser" ref="htmlParser"></property>
+        <property name="completedHandler" ref="landShellCompletedHandler_hunan"></property>
+        <property name="pageFetcher" ref="landPageFetcher"></property>
+        <property name="contentPageExtractor" ref="landContentPageExtractor"></property>
+        <property name="navigationExtractor" ref="landNavigationExtractor"></property>
+        <property name="contentExtractor" ref="landContentExtractor"></property>
+    </bean>
+</beans>

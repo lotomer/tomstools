@@ -14,6 +14,7 @@ import org.tomstools.common.Utils;
 import org.tomstools.crawler.common.Element;
 import org.tomstools.crawler.common.ElementProcessor;
 import org.tomstools.crawler.extractor.ContentPageExtractor;
+import org.tomstools.crawler.extractor.ContentExtractor.ConstantField;
 import org.tomstools.crawler.extractor.ContentExtractor.Field;
 import org.tomstools.crawler.extractor.ContentExtractor.MultipleField;
 import org.tomstools.crawler.http.PageFetcher;
@@ -149,19 +150,18 @@ public class BaseContentPageExtractor implements ContentPageExtractor {
     @Override
     public Map<String, String> getConstantValues(Element element) {
         if (null != constantField && null != element) {
-            if (null != constantField) {
-                final Map<String, String> tmpConstantFieldValues = new LinkedHashMap<String, String>();
-                for (Field field : constantField) {
-                    if (field instanceof MultipleField) {
-                        field.processData(null, tmpConstantFieldValues);
-                    } else {
-                        field.processData(element.select(field.getSelector()),
-                                tmpConstantFieldValues);
-                    }
-
+            final Map<String, String> tmpConstantFieldValues = new LinkedHashMap<String, String>();
+            for (Field field : constantField) {
+                if (field instanceof MultipleField) {
+                    field.processData(null, tmpConstantFieldValues);
+                } else if (field instanceof ConstantField) {
+                    field.processData(element, tmpConstantFieldValues);
+                } else {
+                    field.processData(element.select(field.getSelector()), tmpConstantFieldValues);
                 }
-                return tmpConstantFieldValues;
+
             }
+            return tmpConstantFieldValues;
         }
         return null;
     }

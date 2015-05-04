@@ -63,8 +63,23 @@ public class ContentExtractor {
      * @since 1.0
      */
     public List<Map<String, String>> extractContent(final Element element) {
+        if (null != constantField && null != element) {
+            final Map<String, String> tmpConstantFieldValues = new LinkedHashMap<String, String>();
+            for (Field field : constantField) {
+                if (field instanceof MultipleField) {
+                    field.processData(null, tmpConstantFieldValues);
+                } else if (field instanceof ConstantField) {
+                    field.processData(element, tmpConstantFieldValues);
+                } else {
+                    field.processData(element.select(field.getSelector()), tmpConstantFieldValues);
+                }
+
+            }
+            return extractContent(element, tmpConstantFieldValues);
+        }
         return extractContent(element, null);
     }
+
     /**
      * 从节点中提取内容
      * 
@@ -88,10 +103,10 @@ public class ContentExtractor {
             for (Field field : constantField) {
                 if (field instanceof MultipleField) {
                     field.processData(null, tmpConstantFieldValues);
-                }else{
+                } else {
                     field.processData(element.select(field.selector), tmpConstantFieldValues);
                 }
-                
+
             }
         }
         if (LOGGER.isDebugEnabled()) {
@@ -139,7 +154,7 @@ public class ContentExtractor {
             for (final Field field : fields) {
                 if (field instanceof MultipleField) {
                     field.processData(null, result);
-                }else{
+                } else {
                     element.select(field.selector, new ElementProcessor() {
                         public boolean process(Element element) {
                             if (null != element) {
@@ -202,6 +217,8 @@ public class ContentExtractor {
         public static int VALUE_TYPE_ATTRIBUTE = 5;
         /** 字段值类型：组合字段 */
         public static int VALUE_TYPE_MULTIPLE = 6;
+        /** 字段值类型：常量字段 */
+        public static int VALUE_TYPE_CONSTANT = 7;
 
         /**
          * 构造函数
@@ -222,7 +239,7 @@ public class ContentExtractor {
         }
 
         public void processData(Element element, Map<String, String> fieldValueCollector) {
-            if (null != element){
+            if (null != element) {
                 if (null != fieldSplitter) {
                     // 该字段指定了拆分器，则进行拆分
                     fieldSplitter.process(getText(element), fieldValueCollector);
@@ -411,24 +428,26 @@ public class ContentExtractor {
          */
         @Override
         public void processData(Element element, Map<String, String> fieldValueCollector) {
-            if (!Utils.isEmpty(selector)){
-                String[] vs = selector.split(",",2);
-                if (0 < vs.length){
+            if (!Utils.isEmpty(selector)) {
+                String[] vs = selector.split(",", 2);
+                if (0 < vs.length) {
                     String[] fields = vs[0].split("\\|");
-                    if (2 == vs.length){
-                        //包含内容输出模式
+                    if (2 == vs.length) {
+                        // 包含内容输出模式
                         String mode = vs[1];
                         // 组个变量替换
                         String fieldValue;
                         for (int i = 0; i < fields.length; i++) {
                             fieldValue = fieldValueCollector.get(fields[i]);
-                            if (null != fieldValue){
-                                //LOGGER.info("name:" +name+",selector:" +selector+",field:" + fields[i] + ",value:" + fieldValue);
+                            if (null != fieldValue) {
+                                // LOGGER.info("name:" +name+",selector:"
+                                // +selector+",field:" + fields[i] + ",value:" +
+                                // fieldValue);
                                 mode = mode.replaceAll("\\$\\{" + fields[i] + "\\}", fieldValue);
                             }
                         }
                         fieldValueCollector.put(name, mode);
-                    }else{
+                    } else {
                         // 不包含内容输出模式则依次输出内容
                         StringBuilder msg = new StringBuilder();
                         for (int i = 0; i < fields.length; i++) {
@@ -477,6 +496,29 @@ public class ContentExtractor {
         protected String getText(Element e) {
             return e.getAttribute(attributeName);
         }
+    }
+
+    public static class ConstantField extends Field {
+        private String value;
+
+        public ConstantField(String name) {
+            this(name, null, VALUE_TYPE_CONSTANT, null);
+        }
+
+        public ConstantField(String name, String selector, int valueType,
+                FieldSplitter fieldSplitter) {
+            super(name, selector, valueType, fieldSplitter);
+        }
+
+        public final void setValue(String value) {
+            this.value = value;
+        }
+
+        @Override
+        protected String getText(Element e) {
+            return value;
+        }
+
     }
 
     public static void main(String[] args) throws IOException {
