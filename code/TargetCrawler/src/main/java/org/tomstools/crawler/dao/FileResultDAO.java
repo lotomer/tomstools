@@ -22,6 +22,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import org.tomstools.common.Logger;
 import org.tomstools.common.Utils;
@@ -65,14 +66,14 @@ public class FileResultDAO implements ResultDAO {
         this.specialWords = new HashSet<String>();
         if (null != specialWords && 0 < specialWords.length) {
             for (int i = 0; i < specialWords.length; i++) {
-                this.specialWords.add(specialWords[i]);
+                this.specialWords.add(Pattern.quote(specialWords[i]));
             }
         }
         this.newLine = "\n";
         this.specialWords.add("\r");
         this.specialWords.add("\n");
         this.specialWords.add(newLine);
-        this.specialWords.add(separator);
+        this.specialWords.add(Pattern.quote(separator));
         writers = new HashMap<String, Writer>();
         outFileNames = new HashMap<String, String>();
         targetTitles = new HashMap<String, String[]>();
@@ -187,12 +188,13 @@ public class FileResultDAO implements ResultDAO {
      * @since 1.0
      */
     protected String trimSpecial(String value) {
-        if (!Utils.isEmpty(value)) {
+        if (null != value && !"".equals(value)) {
             for (String word : this.specialWords) {
                 value = value.replaceAll(word, " ");
             }
 
-            return value.trim();
+            //return value.trim();
+            return value;
         } else {
             return "";
         }
@@ -323,7 +325,12 @@ public class FileResultDAO implements ResultDAO {
     }
 
     public static void main(String[] args) {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
-        System.out.println(sdf.format(new Date()));
+        String a = "a|b|c";
+        String b = "|";
+        String c = Pattern.quote(b);
+        String[] ss = a.split(c);
+        System.out.println(c);
+        System.out.println(ss.length);
+        System.out.println(a.replaceAll(c, " "));
     }
 }

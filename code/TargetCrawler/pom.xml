@@ -5,7 +5,7 @@
     <groupId>org.tomstools.crawler</groupId>
     <artifactId>TargetCrawler</artifactId>
     <packaging>jar</packaging>
-    <version>1.2-SNAPSHOT</version>
+    <version>1.3</version>
     <name>TargetCrawler</name>
     <url>http://www.tomstools.org</url>
     <properties>

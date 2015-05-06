@@ -63,7 +63,34 @@
     <bean id="htmlParser" class="org.tomstools.crawler.parser.HTMLParser" scope="prototype">
     </bean>
 
-    <import resource="miit.gov.cn.xml"/>
+    <import resource="10jqka-ssyw.xml"/>
+    <import resource="55188-wjj.xml"/>
+    <import resource="cbrc-rd.xml"/>
+    <import resource="cbrc-yw.xml"/>
+    <import resource="csrc-gwyzcxx.xml"/>
+    <import resource="csrc-xwdd.xml"/>
+    <import resource="csrc-xwfbh.xml"/>
+    <import resource="datianxia.xml"/>
+    <import resource="eastmoney-yw.xml"/>
+    <import resource="gov-bmxw.xml"/>
+    <import resource="gov-dfxw.xml"/>
+    <import resource="gov-gwy.xml"/>
+    <import resource="gov-zc.xml"/>
+    <import resource="miit-bujiguan.xml"/>
+    <import resource="miit-yaowen.xml"/>
+    <import resource="nhfpc-dt.xml"/>
+    <import resource="nhfpc-gw.xml"/>
+    <import resource="nhfpc-ldhd.xml"/>
+    <import resource="sasac-szyw.xml"/>
+    <import resource="sasac-yqdt.xml"/>
+    <import resource="sasac-yw.xml"/>
+    <import resource="sdpc-dfdt.xml"/>
+    <import resource="sdpc-gzdt.xml"/>
+    <import resource="sdpc-jjxsfx.xml"/>
+    <import resource="sdpc-xwfb.xml"/>
+    <import resource="sdpc-xwzb.xml"/>
+    <import resource="sdpc-zcfbl.xml"/>
+    <import resource="taoguba-ylxtx.xml"/>
     
     <!-- 结果数据操作对象：文件方式。对应 org.tomstools.crawler.dao.ResultDAO -->
     <bean id="fileResultDAO" class="org.tomstools.crawler.dao.FileResultDAO" scope="prototype">
@@ -71,8 +98,7 @@
         <constructor-arg index="0" type="java.lang.String" value="${file.result.dir}"></constructor-arg>
         <!-- 构造函数参数 2: 结果数据保存时各字段之间的分隔符 -->
         <constructor-arg index="1" type="java.lang.String">
-            <value>,</value>
-
+            <value>\</value>
         </constructor-arg>
         <!-- 构造函数参数3: 需要剔除的特殊字符 -->
         <constructor-arg index="2">
@@ -90,7 +116,34 @@
         <!-- 构造函数参数 1: 定向爬取目标列表 List<org.tomstools.crawler.config.Target> -->
         <constructor-arg index="0">
             <list>               
-                <ref bean="target-miit" />
+                <!-- <ref bean="target-10jqka-ssyw"/> -->
+                <ref bean="target-55188-wjj"/>
+                <ref bean="target-cbrc-rd"/>
+                <ref bean="target-cbrc-yw"/>
+                <ref bean="target-csrc-gwyzcxx"/>
+                <ref bean="target-csrc-xwdd"/>
+                <ref bean="target-csrc-xwfbh"/>
+                <ref bean="target-datianxia"/>
+                <ref bean="target-eastmoney-yw"/>
+                <ref bean="target-gov-bmxw"/>
+                <ref bean="target-gov-dfxw"/>
+                <ref bean="target-gov-gwy"/>
+                <ref bean="target-gov-zc"/>
+                <ref bean="target-miit-bujiguan"/>
+                <ref bean="target-miit-yaowen"/>
+                <ref bean="target-nhfpc-dt"/>
+                <ref bean="target-nhfpc-gw"/>
+                <ref bean="target-nhfpc-ldhd"/>
+                <ref bean="target-sasac-szyw"/>
+                <ref bean="target-sasac-yqdt"/>
+                <ref bean="target-sasac-yw"/>
+                <ref bean="target-sdpc-dfdt"/>
+                <ref bean="target-sdpc-gzdt"/>
+                <ref bean="target-sdpc-jjxsfx"/>
+                <ref bean="target-sdpc-xwfb"/>
+                <ref bean="target-sdpc-xwzb"/>
+                <ref bean="target-sdpc-zcfbl"/>
+                <ref bean="target-taoguba-ylxtx"/>
             </list>
         </constructor-arg>
         <!-- 构造函数参数 2: 结果数据操作对象。对应 接口 org.tomstools.crawler.dao.ResultDAO -->
