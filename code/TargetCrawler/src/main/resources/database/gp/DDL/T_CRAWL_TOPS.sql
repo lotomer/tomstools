@@ -1,0 +1,7 @@
+﻿
+CREATE TABLE `T_CRAWL_TOPS` (
+  `CRAWL_ID` int(11) NOT NULL COMMENT '编号，对应T_CRAWL_STATUS中的ID',
+  `STATUS` varchar(1024) NOT NULL COMMENT '最新状态',
+  `UPDATE_TIME` datetime NOT NULL COMMENT '更新时间',
+  KEY (`CRAWL_ID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='网站置顶信息。需要排除在状态标识之外';

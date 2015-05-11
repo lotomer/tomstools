@@ -14,15 +14,38 @@
         <property name="customEditors"> <map> <entry key="java.util.Map"> <bean class="cn.com.talkweb.classify.spring.MapEditor"> 
         </bean> </entry> </map> </property> </bean> -->
 
-    <!-- 数据库数据源 <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource"> <property name="driverClassName" 
-        value="${jdbc.driver}" /> <property name="url" value="${jdbc.url}"/> <property name="username" value="${jdbc.username}" 
-        /> <property name="password" value="${jdbc.password}" /> <property name="maxIdle" value="20" /> <property 
-        name="maxActive" value="50" /> <property name="maxWait" value="3000" /> <property name="minIdle" value="10" 
-        /> <property name="removeAbandoned" value="true"/> <property name="removeAbandonedTimeout" value="60"/> 
-        </bean> -->
+    <!-- 配置数据库数据源 -->
+    <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource">
+        <property name="driverClassName" value="${jdbc_classname}"/>
+        <property name="url" value="${jdbc_url}"/>
+        <property name="username" value="${jdbc_user}"/>
+        <property name="password" value="${jdbc_password}"/>
+        <property name="maxIdle" value="20"/>
+        <property name="maxActive" value="50"/>
+        <property name="minIdle" value="10"/>
+        <property name="maxWait" value="3600000"/>
+        <property name="testWhileIdle" value="true"/>
+        <property name="removeAbandoned" value="true"/>
+        <property name="removeAbandonedTimeout" value="60"/>
+    </bean>
 
-    <!-- transaction manager, use JtaTransactionManager for global tx <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager"> 
-        <property name="dataSource" ref="dataSource" /> </bean> -->
+    <!-- 开启事务 <tx:jta-transaction-manager /> -->
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource" />
+    </bean>
+    
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="dataSource"/>
+        <property name="transactionFactory">
+            <bean class="org.apache.ibatis.transaction.managed.ManagedTransactionFactory" />
+        </property>
+        <property name="mapperLocations" value="classpath*:${BUSI_NAME}/**/*-mapper.xml" />
+    </bean>
+    
+    <!-- 
+    <bean id="sqlSession" class="org.mybatis.spring.SqlSessionTemplate">
+        <constructor-arg index="0" ref="sqlSessionFactory" />
+    </bean> -->
 
     <!-- 爬取规则。对应 org.tomstools.crawler.config.CrawlingRule -->
     <bean id="crawlingRule" class="org.tomstools.crawler.config.CrawlingRule" scope="prototype">
@@ -63,6 +86,29 @@
     <bean id="htmlParser" class="org.tomstools.crawler.parser.HTMLParser" scope="prototype">
     </bean>
 
+    <!-- 结果数据操作对象：数据库方式。对应 org.tomstools.crawler.dao.ResultDAO -->
+    <bean id="dbDAO" class="org.tomstools.crawler.dao.DBResultDAO">
+        <property name="sqlSessionFactory" ref="sqlSessionFactory" />
+    </bean>
+    <!-- 结果数据操作对象：文件方式。对应 org.tomstools.crawler.dao.ResultDAO -->
+    <bean id="fileResultDAO" class="org.tomstools.crawler.dao.FileResultDAO" scope="prototype">
+        <!-- 构造函数参数 1: 文件保存的根目录 -->
+        <constructor-arg index="0" type="java.lang.String" value="${file.result.dir}"></constructor-arg>
+        <!-- 构造函数参数 2: 结果数据保存时各字段之间的分隔符 -->
+        <constructor-arg index="1" type="java.lang.String">
+            <value>\</value>
+        </constructor-arg>
+        <!-- 构造函数参数3: 需要剔除的特殊字符 -->
+        <constructor-arg index="2">
+            <array>
+                <value>&#10;</value>
+                <value>&#13;</value>
+                <value>\[</value>
+                <value>\]</value>
+            </array>
+        </constructor-arg>
+    </bean>
+
     <import resource="10jqka-ssyw.xml"/>
     <import resource="55188-wjj.xml"/>
     <import resource="cbrc-rd.xml"/>
@@ -92,31 +138,13 @@
     <import resource="sdpc-zcfbl.xml"/>
     <import resource="taoguba-ylxtx.xml"/>
     
-    <!-- 结果数据操作对象：文件方式。对应 org.tomstools.crawler.dao.ResultDAO -->
-    <bean id="fileResultDAO" class="org.tomstools.crawler.dao.FileResultDAO" scope="prototype">
-        <!-- 构造函数参数 1: 文件保存的根目录 -->
-        <constructor-arg index="0" type="java.lang.String" value="${file.result.dir}"></constructor-arg>
-        <!-- 构造函数参数 2: 结果数据保存时各字段之间的分隔符 -->
-        <constructor-arg index="1" type="java.lang.String">
-            <value>\</value>
-        </constructor-arg>
-        <!-- 构造函数参数3: 需要剔除的特殊字符 -->
-        <constructor-arg index="2">
-            <array>
-                <value>&#10;</value>
-                <value>&#13;</value>
-                <value>\[</value>
-                <value>\]</value>
-            </array>
-        </constructor-arg>
-    </bean>
-
     <!-- 定向爬取。对应 org.tomstools.crawler.TargetCrawler -->
     <bean id="targetCrawler" class="org.tomstools.crawler.TargetCrawler" scope="prototype">
         <!-- 构造函数参数 1: 定向爬取目标列表 List<org.tomstools.crawler.config.Target> -->
         <constructor-arg index="0">
             <list>               
-                <!-- <ref bean="target-10jqka-ssyw"/> -->
+                <!-- <ref bean="target-10jqka-ssyw"/>
+                <ref bean="target-eastmoney-yw"/> -->
                 <ref bean="target-55188-wjj"/>
                 <ref bean="target-cbrc-rd"/>
                 <ref bean="target-cbrc-yw"/>
@@ -124,7 +152,6 @@
                 <ref bean="target-csrc-xwdd"/>
                 <ref bean="target-csrc-xwfbh"/>
                 <ref bean="target-datianxia"/>
-                <ref bean="target-eastmoney-yw"/>
                 <ref bean="target-gov-bmxw"/>
                 <ref bean="target-gov-dfxw"/>
                 <ref bean="target-gov-gwy"/>
@@ -146,8 +173,9 @@
                 <ref bean="target-taoguba-ylxtx"/>
             </list>
         </constructor-arg>
-        <!-- 构造函数参数 2: 结果数据操作对象。对应 接口 org.tomstools.crawler.dao.ResultDAO -->
-        <constructor-arg index="1" ref="fileResultDAO"></constructor-arg>
+        <!-- 构造函数参数 2: 结果数据操作对象。对应 接口 org.tomstools.crawler.dao.ResultDAO 
+        <constructor-arg index="1" ref="fileResultDAO"></constructor-arg> -->
+        <constructor-arg index="1" ref="dbDAO"></constructor-arg>
     </bean>
 
 </beans>
