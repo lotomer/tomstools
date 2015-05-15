@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xsi:schemaLocation="   
+     http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd   
+     http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+
+    <!-- 待爬取对象：银行监管会-要闻。对应 org.tomstools.crawler.config.Target -->
+    <bean id="target-cbrc-yw" class="org.tomstools.crawler.config.Target" scope="prototype">
+        <property name="name" value="cbrc-yw"></property>
+        <property name="siteName" value="银行监管会"></property>
+        <property name="channelName" value="要闻"></property>
+        <property name="url" value="http://www.cbrc.gov.cn/chinese/home/docViewPage/110010.html"></property>
+        <property name="defaultCharsetName" value="UTF-8"></property>
+        <property name="crawlingRule" ref="crawlingRule"></property>
+        <property name="parser" ref="htmlParser"></property>
+        <property name="pageFetcher" ref="pageFetcher"></property>
+        <property name="completedHandler">
+            <!-- 任务完成后需要执行的钩子。对应org.tomstools.crawler.handle.CompletedHandleable -->
+            <bean id="shellCompletedHandler" class="org.tomstools.crawler.handle.ShellHandle" scope="prototype">
+                <!-- 构造函数参数 1: shell命令。执行时将加上完整的文件名参数 -->
+                <constructor-arg index="0" type="java.lang.String" value="${cmd_completed_handler_prefix}\transfer.cmd ${file.tmp.dir}\cbrc-yw.html "></constructor-arg>
+                <property name="waitFor" value="${cmd_waitFor}"></property>
+            </bean>
+        </property>
+        <property name="contentPageExtractor">
+            <null></null>
+        </property>
+        <property name="navigationExtractor">
+            <bean class="org.tomstools.crawler.extractor.impl.PageNavigationExtractor"
+                scope="prototype">
+                <!-- 构造函数参数 1: 元素选择表达式 -->
+                <constructor-arg index="0" type="java.lang.String">
+                    <value><![CDATA[div#page ul.pageno a[title=下一页]]]></value>
+                </constructor-arg>
+                <!-- 构造函数参数 2: 正则表达式 -->
+                <constructor-arg index="1" type="java.lang.String">
+                    <value><![CDATA[<a .*?href="(.*?)"]]></value>
+                </constructor-arg>
+                <!-- 构造函数参数 3: 正则表达式中group的索引号对应的参数名称 -->
+                <constructor-arg index="2">
+                    <map>
+                        <entry key="1"><value><![CDATA[url]]></value></entry>
+                    </map>
+                </constructor-arg>
+            </bean>
+        </property>
+        <property name="contentExtractor">
+            <!-- 内容抽取器。对应 org.tomstools.crawler.extractor.ContentExtractor -->
+            <bean class="org.tomstools.crawler.extractor.ContentExtractor" scope="prototype">
+                <!-- 构造函数参数 1: 元素选择表达式 -->
+                <constructor-arg index="0" type="java.lang.String">
+                    <value><![CDATA[div.xia3 > table > tbody > tr > td > a]]></value>
+                </constructor-arg>
+                <!-- 构造函数参数 2: 表头 -->
+                <constructor-arg index="1" type="java.lang.String[]">
+                    <value><![CDATA[title,host,url]]></value>
+                </constructor-arg>
+                <!-- 构造函数参数 3: 固定属性 -->
+                <constructor-arg index="2">
+                    <list>
+                        <bean class="org.tomstools.crawler.extractor.ContentExtractor.ConstantField">
+                            <!-- 构造函数参数 1: 名称 -->
+                            <constructor-arg index="0" type="java.lang.String">
+                                <value><![CDATA[host]]></value>
+                            </constructor-arg>
+                            <property name="value" value="http://www.cbrc.gov.cn"></property>
+                        </bean>
+                    </list>
+                </constructor-arg>
+                <!-- 构造函数参数 4: 提取属性配置信息 -->
+                <constructor-arg index="3">
+                    <list>
+                        <bean class="org.tomstools.crawler.extractor.ContentExtractor.OwnTextField">
+                            <!-- 构造函数参数 1: 名称 -->
+                            <constructor-arg index="0" type="java.lang.String">
+                                <value><![CDATA[title]]></value>
+                            </constructor-arg>
+                            <!-- 构造函数参数 2: 元素选择表达式 -->
+                            <constructor-arg index="1" type="java.lang.String">
+                                <value><![CDATA[a]]></value>
+                            </constructor-arg>
+                        </bean>
+                        <bean class="org.tomstools.crawler.extractor.ContentExtractor.AttributeField">
+                            <!-- 构造函数参数 1: 名称 -->
+                            <constructor-arg index="0" type="java.lang.String">
+                                <value><![CDATA[url]]></value>
+                            </constructor-arg>
+                            <!-- 构造函数参数 2: 元素选择表达式 -->
+                            <constructor-arg index="1" type="java.lang.String">
+                                <value><![CDATA[a]]></value>
+                            </constructor-arg>
+                            <property name="attributeName" value="href"></property>
+                        </bean>
+                    </list>
+                </constructor-arg>
+            </bean>
+        </property>
+    </bean>
+</beans>

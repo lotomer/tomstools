@@ -22,6 +22,8 @@ public class Target {
     // private final static Logger LOGGER = Logger.getLogger(Target.class);
     private String url; // 目标主页面URL
     private String name; // 目标名称
+    private String siteName;    // 网站名称
+    private String channelName; // 栏目名称
     private String regex4topDataFalg; // 匹配置顶数据的正则表达式
     private String defaultCharsetName; // 默认字符集
     private Parser parser; // 目标主页面解析器
@@ -38,6 +40,22 @@ public class Target {
      */
     public final String getUrl() {
         return url;
+    }
+
+    public final String getSiteName() {
+        return siteName;
+    }
+
+    public final void setSiteName(String siteName) {
+        this.siteName = siteName;
+    }
+
+    public final String getChannelName() {
+        return channelName;
+    }
+
+    public final void setChannelName(String channelName) {
+        this.channelName = channelName;
     }
 
     /**

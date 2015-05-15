@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xsi:schemaLocation="   
+     http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd   
+     http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+
+    <!-- in-memory database and a datasource -->
+    <!-- 配置文件导入 -->
+    <context:property-placeholder location="config.properties"
+        ignore-unresolvable="true" />
+    <!-- 注册自定义属性编辑器 <bean id="customEditorConfigure" class="org.springframework.beans.factory.config.CustomEditorConfigurer"> 
+        <property name="customEditors"> <map> <entry key="java.util.Map"> <bean class="cn.com.talkweb.classify.spring.MapEditor"> 
+        </bean> </entry> </map> </property> </bean> -->
+
+    <!-- 数据库数据源 <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource"> <property name="driverClassName" 
+        value="${jdbc.driver}" /> <property name="url" value="${jdbc.url}"/> <property name="username" value="${jdbc.username}" 
+        /> <property name="password" value="${jdbc.password}" /> <property name="maxIdle" value="20" /> <property 
+        name="maxActive" value="50" /> <property name="maxWait" value="3000" /> <property name="minIdle" value="10" 
+        /> <property name="removeAbandoned" value="true"/> <property name="removeAbandonedTimeout" value="60"/> 
+        </bean> -->
+
+    <!-- transaction manager, use JtaTransactionManager for global tx <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager"> 
+        <property name="dataSource" ref="dataSource" /> </bean> -->
+
+    <!-- 爬取规则。对应 org.tomstools.crawler.config.CrawlingRule -->
+    <bean id="crawlingRule" class="org.tomstools.crawler.config.CrawlingRule" scope="prototype">
+        <property name="batchIntervalInit" value="500"></property>
+        <property name="batchIntervalFinal" value="300"></property>
+        <property name="batchIntervalStep" value="50"></property>
+        <property name="batchSizeInit" value="5"></property>
+        <property name="batchSizeFinal" value="2"></property>
+        <property name="batchSizeStep" value="1"></property>
+        <property name="connectionTimeOut" value="20000"></property>
+        <property name="socketTimeOut" value="30000"></property>
+    </bean>
+
+    <bean name="pageFetcher" class="org.tomstools.crawler.http.PageFetcher" scope="prototype">
+        <!-- 构造函数参数 1: 网页字符集 -->
+        <constructor-arg index="0" type="java.lang.String" value="GBK"></constructor-arg>
+        <property name="method" value="GET"></property>
+        <property name="tryCount" value="5"></property>
+        <property name="requestInfo">
+            <bean class="org.tomstools.crawler.http.RequestInfo" scope="prototype">
+                <property name="formDatas">
+                    <list></list>
+                </property>
+                <property name="headers">
+                    <map>
+                        <entry key="Accept"><value><![CDATA[text/html, application/xhtml+xml, */*]]></value></entry>
+                        <entry key="Accept-Encoding"><value><![CDATA[gzip, deflate]]></value></entry>
+                        <entry key="Accept-Language"><value><![CDATA[zh-CN]]></value></entry>
+                        <entry key="Cache-Control"><value><![CDATA[no-cache]]></value></entry>
+                        <entry key="Connection"><value><![CDATA[keep-alive]]></value></entry>
+                        <entry key="User-Agent"><value><![CDATA[Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/5.0)]]></value></entry>
+                    </map>
+                </property>
+            </bean>
+        </property>
+    </bean>
+    <!-- 文档解析器：HTML。对应 org.tomstools.crawler.parser.Parser -->
+    <bean id="htmlParser" class="org.tomstools.crawler.parser.HTMLParser" scope="prototype">
+    </bean>
+
+    <import resource="0731fdc-floor-cs.xml"/>
+    <import resource="0731fdc-floor-cs-detail.xml"/>
+    <import resource="0731fdc-floor-cs-detail2.xml"/>
+    <import resource="0731fdc-floor-zz.xml"/>
+    <import resource="0731fdc-floor-xt.xml"/>
+    <import resource="landchina-gonggaojieguo-hunan-xycr.xml"/>
+    <import resource="landchina-gonggaojieguo-hunan-zpgcr.xml"/>
+    
+    <!-- 结果数据操作对象：文件方式。对应 org.tomstools.crawler.dao.ResultDAO -->
+    <bean id="fileResultDAO" class="org.tomstools.crawler.dao.FileResultDAO" scope="prototype">
+        <!-- 构造函数参数 1: 文件保存的根目录 -->
+        <constructor-arg index="0" type="java.lang.String" value="${file.result.dir}"></constructor-arg>
+        <!-- 构造函数参数 2: 结果数据保存时各字段之间的分隔符 -->
+        <constructor-arg index="1" type="java.lang.String">
+            <value>,</value>
+
+        </constructor-arg>
+        <!-- 构造函数参数3: 需要剔除的特殊字符 -->
+        <constructor-arg index="2">
+            <array>
+                <value>&#10;</value>
+                <value>&#13;</value>
+                <value>\[</value>
+                <value>\]</value>
+            </array>
+        </constructor-arg>
+    </bean>
+
+    <!-- 定向爬取。对应 org.tomstools.crawler.TargetCrawler -->
+    <bean id="targetCrawler" class="org.tomstools.crawler.TargetCrawler" scope="prototype">
+        <!-- 构造函数参数 1: 定向爬取目标列表 List<org.tomstools.crawler.config.Target> -->
+        <constructor-arg index="0">
+            <list>
+                <!-- 
+                <ref bean="target-0731fdc-floor-zz" />
+                <ref bean="target-0731fdc-floor-xt" />
+                <ref bean="target-0731fdc-floor-cs" />
+                <ref bean="target-0731fdc-floor-cs-detail"/>
+                <ref bean="target-0731fdc-floor-cs-detail2"/>
+                <ref bean="target-landchina-gonggaojieguo-cs-xycr" />
+                <ref bean="target-landchina-gonggaojieguo-zz-xycr" />
+                <ref bean="target-landchina-gonggaojieguo-xt-xycr" />
+                <ref bean="target-landchina-gonggaojieguo-hy-xycr" />
+                <ref bean="target-landchina-gonggaojieguo-sy-xycr" />
+                <ref bean="target-landchina-gonggaojieguo-yy-xycr" />
+                <ref bean="target-landchina-gonggaojieguo-cd-xycr" />
+                <ref bean="target-landchina-gonggaojieguo-zjj-xycr" />
+                <ref bean="target-landchina-gonggaojieguo-yiy-xycr" />
+                <ref bean="target-landchina-gonggaojieguo-cz-xycr" />
+                <ref bean="target-landchina-gonggaojieguo-yz-xycr" />
+                <ref bean="target-landchina-gonggaojieguo-hh-xycr" />
+                <ref bean="target-landchina-gonggaojieguo-ld-xycr" />
+                <ref bean="target-landchina-gonggaojieguo-xx-xycr" />
+                <ref bean="target-landchina-gonggaojieguo-cs-zpgcr" />
+                <ref bean="target-landchina-gonggaojieguo-zz-zpgcr" />
+                <ref bean="target-landchina-gonggaojieguo-xt-zpgcr" />
+                <ref bean="target-landchina-gonggaojieguo-hy-zpgcr" />
+                <ref bean="target-landchina-gonggaojieguo-sy-zpgcr" />
+                <ref bean="target-landchina-gonggaojieguo-yy-zpgcr" />
+                <ref bean="target-landchina-gonggaojieguo-cd-zpgcr" />
+                <ref bean="target-landchina-gonggaojieguo-zjj-zpgcr" />
+                <ref bean="target-landchina-gonggaojieguo-yiy-zpgcr" />
+                <ref bean="target-landchina-gonggaojieguo-cz-zpgcr" />
+                <ref bean="target-landchina-gonggaojieguo-yz-zpgcr" />
+                <ref bean="target-landchina-gonggaojieguo-hh-zpgcr" />
+                <ref bean="target-landchina-gonggaojieguo-ld-zpgcr" />
+                <ref bean="target-landchina-gonggaojieguo-xx-zpgcr" />
+                -->
+               
+                <ref bean="target-0731fdc-floor-zz" />
+                <ref bean="target-0731fdc-floor-xt" />
+                <ref bean="target-0731fdc-floor-cs" />
+                <ref bean="target-0731fdc-floor-cs-detail"/>
+                <ref bean="target-0731fdc-floor-cs-detail2"/>
+                <ref bean="target-landchina-gonggaojieguo-cs-xycr" />
+                <ref bean="target-landchina-gonggaojieguo-zz-xycr" />
+                <ref bean="target-landchina-gonggaojieguo-xt-xycr" />
+                <ref bean="target-landchina-gonggaojieguo-hy-xycr" />
+                <ref bean="target-landchina-gonggaojieguo-sy-xycr" />
+                <ref bean="target-landchina-gonggaojieguo-yy-xycr" />
+                <ref bean="target-landchina-gonggaojieguo-cd-xycr" />
+                <ref bean="target-landchina-gonggaojieguo-zjj-xycr" />
+                <ref bean="target-landchina-gonggaojieguo-yiy-xycr" />
+                <ref bean="target-landchina-gonggaojieguo-cz-xycr" />
+                <ref bean="target-landchina-gonggaojieguo-yz-xycr" />
+                <ref bean="target-landchina-gonggaojieguo-hh-xycr" />
+                <ref bean="target-landchina-gonggaojieguo-ld-xycr" />
+                <ref bean="target-landchina-gonggaojieguo-xx-xycr" />
+                <ref bean="target-landchina-gonggaojieguo-cs-zpgcr" />
+                <ref bean="target-landchina-gonggaojieguo-zz-zpgcr" />
+                <ref bean="target-landchina-gonggaojieguo-xt-zpgcr" />
+                <ref bean="target-landchina-gonggaojieguo-hy-zpgcr" />
+                <ref bean="target-landchina-gonggaojieguo-sy-zpgcr" />
+                <ref bean="target-landchina-gonggaojieguo-yy-zpgcr" />
+                <ref bean="target-landchina-gonggaojieguo-cd-zpgcr" />
+                <ref bean="target-landchina-gonggaojieguo-zjj-zpgcr" />
+                <ref bean="target-landchina-gonggaojieguo-yiy-zpgcr" />
+                <ref bean="target-landchina-gonggaojieguo-cz-zpgcr" />
+                <ref bean="target-landchina-gonggaojieguo-yz-zpgcr" />
+                <ref bean="target-landchina-gonggaojieguo-hh-zpgcr" />
+                <ref bean="target-landchina-gonggaojieguo-ld-zpgcr" />
+                <ref bean="target-landchina-gonggaojieguo-xx-zpgcr" />
+            </list>
+        </constructor-arg>
+        <!-- 构造函数参数 2: 结果数据操作对象。对应 接口 org.tomstools.crawler.dao.ResultDAO -->
+        <constructor-arg index="1" ref="fileResultDAO"></constructor-arg>
+    </bean>
+
+</beans>

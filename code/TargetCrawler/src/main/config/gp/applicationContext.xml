@@ -87,7 +87,7 @@
     </bean>
 
     <!-- 结果数据操作对象：数据库方式。对应 org.tomstools.crawler.dao.ResultDAO -->
-    <bean id="dbDAO" class="org.tomstools.crawler.dao.DBResultDAO">
+    <bean id="dbDAO" class="org.tomstools.crawler.dao.DBResultDAO" scope="prototype">
         <property name="sqlSessionFactory" ref="sqlSessionFactory" />
     </bean>
     <!-- 结果数据操作对象：文件方式。对应 org.tomstools.crawler.dao.ResultDAO -->

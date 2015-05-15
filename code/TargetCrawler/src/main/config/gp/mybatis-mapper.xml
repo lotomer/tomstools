@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"   
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.tomstools.crawler.mybatis.mapper.DBResultDAO">
+    <select id="getStatus" parameterType="string" resultType="map">
+        SELECT ID,URL,STATUS,UPDATE_TIME FROM T_CRAWL_STATUS where URL=#{url}
+    </select>
+    <insert id="insertStatus" parameterType="map" >
+        INSERT INTO T_CRAWL_STATUS (NAME,SITE_NAME,CHANNEL_NAME,URL,STATUS,UPDATE_TIME) VALUES (#{name},#{siteName},#{channelName},#{url},#{status},now())
+    </insert>
+    <update id="updateStatus" parameterType="map">
+        UPDATE T_CRAWL_STATUS set STATUS=#{status},UPDATE_TIME=now() where ID=#{id}
+    </update>
+    
+    
+    <select id="getTops" parameterType="int" resultType="map">
+        SELECT CRAWL_ID,STATUS FROM T_CRAWL_TOPS where CRAWL_ID=#{id}
+    </select>
+    <insert id="insertTop" parameterType="map" >
+        INSERT INTO T_CRAWL_TOPS (CRAWL_ID,STATUS,UPDATE_TIME) VALUES (#{id},#{status},now())
+    </insert>
+    <delete id="deleteTops" parameterType="int">
+        DELETE FROM T_CRAWL_TOPS WHERE CRAWL_ID=#{id}
+    </delete>
+    
+    <insert id="insertData" parameterType="map" flushCache="true">
+        INSERT INTO T_CRAWL_DATA_GP (CRAWL_ID,URL_PREFIX,URL,TITLE,IN_TIME) VALUES (#{id},#{host},#{url},#{title},now())
+    </insert>
+    
+</mapper>  
