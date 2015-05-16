@@ -1,0 +1,59 @@
+html,body{
+	margin:0 auto;
+	padding:0;
+	width:100%;
+}
+#login-hundx{
+        position:absolute;
+        top:140px;
+        left:50%;
+        background:url(../img/login_bg-hundx.png) no-repeat left top;
+        width:597px;
+        height:308px;
+        border:none;
+        margin-left:-290px;
+        maring-top:156px;
+}
+.inputbox{
+padding-top:10px;
+position:absolute;
+margin-left:110px;
+margin-top:115px;
+list-style:none;
+width:400px;
+
+}
+.input_long{
+background:url(../img/input_long.png) no-repeat left top;
+width:202px;
+height:25px;
+border:none;
+line-height:25px;
+padding-left:4px;
+color:#003399;
+font-size:12px;
+outline:none;
+}
+.t2{
+	padding-left:66px;
+	text-align:left;
+	}
+
+.btn_big{
+background:url(../img/login_btn.png) no-repeat;
+width:92px;
+height:88px;
+
+border:none;
+cursor:pointer;
+float:right;
+}
+
+#login_copyright{
+position:relative;
+margin-left:20px;
+margin-top:420px;
+text-align:center;
+color:#899CC2;
+font-size:12px;
+}

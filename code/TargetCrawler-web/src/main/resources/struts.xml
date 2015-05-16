@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>  
+<!DOCTYPE struts PUBLIC "-//Apache Software Foundation//DTD Struts Configuration 2.3//EN" "http://struts.apache.org/dtds/struts-2.3.dtd">
+<struts>
+    <!-- 将Action交给spring容器管理 -->
+    <constant name="struts.objectFactory" value="spring"/>
+    <!-- 模式为开发模式，修改xml配置文件会自动加载，项目交付的时候设置为false,以免影响性能 -->
+    <constant name="struts.devMode" value="false"/>
+    <constant name="struts.configuration.xml.reload" value="true"/>
+    <!-- 字符集编码 -->
+    <constant name="struts.i18n.encoding" value="utf-8"/>
+
+    <package name="defaultPackage" namespace="/" extends="struts-default,json-default">
+        <interceptors>
+            <interceptor name="authority" class="org.tomstools.crawler.web.action.LoginInteceptor"></interceptor>
+        </interceptors>
+        <global-results>
+            <result name="login">/login.jsp</result>
+            <result name="success">/main.jsp</result>
+        </global-results>
+        <action name="user_*" class="userAction" method="{1}">
+            <!-- <interceptor-ref name="authority"></interceptor-ref> -->
+            <result name="fail">/login.jsp</result>
+        </action>
+        <action name="ajax_*" class="ajaxAction" method="{1}">
+            <!-- 返回类型为json 在json-default中定义 -->
+            <result type="json">
+                <!-- root的值对应要返回的值的属性 -->
+                <!-- 这里的result值即是 对应action中的 result -->
+                <param name="root">result</param>
+            </result>
+        </action>
+    </package>
+</struts>  

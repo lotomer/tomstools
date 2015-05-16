@@ -152,12 +152,6 @@
                 <ref bean="target-csrc-xwdd"/>
                 <ref bean="target-csrc-xwfbh"/>
                 <ref bean="target-datianxia"/>
-                <ref bean="target-gov-bmxw"/>
-                <ref bean="target-gov-dfxw"/>
-                <ref bean="target-gov-gwy"/>
-                <ref bean="target-gov-zc"/>
-                <ref bean="target-miit-bujiguan"/>
-                <ref bean="target-miit-yaowen"/>
                 <ref bean="target-nhfpc-dt"/>
                 <ref bean="target-nhfpc-gw"/>
                 <ref bean="target-nhfpc-ldhd"/>
@@ -171,6 +165,12 @@
                 <ref bean="target-sdpc-xwzb"/>
                 <ref bean="target-sdpc-zcfbl"/>
                 <ref bean="target-taoguba-ylxtx"/>
+                <ref bean="target-gov-bmxw"/>
+                <ref bean="target-gov-dfxw"/>
+                <ref bean="target-gov-gwy"/>
+                <ref bean="target-gov-zc"/>
+                <ref bean="target-miit-bujiguan"/>
+                <ref bean="target-miit-yaowen"/>
             </list>
         </constructor-arg>
         <!-- 构造函数参数 2: 结果数据操作对象。对应 接口 org.tomstools.crawler.dao.ResultDAO 

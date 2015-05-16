@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"   
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.tomstools.crawler.web.mybatis.mapper">
+    <select id="selectStatus"  resultType="status">
+        SELECT ID,NAME,SITE_NAME,CHANNEL_NAME,URL,DATE_FORMAT(UPDATE_TIME,'%Y%m%d%H%i%S') STATUS,UPDATE_TIME FROM T_CRAWL_STATUS
+    </select>
+    <select id="selectStatusByOldStatus"  resultType="status" parameterType="string">
+        SELECT a.ID,a.NAME,a.SITE_NAME,a.CHANNEL_NAME,a.URL,a.UPDATE_TIME,STATUS,SUM(a.cnt) cnt 
+        FROM (
+            SELECT s.ID,s.NAME,s.SITE_NAME,s.CHANNEL_NAME,s.URL,DATE_FORMAT(s.UPDATE_TIME,'%Y%m%d%H%i%S') STATUS,UPDATE_TIME,CASE WHEN gp.CRAWL_ID IS NULL THEN 0 ELSE 1 END cnt
+            FROM T_CRAWL_STATUS s LEFT JOIN (SELECT CRAWL_ID FROM T_CRAWL_DATA_GP WHERE IN_TIME > DATE_FORMAT(#{date},'%Y%m%d%H%i%S')) gp
+            ON (gp.CRAWL_ID=s.ID) 
+        ) a
+        GROUP BY ID,NAME,SITE_NAME,CHANNEL_NAME,URL,STATUS,UPDATE_TIME
+    </select>
+    
+    <select id="selectDetail"  resultType="detail">
+        SELECT gp.CRAWL_ID,gp.URL_PREFIX,gp.URL,gp.TITLE,gp.IN_TIME,s.SITE_NAME,s.CHANNEL_NAME 
+        FROM T_CRAWL_DATA_GP gp left join T_CRAWL_STATUS s ON (gp.CRAWL_ID=s.ID)
+        where 1=1
+        <if test="null != crawl_id"> and CRAWL_ID=#{crawl_id}</if>
+        <if test="null != start_time"><![CDATA[ and IN_TIME>DATE_FORMAT(#{start_time},'%Y%m%d%H%i%S')]]></if>
+        <if test="null != end_time"><![CDATA[  and IN_TIME<=DATE_FORMAT(#{end_time},'%Y%m%d%H%i%S')]]></if>
+        and s.ID IS NOT NULL order by IN_TIME DESC
+    </select>
+    
+    <select id="selectDetailCount"  resultType="int">
+        SELECT COUNT(*) CNT FROM (
+        SELECT gp.CRAWL_ID,gp.URL_PREFIX,gp.URL,gp.TITLE,gp.IN_TIME,s.SITE_NAME,s.CHANNEL_NAME 
+        FROM T_CRAWL_DATA_GP gp left join T_CRAWL_STATUS s ON (gp.CRAWL_ID=s.ID)
+        where 1=1
+        <if test="null != crawl_id"> and CRAWL_ID=#{crawl_id}</if>
+        <if test="null != start_time"><![CDATA[ and IN_TIME>DATE_FORMAT(#{start_time},'%Y%m%d%H%i%S')]]></if>
+        <if test="null != end_time"><![CDATA[  and IN_TIME<=DATE_FORMAT(#{end_time},'%Y%m%d%H%i%S')]]></if>
+        and s.ID IS NOT NULL ) a
+    </select>
+</mapper>  
