@@ -46,13 +46,13 @@ function initHostNode () {
             
             
             if (0 != count){
-            	$.messager.show({
-                	title:'更新提醒',
-                	msg:'<span style="font-size:200%;color:red">更新网页个数：' + count + '</span>',
-                	timeout:8000,
-                	showType:'slide',
-                	height:'200px',
-                	width:'400px'
+                $.messager.show({
+                    title:'更新提醒',
+                    msg:'<span style="font-size:200%;color:red">更新网页个数：' + count + '</span>',
+                    timeout:8000,
+                    showType:'slide',
+                    height:'200px',
+                    width:'400px'
                 });
             }
         }
@@ -119,10 +119,34 @@ function searchDetail(crawlId,status){
 }
 
 function selectData(){
-	var data = $('#divHostLatest').datagrid('getData');
+    var data = $('#divHostLatest').datagrid('getData');
+    $('#divAccordion>div:first .panel-title').text('最新数据（刷新时间：' + currentTime() + ')');
+    $('#divAccordion>div:last .panel-title').text('历史数据（刷新时间：' + currentTime() + ')');
     if (data.total > 0) {
-    	$('#divAccordion').accordion('select',0);
-	}else{
-		$('#divAccordion').accordion('select',1);
-	}
+        $('#divAccordion').accordion('select',0);
+    }else{
+        $('#divAccordion').accordion('select',1);
+    }
 }
+
+function currentTime()
+{ 
+    var now = new Date();
+    
+    var year = now.getFullYear();       //年
+    var month = now.getMonth() + 1;     //月
+    var day = now.getDate();            //日
+    
+    var hh = now.getHours();            //时
+    var mm = now.getMinutes();          //分
+    var ss = now.getSeconds();          //秒
+    
+    var s = function  (p) {
+        if (p < 10) {
+            return '0' + p;
+        }else{
+            return p;
+        }
+    };
+    return(year + '-' + s(month) + '-' + s(day) + ' ' + s(hh) + ':' + s(mm) + ':' + s(ss)); 
+} 
