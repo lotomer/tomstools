@@ -25,6 +25,10 @@
             </div>
         </div>
     </div>
+    <div data-options="region:'east',collapsed:false,split:true" title="控制面板" style="width:220px">
+        <div id="divControl" style="width:200px" >
+        </div>
+    </div>
     <script type="text/javascript" src="js/jquery.min.js"></script>
     <script type="text/javascript" src="js/easyui/jquery.easyui.min.js"></script>
     <script type="text/javascript" src="js/easyui/locale/easyui-lang-zh_CN.js"></script>

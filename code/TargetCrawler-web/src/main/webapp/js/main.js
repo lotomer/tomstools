@@ -1,4 +1,9 @@
 function doInitHost () {
+    window.freshTime=60;
+    window.needRefresh='true';
+    window.startTime=undefined;
+    window.endTime = undefined;
+    initControl();
     initHostNode();
     $('#divHostList').tree({onSelect:searchHostMetric});
 }
@@ -42,8 +47,9 @@ function initHostNode () {
             $('#divHostList').tree('select', node.target);
 
             // 定时扫描更新的时间。单位毫秒
-            setTimeout(initHostNode,60000);
-            
+            if(window.needRefresh == 'true'){
+                window.timeoutObj = setTimeout(initHostNode,window.freshTime * 1000);
+            }
             
             if (0 != count){
                 $.messager.show({
@@ -59,6 +65,49 @@ function initHostNode () {
     });
 }
 
+function initControl(){
+    var controlData = {"total":7,"rows":[
+                            {"name":"needRefresh","title":"启用刷新","value":"true","group":"刷新控制","editor":{
+                                "type":"checkbox",
+                                "options":{
+                                    "on":true,
+                                    "off":false
+                                }
+                            }},
+                            {"name":"time","title":"刷新时间（秒）","value":"60","group":"刷新控制","editor":"numberbox"},
+                            {"name":"startTime","title":"开始时间","value":"","group":"查询条件","editor":"datebox"},
+                            {"name":"endTime","title":"结束时间","value":"","group":"查询条件","editor":"datebox"}                       
+                   ]};
+    $('#divControl').propertygrid({
+        //url: 'get_data.php',
+        data:controlData,
+        showGroup: true,
+        scrollbarSize: 0,
+        columns:[[
+                  {field:'title',title:'属性名称',width:120},
+                  {field:'value',title:'属性值',width:80,align:'center'}
+              ]],
+        onAfterEdit: function(index,row,changes){
+            if(changes.value){
+                if(row.name == "needRefresh"){
+                    window.needRefresh = changes.value;
+                }else if(row.name == "time"){
+                    window.freshTime = changes.value;
+                }else if(row.name == "startTime"){
+                    window.startTime = changes.value;
+                }else if(row.name == "endTime"){
+                    window.endTime = changes.value;
+                }
+                if(window.timeoutObj){
+                    clearTimeout(window.timeoutObj);
+                }
+                if(window.needRefresh == 'true'){
+                	window.timeoutObj = setTimeout(initHostNode,window.freshTime * 1000);
+                }
+            }
+        }
+    });
+}
 function searchDetail(crawlId,status){
     $('#divHostLatest').datagrid({
         //width: 1185,
