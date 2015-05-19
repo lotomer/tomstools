@@ -16,7 +16,7 @@
         </div>
     </div>
     <div data-options="region:'center',split:true" style="height:100%;width:100%">
-        <div class="easyui-accordion" style="width:900px;height:500px;">
+        <div id="divAccordion" class="easyui-accordion" style="width:900px;height:530px;">
             <div title="最新数据">
                 <div id="divHostLatest" style="width:880px"></div>
             </div>

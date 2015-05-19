@@ -20,7 +20,7 @@ http://www.springframework.org/schema/tx http://www.springframework.org/schema/t
 </jdbc:embedded-database>-->
 
     <!-- 开发环境数据源 -->
-    <bean id="dataSource_dev" class="org.apache.commons.dbcp.BasicDataSource"
+    <bean id="dataSource_dev" class="org.apache.commons.dbcp.BasicDataSource" scope="singleton"
         destroy-method="close">
         <property name="driverClassName" value="${jdbc_classname}" />
         <property name="url" value="${jdbc_url}" />

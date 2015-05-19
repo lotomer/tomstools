@@ -22,7 +22,7 @@
         <if test="null != crawl_id"> and CRAWL_ID=#{crawl_id}</if>
         <if test="null != start_time"><![CDATA[ and IN_TIME>DATE_FORMAT(#{start_time},'%Y%m%d%H%i%S')]]></if>
         <if test="null != end_time"><![CDATA[  and IN_TIME<=DATE_FORMAT(#{end_time},'%Y%m%d%H%i%S')]]></if>
-        and s.ID IS NOT NULL order by IN_TIME DESC
+        and s.ID IS NOT NULL and gp.TITLE != '' order by IN_TIME DESC
     </select>
     
     <select id="selectDetailCount"  resultType="int">

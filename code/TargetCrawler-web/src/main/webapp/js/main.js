@@ -62,7 +62,7 @@ function initHostNode () {
 function searchDetail(crawlId,status){
     $('#divHostLatest').datagrid({
         //width: 1185,
-        height: 440,
+        height: 470,
         //method: 'GET',
         pageSize: 15,
         //pageNumber:1,
@@ -90,7 +90,7 @@ function searchDetail(crawlId,status){
     if (status) {
         $('#divHostOlder').datagrid({
             //width: 600,
-            height: 440,
+            height: 470,
             //method: 'GET',
             pageSize: 15,
             //pageNumber:1,
@@ -115,4 +115,14 @@ function searchDetail(crawlId,status){
             //,rowStyler: serviceRowStyler
         });
     }
+    setTimeout(selectData,300);
+}
+
+function selectData(){
+	var data = $('#divHostLatest').datagrid('getData');
+    if (data.total > 0) {
+    	$('#divAccordion').accordion('select',0);
+	}else{
+		$('#divAccordion').accordion('select',1);
+	}
 }
