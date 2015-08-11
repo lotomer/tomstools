@@ -1,0 +1,10 @@
+1395628971313	Rename type 'SubpageExtractor'
+1395628983830	Rename type 'ContentpageExtractor'
+1395629031588	Rename method 'getSubpageUrls'
+1395629040767	Rename method 'getChildSubpageExtractor'
+1395629095059	Rename method 'getSubpageExtractor'
+1395629107585	Rename field 'subpageExtractor'
+1395629119188	Rename method 'setSubpageExtractor'
+1395629217091	Rename type 'BaseSubpageExtractor'
+1395741831897	Rename method 'getSubpageExtractor'
+1395747964003	Delete element

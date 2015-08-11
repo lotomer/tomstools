@@ -1,0 +1,90 @@
+1394623113726	Rename type 'TargetCrawler'
+1394623993820	Rename type 'CrawleRule'
+1394624796064	Move compilation units
+1394625014095	Rename type 'HTMLFetcher'
+1394633910568	Rename method 'parseSubPages'
+1394633930293	Rename method 'processPage'
+1394634626893	Rename method 'fetchHTMLContent'
+1394673209050	Rename local variable 'htmlUrl'
+1394673723874	Rename field 'batchSite'
+1394674738992	Rename method 'down'
+1394677099018	Move compilation units
+1394677273514	Rename type 'CrawlerConfig'
+1394679041585	Rename field 'reusltDAO'
+1394698058258	Rename field 'FILE_LATEST_URL'
+1394698083166	Rename field 'FILE_LATEST_URL_SUBFIX'
+1394700597376	Rename type 'XMLParser'
+1394704173495	Rename method 'save'
+1394704200737	Rename local variable 'fileName'
+1394704232110	Rename local variable 'subUrl'
+1394704243218	Rename local variable 'result'
+1394704351427	Rename method 'getContentRules'
+1394712407666	Rename method 'processResult'
+1394714540944	Rename type 'AbstractContentHandle'
+1394719872829	Rename field 'TYPE_OTHER'
+1394719896982	Rename type 'StringParser'
+1394720803628	Rename field 'TYPE_HTML'
+1394720808442	Rename field 'TYPE_JSON'
+1394720812708	Rename field 'TYPE_XML'
+1394720817120	Rename field 'TYPE_REGEX'
+1394727672875	Encapsulate field 'params'
+1394773701531	Rename method 'getValue'
+1394775363775	Rename field 'element'
+1394778239110	Delete element
+1394783036561	Rename source folder 'src/main/resource'
+1394783046173	Rename resource 'shell'
+1394785971130	Delete element
+1394785985370	Delete element
+1394787022950	Rename field 'elements'
+1394790762741	Rename type 'BaseContentHandle'
+1394790853444	Delete element
+1394790905084	Rename type 'ContentProcessor'
+1394791039639	Rename local variable 'datas'
+1394810616312	Rename type 'ContentParser'
+1394810637920	Move compilation units
+1394810676409	Delete element
+1394810779807	Delete element
+1394810804557	Rename package 'org.tomstools.crawler.config.bean'
+1394810960647	Rename package 'org.tomstools.crawler.parser.content'
+1394810972229	Delete element
+1394811154308	Rename type 'SubpageProcessor'
+1394811235605	Rename package 'org.tomstools.crawler.processor'
+1394811334288	Move compilation units
+1394811414893	Rename package 'org.tomstools.crawler.parser'
+1394811450691	Move compilation unit
+1394811512824	Rename type 'ContentHandle'
+1394811639875	Rename type 'Parser'
+1394811679119	Rename type 'Analyzer'
+1394811708135	Rename type 'Parser'
+1394811723628	Rename type 'HtmlDocumentParser'
+1394811739319	Rename type 'JsonParser'
+1394811759583	Rename type 'DocumentParser'
+1394811829098	Rename package 'org.tomstools.crawler.analysis'
+1394811872884	Move compilation unit
+1394811887441	Rename type 'SubpageAnalyzable'
+1394811953340	Move compilation units
+1394812878964	Copy compilation unit
+1394813488447	Rename method 'start'
+1394814146314	Delete element
+1394814200029	Rename method 'finish'
+1394815094633	Rename method 'processPage'
+1394815351480	Rename method 'processOnePage'
+1394815370497	Rename method 'doProcessMainPage'
+1394817439589	Rename field 'template'
+1394817446993	Rename field 'rule'
+1394818001554	Rename local variable 'document'
+1394851067728	Copy compilation unit
+1394852133480	Copy compilation unit
+1394852539800	Copy compilation unit
+1394853923449	Copy compilation unit
+1394856745609	Rename method 'extractUrl'
+1394856772489	Rename method 'getUrls'
+1394856842742	Rename local variable 'document'
+1394858877150	Rename local variable 'datas'
+1394858885188	Rename local variable 'result'
+1394861151124	Delete element
+1394863390313	Rename method 'check'
+1394863857929	Rename method 'incBatchCount'
+1394863874018	Rename method 'incFetchCount'
+1394877169962	Copy compilation unit
+1394903537724	Rename field 'isDown'

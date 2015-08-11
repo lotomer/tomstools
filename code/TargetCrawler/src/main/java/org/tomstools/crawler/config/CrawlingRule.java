@@ -193,7 +193,7 @@ public class CrawlingRule {
     /*
      * @since 1.0
      */
-    @Override
+    
     public String toString() {
         return new StringBuilder().append("{batchSizeInit=").append(batchSizeInit)
                 .append(", batchSizeFinal=").append(batchSizeFinal).append(", batchSizeStep=")

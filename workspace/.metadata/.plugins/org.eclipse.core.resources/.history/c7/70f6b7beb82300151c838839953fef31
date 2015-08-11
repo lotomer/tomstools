@@ -1,0 +1,31 @@
+package com.asiainfo.ods.omp.web.persistence;
+
+import java.util.List;
+
+import com.asiainfo.ods.omp.web.model.Menu;
+
+/**
+ * 用户数据
+ * @param <T>
+ * @author admin
+ * @date 2015年7月6日 
+ * @time 上午10:50:51
+ * @version 1.0
+ */
+public interface UserDao<T> {
+    /**
+     * 根据密钥获取用户编号
+     * @param key 密钥
+     * @return 用户编号
+     * @since 1.0
+     */
+    public int selectUserId(String key);
+    /**
+     * 根据用户编号获取用户对于的模块
+     * @param userId    用户编号
+     * @return 用户模块列表
+     * @since 1.0
+     */
+    public List<Menu> selectUserMenus(Integer userId);
+    
+}

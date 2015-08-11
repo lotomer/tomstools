@@ -1,0 +1,48 @@
+package org.tomstools.crawler;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.tomstools.crawler.config.CrawlingRule;
+import org.tomstools.crawler.config.Target;
+import org.tomstools.crawler.dao.FileResultDAO;
+import org.tomstools.crawler.example.EasymoneyNewsGN;
+import org.tomstools.crawler.http.UrlManager;
+import org.xml.sax.SAXException;
+
+public class TargetCrawlerApp {
+
+    public static void main(String[] args) throws ParserConfigurationException, SAXException,
+            IOException, InterruptedException {
+        String rootDir = "e:/work";
+        FileResultDAO resultDAO = new FileResultDAO(rootDir, "\t",
+                new String[] { "\r", "\n", "\t" });
+        List<Target> targets = new ArrayList<Target>();
+        CrawlingRule crawlingRule = new CrawlingRule();
+        // 东方财富-国内经济
+        //targets.add(new EasymoneyNewsGN(crawlingRule));
+
+        // 彩票-双色球
+        targets.add(new CaipiaoShuangSeQiu(crawlingRule));
+
+        // 彩票-大乐透
+        //targets.add(new CaipiaoDaLeTou(crawlingRule));
+
+        // 湖南国土资源厅-采矿转让信息
+        //targets.add(new HuNanGuoTuZiYuanCaiKuangZhuanRang(crawlingRule));
+
+        // 0731fds新房房源
+        //targets.add(new XinFang0731fdc(crawlingRule));
+
+        // 开始运行
+        TargetCrawler targetCrawler = new TargetCrawler(targets, resultDAO);
+        targetCrawler.setUrlManager(new UrlManager());
+        targetCrawler.run();
+
+        // XXX 需要支持根据递增规则（数字、日期）生成下一页url
+    }
+
+}

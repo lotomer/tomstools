@@ -53,7 +53,7 @@ public class PageNavigationExtractor implements NavigationExtractor {
         return false;
     }
 
-    @Override
+    
     public List<RequestInfo> getNextPageRequestInfos(Element element) {
         final List<RequestInfo> pageRequestInfos = new ArrayList<RequestInfo>();
         element.select(cssQuery, new ElementProcessor() {

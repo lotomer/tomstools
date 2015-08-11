@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename method &apos;org.tomstools.crawler.common.FieldSplitter.assertEqualBuildings(...)&apos; to &apos;assertEqualBuilding&apos;&#x0D;&#x0A;- Original project: &apos;TargetCrawler&apos;&#x0D;&#x0A;- Original element: &apos;org.tomstools.crawler.common.FieldSplitter.assertEqualBuildings(...)&apos;&#x0D;&#x0A;- Renamed element: &apos;org.tomstools.crawler.common.FieldSplitter.assertEqualBuilding(...)&apos;&#x0D;&#x0A;- Update references to refactored element" delegate="false" deprecate="false" description="Rename method &apos;assertEqualBuildings&apos;" flags="589826" id="org.eclipse.jdt.ui.rename.method" input="/src\/main\/java&lt;org.tomstools.crawler.common{FieldSplitter.java[FieldSplitter~assertEqualBuildings~QString;~QString;~QString;" name="assertEqualBuilding" references="true" stamp="1405390516759" version="1.0"/>
+</session>

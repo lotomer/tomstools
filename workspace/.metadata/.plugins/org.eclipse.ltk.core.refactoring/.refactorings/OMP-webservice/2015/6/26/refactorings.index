@@ -1,0 +1,34 @@
+1435047062667	Delete element
+1435047079406	Delete element
+1435047177540	Delete element
+1435047191893	Copy file
+1435047814491	Rename resource 'applicationj.properties'
+1435047835752	Copy file
+1435050272439	Rename package 'hello'
+1435050290327	Rename type 'Application'
+1435126574069	Delete element
+1435126594117	Delete elements
+1435127044892	Delete elements
+1435127052933	Delete element
+1435127145034	Copy compilation units
+1435136821446	Copy file
+1435286229682	Move compilation unit
+1435286260492	Move compilation unit
+1435286276514	Rename package 'com.asiainfo.ods.omp.webservice.action'
+1435286287273	Rename package 'com.asiainfo.ods.omp.webservice.control'
+1435288084035	Delete element
+1435289825091	Copy compilation unit
+1435289896972	Rename type 'ManageController'
+1435291331795	Rename local variable 'result'
+1435297499880	Rename method 'find'
+1435297518497	Rename method 'login'
+1435304177656	Rename type 'MybatisConfig'
+1435304556679	Rename field 'jdbcConnectionSettings'
+1435305040985	Rename type 'JdbcConnectionSettings'
+1435305058178	Rename type 'ConnectPoolSettings'
+1435306505636	Rename type 'ConnectPoolProperties'
+1435306618006	Delete element
+1435306622998	Delete element
+1435306657255	Delete element
+1435330005027	Rename package 'com.asiainfo.ods.omp.webservice.mapper'
+1435330715980	Delete element

@@ -1,0 +1,78 @@
+/**
+ * copyright (a) 2010-2014 tomstools.org. All rights reserved.
+ */
+package org.tomstools.common.concurrent.masterWorker;
+
+import java.util.Iterator;
+
+
+/**
+ * master-worker模式测试代码
+ * 
+ * @author admin
+ * @date 2014年4月1日
+ * @time 下午11:28:35
+ * @version 1.0
+ */
+public class Sample {
+    public static void main(String[] args) {
+        long st = System.currentTimeMillis();
+        for (int i = 0; i < 1000; i++) {
+            test();
+        }
+        System.out.println(System.currentTimeMillis() - st);
+    }
+
+    private static void test() {
+        Master<Integer, Integer> master = new Master<Integer, Integer>(new PlusWorker(), 5);
+        // 添加任务处理对象
+        for (int i = 0; i < 1000; i++) {
+            master.submit(i);
+        }
+        // 开始执行任务
+        master.execute();
+        // 收集处理结果
+        long sum = 0;
+        for (Integer integer : master) {
+            sum +=integer;
+        }
+//        Iterator<Integer> collector = master.iterator();
+//        while(collector.hasNext()){
+//            sum += collector.next();
+//        }
+        
+//        Map<String, Integer> resultData = master.getResult();
+//        while (!resultData.isEmpty() || !master.isComplete()) {
+//            // 收集结果，并在收集之后删除
+//            Set<String> keys = resultData.keySet();
+//            String key = null;
+//            for (String k : keys) {
+//                // 一次只处理一条
+//                key = k;
+//                break;
+//            }
+//            if (null != key) {
+//                Integer v = resultData.get(key);
+//                if (null != v){
+//                    // 收集结果
+//                    //System.out.println(v);
+//                    sum += v;
+//                }
+//                // 删除已收集的结果
+//                resultData.remove(key);
+//            }
+//            resultData = master.getResult();
+//            //System.out.println("=== " + sum);
+//        }
+//        
+        System.out.println("********* " + sum);
+    }
+
+    static class PlusWorker extends Worker<Integer, Integer> {
+        @Override
+        protected Integer handle(Integer task) {
+            return task * task;
+        }
+
+    }
+}

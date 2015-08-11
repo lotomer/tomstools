@@ -69,5 +69,11 @@ public abstract class Lottery {
      * @since 1.0
      */
     public abstract int getNumberCount();
-
+    /**
+     * 获取各种号码球对应的号码个数
+     * @return 各种号码球对应的号码个数
+     * @since 1.0
+     */
+    public abstract int[] getNumCount4types();
+    public abstract LotteryWinResult checkWinner(int[][] predResult, LotteryRecord lotteryRecord);
 }

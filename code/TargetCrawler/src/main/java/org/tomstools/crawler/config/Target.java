@@ -221,7 +221,7 @@ public class Target {
     /*
      * @since 1.0
      */
-    @Override
+    
     public String toString() {
         return new StringBuilder().append("{url=").append(url).append(", name=").append(name)
                 .append(", crawlingRule=").append(crawlingRule).append("}").toString();

@@ -11,6 +11,7 @@ import org.tomstools.prediction.common.Utils;
 import org.tomstools.prediction.lottery.Lottery;
 import org.tomstools.prediction.lottery.LotteryRecord;
 import org.tomstools.prediction.lottery.LotteryRecordCheckResult;
+import org.tomstools.prediction.lottery.LotteryWinResult;
 import org.tomstools.prediction.lottery.PredictResult;
 
 /**
@@ -97,6 +98,19 @@ public class LotteryPrediction  {
         // 再根据预测结果对开奖结果进行评估
         if (null != result){
             return result.check(lotteryRecord);
+        }else{
+            return null;
+        }
+    }
+
+    public LotteryWinResult testPrediction(long start, long end, LotteryRecord lotteryRecord,
+            int[] numSelect4type) throws Exception {
+        // 首先获取预测结果
+        PredictResult result = predict(start, end);
+        
+        // 再根据预测结果对开奖结果进行评估
+        if (null != result){
+            return result.testPrediction(lotteryRecord,numSelect4type);
         }else{
             return null;
         }

@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section name="Workbench">
+	<section name="MavenProjectWizardArchetypePage">
+		<item value="All Catalogs" key="catalog"/>
+		<list key="projectNameTemplate">
+			<item value="[artifactId]"/>
+			<item value="[artifactId]-TRUNK"/>
+			<item value="[artifactId]-[version]"/>
+			<item value="[groupId].[artifactId]"/>
+			<item value="[groupId].[artifactId]-[version]"/>
+		</list>
+	</section>
+	<section name="org.eclipse.m2e.core.ui.internal.dialogs.EditDependencyDialog">
+		<item value="450" key="height"/>
+		<item value="480" key="width"/>
+		<item value="64" key="y"/>
+		<item value="443" key="x"/>
+	</section>
+	<section name="org.eclipse.m2e.core.pom.overview">
+		<list key="issueManagementUrl">
+		</list>
+		<list key="issueManagementSystem">
+		</list>
+		<list key="ciManagementUrl">
+		</list>
+		<list key="ciManagementSystem">
+		</list>
+	</section>
+	<section name="org.eclipse.m2e.core.pom.dependencies">
+	</section>
+	<section name="org.eclipse.m2e.editor.dialogs.ManageDependenciesDialog">
+		<item value="450" key="height"/>
+		<item value="819" key="width"/>
+		<item value="64" key="y"/>
+		<item value="313" key="x"/>
+	</section>
+	<section name="MavenProjectWizardLocationPage">
+		<list key="location">
+			<item value="Z:\code\TargetCrawler-web"/>
+		</list>
+		<list key="projectNameTemplate">
+			<item value="[artifactId]"/>
+			<item value="[artifactId]-TRUNK"/>
+			<item value="[artifactId]-[version]"/>
+			<item value="[groupId].[artifactId]"/>
+			<item value="[groupId].[artifactId]-[version]"/>
+		</list>
+	</section>
+	<section name="org.eclipse.m2e.core.ui.internal.dialogs.MavenRepositorySearchDialog">
+		<item value="450" key="height"/>
+		<item value="480" key="width"/>
+		<item value="154" key="y"/>
+		<item value="607" key="x"/>
+	</section>
+	<section name="Maven2ProjectWizardArchifactPage">
+		<list key="groupId">
+			<item value="org.tomstools"/>
+		</list>
+		<list key="package">
+			<item value="org.tomstools.web"/>
+		</list>
+		<list key="artifactId">
+			<item value="web"/>
+		</list>
+		<list key="projectNameTemplate">
+			<item value="[artifactId]"/>
+			<item value="[artifactId]-TRUNK"/>
+			<item value="[artifactId]-[version]"/>
+			<item value="[groupId].[artifactId]"/>
+			<item value="[groupId].[artifactId]-[version]"/>
+		</list>
+		<list key="version">
+			<item value="0.0.1-SNAPSHOT"/>
+		</list>
+	</section>
+	<section name="wizardPage">
+		<list key="groupId">
+			<item value="com.tomtools.my"/>
+			<item value="com.tomtools.mr"/>
+		</list>
+		<list key="name">
+		</list>
+		<list key="artifactId">
+			<item value="module"/>
+			<item value="framework"/>
+		</list>
+		<list key="version">
+			<item value="0.0.1-SNAPSHOT"/>
+		</list>
+	</section>
+	<section name="MavenProjectImportWizardPage">
+		<list key="rootDirectory">
+			<item value="E:\研发\products\ai_dsmp\trunk"/>
+			<item value="E:\下载\spring-boot-mvc-master\spring-boot-mvc-master"/>
+			<item value="E:\研发\products\木兰大数据监控运维平台\springboot"/>
+			<item value="E:\研发\products\木兰大数据监控运维平台\webservice\"/>
+			<item value="E:\研发\products\木兰大数据监控运维平台\"/>
+			<item value="E:\研发\products\木兰大数据监控运维平台"/>
+			<item value="E:\HADOOP-hn\开发库\源代码\"/>
+			<item value="Z:\code\"/>
+			<item value="E:\HADOOP-hn\开发库\源代码"/>
+			<item value="E:\HADOOP-hn\"/>
+			<item value="E:\HADOOP-hn\05系统开发\051代码库"/>
+			<item value="E:\亚联\湖南\定向流量包\源码\rulematcher"/>
+			<item value="E:\亚联\湖南\定向流量包\源码\rulematcher-core"/>
+			<item value="E:\工作目录\lotomer\other\fw"/>
+			<item value="E:\工作目录\lotomer\亚联\RTB\sendfile"/>
+		</list>
+		<list key="projectNameTemplate">
+			<item value="[artifactId]"/>
+			<item value="[artifactId]-TRUNK"/>
+			<item value="[artifactId]-[version]"/>
+			<item value="[groupId].[artifactId]"/>
+			<item value="[groupId].[artifactId]-[version]"/>
+		</list>
+	</section>
+	<section name="MavenProjectWizardArtifactPage">
+		<list key="groupId">
+		</list>
+		<list key="name">
+		</list>
+		<list key="artifactId">
+		</list>
+		<list key="projectNameTemplate">
+			<item value="[artifactId]"/>
+			<item value="[artifactId]-TRUNK"/>
+			<item value="[artifactId]-[version]"/>
+			<item value="[groupId].[artifactId]"/>
+			<item value="[groupId].[artifactId]-[version]"/>
+		</list>
+		<list key="version">
+			<item value="0.0.1-SNAPSHOT"/>
+		</list>
+	</section>
+</section>

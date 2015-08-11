@@ -12,4 +12,14 @@ package org.tomstools.prediction.lottery;
  */
 public class LotteryWinResult {
 
+    /*
+     * @since 1.0
+     */
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("");
+        return builder.toString();
+    }
+
 }

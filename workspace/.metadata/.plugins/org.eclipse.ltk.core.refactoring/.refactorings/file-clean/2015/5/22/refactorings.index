@@ -1,0 +1,10 @@
+1432516368803	Rename type 'JobDriver4compress'
+1432516450796	Copy compilation unit
+1432516567156	Copy file
+1432517403033	Rename method 'doBackupFiles'
+1432517488131	Rename local variable 'compressedFiles'
+1432539105215	Extract method 'mergeFiles'
+1432539210677	Extract method 'mergeFiles'
+1432539609140	Rename method 'mergeFilesWithTar'
+1432624125047	Rename method 'getExtension'
+1432624764411	Rename field 'isDebug'

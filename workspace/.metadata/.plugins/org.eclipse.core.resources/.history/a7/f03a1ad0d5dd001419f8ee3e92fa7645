@@ -1,0 +1,167 @@
+package com.asiainfo.ods.rulematcher;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import junit.framework.TestCase;
+
+public class RuleMatcherTest extends TestCase {
+
+    private RuleMatcher matcher;
+
+    public RuleMatcherTest(String name) {
+        super(name);
+    }
+
+    protected void setUp() throws Exception {
+        super.setUp();
+        List<Map<String,Object>> subrules = new ArrayList<Map<String,Object>>();
+        Map<String,Object> row = new HashMap<String,Object>();
+        row.put("PROPERTY_NAME", "sex");
+        row.put("PROPERTY_VALUE", "man");
+        row.put("PROPERTY_TYPE", "string");
+        row.put("PROPERTY_EXT", "");
+        row.put("MATCH_MODE", "eq");
+        row.put("RULE_ID", "1");
+        row.put("RULE_FLAG", "A");
+        subrules.add(row);
+        
+        row = new HashMap<String,Object>();
+        row.put("PROPERTY_NAME", "city");
+        row.put("PROPERTY_VALUE", "beijing");
+        row.put("PROPERTY_TYPE", "string");
+        row.put("PROPERTY_EXT", "");
+        row.put("MATCH_MODE", "eq");
+        row.put("RULE_ID", "1");
+        row.put("RULE_FLAG", "A");
+        subrules.add(row);
+        
+        row = new HashMap<String,Object>();
+        row.put("PROPERTY_NAME", "age");
+        row.put("PROPERTY_VALUE", "18");
+        row.put("PROPERTY_TYPE", "int");
+        row.put("PROPERTY_EXT", "");
+        row.put("MATCH_MODE", "gt");
+        row.put("RULE_ID", "1");
+        row.put("RULE_FLAG", "A");
+        subrules.add(row);
+        
+        
+        row = new HashMap<String,Object>();
+        row.put("PROPERTY_NAME", "sex");
+        row.put("PROPERTY_VALUE", "man");
+        row.put("PROPERTY_TYPE", "string");
+        row.put("PROPERTY_EXT", "");
+        row.put("MATCH_MODE", "eq");
+        row.put("RULE_ID", "2");
+        row.put("RULE_FLAG", "B");
+        subrules.add(row);
+        
+        row = new HashMap<String,Object>();
+        row.put("PROPERTY_NAME", "city");
+        row.put("PROPERTY_VALUE", "beijing");
+        row.put("PROPERTY_TYPE", "string");
+        row.put("PROPERTY_EXT", "");
+        row.put("MATCH_MODE", "eq");
+        row.put("RULE_ID", "2");
+        row.put("RULE_FLAG", "B");
+        subrules.add(row);
+        
+        row = new HashMap<String,Object>();
+        row.put("PROPERTY_NAME", "age");
+        row.put("PROPERTY_VALUE", "10");
+        row.put("PROPERTY_TYPE", "int");
+        row.put("PROPERTY_EXT", "");
+        row.put("MATCH_MODE", "lt");
+        row.put("RULE_ID", "2");
+        row.put("RULE_FLAG", "B");
+        subrules.add(row);
+        
+        
+        
+        row = new HashMap<String,Object>();
+        row.put("PROPERTY_NAME", "sex");
+        row.put("PROPERTY_VALUE", "woman");
+        row.put("PROPERTY_TYPE", "string");
+        row.put("PROPERTY_EXT", "");
+        row.put("MATCH_MODE", "eq");
+        row.put("RULE_ID", "3");
+        row.put("RULE_FLAG", "C");
+        subrules.add(row);
+        
+        row = new HashMap<String,Object>();
+        row.put("PROPERTY_NAME", "city");
+        row.put("PROPERTY_VALUE", "beijing");
+        row.put("PROPERTY_TYPE", "string");
+        row.put("PROPERTY_EXT", "");
+        row.put("MATCH_MODE", "eq");
+        row.put("RULE_ID", "3");
+        row.put("RULE_FLAG", "C");
+        subrules.add(row);
+        
+        row = new HashMap<String,Object>();
+        row.put("PROPERTY_NAME", "age");
+        row.put("PROPERTY_VALUE", "18");
+        row.put("PROPERTY_TYPE", "int");
+        row.put("PROPERTY_EXT", "");
+        row.put("MATCH_MODE", "lt");
+        row.put("RULE_ID", "3");
+        row.put("RULE_FLAG", "C");
+        subrules.add(row);
+        
+        
+        row = new HashMap<String,Object>();
+        row.put("PROPERTY_NAME", "city");
+        row.put("PROPERTY_VALUE", "hunan");
+        row.put("PROPERTY_TYPE", "string");
+        row.put("PROPERTY_EXT", "");
+        row.put("MATCH_MODE", "eq");
+        row.put("RULE_ID", "4");
+        row.put("RULE_FLAG", "D");
+        subrules.add(row);
+        
+        row = new HashMap<String,Object>();
+        row.put("PROPERTY_NAME", "age");
+        row.put("PROPERTY_VALUE", "18");
+        row.put("PROPERTY_TYPE", "int");
+        row.put("PROPERTY_EXT", "");
+        row.put("MATCH_MODE", "gt");
+        row.put("RULE_ID", "4");
+        row.put("RULE_FLAG", "D");
+        subrules.add(row);
+        
+        matcher = new RuleMatcher(subrules);
+    }
+
+    protected void tearDown() throws Exception {
+        super.tearDown();
+    }
+
+    public void testMatchMapOfStringString() {
+        Map<String,String> props = new HashMap<String,String>();
+        props.put("age", "19");
+        props.put("city", "hunan");
+        props.put("sex", "man");        
+        assertEquals("D", matcher.match(props));
+        
+        props = new HashMap<String,Object>();
+        props.put("age", "19");
+        props.put("sex", "man");        
+        assertEquals("", matcher.match(props));
+        
+        props = new HashMap<String,Object>();
+        props.put("age", "7");
+        props.put("city", "beijing");
+        props.put("sex", "man");        
+        assertEquals("B", matcher.match(props));
+        
+        props = new HashMap<String,Object>();
+        props.put("age", "7");
+        props.put("city", "beijing");
+        props.put("sex", "woman");        
+        assertEquals("C", matcher.match(props));
+    }
+
+}

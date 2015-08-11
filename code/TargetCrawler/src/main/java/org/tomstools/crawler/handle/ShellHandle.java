@@ -32,7 +32,7 @@ public class ShellHandle implements CompletedHandleable {
     /*
      * @since 1.0
      */
-    @Override
+    
     public void handle(String flag) {
         if (null != command){
             if (command.length() == 0)
@@ -68,7 +68,7 @@ public class ShellHandle implements CompletedHandleable {
             this.cmdarray = cmdarray;
         }
 
-        @Override
+        
         public void run() {
             LOG.info("execute command: " + Arrays.toString(cmdarray));
             try {

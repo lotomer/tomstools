@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.asiainfo.ods.omp.web.persistence.UserMapper">
+	<select id="selectUserId" >
+        SELECT USER_ID userId FROM T_U_KEY where `KEY`= #{key}
+    </select>
+	<select id="selectUserMenus" resultType="menu">
+        SELECT m.MENU_ID menuId,m.MENU_NAME menuName,m.PAGE_ID pageId,m.PARENT_ID parentId,m.ORDER_NUM orderNum,m.ICON_CLASS iconClass
+        FROM T_M_MENUS m ,T_PRI_ROLE_MENUS rm, T_REL_ROLE_USER ru
+        WHERE m.MENU_ID=rm.MENU_ID AND rm.ROLE_ID=ru.ROLE_ID AND ru.USER_ID=#{userId} AND  m.IS_VALID='1'
+    </select>
+    <select id="selectUserPages" resultType="page">
+        
+    </select>
+	<insert id="insert">
+		insert into user(name, age) values(#{name}, #{age})
+	</insert>
+	
+</mapper>

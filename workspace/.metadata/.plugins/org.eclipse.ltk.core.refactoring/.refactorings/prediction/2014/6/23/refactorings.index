@@ -1,0 +1,19 @@
+1402020416029	Rename package 'org.tomstools.crawler.spring'
+1402020439632	Rename package 'org.tomstools.crawler'
+1402020475407	Rename type 'TargetCrawlerAppWithSpring'
+1402020577853	Rename type 'TargetCrawler'
+1402020621568	Rename type 'TargetCrawlerApp'
+1402020704895	Delete element
+1402020723458	Delete elements
+1402020743046	Delete elements
+1402020764892	Rename package 'org.tomstools.crawler.common'
+1402022868183	Delete element
+1402025909382	Rename method 'getQiShu'
+1402029070066	Rename type 'LotteryPredictionModel'
+1402146467204	Rename method 'getTypeSeparatorIndexes'
+1402146615934	Rename field 'typeSeparatorIndexes'
+1402146634760	Rename field 'typeMaxNumbers'
+1402146648305	Rename method 'getMaxNumber4types'
+1402160640543	Rename field 'numberPredicts'
+1402161341327	Rename type 'LotteryRecordTestResult'
+1402161371267	Rename local variable 'testResult'

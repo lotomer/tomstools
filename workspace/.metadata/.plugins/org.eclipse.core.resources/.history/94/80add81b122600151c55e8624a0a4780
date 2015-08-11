@@ -1,0 +1,135 @@
+/**
+ * copyright (a) 2010-2015 tomstools.org. All rights reserved.
+ */
+package com.asiainfo.ods.omp.web.action;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import com.alibaba.fastjson.JSON;
+import com.asiainfo.ods.omp.web.model.Menu;
+import com.asiainfo.ods.omp.web.model.Page;
+import com.asiainfo.ods.omp.web.model.User;
+import com.asiainfo.ods.omp.web.service.UserService;
+
+/**
+ * 
+ * @author admin
+ * @date 2015年7月6日
+ * @time 下午8:45:45
+ * @version 1.0
+ */
+@Controller
+public class MainControl {
+    private static final Log LOG = LogFactory.getLog(MainControl.class);
+    @Autowired
+    private UserService userService;
+
+    @RequestMapping("/login")
+    public String login(@RequestParam(value = "userName", required = true) final String userName,
+            @RequestParam(value = "userPassword", required = true) final String userPassword,
+            @RequestParam(value = "theme", defaultValue = "default") String theme, Model model) {
+        if (null == userName || "".equals(userName) || null == userPassword || "".equals(userPassword)) {
+            model.addAttribute("error", "用户名或密码不能为空！");
+        } else {
+            User user = userService.getUser(userName,userPassword);
+            LOG.info(user);
+            if (null != user) {
+                List<Page> pages = userService.getUserPages(user.getUserId());
+                if (null == pages){
+                    pages = Collections.emptyList();
+                }
+                model.addAttribute("pages", JSON.toJSONString(pages));
+
+                List<Menu> menus = userService.getUserMenus(user.getUserId());
+                if (null == menus){
+                    menus = Collections.emptyList();
+                }
+                model.addAttribute("menus", JSON.toJSONString(menus));
+
+                model.addAttribute("user", user);
+                model.addAttribute("theme", theme);
+                return "index";
+            } else {
+                model.addAttribute("error", "用户名/密码错误");
+            }
+        }
+        return "login";
+    }
+
+    @RequestMapping("/index")
+    public String index(@RequestParam(value = "key", defaultValue = "") String key,
+            @RequestParam(value = "theme", defaultValue = "default") String theme, Model model) {
+        if (null == key || "".equals(key)) {
+            model.addAttribute("error", "请先登录！");
+        } else {
+            User user = userService.getUserByKey(key);
+            if (null != user) {
+                List<Page> pages = userService.getUserPages(user.getUserId());
+                if (null == pages){
+                    pages = Collections.emptyList();
+                }
+                model.addAttribute("pages", JSON.toJSONString(pages));
+
+                List<Menu> menus = userService.getUserMenus(user.getUserId());
+                if (null == menus){
+                    menus = Collections.emptyList();
+                }
+                model.addAttribute("menus", JSON.toJSONString(menus));
+
+                model.addAttribute("user", user);
+                model.addAttribute("theme", theme);
+                return "index";
+            } else {
+                model.addAttribute("error", "没有找到密钥对应的用户。密钥：" + key);
+            }
+        }
+        return "login";
+    }
+
+    @RequestMapping("/main")
+    public String main(@RequestParam(value = "key", defaultValue = "") String key,
+            @RequestParam(value = "theme", defaultValue = "default") String theme,
+            @RequestParam("pageId") int pageId, Model model) {
+        if (null == key || "".equals(key)) {
+            model.addAttribute("error", "密钥不能为空！");
+        } else {
+            User user = userService.getUserByKey(key);
+            if (null != user) {
+                List<Page> pages = userService.getUserPages(user.getUserId());
+                List<Page> subPages = null;
+                Page page = null;
+                if (null == pages) {
+                    subPages = Collections.emptyList();
+                } else {
+                    subPages = new ArrayList<Page>();
+                    for (Page aPage : pages) {
+                        if (pageId == aPage.getParentId()) {
+                            subPages.add(aPage);
+                        } else if (pageId == aPage.getPageId()) {
+                            page = aPage;
+                        }
+                    }
+                }
+                model.addAttribute("subPages", JSON.toJSONString(subPages));
+
+                model.addAttribute("page", page);
+                model.addAttribute("user", user);
+                model.addAttribute("theme", theme);
+                return "main";
+            } else {
+                model.addAttribute("error", "没有找到密钥对应的用户。密钥：" + key);
+            }
+        }
+        return "login";
+    }
+}

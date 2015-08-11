@@ -1,0 +1,92 @@
+/**
+ * copyright (a) 2010-2015 tomstools.org. All rights reserved.
+ */
+package com.asiainfo.ods.omp.web.service;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.asiainfo.ods.common.BASE64;
+import com.asiainfo.ods.common.Encryptable;
+import com.asiainfo.ods.omp.web.model.Menu;
+import com.asiainfo.ods.omp.web.model.Page;
+import com.asiainfo.ods.omp.web.model.User;
+import com.asiainfo.ods.omp.web.persistence.UserMapper;
+
+/**
+ * 用户服务
+ * 
+ * @author admin
+ * @date 2015年7月6日
+ * @time 上午10:49:30
+ * @version 1.0
+ */
+@Service("userService")
+@Transactional
+public class UserService {
+    @Autowired
+    private UserMapper userMapper;
+    private Encryptable encryptable = new BASE64();
+    /**
+     * 根据用户密钥获取用户信息
+     * 
+     * @param key 密钥
+     * @return 用户信息
+     * @since 1.0
+     */
+    public User getUserByKey(String key) {
+        return userMapper.selectUserByKey(key);
+    }
+
+    public List<Menu> getUserMenus(int userId) {
+        return userMapper.selectUserMenus(userId);
+    }
+
+    public List<Page> getUserPages(int userId) {
+        return userMapper.selectUserPages(userId);
+    }
+
+    public String getKey(User user){
+        
+    }
+    /**
+     * 获取用户密码
+     * @param userName      用户名
+     * @param userPassword  密码
+     * @return 用户密钥。密钥不存在则返回null
+     * @since 1.0
+     */
+    public User getUser(String userName, String userPassword) {
+        // 先认证，获取用户信息
+        User user = userMapper.selectUser(userName, userPassword);
+        if (null != user){
+            String key = user.getKey();
+            // 认证通过
+            if (null == key){
+                // 没有保存密钥，生成新密钥
+                key = generateKey(userName,userPassword);
+                user.setKey(key);
+                // 保存密钥
+                userMapper.insertKey(user.getUserId(),key);
+            }
+            else if("".equals(key)){
+                // 密钥已失效。重新生成密钥
+                key = generateKey(userName,userPassword);
+                user.setKey(key);
+                // 更新密钥
+                userMapper.updateKey(user.getUserId(),key);
+            }else{
+                // 有有效的密钥
+            }
+        }
+        
+        return user;
+    }
+
+    private String generateKey(String userName, String userPassword) throws Exception {
+        return new String(encryptable.encrypt((userName + "$$" + userPassword).getBytes()));
+    }
+}

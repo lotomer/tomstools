@@ -308,7 +308,7 @@ public class ContentExtractor {
             super(name, selector, VALUE_TYPE_CODE, fieldSplitter);
         }
 
-        @Override
+        
         protected String getText(Element e) {
             return e.getCode();
         }
@@ -331,7 +331,7 @@ public class ContentExtractor {
             super(name, selector, VALUE_TYPE_TEXT, fieldSplitter);
         }
 
-        @Override
+        
         protected String getText(Element e) {
             return e.getText();
         }
@@ -354,7 +354,7 @@ public class ContentExtractor {
             super(name, selector, VALUE_TYPE_TEXT_UNESCAPED, fieldSplitter);
         }
 
-        @Override
+        
         protected String getText(Element e) {
             return e.getUnescapedText();
         }
@@ -377,7 +377,7 @@ public class ContentExtractor {
             super(name, selector, VALUE_TYPE_OWN_TEXT, fieldSplitter);
         }
 
-        @Override
+        
         protected String getText(Element e) {
             return e.getOwnText();
         }
@@ -400,7 +400,7 @@ public class ContentExtractor {
             super(name, selector, VALUE_TYPE_OWN_TEXT_UNESCAPED, fieldSplitter);
         }
 
-        @Override
+        
         protected String getText(Element e) {
             return e.getUnescapedOwnText();
         }
@@ -426,7 +426,7 @@ public class ContentExtractor {
         /*
          * @since 1.0
          */
-        @Override
+        
         public void processData(Element element, Map<String, String> fieldValueCollector) {
             if (!Utils.isEmpty(selector)) {
                 String[] vs = selector.split(",", 2);
@@ -459,7 +459,7 @@ public class ContentExtractor {
             }
         }
 
-        @Override
+        
         protected String getText(Element e) {
             return e.getUnescapedOwnText();
         }
@@ -492,7 +492,7 @@ public class ContentExtractor {
             this.attributeName = attributeName;
         }
 
-        @Override
+        
         protected String getText(Element e) {
             return e.getAttribute(attributeName);
         }
@@ -514,7 +514,7 @@ public class ContentExtractor {
             this.value = value;
         }
 
-        @Override
+        
         protected String getText(Element e) {
             return value;
         }

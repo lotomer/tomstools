@@ -1,0 +1,15 @@
+/**
+ * copyright (a) 2010-2015 tomstools.org. All rights reserved.
+ */
+package com.asiainfo.ods.common;
+
+/**
+ * 
+ * @author admin
+ * @date 2015年7月9日 
+ * @time 下午4:53:13
+ * @version 1.0
+ */
+public class MD5 {
+
+}

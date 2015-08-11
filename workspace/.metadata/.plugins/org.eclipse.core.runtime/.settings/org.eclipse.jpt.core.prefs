@@ -1,0 +1,5 @@
+eclipse.preferences.version=1
+entitygen.DEFAULT_PACKAGE=model
+jpqlIdentifier.CASE=lowercase
+jpqlIdentifier.MATCH_FIRST_CHARACTER_CASE=true
+jpqlQueryEditorNumberOfLines=5

@@ -1,0 +1,17 @@
+/**
+ * copyright (a) 2010-2015 tomstools.org. All rights reserved.
+ */
+package com.asiainfo.ods.omp.web.persistence.impl;
+
+import com.asiainfo.ods.omp.web.persistence.UserDao;
+
+/**
+ * 
+ * @author admin
+ * @date 2015年7月6日 
+ * @time 下午4:28:40
+ * @version 1.0
+ */
+public class UserDaoImpl implements UserDao<T> {
+
+}

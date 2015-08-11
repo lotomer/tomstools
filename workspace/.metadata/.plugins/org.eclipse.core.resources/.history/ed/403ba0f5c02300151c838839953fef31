@@ -1,0 +1,48 @@
+package com.asiainfo.ods.omp.web.persistence;
+
+import java.util.List;
+
+import org.apache.ibatis.annotations.Param;
+
+import com.asiainfo.ods.omp.web.model.Menu;
+import com.asiainfo.ods.omp.web.model.Page;
+
+/**
+ * 用户数据
+ * 
+ * @author admin
+ * @date 2015年7月6日
+ * @time 上午10:50:51
+ * @version 1.0
+ */
+public interface UserMapper {
+    /**
+     * 根据密钥获取用户编号
+     * 
+     * @param key 密钥
+     * @return 用户编号
+     * @since 1.0
+     */
+    // @Select("SELECT USER_ID userId FROM T_U_KEY where `KEY`= #{key}")
+    public int selectUserId(@Param("key") String key);
+
+    /**
+     * 根据用户编号获取用户的菜单列表
+     * 
+     * @param userId 用户编号
+     * @return 用户菜单列表
+     * @since 1.0
+     */
+    // @Select("SELECT m.MENU_ID menuId,m.MENU_NAME menuName,m.PAGE_ID pageId,m.PARENT_ID parentId,m.ORDER_NUM orderNum,m.ICON_CLASS iconClass FROM T_M_MENUS m ,T_PRI_ROLE_MENUS rm, T_REL_ROLE_USER ru WHERE m.MENU_ID=rm.MENU_ID AND rm.ROLE_ID=ru.ROLE_ID AND ru.USER_ID=#{userId} AND  m.IS_VALID='1';")
+    public List<Menu> selectUserMenus(@Param("userId") int userId);
+
+    /**
+     * 根据用户编号获取用户的页面列表
+     * 
+     * @param userId 用户编号
+     * @return 用户页面列表
+     * @since 1.0
+     */
+    // @Select("")
+    public List<Page> selectUserPages(@Param("userId") int userId);
+}

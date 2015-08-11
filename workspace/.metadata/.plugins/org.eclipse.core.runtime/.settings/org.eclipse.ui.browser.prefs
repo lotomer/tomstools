@@ -1,4 +1,4 @@
-#Sun Oct 30 12:39:36 CST 2011
-browsers=<?xml version\="1.0" encoding\="UTF-8"?>\r\n<web-browsers current\="0">\r\n<system/>\r\n<external location\="C\:\\Program Files\\Internet Explorer\\iexplore.exe" name\="Internet Explorer"/>\r\n</web-browsers>
 browser-choice=0
+browsers=<?xml version\="1.0" encoding\="UTF-8"?>\r\n<web-browsers current\="0">\r\n<system/>\r\n<external location\="C\:\\Program Files\\Internet Explorer\\iexplore.exe" name\="Internet Explorer"/>\r\n</web-browsers>
 eclipse.preferences.version=1
+internalWebBrowserHistory=http\://localhost\:8080/rtbmsys/|*|http\://floor.0731fdc.com/search.php|*|http\://download.oracle.com/javase/7/docs/api/java/util/Formatter.html\#detail|*|http\://download.oracle.com/javase/7/docs/api/java/util/Formatter.html\#syntax|*|

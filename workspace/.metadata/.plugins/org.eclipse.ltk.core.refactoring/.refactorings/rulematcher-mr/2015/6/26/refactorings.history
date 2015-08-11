@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Copy element &apos;package.cmd&apos; to &apos;OMP-webservice&apos;&#x0D;&#x0A;- Original project: &apos;rulematcher-mr&apos;&#x0D;&#x0A;- Destination element: &apos;OMP-webservice&apos;&#x0D;&#x0A;- Original element: &apos;package.cmd&apos;" description="Copy file" destination="=OMP-webservice" element1="package.cmd" files="1" flags="589830" folders="0" id="org.eclipse.jdt.ui.copy" policy="org.eclipse.jdt.ui.copyResources" stamp="1435136843627" units="0" version="1.0"/>
+</session>

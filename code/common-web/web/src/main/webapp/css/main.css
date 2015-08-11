@@ -1,0 +1,78 @@
+.panel{
+    float: left;
+}
+.logo img{
+    float:left;   
+}
+.topBg {
+    position: relative;
+    background: url("../images/top_bg.png") repeat-x scroll left top transparent;
+    padding: 0px;
+}
+#divContent>div{
+    margin: 0 0 0 1px;
+}
+
+#divContent iframe{
+    border: 0px solid #fff;
+}
+
+.content-condition{
+    width:750px;
+    /* margin:0 auto; */
+    padding: 1px 5px 5px 1px;
+    height: 62px;
+}
+.content-result{
+    margin:0 auto;
+    padding: 5px 5px 5px 5px;
+    border-top:1px solid #B3DFDA;
+}
+
+td>label{
+    width: 100%;
+    text-align:right;
+    float:right;
+}
+td>input{
+    float:left;
+}
+
+.combobox-item,.textbox-text-readonly{
+    text-align: center;
+}
+
+.float-left{
+    float:left;
+    position: relative;
+    display: block;
+}
+.datagrid-header .datagrid-cell span,.datagrid-header-row .datagrid-cell-group{
+    font-weight: bold;
+}
+.content-result  .panel-title, #tabQueue .panel-title{
+    text-align: center;
+}
+.loading{
+    height:90%;
+    width:180px;
+    margin: 0 auto;
+    display: table;
+}
+.loading>div{
+    vertical-align:middle;
+    height:30px;
+    display:table-cell;
+}
+.loading span{
+    width:20px;
+    height:20px;
+    float:left;
+    background: #ffffff url('../images/loading.gif') no-repeat left top;
+}
+.loading label{
+    font-size: 12px;
+    font-family: sans-serif;
+    font-weight: normal;
+    float:left;
+}

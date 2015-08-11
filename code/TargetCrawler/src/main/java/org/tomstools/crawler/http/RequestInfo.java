@@ -128,7 +128,7 @@ public class RequestInfo {
     /*
      * @since 1.0
      */
-    @Override
+    
     public String toString() {
         StringBuilder builder = new StringBuilder();
         builder.append("RequestInfo [url=").append(url).append(", formDatas=").append(formDatas)

@@ -27,7 +27,7 @@ public class DBResultDAO extends SqlSessionDaoSupport implements ResultDAO {
     private Map<String, Integer> targetIds = new HashMap<String, Integer>();;
     private Map<String, String[]> targetTitles = new HashMap<String, String[]>();;
 
-    @Override
+    
     public void save(Target target, String url, Map<String, String> datas) {
         if (!Utils.isEmpty(datas)) {
             String[] titles = target.getContentExtractor().getTitles();
@@ -73,7 +73,7 @@ public class DBResultDAO extends SqlSessionDaoSupport implements ResultDAO {
         getSqlSession().insert("insertData", params);
     }
 
-    @Override
+    
     public Collection<String> prepare(Target target) throws Exception {
         List<String> datas = new ArrayList<String>();
         Integer id = targetIds.get(target.getName());
@@ -116,7 +116,7 @@ public class DBResultDAO extends SqlSessionDaoSupport implements ResultDAO {
         return datas;
     }
 
-    @Override
+    
     public void finish(Target target, Collection<String> newFlagDatas) {
         Boolean isPrepared = isPrepareWrite4targets.get(target.getName());
         // 只有准备好了才继续后续的操作

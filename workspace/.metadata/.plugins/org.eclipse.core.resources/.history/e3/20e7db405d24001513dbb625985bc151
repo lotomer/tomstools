@@ -1,0 +1,46 @@
+<%@page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>${page.pageName}</title>
+    <link rel="stylesheet" type="text/css" href='css/easyui/themes/${theme}/easyui.css'>
+    <link rel="stylesheet" type="text/css" href="css/easyui/themes/icon.css">
+    <link rel="stylesheet" type="text/css" href="css/main.css">
+</head> 
+<body class="easyui-layout">
+    <div id="divMain" style="width:100%;height:480px">
+    </div>
+</body>
+    <script type="text/javascript" src="js/jquery.min.js"></script>
+    <script type="text/javascript" src="js/easyui/jquery.easyui.min.js"></script>
+    <script type="text/javascript" src="js/easyui/locale/easyui-lang-zh_CN.js"></script>
+    <script type="text/javascript" src="js/index.js"></script>
+    <script type="text/javascript">
+        // 面板与内容之间的差值
+        var diffWidth = 17,diffHeight = 42,theme = '${theme}';
+        // 页面初始化
+        $(function(){
+            // 子页面
+            subPages = eval('${subPages}');
+            // 排序
+            subPages = subPages.sort(function (content1,content2) {
+                return content1.orderNum - content2.orderNum;
+            });
+            // 按顺序创建子页面
+            for (var i = 0,iLen = subPages.length; i < iLen; i++) {
+				var subPage = subPages[i];
+				createPage(subPage,true,undefined,true);
+			}
+        });
+        
+        // 根据page信息创建页面。如果page包含子页面，则使用子页面框架创建页面
+        function createPage(page,isAppend,queryParams,canClose){
+            log(page);
+            //alert(page.pageName + '\n' + page.contentURL);
+            return createModuleByContent("divMain",page.pageId,page.pageName,page.contentURL,page.useIframe,page.pageId,page.pageName,page.params,page.width,page.height,isAppend,queryParams,canClose);
+        }
+        
+    </script>
+</html>

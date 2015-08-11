@@ -1,0 +1,15 @@
+/**
+ * copyright (a) 2010-2015 tomstools.org. All rights reserved.
+ */
+package com.asiainfo.ods.omp.web.service;
+
+/**
+ * 用户服务
+ * @author admin
+ * @date 2015年7月6日 
+ * @time 上午10:49:30
+ * @version 1.0
+ */
+public class UserService {
+
+}

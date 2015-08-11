@@ -1,0 +1,29 @@
+/**
+ * copyright (a) 2010-2015 tomstools.org. All rights reserved.
+ */
+package com.asiainfo.ods.omp.web.service;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.asiainfo.ods.omp.web.model.User;
+import com.asiainfo.ods.omp.web.persistence.UserMapper;
+
+/**
+ * 用户服务
+ * @author admin
+ * @date 2015年7月6日 
+ * @time 上午10:49:30
+ * @version 1.0
+ */
+@Service("userService")
+@Transactional
+public class UserService {
+    @Autowired
+    private UserMapper userMapper;
+    
+    public User getUserByKey(String key){
+        return userMapper.selectUser(key);
+    }
+}

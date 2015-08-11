@@ -1,0 +1,20 @@
+1428889325903	Rename type 'RulePhoneMather'
+1428907261704	Copy compilation unit
+1428915829919	Rename field 'mather'
+1428917339312	Rename method 'getInputFile1'
+1428918082398	Rename local variable 'dhfs'
+1428995291517	Move compilation unit
+1429061589455	Copy file
+1429149556290	Delete element
+1429149559299	Delete element
+1429152010644	Copy compilation unit
+1429152117849	Copy compilation unit
+1429153080594	Copy compilation unit
+1429153669314	Copy compilation unit
+1429153836359	Rename method 'getInputFile1'
+1429158180354	Delete elements
+1429159085043	Rename type 'DpiFilterFlow3GTest'
+1429159141395	Rename type 'SmsSenderThreadTest'
+1429172988479	Copy compilation unit
+1429173245511	Move compilation unit
+1429256269152	Rename local variable 'filePath'

@@ -1,0 +1,5 @@
+commit_dialog_history_messages=<?xml version\="1.0" encoding\="UTF-8"?>\r\n<messages>\r\n<message>\u589E\u52A0\u63A7\u5236\u529F\u80FD</message>\r\n<message>\u589E\u52A0\u663E\u793A\u5237\u65B0\u65F6\u95F4</message>\r\n<message>\u4F18\u5316\u663E\u793A</message>\r\n<message>\u589E\u52A0\u67E5\u770B\u8D44\u8BAF\u7684web\u5E94\u7528</message>\r\n<message>\u4FEE\u6539\u8BF4\u660E</message>\r\n<message>\u66F4\u6539\u6570\u636E\u5E93\u811A\u672C\u76EE\u5F55</message>\r\n<message>\u5220\u9664\u5783\u573E\u6587\u4EF6</message>\r\n<message>\u589E\u52A0\u6570\u636E\u5E93\u811A\u672C\uFF1B\u8C03\u6574\u914D\u7F6E\u6587\u4EF6\uFF1B\u589E\u52A0\u5BFC\u5165\u5230\u6570\u636E\u5E93\u7684\u529F\u80FD</message>\r\n<message>\u589E\u52A0\u6570\u636E\u5E93\u65B9\u5F0F</message>\r\n<message>\u4FEE\u6539\u914D\u7F6E</message>\r\n</messages>
+default_repository_dir=E\:\\\u5DE5\u4F5C\u76EE\u5F55\\git\\tomstools
+eclipse.preferences.version=1
+merge_mode=0
+show_initial_config_dialog=false

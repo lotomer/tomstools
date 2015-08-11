@@ -1,0 +1,215 @@
+package com.asiainfo.ods.mr.detail;
+
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
+import org.apache.commons.dbcp.BasicDataSource;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.LongWritable;
+import org.apache.hadoop.io.NullWritable;
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.input.FileSplit;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+import org.apache.log4j.Logger;
+
+import com.asiainfo.ods.rulematcher.RuleMatcher;
+
+public class JobDriver4GetRuleMatchedList {
+    private static final Logger LOGGER = Logger.getLogger(JobDriver4GetRuleMatchedList.class);
+    public static final String FIELD_SEPARATOR = ",";
+
+    public boolean run(String name, Configuration conf, String inputFiles, String outputPath)
+            throws IOException, InterruptedException, ClassNotFoundException {
+        Job job = Job.getInstance(conf);
+        job.setJobName(name);
+        job.setJarByClass(JobDriver4GetRuleMatchedList.class);
+        job.setMapperClass(DpiMapper.class);
+        // job.setReducerClass(DpiReducer.class);
+        job.setOutputKeyClass(NullWritable.class);
+        job.setOutputValueClass(Text.class);
+        FileInputFormat.addInputPaths(job, inputFiles);
+        FileOutputFormat.setOutputPath(job, new Path(outputPath));
+        return job.waitForCompletion(true);
+    }
+
+    public static class DpiMapper extends Mapper<LongWritable, Text, NullWritable, Text> {
+        private final static String SEPARATOR_FIELD = "|";
+        private String fieldSeparator = "\\|";
+        private NullWritable retKey = NullWritable.get();
+        private Text retValue = new Text();
+        private RuleMatcher matcher;
+
+        private String[] fieldNames;
+        private int[] fieldIndexs;
+        private int[] fieldIndexs4select;
+        private Map<String, String> fields = new HashMap<String, String>();
+
+        public void map(LongWritable key, Text value, Context context) throws IOException,
+                InterruptedException {
+            String[] strs = value.toString().split(fieldSeparator);
+            if (null != matcher) {
+                for (int i = 0; i < fieldIndexs.length; i++) {
+                    if (fieldIndexs[i] < strs.length && !"".equals(strs[fieldIndexs[i]])) {
+                        fields.put(fieldNames[i], strs[fieldIndexs[i]]);
+                    }
+                }
+
+                // 开始匹配
+                if (fields.isEmpty()) {
+                    return;
+                }
+                String flag = matcher.match(fields);
+                if (null != flag && 0 != flag.length()) {
+                    // 匹配成功,返回指定字段
+                    if (null != fieldIndexs4select && 0 != fieldIndexs4select.length) {
+                        boolean isFirst = true;
+                        StringBuilder msg = new StringBuilder();
+                        FileSplit inputSplit = (FileSplit) context.getInputSplit();
+                        String filename = inputSplit.getPath().getName();
+                        String[] flags = flag.split(RuleMatcher.SEPARATOR_FLAG);
+                        msg.append(flags[0]);
+                        isFirst = false;
+                        msg.append(SEPARATOR_FIELD);
+                        msg.append(filename);
+                        for (int i = 0; i < fieldIndexs4select.length; i++) {
+                            if (!isFirst) {
+                                msg.append(SEPARATOR_FIELD);
+                            } else {
+                                isFirst = false;
+                            }
+
+                            if (fieldIndexs4select[i] < strs.length) {
+                                msg.append(strs[fieldIndexs4select[i]]);
+                            }
+                        }
+                        if (flags.length > 1) {
+                            // XXX 暂时屏蔽
+                            //msg.append(SEPARATOR_FIELD).append(flags[1]);
+                        }
+                        retValue.set(msg.toString());
+                        context.write(retKey, retValue);
+                    }
+                }
+            }
+        }
+
+        protected void setup(Context context) throws IOException, InterruptedException {
+            Configuration config = context.getConfiguration();
+            String jdbcDriver = config.get("jdbc_classname", "com.mysql.jdbc.Driver");
+            String jdbcUrl = config.get("jdbc_url");
+            String user = config.get("jdbc_user");
+            String password = config.get("jdbc_password");
+            String[] fieldIndexs = config.get("field_indexs", "").split(FIELD_SEPARATOR);
+            String[] fieldNames = config.get("field_names", "").split(FIELD_SEPARATOR);
+            String[] selectFieldIndexs = config.get("field_index_4_select", "").split(
+                    FIELD_SEPARATOR);
+            this.fieldNames = new String[fieldNames.length];
+            this.fieldIndexs = new int[fieldIndexs.length];
+            this.fieldIndexs4select = new int[selectFieldIndexs.length];
+            for (int i = 0; i < fieldNames.length; i++) {
+                this.fieldNames[i] = fieldNames[i].toLowerCase();
+            }
+            for (int i = 0; i < fieldIndexs.length; i++) {
+                this.fieldIndexs[i] = Integer.parseInt(fieldIndexs[i]);
+            }
+            for (int i = 0; i < fieldIndexs4select.length; i++) {
+                this.fieldIndexs4select[i] = Integer.parseInt(selectFieldIndexs[i]);
+            }
+            if (this.fieldIndexs.length != this.fieldNames.length) {
+                throw new InterruptedException("The field indexs must equals names!");
+            }
+            if (this.fieldIndexs4select.length < 1) {
+                throw new InterruptedException("The select field indexs must not empty!");
+            }
+            Set<String> propertyNames = new HashSet<String>();
+            try {
+                matcher = new RuleMatcher(jdbcDriver, jdbcUrl, user, password, propertyNames);
+            } catch (SQLException e) {
+                throw new InterruptedException(e.getMessage());
+            }
+        }
+    }
+
+    /**
+     * hadoop jar rulematcher-mr-1.0-SNAPSHOT.jar com.asiainfo.ods.mr.detail.JobDriver4GetRuleMatchedList /noc/dpi4g 20150424 /user/hive/warehouse/ods_temp.db/4g/20150424 16 serviceType 1,4,15,16,17,18,19,20,21,22,23,29
+     */
+    public static void main(String[] args) throws InterruptedException, SQLException, IOException,
+            ClassNotFoundException {
+        if (6 != args.length) {
+            System.out
+                    .println("Need 6 arguments: flag input outpath fieldIndexs fieldNames fieldIndexs4select");
+            System.exit(-1);
+        }
+        int index = 0;
+        String flag = args[index++];
+        String input = args[index++];
+        String filePath = args[index++];
+        String fieldIndexs = args[index++];
+        String fieldNames = args[index++];
+        String fieldIndexs4select = args[index++];
+        String jdbcClassname = System.getenv("jdbc_classname");
+        String jdbcUrl = System.getenv("jdbc_url");
+        String jdbcUser = System.getenv("jdbc_user");
+        String jdbcPassword = System.getenv("jdbc_password");
+        BasicDataSource ds = new BasicDataSource();
+        ds.setDriverClassName(jdbcClassname);
+        ds.setUrl(jdbcUrl);
+        ds.setUsername(jdbcUser);
+        ds.setPassword(jdbcPassword);
+        Configuration conf = new Configuration();
+        conf.set("jdbc_classname", jdbcClassname);
+        conf.set("jdbc_url", jdbcUrl);
+        conf.set("jdbc_user", jdbcUser);
+        conf.set("jdbc_password", jdbcPassword);
+
+        conf.set("field_indexs", fieldIndexs);
+        conf.set("field_names", fieldNames);
+        conf.set("field_index_4_select", fieldIndexs4select);
+
+        String inputFiles = getInputFile(ds.getConnection(), flag,input);
+        LOGGER.info("inputpath:" + inputFiles);
+        if ("".equals(inputFiles.trim())) {
+            LOGGER.info("There has no input files!");
+            Thread.sleep(1000);
+            return;
+        }
+        //if (!filePath.endsWith("/")) {
+        //    filePath = filePath + "/";
+        //}
+        String outputPath = filePath;// + getLastMonthString();
+        LOGGER.info("outpath:" + outputPath);
+        JobDriver4GetRuleMatchedList job = new JobDriver4GetRuleMatchedList();
+        if (job.run("generateDetail-" + flag, conf, inputFiles, outputPath)) {
+
+        }
+        System.exit(0);
+    }
+
+    public static String getInputFile(Connection conn, String flag,String input) {
+        String filePath = flag.endsWith("/") ? flag : flag + "/";
+        return filePath + input;
+    }
+
+    public static String getLastMonthString() {
+        String dt = System.getenv("dt");
+        if (null != dt) {
+            return dt;
+        } else {
+            SimpleDateFormat df_day = new SimpleDateFormat("yyyyMM");
+            Calendar c = Calendar.getInstance();
+            c.add(Calendar.MONTH, -1);
+            return df_day.format(c.getTime());
+        }
+    }
+}

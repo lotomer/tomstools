@@ -1,0 +1,52 @@
+function initTheme (comboboxId,theme) {
+    var themes = [
+		{value:'default',text:'-- 更换样式 --',group:'Base'},
+        {value:'black',text:'Black',group:'Base'},
+        {value:'bootstrap',text:'Bootstrap',group:'Base'},
+        {value:'gray',text:'Gray',group:'Base'},
+        {value:'metro',text:'Metro',group:'Base'},
+        {value:'metro-blue',text:'Metro Blue',group:'Base'},
+        {value:'metro-gray',text:'Metro Gray',group:'Base'},
+        {value:'metro-green',text:'Metro Green',group:'Base'},
+        {value:'metro-orange',text:'Metro Orange',group:'Base'},
+        {value:'metro-red',text:'Metro Red',group:'Base'},
+        {value:'ui-cupertino',text:'Cupertino',group:'UI'},
+        {value:'ui-dark-hive',text:'Dark Hive',group:'UI'},
+        {value:'ui-pepper-grinder',text:'Pepper Grinder',group:'UI'},
+        {value:'ui-sunny',text:'Sunny',group:'UI'}
+	];
+	$('#' + comboboxId).combobox({
+		groupField:'group',
+		data: themes,
+		editable:false,
+		panelHeight:'auto',
+		onChange:onChangeTheme,
+		onLoadSuccess:function(){
+			$(this).combobox('setValue', theme);
+		}
+	});
+}
+
+function onChangeTheme(theme,old){
+    var url = location.protocol + '//' + location.host + location.pathname,search = location.search;
+    if (search){
+        // 判断参数是否已经存在
+        var reg = /[?&]theme=/;
+        if (reg.test(search)) {
+            // 替换
+            url = url + search.replace(/([?&]theme=)([^&])+/,"$1" + theme);
+        }else{
+            url = url + search + '&theme=' + theme;
+        }
+    }else{
+        url = url + '?theme=' + theme;
+    }
+    
+    if ("" != old) {
+        window.location = url;
+    }            
+}
+
+function getTheme (comboboxId) {
+    return $('#' + comboboxId).combobox("getValue");
+}

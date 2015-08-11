@@ -3,7 +3,9 @@
  */
 package org.tomstools.prediction;
 
-import org.tomstools.prediction.spring.ApplicationContext;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
 
 /**
  * 
@@ -13,8 +15,12 @@ import org.tomstools.prediction.spring.ApplicationContext;
  * @version 1.0
  */
 public class PredictionAppWithSpring {
-    public static void main(String[] args) {
-        LotteryPrediction prediction = (LotteryPrediction) ApplicationContext.getInstance().getBean("targetCrawler");
+    public static void main(String[] args) throws IOException {
+        InputStream inStream = PredictionAppWithSpring.class.getClassLoader().getResourceAsStream("config.properties");
+        Properties p = new Properties();
+        p.load(inStream);
+        System.out.println(p);
+        //LotteryPrediction prediction = (LotteryPrediction) ApplicationContext.getInstance().getBean("targetCrawler");
         //targetCrawler.run();
     }
 }

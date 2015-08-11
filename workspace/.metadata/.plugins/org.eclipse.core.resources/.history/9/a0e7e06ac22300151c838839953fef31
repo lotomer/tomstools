@@ -1,0 +1,45 @@
+/**
+ * copyright (a) 2010-2015 tomstools.org. All rights reserved.
+ */
+package com.asiainfo.ods.omp.web.model;
+
+import java.util.List;
+
+/**
+ * 用户信息
+ * 
+ * @author admin
+ * @date 2015年7月6日
+ * @time 上午10:11:46
+ * @version 1.0
+ */
+public class User {
+    private int userId;
+    private String userName;
+    private String nickName;
+    private String key;
+    public final int getUserId() {
+        return userId;
+    }
+    public final void setUserId(int userId) {
+        this.userId = userId;
+    }
+    public final String getUserName() {
+        return userName;
+    }
+    public final void setUserName(String userName) {
+        this.userName = userName;
+    }
+    public final String getNickName() {
+        return nickName;
+    }
+    public final void setNickName(String nickName) {
+        this.nickName = nickName;
+    }
+    public final String getKey() {
+        return key;
+    }
+    public final void setKey(String key) {
+        this.key = key;
+    }
+}

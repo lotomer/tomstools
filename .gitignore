@@ -1,0 +1,4 @@
+﻿workspace/
+*/bin/
+*/classes/*
+!*/src/main/bin/

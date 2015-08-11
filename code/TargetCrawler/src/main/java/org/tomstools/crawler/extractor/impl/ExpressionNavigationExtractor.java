@@ -45,7 +45,7 @@ public class ExpressionNavigationExtractor implements NavigationExtractor {
         return true;
     }
 
-    @Override
+    
     public List<RequestInfo> getNextPageRequestInfos(Element element) {
         List<RequestInfo> pageRequestInfos = new ArrayList<RequestInfo>();
         if (Utils.isEmpty(parameterTemplate) || Utils.isEmpty(expression)) {

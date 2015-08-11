@@ -1,0 +1,11 @@
+1431923572558	Move file
+1432111028587	Rename method 'doDelete'
+1432111066093	Rename method 'doDeleteHdfs'
+1432112486931	Rename type 'JobDriver4GetList'
+1432196281033	Copy compilation unit
+1432275153553	Delete element
+1432275220262	Copy compilation unit
+1432279276370	Rename type 'FileSystem'
+1432279287987	Rename type 'HdfsFileSystem'
+1432280517665	Rename field 'tmpOutputFile'
+1432286435670	Rename local variable 'fn'

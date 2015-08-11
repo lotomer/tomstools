@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:jdbc="http://www.springframework.org/schema/jdbc" xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="
+http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc.xsd
+http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+	<!-- 数据源连接信息配置文件 -->
+	<context:property-placeholder location="classpath:jdbc.properties" />
+
+	<!-- in-memory database and a datasource <jdbc:embedded-database id="dataSource"> 
+		<jdbc:script location="classpath:database/jpetstore-hsqldb-schema.sql"/> 
+		<jdbc:script location="classpath:database/jpetstore-hsqldb-dataload.sql"/> 
+		</jdbc:embedded-database> -->
+
+	<!-- 开发环境数据源 -->
+	<bean id="dataSource_dev" class="org.apache.commons.dbcp.BasicDataSource"
+		scope="singleton" destroy-method="close" lazy-init="true">
+		<property name="driverClassName" value="${jdbc_classname}" />
+		<property name="url" value="${jdbc_url}" />
+		<property name="username" value="${jdbc_user}" />
+		<property name="password" value="${jdbc_password}" />
+		<property name="maxIdle" value="20" />
+		<property name="maxActive" value="50" />
+		<property name="minIdle" value="10" />
+		<property name="maxWait" value="3600000" />
+		<property name="testWhileIdle" value="true" />
+		<property name="removeAbandoned" value="true" />
+		<property name="removeAbandonedTimeout" value="60" />
+	</bean>
+
+	<!-- 生产环境数据源 -->
+	<bean id="dataSource_c3p0" class="com.mchange.v2.c3p0.ComboPooledDataSource"
+		destroy-method="close" lazy-init="true">
+		<property name="driverClass" value="${jdbc_classname}" />
+		<property name="jdbcUrl" value="${jdbc_url}" />
+		<property name="user" value="${jdbc_user}" />
+		<property name="password" value="${jdbc_password}" />
+
+		<property name="minPoolSize" value="${c3p0.minPoolSize}" />
+		<property name="maxPoolSize" value="${c3p0.maxPoolSize}" />
+		<property name="maxIdleTime" value="${c3p0.maxIdleTime}" />
+		<property name="acquireIncrement" value="${c3p0.acquireIncrement}" />
+		<property name="acquireRetryAttempts" value="${c3p0.acquireRetryAttempts}" />
+		<property name="acquireRetryDelay" value="${c3p0.acquireRetryDelay}" />
+		<property name="checkoutTimeout" value="${c3p0.checkoutTimeout}" />
+		<property name="idleConnectionTestPeriod" value="${c3p0.idleConnectionTestPeriod}" />
+		<property name="initialPoolSize" value="${c3p0.initialPoolSize}" />
+		<property name="testConnectionOnCheckin" value="${c3p0.testConnectionOnCheckin}" />
+		<property name="preferredTestQuery" value="${c3p0.preferredTestQuery}" />
+		<property name="automaticTestTable" value="${c3p0.automaticTestTable}" />
+	</bean>
+    
+    <!-- 使用容器中的数据库连接池时启用 -->
+    <bean id="dataSource_jndi" class="org.springframework.jndi.JndiObjectFactoryBean" lazy-init="true">
+	   <property name="jndiName" value="${jndi}" />
+	</bean>
+	<!-- 配置sqlSessionFactory -->
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="${datasource}" />
+		<property name="typeAliasesPackage" value="org.tomstools.web.model" />
+		<property name="configLocation" value="classpath:mybatis-config.xml" />
+		<!-- 自动到mappers包下面去搜索mybatis的映射文件 -->
+		<property name="mapperLocations" value="classpath*:mapper/**/*.xml" />
+	</bean>
+
+	<!-- 使用Spring的事务管理器 -->
+	<bean id="transactionManager"
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="${datasource}" />
+	</bean>
+    <!-- enable transaction annotation support
+    <tx:annotation-driven transaction-manager="transactionManager" />
+ -->
+	<!-- 自动扫描dao和service包(自动注入) -->
+	<context:component-scan
+		base-package="org.tomstools.webservice,org.tomstools.web.action,org.tomstools.web.model,org.tomstools.web.persistence,org.tomstools.web.service"  />
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<property name="basePackage" value="org.tomstools.web.persistence" />
+	</bean>
+
+	<bean
+		class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter">
+		<property name="messageConverters">
+			<array>
+				<bean
+					class="org.springframework.http.converter.StringHttpMessageConverter">
+					<property name="supportedMediaTypes" value="text/plain;charset=UTF-8" />
+				</bean>
+			</array>
+		</property>
+	</bean>
+	<!-- <bean class="org.springframework.http.converter.StringHttpMessageConverter"> 
+		<property name="supportedMediaTypes" value="text/plain;charset=UTF-8" /> 
+		</bean> -->
+</beans>

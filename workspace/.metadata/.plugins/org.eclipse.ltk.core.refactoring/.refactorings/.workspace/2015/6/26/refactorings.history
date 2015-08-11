@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Delete resource &apos;OMP-springboot&apos;" deleteContents="true" description="Delete resource &apos;OMP-springboot&apos;" element1="/OMP-springboot" flags="7" id="org.eclipse.ltk.core.refactoring.delete.resources" resources="1" stamp="1435132458587"/>
+</session>

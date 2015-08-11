@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Copy element &apos;setEnv.sh&apos; to &apos;bin&apos;&#x0D;&#x0A;- Original project: &apos;rulematcher-sms&apos;&#x0D;&#x0A;- Destination element: &apos;bin&apos;&#x0D;&#x0A;- Original element: &apos;setEnv.sh&apos;" description="Copy file" element1="src/main/bin/setEnv.sh" files="1" flags="589830" folders="0" id="org.eclipse.jdt.ui.copy" policy="org.eclipse.jdt.ui.copyResources" stamp="1431652098249" target="/rulematcher-datamgr/src/main/bin" units="0" version="1.0"/>
+</session>

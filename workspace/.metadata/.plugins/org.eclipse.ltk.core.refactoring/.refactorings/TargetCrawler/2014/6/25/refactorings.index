@@ -1,0 +1,49 @@
+1403102124314	Rename local variable 'httpget'
+1403103687433	Rename local variable 'httpclient'
+1403105316440	Copy file
+1403110204255	Rename resource 'landchina-gonggaojieguo.xml'
+1403110960201	Copy file
+1403157584082	Rename type 'PageInfo'
+1403158046623	Rename type 'Parameter'
+1403158220332	Rename method 'getForm'
+1403158227111	Rename method 'setForm'
+1403158232274	Rename field 'form'
+1403158461918	Rename local variable 'form'
+1403158897019	Rename local variable 'header'
+1403158924364	Delete elements
+1403159046696	Rename local variable 'urls'
+1403159053300	Rename local variable 'aUrl'
+1403159420569	Rename local variable 'urls'
+1403159426702	Rename local variable 'url'
+1403159479427	Rename local variable 'pageUrls'
+1403160061247	Rename local variable 'p'
+1403160237713	Rename local variable 'pattern'
+1403160259969	Rename local variable 'PATTERN_PROTOCAL'
+1403160445573	Rename field 'pattern'
+1403160895717	Move compilation unit
+1403161780219	Rename field 'PATTERN_FILE'
+1403162235904	Rename local variable 'pageUrls'
+1403162662088	Rename local variable 'urls'
+1403163525230	Rename local variable 'regex'
+1403165681181	Rename local variable 'urls'
+1403188862569	Rename local variable 'value'
+1403188875639	Rename local variable 'path'
+1403189415833	Rename local variable 'htmlUrl'
+1403189436412	Rename local variable 'parentPath'
+1403189564104	Rename local variable 'relateUrl'
+1403195493341	Rename local variable 'entry'
+1403196013280	Delete element
+1403230898001	Rename local variable 'param'
+1403230909775	Rename local variable 'param'
+1403315095031	Rename type 'BaseContentPageExtractor'
+1403315226194	Rename type 'ContentSubPageExtractor'
+1403315501593	Rename field 'cssQuery'
+1403315512982	Rename local variable 'cssQuery'
+1403316036952	Rename field 'subContentExtractor'
+1403319152879	Copy file
+1403348367301	Delete element
+1403359948501	Rename type 'CompletedHandle'
+1403360105998	Move compilation unit
+1403361481955	Rename method 'getCompletedHandle'
+1403365687587	Copy compilation units
+1403366555137	Move compilation units

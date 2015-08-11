@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">   
+<mapper namespace="com.ailk.ctc.rtbmsys.mapper.sms.SmsMapper">
+	 <resultMap type="com.ailk.ctc.rtbmsys.entity.SmsInfo" id="resultMapSmsTp">
+     	<result property="id" column="id"/>
+	 	<result property="send_object" column="send_object	"/>
+		<result property="object_id" column="object_id"/>
+		<result property="message" column="message"/>
+		<result property="in_time" column="in_time"/>
+	</resultMap>
+	
+	<select id="getSmsInfo" resultMap="resultMapSmsTp"  parameterType="java.lang.String">
+		select id,send_object,object_id,message,in_time from t_rtb_sms_send where id = #{id}
+	</select>
+<!--  
+	<insert id="insertSms">
+	   insert into t_rtb_sms_send(send_object,object_id,message,)
+	</insert>
+	-->
+</mapper>

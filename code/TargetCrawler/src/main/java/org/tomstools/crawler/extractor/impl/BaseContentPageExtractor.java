@@ -62,7 +62,6 @@ public class BaseContentPageExtractor implements ContentPageExtractor {
         }
     }
 
-    @Override
     public List<String> getContentPageUrls(Element element) {
         final List<String> urls = new ArrayList<String>();
         element.select(cssQuery, new ElementProcessor() {
@@ -119,7 +118,7 @@ public class BaseContentPageExtractor implements ContentPageExtractor {
         this.pageFetcher = pageFetcher;
     }
 
-    @Override
+    
     public PageFetcher getPageFetcher() {
         return pageFetcher;
     }
@@ -147,7 +146,7 @@ public class BaseContentPageExtractor implements ContentPageExtractor {
         this.constantField = constantField;
     }
 
-    @Override
+    
     public Map<String, String> getConstantValues(Element element) {
         if (null != constantField && null != element) {
             final Map<String, String> tmpConstantFieldValues = new LinkedHashMap<String, String>();

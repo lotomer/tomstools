@@ -1,0 +1,45 @@
+/**
+ * copyright (a) 2010-2015 tomstools.org. All rights reserved.
+ */
+package com.asiainfo.ods.common;
+
+import org.apache.commons.codec.binary.Base64;
+
+/**
+ * 
+ * @author admin
+ * @date 2015年7月9日 
+ * @time 下午4:34:06
+ * @version 1.0
+ */
+public class MultiEncryptor implements Encryptable {
+    private Encryptable enc;
+    public MultiEncryptor(){
+        
+    }
+    public MultiEncryptor(Encryptable enc){
+        this.enc=enc;
+    }
+    /*
+     * @since 1.0
+     */
+    public byte[] encrypt(byte[] src) throws Exception {
+        if (null != this.enc){
+            return Base64.encodeBase64(this.enc.encrypt(src));
+        }else{
+            return Base64.encodeBase64(src);
+        }
+    }
+
+    /*
+     * @since 1.0
+     */
+    public byte[] decrypt(byte[] buff) throws Exception {
+        if (null != this.enc){
+            return this.enc.decrypt(Base64.decodeBase64(buff));
+        }else{
+            return Base64.decodeBase64(buff);
+        }
+    }
+
+}

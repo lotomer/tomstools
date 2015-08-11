@@ -38,7 +38,7 @@ public class HuNanGuoTuZiYuanCaiKuangZhuanRang extends Target {
         fields.add(new ContentExtractor.TextField("value", "td[title]")); // \u4E00-\u9FA5 是汉字区间
         setContentExtractor(new ContentExtractor("tr",null,null,fields) {
             private int index = 0;
-            @Override
+            
             protected void processValue(final Map<String, String> result, Element element,
                     List<Field> fields) {
                 for (final Field entry : fields) {

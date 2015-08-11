@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename resource &apos;rulematcher-datamgr/src/main/bin/rulematch-3g.sh&apos; to &apos;insertRules.sh&apos;" description="Rename resource &apos;rulematch-3g.sh&apos;" flags="7" id="org.eclipse.ltk.core.refactoring.rename.resource" input="src/main/bin/rulematch-3g.sh" name="insertRules.sh" stamp="1431652005559" updateReferences="true"/>
+</session>

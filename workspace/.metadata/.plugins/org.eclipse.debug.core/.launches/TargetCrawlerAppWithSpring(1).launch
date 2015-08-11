@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<launchConfiguration type="org.eclipse.jdt.launching.localJavaApplication">
+<listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
+<listEntry value="/TargetCrawler/src/main/java/org/tomstools/crawler/TargetCrawlerAppWithSpring.java"/>
+</listAttribute>
+<listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
+<listEntry value="1"/>
+</listAttribute>
+<mapAttribute key="org.eclipse.debug.core.environmentVariables">
+<mapEntry key="BUSI_NAME" value="gp"/>
+<mapEntry key="jdbc_classname" value="com.mysql.jdbc.Driver"/>
+<mapEntry key="jdbc_password" value="root123"/>
+<mapEntry key="jdbc_url" value="jdbc:mysql://127.0.0.1:3306/test"/>
+<mapEntry key="jdbc_user" value="root"/>
+</mapAttribute>
+<stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="org.tomstools.crawler.TargetCrawlerAppWithSpring"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="TargetCrawler"/>
+<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Dfile.encoding=UTF8 -Xms256m -Xmx1024m -Dapplication_xml=/gp/applicationContext.xml -DAPP_NAME=crawler  -Dfile.md5=AFEBCABDBACFEBEBCBDEADBCDEAADBD -Dpublic=75c9e9e5b1c3f7620eb1c7cfede8e731f68fddc378699d6c6fc1b1fcb86945c87aafe17cdf6cb9b3"/>
+</launchConfiguration>

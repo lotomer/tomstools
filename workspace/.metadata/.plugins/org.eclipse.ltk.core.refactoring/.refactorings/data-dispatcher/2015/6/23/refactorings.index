@@ -1,0 +1,26 @@
+1433146941054	Rename local variable 'file'
+1433152042229	Rename local variable 'hdfsTempPath'
+1433211714810	Copy file
+1433215673820	Rename resource 'create-3g-1.sh'
+1433215723426	Rename resource 'create-3g.sh'
+1433215750166	Copy file
+1433226683282	Copy file
+1433226694445	Copy file
+1433226709249	Copy file
+1433226720719	Copy file
+1433226752359	Delete elements
+1433229813358	Rename resource 'create-3g-1.sh'
+1433229823775	Copy file
+1433230077639	Copy file
+1433230357156	Rename resource 'create-3g.sh'
+1433230363158	Rename resource 'create-4g.sh'
+1433232961963	Delete element
+1433234117808	Copy file
+1433234890077	Copy file
+1433234947440	Rename resource 'dataDispatcher.sh'
+1433234965487	Rename resource 'create-partition-3g.sh'
+1433234977685	Rename resource 'create-partition-4g.sh'
+1433301046243	Rename method 'deleteHdfsPath'
+1433301050979	Rename local variable 'hdfs'
+1433312482948	Copy file
+1433316316822	Delete element

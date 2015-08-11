@@ -33,7 +33,7 @@ public class TemplatePageNavigationExtractor extends PageNavigationExtractor {
     /*
      * @since 1.0
      */
-    @Override
+    
     protected String getParameterValue(String parameterName, String parameterValue) {
         if (Utils.isEmpty(parameterTemplate)){
             return super.getParameterValue(parameterName, parameterValue);

@@ -1,0 +1,53 @@
+/**
+ * copyright (a) 2010-2015 tomstools.org. All rights reserved.
+ */
+package com.asiainfo.ods.omp.web.model;
+
+import java.util.List;
+
+/**
+ * 用户信息
+ * 
+ * @author admin
+ * @date 2015年7月6日
+ * @time 上午10:11:46
+ * @version 1.0
+ */
+public class UserInfo {
+    private int userId;
+    private String userName;
+    private String userTitle;
+    private String userPassword;
+    private String key;
+    private List<Page> pages;
+    public final String getUserName() {
+        return userName;
+    }
+    public final void setUserName(String userName) {
+        this.userName = userName;
+    }
+    public final String getUserTitle() {
+        return userTitle;
+    }
+    public final void setUserTitle(String userTitle) {
+        this.userTitle = userTitle;
+    }
+    public final String getUserPassword() {
+        return userPassword;
+    }
+    public final void setUserPassword(String userPassword) {
+        this.userPassword = userPassword;
+    }
+    public final String getKey() {
+        return key;
+    }
+    public final void setKey(String key) {
+        this.key = key;
+    }
+    public final List<Page> getModules() {
+        return modules;
+    }
+    public final void setModules(List<Page> modules) {
+        this.modules = modules;
+    }
+}

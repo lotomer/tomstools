@@ -1,0 +1,200 @@
+function initTheme (comboboxId,theme) {
+    var themes = [
+		{value:'default',text:'-- 更换样式 --',group:'Base'},
+        {value:'black',text:'Black',group:'Base'},
+        {value:'bootstrap',text:'Bootstrap',group:'Base'},
+        {value:'gray',text:'Gray',group:'Base'},
+        {value:'metro',text:'Metro',group:'Base'},
+        {value:'metro-blue',text:'Metro Blue',group:'Base'},
+        {value:'metro-gray',text:'Metro Gray',group:'Base'},
+        {value:'metro-green',text:'Metro Green',group:'Base'},
+        {value:'metro-orange',text:'Metro Orange',group:'Base'},
+        {value:'metro-red',text:'Metro Red',group:'Base'},
+        {value:'ui-cupertino',text:'Cupertino',group:'UI'},
+        {value:'ui-dark-hive',text:'Dark Hive',group:'UI'},
+        {value:'ui-pepper-grinder',text:'Pepper Grinder',group:'UI'},
+        {value:'ui-sunny',text:'Sunny',group:'UI'}
+	];
+	$('#' + comboboxId).combobox({
+		groupField:'group',
+		data: themes,
+		editable:false,
+		panelHeight:'auto',
+		onChange:onChangeTheme,
+		onLoadSuccess:function(){
+			$(this).combobox('setValue', theme);
+		}
+	});
+}
+
+function onChangeTheme(theme,old){
+    var url = location.protocol + '//' + location.host + location.pathname,search = location.search;
+    if (search){
+        // 判断参数是否已经存在
+        var reg = /[?&]theme=/;
+        if (reg.test(search)) {
+            // 替换
+            url = url + search.replace(/([?&]theme=)([^&])+/,"$1" + theme);
+        }else{
+            url = url + search + '&theme=' + theme;
+        }
+    }else{
+        url = url + '?theme=' + theme;
+    }
+    
+    if ("" != old) {
+        window.location = url;
+    }            
+}
+
+function getTheme (comboboxId) {
+    return $('#' + comboboxId).combobox("getValue");
+}
+
+function createModuleByContent(containId,menuId,menuName,contentURL,useIframe,id,name,params,width,height,isAppend,queryParams,canClose,useTab) {
+    if (contentURL){ // 指定了具体的URL，则直接展现该页面
+        useIframe = '0';
+        if ("1" == useIframe) {
+            // 使用iframe框架
+            var url = "proxy.php?u=" + encodeURIComponent(contentURL) + '&pid=p_' + id;
+            if (params) {
+                url += '&p=' + encodeURIComponent(params);
+            }
+            if (queryParams) {
+                url += '&r=' + encodeURIComponent(queryParams);
+            }
+            if (useTab){
+            	createWindowWithTab(containId,menuId,menuName,id,name,url,width,height,params,isAppend,true,canClose);
+            }else{
+            	createWindow(containId,menuId,menuName,id,name,url,width,height,params,isAppend,true,canClose);
+            }
+            return true;
+        }else {
+            var url = contentURL;
+            if (queryParams) {
+                url += queryParams;
+            }
+            if (! /[?]/.test(url)) {
+                url += "?1";
+            }
+            if (params) {
+                url += "&" + params.replace('?','');
+            }
+            
+            if (useTab){
+            	createWindowWithTab(containId,menuId,menuName,id,name,url,width,height,params,isAppend,false,canClose);
+            }else{
+            	createWindow(containId,menuId,menuName,id,name,url,width,height,params,isAppend,false,canClose);
+            }
+            return true;
+        }
+        
+    }else{
+        window.messager.show({
+            title:'提示',
+            msg:'页面【' + name + '】未指定内容对应的url！',
+            timeout:5000,
+            showType:'slide'
+        });
+        return false;
+    }
+}
+function createWindowWithTab(containId,menuId,menuName,id,title,url,w,h,params,isAppend,useIframe,canClose) {
+    // 判断是否已经存在
+    var tab = $('#' + containId).tabs('getTab',title),realUrl = url + '&theme=' + getTheme('cb-theme');
+    if(tab){
+        $('#' + containId).tabs('select',title);
+        $('#p_i_' + id).attr('src',realUrl);
+    }else{
+        $('#' + containId).tabs('add',{
+            id:'p_' + id,
+            title:title,
+            //content:'Tab Body',
+            //href : url,
+            fit:true,
+            closable:canClose ? true : false,
+            onResize : function  (w,h) {
+                //console.info(w + ':' + h);
+            },
+            onDestroy: function() {
+                closeModule(menuId,menuName);
+            }
+        });
+        $('#p_' + id).append('<iframe id="p_i_' + id + '" border="0" src="' + realUrl + '" width="100%" height="99%"/>');
+    }
+}
+function createWindow(containId,menuId,menuName,id,title,url,w,h,params,isAppend,useIframe) {
+    var obj = $('#p_' + id),divId = $('<div id="p_' +id+ '"></div>');
+    // 已经存在，则先删除，再重建
+    if (obj.length > 0){
+        obj.panel('destroy');
+    }
+    if(isAppend){
+        $('#' + containId).append(divId);
+    }else{
+        $('#' + containId).prepend(divId);
+    }
+    var width = w - diffWidth;    // 宽
+    var height = h;   // 高
+    if ("auto" != height) height = height - diffHeight;
+    var obj = $('#p_' + id);console.log(obj);
+    obj.window({
+        left: 0,
+        width: w,
+        height: h,
+        title: title,
+        href: url + '&w=' + width + '&h=' + height + '&theme=' + getTheme('cb-theme'),
+        top: 0,
+        style: {position:'relative'},
+        inline: true,
+        minimizable: false,
+        resizable: false,
+        modal: false,
+        shadow: false,
+        draggable: false,
+        tools:[{
+            iconCls:'icon-reload',
+            handler:function(){
+                if (useIframe) {
+                    var ifrm = $('#p_' + id + '>iframe'),oldWidth=ifrm.css('width'),oldHeight=ifrm.css('height');
+                    $('#p_' + id).panel('refresh', url + '&w=' + oldWidth + '&h=' + oldHeight + '&theme=' + getTheme('cb-theme'));
+                    changeContentFrameSize(id,oldWidth,oldHeight);
+                }else {
+                    $('#p_' + id).panel('refresh', url + '&w=' + width + '&h=' + height + '&theme=' + getTheme('cb-theme'));
+                }
+            }
+        }],
+        onMinimize: function() {
+            closeModule(menuId,menuName);
+        },
+        onClose: function() {
+            closeModule(menuId,menuName);
+            $('#p_' + id).window("destroy");
+        },
+        onResize: function (width,height) {
+            changeContentFrameSize(id,width - diffWidth,height - diffHeight);
+        },
+        onMaximize: function() {
+            var o = $('#p_' + id).window("window");
+            o.css('z-index', $.fn.window.defaults.zIndex++);
+            o.css('position', 'absolute');
+            o.css('left', '0');
+            o.css('top', '0');
+        },
+        onRestore: function() {
+            var o = $('#p_' + id).window("window");
+            o.css('z-index', $.fn.window.defaults.zIndex++);
+            o.css('position', 'relative');
+        },
+        onLoad:function  () {
+            $('#p_' + id).window("expand");
+        }
+    }).window('maximize');
+}
+
+// 调整里面iframe的高度和宽度
+function changeContentFrameSize (id,width,height) {
+    var o = $('#p_' + id + '>iframe');
+    o.css('width',width);
+    o.css('height',height);
+}

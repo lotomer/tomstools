@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Copy 2 elements to &apos;rulematcher-core/src/main/java/com.asiainfo.ods.log&apos;&#x0D;&#x0A;- Original project: &apos;common&apos;&#x0D;&#x0A;- Destination element: &apos;rulematcher-core/src/main/java/com.asiainfo.ods.log&apos;&#x0D;&#x0A;- Original elements:&#x0D;&#x0A;     org.tomstools.common.log.LogAppender.java&#x0D;&#x0A;     org.tomstools.common.log.Logger.java" description="Copy compilation units" destination="=rulematcher-core/src\/main\/java&lt;com.asiainfo.ods.log" element1="/src\/main\/java&lt;org.tomstools.common.log{LogAppender.java" element2="/src\/main\/java&lt;org.tomstools.common.log{Logger.java" files="0" flags="589830" folders="0" id="org.eclipse.jdt.ui.copy" policy="org.eclipse.jdt.ui.copyResources" stamp="1430189852024" units="2" version="1.0"/>
+</session>

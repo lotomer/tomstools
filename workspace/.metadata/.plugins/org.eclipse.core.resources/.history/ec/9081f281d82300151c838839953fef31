@@ -1,0 +1,43 @@
+/**
+ * copyright (a) 2010-2015 tomstools.org. All rights reserved.
+ */
+package com.asiainfo.ods.omp.web.action;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+import com.asiainfo.ods.omp.web.service.UserService;
+
+
+/**
+ * ajax
+ * @author admin
+ * @date 2015年5月16日
+ * @time 上午9:42:03
+ * @version 1.0
+ */
+@Controller  
+@RequestMapping("/ajax") 
+public class AjaxAction {
+    private static final String SUCCESS = "success";
+    @Autowired
+    private UserService userService;
+    private Object result;
+
+    public String getStatus() throws Exception {
+        String key = String.valueOf(ServletActionContext.getContext().getParameters().get("status")
+                );
+//        result = hostService.selectStatus(status);
+        return SUCCESS;
+    }
+
+    public final Object getResult() {
+        return result;
+    }
+
+    public final void setResult(Object result) {
+        this.result = result;
+    }
+
+}

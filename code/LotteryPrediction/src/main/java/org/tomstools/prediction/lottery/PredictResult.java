@@ -148,4 +148,22 @@ public class PredictResult {
 
         return new LotteryRecordCheckResult(lotteryRecord, probabilities, ranks);
     }
+
+    public LotteryWinResult testPrediction(LotteryRecord lotteryRecord, int[] numSelect4type) {
+        //int[] numbers = lotteryRecord.getNumbers();
+        Lottery lottery = lotteryRecord.getLottery();
+        // 号码球种类
+        int typeCount = numSelect4type.length;
+        // 取出TopN的预测结果
+        int[][] predResult = new int[typeCount][];
+        for (int i = 0; i < typeCount; i++) {
+            predResult[i] = new int[numSelect4type[i]];
+            for (int j = 0; j < predResult[i].length; j++) {
+                predResult[i][j] = this.numberPredict4types[i][j].number;
+            }
+        }
+        
+        LotteryWinResult result = lottery.checkWinner(predResult,lotteryRecord);
+        return result ;
+    }
 }

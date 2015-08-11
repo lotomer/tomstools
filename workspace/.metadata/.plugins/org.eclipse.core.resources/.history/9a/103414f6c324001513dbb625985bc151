@@ -1,0 +1,349 @@
+.panel{
+    float: left;
+}
+.logo img{
+    float:left;   
+}
+.topBg {
+    position: relative;
+    background: url("../images/top_bg.png") repeat-x scroll left top transparent;
+    padding: 0px;
+}
+#divContent>div{
+    margin: 0 0 0 1px;
+}
+
+#divContent iframe{
+    border: 0px solid #fff;
+}
+
+.content-condition{
+    width:750px;
+    /* margin:0 auto; */
+    padding: 1px 5px 5px 1px;
+    height: 62px;
+}
+.content-result{
+    margin:0 auto;
+    padding: 5px 5px 5px 5px;
+    border-top:1px solid #B3DFDA;
+}
+
+td>label{
+    width: 100%;
+    text-align:right;
+    float:right;
+}
+td>input{
+    float:left;
+}
+
+.combobox-item,.textbox-text-readonly{
+    text-align: center;
+}
+
+.float-left{
+    float:left;
+    position: relative;
+    display: block;
+}
+.datagrid-header .datagrid-cell span,.datagrid-header-row .datagrid-cell-group{
+    font-weight: bold;
+}
+.content-result  .panel-title, #tabQueue .panel-title{
+    text-align: center;
+}
+/* tree  begin */
+.tree-node{
+    cursor: pointer;
+    height: 22px;
+}
+.tree-hit,div>span.tree-indent:first-child{
+    float:right;
+}
+#treeMenu>li>div>span.tree-title{
+    font-size:16px;
+}
+.tree{
+    padding:4px 3px 0 4px;
+}
+/* tree  end */
+
+/* notice */
+.pull-left {
+    float: left !important;
+}
+.dropdown-menu {
+  box-shadow: none;
+  border-color: #eee;
+  height: 100%;
+}
+.dropdown-menu>.content {
+  height: 180px;
+  overflow: auto;
+  padding: 0;
+    margin: 0;
+}
+.dropdown-menu > li{
+    padding: 0;
+    margin: 0;
+}
+.dropdown-menu > li > a {
+  color: #777;
+}
+.dropdown-menu > li > a > .glyphicon,
+.dropdown-menu > li > a > .fa,
+.dropdown-menu > li > a > .ion {
+  margin-right: 10px;
+}
+.dropdown-menu  li  a:hover {
+  background-color: #e1e3e9;
+  color: #333;
+}
+.dropdown-menu > .divider {
+  background-color: #eee;
+}
+ .dropdown-menu {
+  -webkit-box-shadow: none !important;
+  box-shadow: none !important;
+}
+ .notifications-menu,
+ .messages-menu,
+ .tasks-menu {
+  position: relative;
+}
+ .dropdown-menu,
+ .dropdown-menu,
+ .tasks-menu > .dropdown-menu {
+  width: 280px;
+  padding: 0 0 0 0!important;
+  margin: 0!important;
+  top: 100%;
+}
+ .dropdown-menu > li,
+ .dropdown-menu > li,
+ .tasks-menu > .dropdown-menu > li {
+  position: relative;
+}
+ .dropdown-menu > li.header,
+ .dropdown-menu > li.header,
+ .tasks-menu > .dropdown-menu > li.header {
+  border-top-left-radius: 4px;
+  border-top-right-radius: 4px;
+  border-bottom-right-radius: 0;
+  border-bottom-left-radius: 0;
+  background-color: #ffffff;
+  padding: 7px 10px;
+  border-bottom: 1px solid #f4f4f4;
+  color: #444444;
+  font-size: 14px;
+}
+ .dropdown-menu > li.footer > a,
+ .dropdown-menu > li.footer > a,
+ .tasks-menu > .dropdown-menu > li.footer > a {
+  border-top-left-radius: 0px;
+  border-top-right-radius: 0px;
+  border-bottom-right-radius: 4px;
+  border-bottom-left-radius: 4px;
+  font-size: 12px;
+  background-color: #fff;
+  padding: 7px 10px;
+  border-bottom: 1px solid #eeeeee;
+  color: #444!important;
+  text-align: center;
+}
+@media (max-width: 991px) {
+   .dropdown-menu > li.footer > a,
+   .dropdown-menu > li.footer > a,
+   .tasks-menu > .dropdown-menu > li.footer > a {
+    background: #fff!important;
+    color: #444!important;
+  }
+}
+ .dropdown-menu > li.footer > a:hover,
+ .dropdown-menu > li.footer > a:hover,
+ .tasks-menu > .dropdown-menu > li.footer > a:hover {
+  text-decoration: none;
+  font-weight: normal;
+}
+ .dropdown-menu > li .menu,
+ .dropdown-menu > li .menu,
+ .tasks-menu > .dropdown-menu > li .menu {
+  max-height: 200px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  overflow-x: hidden;
+}
+ .dropdown-menu > li .menu > li > a,
+ .dropdown-menu > li .menu > li > a,
+ .tasks-menu > .dropdown-menu > li .menu > li > a {
+  display: block;
+  white-space: nowrap;
+  /* Prevent text from breaking */
+  border-bottom: 1px solid #f4f4f4;
+}
+ .dropdown-menu > li .menu > li > a:hover,
+ .dropdown-menu > li .menu > li > a:hover,
+ .tasks-menu > .dropdown-menu > li .menu > li > a:hover {
+  background: #f4f4f4;
+  text-decoration: none;
+}
+ .dropdown-menu > li .menu > li > a {
+  color: #444444;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: 10px;
+}
+ .dropdown-menu > li .menu > li > a > .glyphicon,
+ .dropdown-menu > li .menu > li > a > .fa,
+ .dropdown-menu > li .menu > li > a > .ion {
+  width: 20px;
+}
+ .dropdown-menu > li .menu > li > a {
+  margin: 0px;
+  padding: 10px 10px;
+}
+ .dropdown-menu > li .menu > li > a > div > img {
+  margin: auto 10px auto auto;
+  width: 40px;
+  height: 40px;
+}
+ .dropdown-menu > li .menu > li > a > h4 {
+  padding: 0;
+  margin: 0 0 0 45px;
+  color: #444444;
+  font-size: 15px;
+  position: relative;
+}
+ .dropdown-menu > li .menu > li > a > h4 > small {
+  color: #999999;
+  font-size: 10px;
+  position: absolute;
+  top: 0px;
+  right: 0px;
+}
+ .dropdown-menu > li .menu > li > a > p {
+  margin: 0 0 0 45px;
+  font-size: 12px;
+  color: #888888;
+}
+ .dropdown-menu > li .menu > li > a:before,
+ .dropdown-menu > li .menu > li > a:after {
+  content: " ";
+  display: table;
+}
+ .dropdown-menu > li .menu > li > a:after {
+  clear: both;
+}
+ .tasks-menu > .dropdown-menu > li .menu > li > a {
+  padding: 10px;
+}
+ .tasks-menu > .dropdown-menu > li .menu > li > a > h3 {
+  font-size: 14px;
+  padding: 0;
+  margin: 0 0 10px 0;
+  color: #666666;
+}
+ .tasks-menu > .dropdown-menu > li .menu > li > a > .progress {
+  padding: 0;
+  margin: 0;
+}
+ .dropdown-menu {
+  border-top-right-radius: 0;
+  border-top-left-radius: 0;
+  padding: 1px 0 0 0;
+  border-top-width: 0;
+  width: 280px;
+}
+ .dropdown-menu,
+ .dropdown-menu > .user-body {
+  border-bottom-right-radius: 4px;
+  border-bottom-left-radius: 4px;
+}
+ .dropdown-menu > li.user-header {
+  height: 175px;
+  padding: 10px;
+  text-align: center;
+}
+ .dropdown-menu > li.user-header > img {
+  z-index: 5;
+  height: 90px;
+  width: 90px;
+  border: 3px solid;
+  border-color: transparent;
+  border-color: rgba(255, 255, 255, 0.2);
+}
+ .dropdown-menu > li.user-header > p {
+  z-index: 5;
+  color: #fff;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 17px;
+  margin-top: 10px;
+}
+ .dropdown-menu > li.user-header > p > small {
+  display: block;
+  font-size: 12px;
+}
+ .dropdown-menu > .user-body {
+  padding: 15px;
+  border-bottom: 1px solid #f4f4f4;
+  border-top: 1px solid #dddddd;
+}
+ .dropdown-menu > .user-body:before,
+ .dropdown-menu > .user-body:after {
+  content: " ";
+  display: table;
+}
+ .dropdown-menu > .user-body:after {
+  clear: both;
+}
+ .dropdown-menu > .user-body a {
+  color: #444 !important;
+}
+@media (max-width: 991px) {
+   .dropdown-menu > .user-body a {
+    background: #fff !important;
+    color: #444 !important;
+  }
+}
+ .dropdown-menu > .user-footer {
+  background-color: #f9f9f9;
+  padding: 10px;
+}
+ .dropdown-menu > .user-footer:before,
+ .dropdown-menu > .user-footer:after {
+  content: " ";
+  display: table;
+}
+ .dropdown-menu > .user-footer:after {
+  clear: both;
+}
+ .dropdown-menu > .user-footer .btn-default {
+  color: #666666;
+}
+ .user-menu .user-image {
+  float: left;
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  margin-right: 10px;
+  margin-top: -2px;
+}
+@media (max-width: 767px) {
+   .user-menu .user-image {
+    float: none;
+    margin-right: 0;
+    margin-top: -8px;
+    line-height: 10px;
+  }
+}
+/* Add fade animation to dropdown menus by appending
+ the class .animated-dropdown-menu to the .dropdown-menu ul (or ol)*/
+.open:not(.dropup) > .animated-dropdown-menu {
+  backface-visibility: visible !important;
+  -webkit-animation: flipInX 0.7s both;
+  -o-animation: flipInX 0.7s both;
+  animation: flipInX 0.7s both;
+}

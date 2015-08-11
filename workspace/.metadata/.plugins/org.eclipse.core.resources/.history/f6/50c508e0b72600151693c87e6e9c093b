@@ -1,0 +1,45 @@
+/**
+ * copyright (a) 2010-2015 tomstools.org. All rights reserved.
+ */
+package com.asiainfo.ods.omp.web.action;
+
+import java.io.IOException;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.asiainfo.ods.omp.web.service.CodeService;
+import com.asiainfo.ods.omp.web.service.UserService;
+
+
+/**
+ * ajax
+ * @author admin
+ * @date 2015年5月16日
+ * @time 上午9:42:03
+ * @version 1.0
+ */
+@Controller  
+@RequestMapping("/ajax") 
+public class AjaxAction {
+    @Autowired
+    private UserService userService;
+    @Autowired
+    private CodeService codeService;
+
+    @RequestMapping("/getUser.do")
+    public @ResponseBody User getUser(@RequestParam("key") String key) throws Exception {
+        return userService.getUserByKey(key);
+    }
+    @RequestMapping("/code.do")
+    public @ResponseBody void getCode(HttpServletRequest req, HttpServletResponse resp) throws IOException{
+        codeService.getCode(req, resp);
+    }
+
+}

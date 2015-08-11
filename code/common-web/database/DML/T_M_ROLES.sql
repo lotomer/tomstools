@@ -1,0 +1,1 @@
+INSERT INTO `T_M_ROLES` (`ROLE_ID`, `ROLE_NAME`, `IS_VALID`) VALUES (1, '管理员组', '1');

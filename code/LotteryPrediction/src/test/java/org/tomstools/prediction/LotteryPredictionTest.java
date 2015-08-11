@@ -30,9 +30,9 @@ public class LotteryPredictionTest extends TestCase {
         ssq = new ShuangSeQiu();
         pred.setLottery(ssq);
         List<LotteryRecord> lotteryRecords = new ArrayList<>();
-        lotteryRecords.add(new LotteryRecord(2014063,"2014-06-05",ssq).addNumber(3).addNumber(8).addNumber(17).addNumber(21).addNumber(22).addNumber(31).addNumber(16));
-        lotteryRecords.add(new LotteryRecord(2014062,"2014-06-03",ssq).addNumber(6).addNumber(9).addNumber(15).addNumber(22).addNumber(25).addNumber(26).addNumber(9));
-        lotteryRecords.add(new LotteryRecord(2014061,"2014-06-01",ssq).addNumber(6).addNumber(9).addNumber(15).addNumber(22).addNumber(25).addNumber(26).addNumber(9));
+        lotteryRecords.add(new LotteryRecord(2014063,ssq).addNumber(3).addNumber(8).addNumber(17).addNumber(21).addNumber(22).addNumber(31).addNumber(16));
+        lotteryRecords.add(new LotteryRecord(2014062,ssq).addNumber(6).addNumber(9).addNumber(15).addNumber(22).addNumber(25).addNumber(26).addNumber(9));
+        lotteryRecords.add(new LotteryRecord(2014061,ssq).addNumber(6).addNumber(9).addNumber(15).addNumber(22).addNumber(25).addNumber(26).addNumber(9));
         // 添加彩票记录
         //pred.addLotteryRecords(lotteryRecords);
         ssq.initRecords(lotteryRecords);
@@ -53,7 +53,7 @@ public class LotteryPredictionTest extends TestCase {
         System.out.println("预测结果：" + result);
         
         // 已知开奖结果，与预测结果进行对比
-        LotteryRecord lotteryRecord = new LotteryRecord(2014063,"2014-06-07",ssq).addNumber(3).addNumber(11).addNumber(17).addNumber(21).addNumber(22).addNumber(31).addNumber(16);
+        LotteryRecord lotteryRecord = new LotteryRecord(2014063,ssq).addNumber(3).addNumber(11).addNumber(17).addNumber(21).addNumber(22).addNumber(31).addNumber(16);
         LotteryRecordCheckResult checkResult = pred.check(start,end,lotteryRecord);
         System.out.println("评估结果：" + checkResult);
     }

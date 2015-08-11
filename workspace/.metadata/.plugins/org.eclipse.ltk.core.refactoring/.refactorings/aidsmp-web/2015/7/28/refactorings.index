@@ -1,0 +1,36 @@
+1436147860408	Copy file
+1436150686711	Rename type 'UserService'
+1436150719909	Rename type 'CommonService'
+1436151034120	Rename type 'DetailDao'
+1436168878188	Rename type 'UserModule'
+1436171730903	Delete element
+1436171740066	Rename type 'UserDao'
+1436172333684	Move file
+1436172340589	Move file
+1436175345878	Rename type 'UserInfo'
+1436184579078	Delete element
+1436186198092	Copy file
+1436186283953	Move files
+1436186310129	Move files
+1436189387437	Move folder
+1436190056707	Rename resource 'img'
+1436190062010	Rename resource 'image'
+1436190069743	Rename resource 'imageS'
+1436190082833	Move folder
+1436198186167	Copy file
+1436198254495	Copy file
+1436199680160	Copy file
+1436243053667	Copy file
+1436252684793	Copy file
+1436275301717	Copy file
+1436328320212	Rename method 'getUserKey'
+1436431739559	Rename field 'encryptable'
+1436495494945	Rename local variable 'code'
+1436496542662	Delete element
+1436496552371	Rename type 'CodeController'
+1436496558734	Move compilation unit
+1436515244678	Rename resource 'main.jsp'
+1436515591655	Rename resource 'login.jsp'
+1436515602973	Rename resource 'login.v'
+1436515996167	Rename resource 'login.html'
+1436516034031	Rename resource 'login.m'

@@ -97,7 +97,7 @@ public class HTMLParser implements Parser {
         /*
          * @since 1.0
          */
-        @Override
+        
         public String toString() {
             return "{element=" + element.outerHtml() + "}";
         }
@@ -119,7 +119,7 @@ public class HTMLParser implements Parser {
             }
         }
 
-        @Override
+        
         public org.tomstools.crawler.common.Element select(String cssQuery) {
             if (!Utils.isEmpty(cssQuery)) {
                 Elements es = element.select(cssQuery);
@@ -131,12 +131,12 @@ public class HTMLParser implements Parser {
             return null;
         }
 
-        @Override
+        
         public String getUnescapedText() {
             return unescape(getText());
         }
 
-        @Override
+        
         public String getUnescapedOwnText() {
             return unescape(getOwnText());
         }

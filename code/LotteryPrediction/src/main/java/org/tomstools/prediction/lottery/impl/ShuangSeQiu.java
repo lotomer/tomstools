@@ -6,6 +6,8 @@ package org.tomstools.prediction.lottery.impl;
 import java.util.Arrays;
 
 import org.tomstools.prediction.lottery.Lottery;
+import org.tomstools.prediction.lottery.LotteryRecord;
+import org.tomstools.prediction.lottery.LotteryWinResult;
 
 /**
  * 彩票：双色球
@@ -44,6 +46,41 @@ public class ShuangSeQiu extends Lottery {
                 .append(Arrays.toString(maxValue4types)).append(", startIndex4types=")
                 .append(Arrays.toString(startIndex4types)).append("]");
         return builder.toString();
+    }
+
+    public int[] getNumCount4types(){
+        int[] numCount4type = new int[startIndex4types.length];
+        int index = 0;
+        boolean isFinished = false;
+        while (!isFinished) {
+            int iStart = startIndex4types[index++];
+            int iEnd;
+            if (index < startIndex4types.length) {
+                iEnd = startIndex4types[index];
+            } else {
+                iEnd = getNumberCount();
+                isFinished = true;
+            }
+
+            numCount4type[index - 1] = iEnd - iStart;
+        }
+        
+        return numCount4type;
+    }
+    @Override
+    public LotteryWinResult checkWinner(int[][] predResult, LotteryRecord lotteryRecord) {
+        if (predResult.length == startIndex4types.length){
+            int[] numCount4types = getNumCount4types();
+            // 计算所选号码 的中奖情况
+            int[][] record = new int[startIndex4types.length][];
+            for (int i = 0; i < record.length; i++) {
+                record[i] = new int[numCount4types[i]];
+            }
+            LotteryWinResult result = new LotteryWinResult();
+            // XXX 需要实现
+            return result ;
+        }
+        return null;
     }
 
 }

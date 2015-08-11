@@ -1,0 +1,16 @@
+1428369916875	Rename type 'App'
+1428477408080	Rename package 'com.asiainfo.ods.rulematchert.type'
+1428477630190	Delete element
+1428478319315	Rename local variable 'sex'
+1428480708119	Delete element
+1428480861220	Rename type 'RuleMatcher'
+1428480873017	Copy compilation unit
+1428480975734	Rename type 'Node'
+1428481071892	Rename type 'Tree'
+1428481177914	Rename method 'getBestNode'
+1428481213190	Rename field 'root'
+1428481330225	Rename local variable 'nodes'
+1428481336798	Rename local variable 'node'
+1428544063408	Delete element
+1428634572008	Rename local variable 'copyOfRange'
+1428659475967	Extract method 'init'

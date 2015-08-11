@@ -59,7 +59,6 @@ public class ESF0731fdc extends Target {
         public TaskData(String a){
             this.data =a ;
         }
-        @Override
         public String call() throws Exception {
             Thread.sleep(1000 * 5);
             return data;

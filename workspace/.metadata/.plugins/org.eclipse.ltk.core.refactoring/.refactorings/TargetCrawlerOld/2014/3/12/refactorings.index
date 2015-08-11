@@ -1,0 +1,25 @@
+1394935360718	Rename method 'checkValid'
+1394936932626	Rename method 'start'
+1394937333225	Rename local variable 'latestUrl'
+1394937374734	Rename method 'saveLatestProcessedUrl'
+1394938451265	Rename field 'total'
+1394942038588	Rename method 'willComplete'
+1394942887599	Rename method 'isDown'
+1394953650981	Rename field 'FILE_LATEST_URL_TAIL'
+1394964902694	Extract method 'testAll'
+1394965086069	Rename method 'testAll'
+1394965912606	Rename type 'FieldProcessor'
+1394966442440	Rename field 'fieldName'
+1394966709579	Rename local variable 'fieldName'
+1394967622475	Rename field 'fieldIndexs'
+1394967634136	Rename local variable 'fieldIndexs'
+1394972366104	Rename field 'valueTransfers'
+1394972622915	Rename type 'ValueConverter'
+1394974364148	Move compilation units
+1394974903774	Rename field 'relativeTimePattern'
+1394981502774	Delete element
+1394981605353	Rename resource 'applicationContext4textclassify.xml'
+1394981812053	Delete element
+1395033523756	Rename type 'XinFang0731fdc'
+1395033542360	Rename type 'ErShouFang0731fdc'
+1395472645627	Copy packages

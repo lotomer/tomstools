@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename local variable &apos;exexutor&apos; in &apos;org.tomstools.crawler.example.ESF0731fdc.main(...)&apos; to &apos;executor&apos;&#x0D;&#x0A;- Original project: &apos;TargetCrawler&apos;&#x0D;&#x0A;- Original element: &apos;org.tomstools.crawler.example.ESF0731fdc.main(String[]).exexutor&apos;&#x0D;&#x0A;- Renamed element: &apos;exexutor&apos;&#x0D;&#x0A;- Update references to refactored element" description="Rename local variable &apos;exexutor&apos;" id="org.eclipse.jdt.ui.rename.local.variable" input="/src\/main\/java&lt;org.tomstools.crawler.example{ESF0731fdc.java[ESF0731fdc~main~\[QString;@exexutor!3246!3304!3262!3269!QExecutorService;!0!false" name="executor" references="true" stamp="1396345267838" version="1.0"/>
+</session>

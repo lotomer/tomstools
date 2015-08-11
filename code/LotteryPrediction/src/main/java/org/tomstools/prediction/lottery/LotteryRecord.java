@@ -17,20 +17,18 @@ import org.tomstools.prediction.common.Logger;
 public class LotteryRecord {
     private final static Logger LOGGER = Logger.getLogger(LotteryRecord.class);
     private long qishu;
-    private String date;
     private int[] numbers;
     private Lottery lottery;
     private int index;
     /**
      * @param qishu     开奖期数
-     * @param date  开奖日期
-     * @param numberCount 号码个数
+     * @param lottery 彩票信息
      * @since 1.0
      */
-    public LotteryRecord(long qishu, String date, Lottery lottery) {
+    public LotteryRecord(long qishu,  Lottery lottery) {
         super();
         this.qishu = qishu;
-        this.date = date;
+        //this.date = date;
         this.lottery = lottery;
         numbers = new int[lottery.getNumberCount()];
         index = 0;
@@ -91,8 +89,7 @@ public class LotteryRecord {
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        builder.append("[").append(qishu).append(", ").append(date)
-                .append(", ").append(Arrays.toString(numbers)).append(", ")
+        builder.append("[").append(qishu).append(", ").append(Arrays.toString(numbers)).append(", ")
                 .append(lottery);
         return builder.toString();
     }
