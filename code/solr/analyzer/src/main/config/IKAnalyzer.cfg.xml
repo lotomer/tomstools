@@ -10,6 +10,6 @@
 	<entry key="selectSql"><![CDATA[select WORD_CONTENT from T_POM_C_WORD]]></entry>
 	  
 	 <!--用户可以在这里配置自己的扩展停止词字典 -->
-	<entry key="ext_stopwords">/dic/ext_stopword.dic</entry>
+	<entry key="ext_stopwords">/ext_stopword.dic</entry>
 	
 </properties>
