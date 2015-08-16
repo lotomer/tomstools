@@ -74,7 +74,7 @@ public class DBConfig implements Configuration {
 				"jdbc:mysql://127.0.0.1:3306/common?useUnicode=true&amp;characterEncoding=UTF-8");
 		String jdbc_user = props.getProperty("jdbc_user", "root");
 		String jdbc_password = props.getProperty("jdbc_password", "root123");
-		String selectSql = props.getProperty("selectSql", "select WORD_CONTENT from T_C_WORD");
+		String selectSql = props.getProperty("selectSql", "select WORD from V_WORDS");
 		BasicDataSource ds = new BasicDataSource();
 		ds.setDriverClassName(jdbc_classname);
 		ds.setUrl(jdbc_url);
