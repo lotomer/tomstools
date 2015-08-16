@@ -4,10 +4,10 @@
 	<comment>IK Analyzer 扩展配置 数据库</comment>
 	<!--用户可以在这里配置自己的扩展字典-->
 	<entry key="jdbc_classname"><![CDATA[com.mysql.jdbc.Driver]]></entry>
-	<entry key="jdbc_url"><![CDATA[jdbc:mysql://192.168.1.200:3306/common?useUnicode=true&amp;characterEncoding=UTF-8]]></entry>
+	<entry key="jdbc_url"><![CDATA[jdbc:mysql://192.168.1.202:3306/common?useUnicode=true&amp;characterEncoding=UTF-8]]></entry>
 	<entry key="jdbc_user"><![CDATA[root]]></entry>
 	<entry key="jdbc_password"><![CDATA[root123]]></entry>
-	<entry key="selectSql"><![CDATA[select WORD_CONTENT from T_C_WORD]]></entry>
+	<entry key="selectSql"><![CDATA[select WORD_CONTENT from T_POM_C_WORD]]></entry>
 	  
 	 <!--用户可以在这里配置自己的扩展停止词字典 -->
 	<entry key="ext_stopwords">/dic/ext_stopword.dic</entry>

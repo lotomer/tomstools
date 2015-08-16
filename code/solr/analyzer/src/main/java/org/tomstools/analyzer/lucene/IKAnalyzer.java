@@ -19,31 +19,50 @@ import org.wltea.analyzer.cfg.Configuration;
 public class IKAnalyzer extends Analyzer {
 	private static final Log LOG = LogFactory.getLog(IKAnalyzer.class);
 	private boolean useSmart;
+	private boolean useDataBase;
 	private Configuration conf;
+
+	public IKAnalyzer() {
+		LOG.info("Default construct.");
+		conf = new DBConfig();
+	}
+
+	public IKAnalyzer(boolean useSmart,boolean useDataBase) {
+		LOG.info("useSmart construct");
+		this.useSmart = useSmart;
+		this.useDataBase = useDataBase;
+		if (this.useDataBase){
+			conf = new DBConfig();
+			conf.setUseSmart(useSmart);
+		}else{
+			conf = null;
+		}
+	}
+
+	@Override
+	protected TokenStreamComponents createComponents(String fieldName, Reader reader) {
+		LOG.info("createComponents. useSmart: " + useSmart);
+		Tokenizer _IKTokenizer = null != conf ? new IKTokenizer(reader, conf) : new IKTokenizer(reader, useSmart());
+		TokenStreamComponents comp = new TokenStreamComponents(_IKTokenizer);
+		return comp;
+	}
+	
+
+	public boolean isUseDataBase() {
+		return useDataBase;
+	}
+
+	public void setUseDataBase(boolean useDataBase) {
+		LOG.info("set useDataBase:" + useDataBase);
+		this.useDataBase = useDataBase;
+	}
 
 	public boolean useSmart() {
 		return this.useSmart;
 	}
 
 	public void setUseSmart(boolean useSmart) {
+		LOG.info("set useSmart:" + useSmart);
 		this.useSmart = useSmart;
-	}
-
-	public IKAnalyzer() {
-		conf = new DBConfig();
-	}
-
-	public IKAnalyzer(boolean useSmart) {
-		this.useSmart = useSmart;
-		conf = null;
-	}
-
-	@Override
-	protected TokenStreamComponents createComponents(String fieldName, Reader reader) {
-		LOG.info("createComponents.");
-		System.out.println("tom createComponents.");
-		Tokenizer _IKTokenizer = null != conf ? new IKTokenizer(reader, conf) : new IKTokenizer(reader, useSmart());
-		TokenStreamComponents comp = new TokenStreamComponents(_IKTokenizer);
-		return comp;
 	}
 }
