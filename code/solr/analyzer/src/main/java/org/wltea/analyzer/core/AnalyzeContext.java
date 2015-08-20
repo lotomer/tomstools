@@ -7,6 +7,7 @@
 /*     */ import java.util.LinkedList;
 /*     */ import java.util.Map;
 /*     */ import java.util.Set;
+
 /*     */ import org.wltea.analyzer.cfg.Configuration;
 /*     */ import org.wltea.analyzer.dic.Dictionary;
 /*     */ 
@@ -28,12 +29,12 @@
 /*     */   public AnalyzeContext(Configuration cfg)
 /*     */   {
 /*  81 */     this.cfg = cfg;
-/*  82 */     this.segmentBuff = new char[4096];
-/*  83 */     this.charTypes = new int[4096];
-/*  84 */     this.buffLocker = new HashSet();
+/*  82 */     this.segmentBuff = new char[BUFF_SIZE];
+/*  83 */     this.charTypes = new int[BUFF_SIZE];
+/*  84 */     this.buffLocker = new HashSet<String>();
 /*  85 */     this.orgLexemes = new QuickSortSet();
-/*  86 */     this.pathMap = new HashMap();
-/*  87 */     this.results = new LinkedList();
+/*  86 */     this.pathMap = new HashMap<Integer, LexemePath>();
+/*  87 */     this.results = new LinkedList<Lexeme>();
 /*     */   }
 /*     */ 
 /*     */   int getCursor() {
@@ -72,7 +73,7 @@
 /* 130 */         readCount = offset;
 /*     */       }
 /*     */ 
-/* 133 */       readCount += reader.read(this.segmentBuff, offset, 4096 - offset);
+/* 133 */       readCount += reader.read(this.segmentBuff, offset, BUFF_SIZE - offset);
 /*     */     }
 /*     */ 
 /* 136 */     this.available = readCount;
@@ -121,9 +122,9 @@
 /*     */ 
 /*     */   boolean needRefillBuffer()
 /*     */   {
-/* 216 */     return (this.available == 4096) && 
+/* 216 */     return (this.available == BUFF_SIZE) && 
 /* 214 */       (this.cursor < this.available - 1) && 
-/* 215 */       (this.cursor > this.available - 100) && 
+/* 215 */       (this.cursor > this.available - BUFF_EXHAUST_CRITICAL) && 
 /* 216 */       (!isBufferLocked());
 /*     */   }
 /*     */ 
@@ -219,10 +220,10 @@
 /* 335 */     this.orgLexemes = new QuickSortSet();
 /* 336 */     this.available = 0;
 /* 337 */     this.buffOffset = 0;
-/* 338 */     this.charTypes = new int[4096];
+/* 338 */     this.charTypes = new int[BUFF_SIZE];
 /* 339 */     this.cursor = 0;
 /* 340 */     this.results.clear();
-/* 341 */     this.segmentBuff = new char[4096];
+/* 341 */     this.segmentBuff = new char[BUFF_SIZE];
 /* 342 */     this.pathMap.clear();
 /*     */   }
 /*     */ 

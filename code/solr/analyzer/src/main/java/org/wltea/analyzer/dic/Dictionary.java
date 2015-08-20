@@ -28,10 +28,11 @@ public class Dictionary {
 	 * 
 	 * @param cfg
 	 */
-	public static void reload(Configuration cfg) {
-		synchronized (Dictionary.class) {
-			singleton = new Dictionary(cfg);
-		}
+	public static void reloadExtWords(Configuration cfg) {
+		initial(cfg);
+		Dictionary self = getSingleton();
+		// 重新加载扩展词库
+		self.loadExtDict();
 	}
 
 	public static Dictionary initial(Configuration cfg) {
@@ -130,7 +131,7 @@ public class Dictionary {
 		loadExtDict();
 	}
 
-	private void loadExtDict() {
+	public void loadExtDict() {
 		List<String> extDictFiles = this.cfg.getExtDictionarys();
 		if (extDictFiles != null) {
 			InputStream is = null;

@@ -16,23 +16,24 @@ public final class IKSegmenter {
 	private List<ISegmenter> segmenters;
 	private IKArbitrator arbitrator;
 
-	public IKSegmenter(Reader input, boolean useSmart) {
-		this.input = input;
-		this.cfg = DefaultConfig.getInstance();
-		this.cfg.setUseSmart(useSmart);
-		init();
-	}
+//	public IKSegmenter(Reader input, boolean useSmart) {
+//		this.input = input;
+//		this.cfg = DefaultConfig.getInstance();
+//		this.cfg.setUseSmart(useSmart);
+//		init();
+//	}
 
-	public IKSegmenter(Reader input, Configuration cfg) {
+	public IKSegmenter(Reader input, boolean useSmart, Configuration cfg) {
 		this.input = input;
-		this.cfg = cfg;
+		this.cfg = null != cfg ? cfg :DefaultConfig.getInstance();
+		this.cfg.setUseSmart(useSmart);
 		init();
 	}
 
 	private void init() {
 		//使用重新加载功能，方便中途重新加载数据
 		//Dictionary.initial(this.cfg);
-		Dictionary.reload(this.cfg);
+		Dictionary.reloadExtWords(cfg);
 
 		this.context = new AnalyzeContext(this.cfg);
 

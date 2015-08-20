@@ -42,7 +42,7 @@ public class IKAnalyzer extends Analyzer {
 	@Override
 	protected TokenStreamComponents createComponents(String fieldName, Reader reader) {
 		LOG.info("createComponents. useSmart: " + useSmart);
-		Tokenizer _IKTokenizer = null != conf ? new IKTokenizer(reader, conf) : new IKTokenizer(reader, useSmart());
+		Tokenizer _IKTokenizer = new IKTokenizer(reader,useSmart, conf);
 		TokenStreamComponents comp = new TokenStreamComponents(_IKTokenizer);
 		return comp;
 	}
