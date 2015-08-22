@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.tomstools.web.persistence.BusinessSettingMapper">
+	<!-- 爬虫 -->
+	<select id="selectCrawlerStatus" resultType="map"><![CDATA[
+        SELECT c.CRAWL_CODE,c.CRAWL_NAME,c.CRAWL_FREQUENCY,s.MATCHINE,s.START_TIME,s.UPDATE_TIME,DATE_FORMAT(s.UPDATE_TIME,'%Y-%m-%d %H:%i:%s') UPDATE_TIME_STR,s.MSG,s.`STATUS` FROM T_CRAWL_M_CRAWLER c LEFT JOIN T_CRAWL_R_CRAWLER_STATUS s ON (c.CRAWL_CODE=s.CRAWL_CODE) WHERE c.IS_VALID=1
+    ]]></select>
+    <update id="saveCrawler">
+    	UPDATE T_CRAWL_M_CRAWLER SET CRAWL_NAME=#{CRAWL_NAME},CRAWL_FREQUENCY=#{CRAWL_FREQUENCY} WHERE CRAWL_CODE=#{CRAWL_CODE}
+    </update>
+    <!-- 词条 -->
+    <select id="selectWordsList" resultType="map"><![CDATA[
+        SELECT TYPE_ID,TYPE_NAME,TEMPLATE_ZM,TEMPLATE_FM,TEMPLATE_ZM_E,TEMPLATE_FM_E FROM T_POM_C_RULE WHERE IS_VALID=1
+    ]]></select>
+    <update id="deleteWords">
+    	UPDATE T_POM_C_RULE SET IS_VALID=0 WHERE TYPE_ID=#{TYPE_ID}
+    </update>
+    <update id="saveWords">
+    	UPDATE T_POM_C_RULE SET TYPE_NAME=#{TYPE_NAME},TEMPLATE_ZM=#{TEMPLATE_ZM},TEMPLATE_FM=#{TEMPLATE_FM},TEMPLATE_ZM_E=#{TEMPLATE_ZM_E},TEMPLATE_FM_E=#{TEMPLATE_FM_E}  WHERE TYPE_ID=#{TYPE_ID}
+    </update>
+    <insert id="addWords">
+    	INSERT INTO T_POM_C_RULE (TYPE_NAME,TEMPLATE_ZM,TEMPLATE_FM,TEMPLATE_ZM_E,TEMPLATE_FM_E,IN_TIME) VALUES (#{TYPE_NAME},#{TEMPLATE_ZM},#{TEMPLATE_FM},#{TEMPLATE_ZM_E},#{TEMPLATE_FM_E},now())
+    </insert>
+    
+    <!-- 站点 -->
+    <select id="selectSiteList" resultType="map"><![CDATA[
+        SELECT cs.*,st.SITE_TYPE_NAME,c.COUNTRY_NAME,l.LANG_NAME 
+		FROM T_CRAWL_C_SITE cs 
+		LEFT JOIN T_CRAWL_M_SITE_TYPE st ON (cs.SITE_TYPE_ID=st.SITE_TYPE_ID)
+		LEFT JOIN T_M_COUNTRY c ON (cs.COUNTRY_CODE=c.COUNTRY_CODE)
+		LEFT JOIN T_M_LANGUAGE l ON (cs.LANG_ID=l.LANG_ID)
+		WHERE cs.IS_VALID=1 AND st.IS_VALID=1
+    ]]></select>
+    <update id="deleteSite">
+    	UPDATE T_CRAWL_C_SITE SET IS_VALID=0 WHERE SITE_ID=#{SITE_ID}
+    </update>
+    <update id="saveSite">
+    	UPDATE T_CRAWL_C_SITE SET SITE_NAME=#{SITE_NAME},SITE_HOST=#{SITE_HOST},SITE_TYPE_ID=#{SITE_TYPE_ID},LANG_ID=#{LANG_ID},COUNTRY_CODE=#{COUNTRY_CODE}  WHERE SITE_ID=#{SITE_ID}
+    </update>
+    <insert id="addSite">
+    	INSERT INTO T_CRAWL_C_SITE (SITE_NAME,SITE_HOST,SITE_TYPE_ID,LANG_ID,COUNTRY_CODE) VALUES (#{SITE_NAME},#{SITE_HOST},#{SITE_TYPE_ID},#{LANG_ID},#{COUNTRY_CODE})
+    </insert>
+    
+    <!-- 爬取URL列表 -->
+    <select id="selectSiteDetailList" resultType="map">
+        SELECT u.*,s.SITE_NAME 
+		FROM T_CRAWL_C_CRAWL_URLS u
+		LEFT JOIN T_CRAWL_C_SITE s ON (u.SITE_ID=s.SITE_ID)
+		WHERE 
+		<if test="SITE_ID != null">
+		u.SITE_ID=#{SITE_ID} AND
+		</if>
+		u.IS_VALID=1 AND s.IS_VALID=1 
+    </select>
+    <update id="deleteSiteDetail">
+    	UPDATE T_CRAWL_C_CRAWL_URLS SET IS_VALID=0 WHERE ID=#{ID}
+    </update>
+    <update id="saveSiteDetail">
+    	UPDATE T_CRAWL_C_CRAWL_URLS SET URL=#{URL}  WHERE ID=#{ID}
+    </update>
+    <insert id="addSiteDetail">
+    	INSERT INTO T_CRAWL_C_CRAWL_URLS (SITE_ID,URL) VALUES (#{SITE_ID},#{URL})
+    </insert>
+    
+    <!-- 词汇管理 -->
+    <select id="selectWordList" resultType="map">
+        SELECT u.*
+		FROM T_POM_C_WORD u
+		WHERE 
+		u.IS_VALID=1
+    </select>
+    <delete id="deleteWord">
+    	DELETE FROM T_POM_C_WORD WHERE WORD=#{WORD}
+    </delete>
+    <insert id="addWord">
+    	INSERT INTO T_POM_C_WORD (WORD,TENDENCY,LANG_ID,IN_TIME) VALUES (#{WORD},#{TENDENCY},#{LANG_ID},now())
+    </insert>
+</mapper>

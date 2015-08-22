@@ -13,6 +13,7 @@
         <struts.version>2.3.24</struts.version>
         <mybatis.version>3.2.8</mybatis.version>
         <spring.boot.version>1.2.4.RELEASE</spring.boot.version>
+        <solr.version>4.10.4</solr.version>
     </properties>
     <dependencies>
         <dependency>
@@ -79,6 +80,13 @@
         </dependency>
 
         <dependency>
+           <groupId>org.apache.solr</groupId>
+           <artifactId>solr-solrj</artifactId>
+           <version>${solr.version}</version>
+           <type>jar</type>
+           <scope>compile</scope>
+        </dependency>
+        <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
             <version>3.1.0</version>
@@ -116,7 +124,7 @@
                 <artifactId>tomcat7-maven-plugin</artifactId>
                 <version>2.2</version>
                 <configuration>
-                    <port>8080</port>
+                    <port>80</port>
                     <uriEncoding>UTF-8</uriEncoding>
                 </configuration>
             </plugin>
@@ -127,7 +135,9 @@
         <profile>
             <id>develop</id>
             <properties>
-                <datasource>dataSource_dev</datasource>
+                <!-- <datasource>dataSource_dev</datasource> -->
+                <datasource>dataSource_c3p0</datasource>
+                
                 <jdbc_classname>com.mysql.jdbc.Driver</jdbc_classname>
                 <jdbc_url>jdbc:mysql://127.0.0.1:3306/common?useUnicode=true&amp;characterEncoding=UTF-8</jdbc_url>
                 <jdbc_user>root</jdbc_user>

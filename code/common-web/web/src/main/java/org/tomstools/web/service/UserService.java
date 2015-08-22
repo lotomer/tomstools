@@ -33,7 +33,6 @@ import org.tomstools.web.persistence.UserMapper;
  * @version 1.0
  */
 @Service("userService")
-@Transactional()
 public class UserService {
     private final static Log LOG = LogFactory.getLog(UserService.class);
     @Autowired
@@ -48,11 +47,14 @@ public class UserService {
      * 
      * @param key
      *            密钥
-     * @return 用户信息
+     * @return 用户信息。可能为null
      * @since 1.0
      */
     @Transactional(readOnly=true)
     public User getUserByKey(String key) {
+    	if (StringUtils.isEmpty(key)){
+    		return null;
+    	}
         User user = userMapper.selectUserByKey(key);
         if (null != user) {
             user.setConfigs(getUserConfigs(user.getUserId()));
@@ -257,4 +259,22 @@ public class UserService {
             }
         }
     }
+
+    /**
+     * 校验密钥
+     * @param key	用户密钥
+     * @return   校验通过，则返回空字符串； 校验不通过，则返回错误信息。不返回null
+     */
+	public String check(String key) {
+		User user = getUserByKey(key);
+		if (null != user) {
+			if ("".equals(user.getKey())) {
+				return "密钥已失效！";
+			} else {
+				return "";
+			}
+		} else {
+			return "没有找到密钥对应的用户。密钥：" + key;
+		}
+	}
 }

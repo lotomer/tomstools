@@ -3,9 +3,73 @@ function isArray(o) {
 }
 //注册全局消息提示类
 window.messager = $.messager;
+function trim(str){
+	return str.replace(/(^\s*)|(\s*$)/g,'');
+}
 function showLoading(parentId){
 	$('#' + parentId).html('<div class="loading"><div><span>&nbsp;</span><label>正在加载数据，请稍候...</label></div></div>');
 }
+function loadData(containerId, url, params, successCallback) {
+	$.ajax({
+		url : url,
+		dataType : 'json',
+		async : true,
+		data : params,
+		success : successCallback
+	});
+}
+function initCombobox(containId,url,onSelectCallback,force){
+	var result = [],o = new Object();
+	if (!force){
+	    o.id = '*';
+	    o.text = '-- 请选择 --';
+	    result.push(o);
+	}
+    // 获取该集群数据。如果指定了集群名，则获取该集群下的所有主机列表；如果没有指定集群名，则获取所有集群列表
+    $.ajax({
+        url: url,
+        dataType: 'json',
+        //async: true,
+        //data: {c:clusterName},
+        success: function(data){
+            // 获取成功
+            if (data){
+                for (var i = 0, len = data.length; i < len; i++) {
+                    var o = new Object();
+                    o.id = data[i].id;
+                    o.text = data[i].name;
+                    result.push(o);
+                }
+                $('#' + containId).combobox({
+                    valueField: 'id',
+                    textField: 'text',
+                    panelHeight: 'auto',
+                    editable: false,
+                    data: result,
+                    onSelect:onSelectCallback
+                }).combobox("select",result[0].id);
+            }
+        }
+    });
+}
+/**
+ *  日期格式转换。将yyyy-MM-dd转换为MM/dd/yyyy 
+ */
+function dateStringFormatter(s){
+	if (!s) return '';
+	var ss = s.split('-');
+	if (3 == ss.length){
+	    var ds = ss[2].split(' '),
+	        ret = ss[1] + '/' + ds[0] + '/' + ss[0];
+	    if (1 < ds.length) {
+            ret += ' ' + ds[1];
+        }
+        
+        return ret;
+	}else {
+        return s;
+    }
+};
 function getPageList(pageSize){
 	var pageList = [],times = [1,2,5,10];
 	if (!pageSize) pageSize = 10;

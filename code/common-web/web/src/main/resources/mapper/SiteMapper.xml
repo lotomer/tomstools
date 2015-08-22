@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.tomstools.web.persistence.SiteMapper">
+    
+    <select id="selectSiteList" resultType="map"><![CDATA[
+        SELECT * FROM T_CRAWL_C_SITE WHERE IS_VALID=1
+    ]]></select>
+    <select id="selectLastStatTime" resultType="date"><![CDATA[
+        SELECT STAT_TIME FROM T_POM_S_STAT_SITE WHERE TYPE_ID=#{TYPE_ID} ORDER BY STAT_TIME DESC,STAT_SEQ DESC LIMIT 1
+    ]]></select>
+    <select id="selectSiteTop" resultType="map"><![CDATA[
+    	SELECT CASE WHEN cs.SITE_NAME IS NULL THEN '其他' ELSE cs.SITE_NAME END SITE_NAME,sum(SIZE_ZM) + SUM(SIZE_FM) + sum(SIZE_ZM_E) + SUM(SIZE_FM_E) SIZE FROM T_POM_S_STAT_SITE s LEFT JOIN T_CRAWL_C_SITE cs ON (s.SITE_ID=cs.SITE_ID) 
+		WHERE STAT_TIME BETWEEN #{START_TIME} AND #{END_TIME} AND (cs.IS_VALID=1)
+		GROUP BY SITE_NAME ORDER BY SIZE desc limit #{TOP_NUM}
+    ]]></select>
+    <!-- <select id="selectSiteTop" resultType="map"><![CDATA[
+    	SELECT CASE WHEN cs.SITE_NAME IS NULL THEN '其他' ELSE cs.SITE_NAME END SITE_NAME,sum(SIZE_ZM) + SUM(SIZE_FM) + sum(SIZE_ZM_E) + SUM(SIZE_FM_E) SIZE FROM T_POM_S_STAT_SITE s LEFT JOIN T_CRAWL_C_SITE cs ON (s.SITE_ID=cs.SITE_ID) 
+		WHERE STAT_TIME BETWEEN #{START_TIME} AND #{END_TIME} AND (cs.IS_VALID=1 OR cs.IS_VALID IS NULL)
+		GROUP BY SITE_NAME ORDER BY SIZE desc limit #{TOP_NUM}
+    ]]></select> -->
+     <select id="selectMediaCount" resultType="map"><![CDATA[
+     	SELECT CASE WHEN st.SITE_TYPE_NAME IS NULL THEN '其他' ELSE st.SITE_TYPE_NAME END SITE_TYPE_NAME,sum(SIZE_ZM) + SUM(SIZE_FM) + sum(SIZE_ZM_E) + SUM(SIZE_FM_E) SIZE 
+		FROM T_POM_S_STAT_SITE s LEFT JOIN T_CRAWL_C_SITE cs ON (s.SITE_ID=cs.SITE_ID) LEFT JOIN T_CRAWL_M_SITE_TYPE st ON (cs.SITE_TYPE_ID=st.SITE_TYPE_ID)
+		WHERE  STAT_TIME BETWEEN #{START_TIME} AND #{END_TIME} AND (cs.IS_VALID=1 OR cs.IS_VALID IS NULL) AND (st.IS_VALID=1 OR st.IS_VALID IS NULL)
+		GROUP BY SITE_TYPE_NAME ORDER BY SIZE desc
+    ]]></select>
+    
+    <select id="selectMedia" resultType="map"><![CDATA[
+    	SELECT CASE WHEN st.SITE_TYPE_NAME IS NULL THEN '其他' ELSE st.SITE_TYPE_NAME END SITE_TYPE_NAME,sum(SIZE_ZM) + SUM(SIZE_FM) + sum(SIZE_ZM_E) + SUM(SIZE_FM_E) SIZE,DATE_FORMAT(STAT_TIME,'%Y-%m-%d') dt 
+		FROM T_POM_S_STAT_SITE s LEFT JOIN T_CRAWL_C_SITE cs ON (s.SITE_ID=cs.SITE_ID) LEFT JOIN T_CRAWL_M_SITE_TYPE st ON (cs.SITE_TYPE_ID=st.SITE_TYPE_ID)
+		WHERE  STAT_TIME BETWEEN #{START_TIME} AND #{END_TIME} AND (cs.IS_VALID=1 OR cs.IS_VALID IS NULL) AND (st.IS_VALID=1 OR st.IS_VALID IS NULL)
+		GROUP BY SITE_TYPE_NAME,dt ORDER BY dt desc
+    ]]></select>
+    
+    <select id="statWordsCountQuery" resultType="map"><![CDATA[
+        SELECT r.TYPE_ID,r.TYPE_NAME,sum(SIZE_ZM) SIZE_ZM,SUM(SIZE_FM) SIZE_FM,sum(SIZE_ZM_E) SIZE_ZM_E,SUM(SIZE_FM_E) SIZE_FM_E 
+		FROM T_POM_S_STAT_SITE s LEFT JOIN T_CRAWL_C_SITE cs ON (s.SITE_ID=cs.SITE_ID) 
+		LEFT JOIN T_POM_C_RULE r ON (s.TYPE_ID=r.TYPE_ID)  WHERE 
+        ]]><if test="COUNTRY_CODE != null">
+        	cs.COUNTRY_CODE=#{COUNTRY_CODE} AND
+        </if><if test="LANG_ID != null">
+        	cs.LANG_ID=#{LANG_ID} AND
+        </if><if test="SITE_ID != null">
+        	cs.SITE_ID=#{SITE_ID} AND
+        </if><if test="SITE_TYPE_ID != null">
+        	cs.SITE_TYPE_ID=#{SITE_TYPE_ID} AND
+        </if><![CDATA[
+		STAT_TIME BETWEEN #{START_TIME} AND #{END_TIME}
+		GROUP BY r.TYPE_ID ORDER BY SIZE_FM desc,SIZE_FM_E desc,SIZE_ZM desc,SIZE_ZM_E desc
+    ]]></select>
+    
+    <insert id="saveStat">
+    	INSERT INTO T_POM_S_STAT_SITE (TYPE_ID,SIZE_ZM,SIZE_FM,SIZE_ZM_E,SIZE_FM_E,STAT_TIME,SITE_ID) VALUES (#{TYPE_ID},#{SIZE_ZM},#{SIZE_FM},#{SIZE_ZM_E},#{SIZE_FM_E},#{STAT_TIME},#{SITE_ID})
+    </insert>
+    
+    <insert id="saveDetail">
+    	INSERT INTO T_POM_R_DETAIL (SITE_ID,TITLE,URL,CRAWL_TIME,IN_TIME) VALUES (#{SITE_ID},#{TITLE},#{URL},#{TSTAMP},now())
+    </insert>
+    
+    <select id="selectDetail" resultType="map"><![CDATA[
+    	SELECT TITLE,URL,CRAWL_TIME,DATE_FORMAT(CRAWL_TIME,'%Y-%m-%d') DT FROM T_POM_R_DETAIL ORDER BY CRAWL_TIME DESC LIMIT #{START},#{ROWS}
+    ]]></select>
+    
+    
+    
+    <select id="selectStats" resultType="map"><![CDATA[
+        SELECT r.TYPE_ID,r.TYPE_NAME,sum(SIZE_ZM) SIZE_ZM,SUM(SIZE_FM) SIZE_FM,sum(SIZE_ZM_E) SIZE_ZM_E,SUM(SIZE_FM_E) SIZE_FM_E,DATE_FORMAT(STAT_TIME,'%Y-%m-%d') dt 
+        FROM T_POM_S_STAT_SITE s LEFT JOIN T_POM_C_RULE r ON (s.TYPE_ID=r.TYPE_ID) WHERE 
+        ]]><if test="TYPE_ID != null">
+        	s.TYPE_ID=#{TYPE_ID} AND
+        </if><![CDATA[
+		STAT_TIME BETWEEN #{START_TIME} AND #{END_TIME}
+		GROUP BY r.TYPE_ID,r.TYPE_NAME,dt ORDER BY dt desc
+    ]]></select>
+    <select id="selectStatsCount" resultType="map"><![CDATA[
+        SELECT r.TYPE_ID,r.TYPE_NAME,sum(SIZE_ZM) SIZE_ZM,SUM(SIZE_FM) SIZE_FM,sum(SIZE_ZM_E) SIZE_ZM_E,SUM(SIZE_FM_E) SIZE_FM_E 
+        FROM T_POM_S_STAT_SITE s LEFT JOIN T_POM_C_RULE r ON (s.TYPE_ID=r.TYPE_ID) WHERE 
+        ]]><if test="TYPE_ID != null">
+        	s.TYPE_ID=#{TYPE_ID} AND
+        </if><![CDATA[
+		STAT_TIME BETWEEN #{START_TIME} AND #{END_TIME}
+		GROUP BY r.TYPE_ID,r.TYPE_NAME
+    ]]></select>
+    <select id="selectStatsCountAll" resultType="map"><![CDATA[
+        SELECT sum(SIZE_ZM) + SUM(SIZE_ZM_E) SIZE_ZM,sum(SIZE_FM) +SUM(SIZE_FM_E) SIZE_FM FROM T_POM_S_STAT_SITE 
+ 		WHERE STAT_TIME BETWEEN #{START_TIME} AND #{END_TIME}
+    ]]></select>
+</mapper>

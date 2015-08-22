@@ -77,7 +77,7 @@ http://www.springframework.org/schema/tx http://www.springframework.org/schema/t
  -->
 	<!-- 自动扫描dao和service包(自动注入) -->
 	<context:component-scan
-		base-package="org.tomstools.webservice,org.tomstools.web.action,org.tomstools.web.model,org.tomstools.web.persistence,org.tomstools.web.service"  />
+		base-package="org.tomstools.web.schedule,org.tomstools.web.action,org.tomstools.web.model,org.tomstools.web.persistence,org.tomstools.web.service"  />
 	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
 		<property name="basePackage" value="org.tomstools.web.persistence" />
 	</bean>

@@ -81,6 +81,7 @@ function datetimeFormat(dt, format) {
             'hh', h).replace('hi', h).replace('mm', M).replace('mi', M)
             .replace('ss', s);
 }
+
 function getEchartsReportDatas(metricName, obj, type) {
     var datas = {}, metricPrefix = "cpu_report" == metricName ? 'c' : '', max = 0, dt = undefined, defaultUnit = METRIC_UNITS[metricName] ? METRIC_UNITS[metricName]
             : "", radix = METRIC_RADIX[metricName] ? METRIC_RADIX[metricName]

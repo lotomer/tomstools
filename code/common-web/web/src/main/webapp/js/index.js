@@ -181,7 +181,10 @@ function createWindow(containId,menuId,menuName,id,title,url,w,h,isAppend,useIfr
         //    url += '&r=' + encodeURIComponent(queryParams);
         //}
     }
-    obj.window({
+    obj.panel({
+    	noheader:true,
+    	border:false,
+    	style:{borderWidth:0},
         left: 0,
         width: w,
         height: h,
@@ -213,28 +216,28 @@ function createWindow(containId,menuId,menuName,id,title,url,w,h,isAppend,useIfr
         },
         onClose: function() {
             window.top.closeModule(menuId,menuName);
-            $('#p_' + id).window("destroy");
+            $('#p_' + id).panel("destroy");
         },
         onResize: function (width,height) {
             changeContentFrameSize(id,width - diffWidth,height - diffHeight);
         },
         onMaximize: function() {
-            var o = $('#p_' + id).window("window");
+            var o = $('#p_' + id).panel("window");
             o.css('z-index', $.fn.window.defaults.zIndex++);
             o.css('position', 'absolute');
             o.css('left', '0');
             o.css('top', '0');
         },
         onRestore: function() {
-            var o = $('#p_' + id).window("window");
+            var o = $('#p_' + id).panel("window");
             o.css('z-index', $.fn.window.defaults.zIndex++);
             o.css('position', 'relative');
         },
         onLoad:function  () {
-            $('#p_' + id).window("expand");
+            $('#p_' + id).panel("expand");
         }
     });
-    if(maxWindow) obj.window('maximize');
+    if(maxWindow) obj.panel('maximize');
 }
 
 // 调整里面iframe的高度和宽度

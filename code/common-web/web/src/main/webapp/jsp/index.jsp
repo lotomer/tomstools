@@ -28,7 +28,7 @@
         </div>
     </div>
     <div data-options="region:'south'" style="height:26px;text-align:center;padding:5px 10px;">
-            亚信科技（南京）有限公司 版权所有 All rights reserved. &copy;2014-2015
+            Copyright&copy;2015 网络舆情监控系统  All rights reserved.
     </div>
     <div data-options="region:'west',split:true" title="功能列表" style="width:142px;">
         <ul id="treeMenu"></ul>
@@ -74,6 +74,7 @@
             window.top.getModuleUrl = getModuleUrl;
             // 注册全局打开页面的方法
             window.top.createPage = createPage;
+            window.top.createPageById = createPageById;
             initTheme('cb-theme','${theme}');
             
             // 初始化菜单内容
@@ -219,7 +220,9 @@
                 return false;
             }
         }
-        
+        function createPageById(pageId,queryParams){
+        	doCreateWindowByPageId("divContent",undefined,undefined,pageId,false,queryParams,true)
+        }
         function doCreateWindowByPageId(containerId,id,name,pageId,isAppend,queryParams,canClose){
         	var tmpPages = pages,page = undefined;
         	for (var i = 0,iLen = tmpPages.length; i < iLen; i++) {

@@ -2,10 +2,10 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="org.tomstools.web.persistence.UserMapper">
 	<select id="selectUser" resultType="user"><![CDATA[
-        SELECT u.USER_ID userId,u.USER_NAME userName,u.NICK_NAME nickName,u.EMAIL,u.PHONE_NUMBER phoneNumber,CASE WHEN k.`KEY` IS NULL THEN NULL WHEN now() < k.INVALID_TIME THEN k.`KEY` ELSE '' END `key` FROM T_M_USERS u LEFT JOIN T_U_KEY k ON u.USER_ID=k.USER_ID WHERE u.USER_NAME=#{userName} AND u.USER_PASSWD=#{userPassword} AND u.IS_VALID='1'
+        SELECT u.USER_ID userId,u.USER_NAME userName,u.NICK_NAME nickName,u.EMAIL,u.PHONE_NUMBER phoneNumber,u.CLIENT_IP clientIp,CASE WHEN k.`KEY` IS NULL THEN NULL WHEN now() < k.INVALID_TIME THEN k.`KEY` ELSE '' END `key` FROM T_M_USERS u LEFT JOIN T_U_KEY k ON u.USER_ID=k.USER_ID WHERE u.USER_NAME=#{userName} AND u.USER_PASSWD=#{userPassword} AND u.IS_VALID='1'
     ]]></select>
     <select id="selectUserByKey" resultType="user"><![CDATA[
-        SELECT k.USER_ID userId,CASE WHEN now() < k.INVALID_TIME THEN k.`KEY` ELSE '' END `key`,u.USER_NAME userName,u.NICK_NAME nickName FROM T_U_KEY k,T_M_USERS u where k.USER_ID=u.USER_ID AND u.IS_VALID='1' AND `KEY`= #{key}
+        SELECT k.USER_ID userId,CASE WHEN now() < k.INVALID_TIME THEN k.`KEY` ELSE '' END `key`,u.USER_NAME userName,u.NICK_NAME nickName,u.CLIENT_IP clientIp FROM T_U_KEY k,T_M_USERS u where k.USER_ID=u.USER_ID AND u.IS_VALID='1' AND `KEY`= #{key}
     ]]></select>
 	<select id="selectUserMenus" resultType="menu"><![CDATA[
         SELECT m.MENU_ID menuId,m.MENU_NAME menuName,m.PAGE_ID pageId,m.PARENT_ID parentId,m.IS_SHOW isShow,m.ORDER_NUM orderNum,m.ICON_CLASS iconClass

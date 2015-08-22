@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.tomstools.web.persistence.SolrMapper">
+    <!-- <select id="selectLastStatTime" resultType="date"><![CDATA[
+        SELECT STAT_TIME FROM T_POM_S_STAT WHERE TYPE_ID=#{TYPE_ID} ORDER BY STAT_TIME DESC,STAT_SEQ DESC LIMIT 1
+    ]]></select>
+    <select id="selectStats" resultType="map"><![CDATA[
+        SELECT r.TYPE_ID,r.TYPE_NAME,sum(SIZE_ZM) SIZE_ZM,SUM(SIZE_FM) SIZE_FM,sum(SIZE_ZM_E) SIZE_ZM_E,SUM(SIZE_FM_E) SIZE_FM_E,DATE_FORMAT(STAT_TIME,'%Y-%m-%d') dt FROM T_POM_S_STAT s LEFT JOIN T_POM_C_RULE r ON (s.TYPE_ID=r.TYPE_ID) WHERE 
+        ]]><if test="TYPE_ID != null">
+        	s.TYPE_ID=#{TYPE_ID} AND
+        </if><![CDATA[
+		STAT_TIME BETWEEN #{START_TIME} AND #{END_TIME}
+		GROUP BY r.TYPE_ID,r.TYPE_NAME,dt ORDER BY dt desc
+    ]]></select>
+    <select id="selectStatsCount" resultType="map"><![CDATA[
+        SELECT r.TYPE_ID,r.TYPE_NAME,sum(SIZE_ZM) SIZE_ZM,SUM(SIZE_FM) SIZE_FM,sum(SIZE_ZM_E) SIZE_ZM_E,SUM(SIZE_FM_E) SIZE_FM_E FROM T_POM_S_STAT s LEFT JOIN T_POM_C_RULE r ON (s.TYPE_ID=r.TYPE_ID) WHERE 
+        ]]><if test="TYPE_ID != null">
+        	s.TYPE_ID=#{TYPE_ID} AND
+        </if><![CDATA[
+		STAT_TIME BETWEEN #{START_TIME} AND #{END_TIME}
+		GROUP BY r.TYPE_ID,r.TYPE_NAME
+    ]]></select>
+    <select id="selectStatsCountAll" resultType="map"><![CDATA[
+        SELECT sum(SIZE_ZM) + SUM(SIZE_ZM_E) SIZE_ZM,sum(SIZE_ZM_E) +SUM(SIZE_FM_E) SIZE_FM FROM T_POM_S_STAT 
+ 		WHERE STAT_TIME BETWEEN #{START_TIME} AND #{END_TIME}
+    ]]></select> -->
+    <select id="selectLanguage" resultType="map"><![CDATA[
+        SELECT LANG_ID id,LANG_NAME name FROM T_M_LANGUAGE
+    ]]></select>
+    <select id="selectCountry" resultType="map"><![CDATA[
+        SELECT COUNTRY_CODE id, COUNTRY_NAME name FROM T_M_COUNTRY
+    ]]></select>
+    <select id="selectSiteType" resultType="map"><![CDATA[
+        SELECT SITE_TYPE_ID id,SITE_TYPE_NAME name,IS_VALID FROM T_CRAWL_M_SITE_TYPE
+        ]]><if test="IS_VALID != null">
+        	WHERE IS_VALID=#{IS_VALID}
+        </if><![CDATA[
+    ]]></select>
+    <select id="selectSite" resultType="map"><![CDATA[
+        SELECT s.SITE_ID id,s.SITE_NAME name,s.SITE_HOST,s.SITE_TYPE_ID,s.IS_VALID,t.SITE_TYPE_NAME FROM T_CRAWL_C_SITE s LEFT JOIN T_CRAWL_M_SITE_TYPE t ON (s.SITE_TYPE_ID=t.SITE_TYPE_ID) 
+        WHERE 1=1
+        ]]><if test="SITE_TYPE_ID != null">
+        	 AND s.SITE_TYPE_ID=#{SITE_TYPE_ID}
+        </if>
+        <if test="IS_VALID != null">
+        	AND s.IS_VALID=#{IS_VALID} AND t.IS_VALID=#{IS_VALID}
+        </if><![CDATA[
+    ]]></select>
+    
+    <!-- 
+    <insert id="saveStat">
+    	INSERT INTO T_POM_S_STAT (TYPE_ID,SIZE_ZM,SIZE_FM,SIZE_ZM_E,SIZE_FM_E,STAT_TIME) VALUES (#{TYPE_ID},#{SIZE_ZM},#{SIZE_FM},#{SIZE_ZM_E},#{SIZE_FM_E},#{STAT_TIME})
+    </insert> -->
+</mapper>

@@ -20,6 +20,7 @@ public class User {
     private String key;
     private String email;
     private String phoneNumber;
+    private String clientIp;
     private Map<String, String> configs;
     public final Map<String, String> getConfigs() {
         return configs;
@@ -63,7 +64,14 @@ public class User {
     public final void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
     }
-    @Override
+    
+    public String getClientIp() {
+		return clientIp;
+	}
+	public void setClientIp(String clientIp) {
+		this.clientIp = clientIp;
+	}
+	@Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
         builder.append("User:{userId:").append(userId).append(", userName:").append(userName)
