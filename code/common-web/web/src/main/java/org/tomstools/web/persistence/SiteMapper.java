@@ -67,4 +67,11 @@ public interface SiteMapper {
 	/**直接获取指定时间内的正面信息数和负面信息数*/
 	public List<Map<String, Object>> selectStatsCountAll(@Param("START_TIME") Date startTime, @Param("END_TIME") Date endTime);
 
+	/**
+	 * 判断url是否存在于舆情明细中。
+	 * @param url
+	 * @return 如果存在则返回1，如果不存在则返回null
+	 */
+	public String checkUrl(@Param("URL") String url);
+
 }

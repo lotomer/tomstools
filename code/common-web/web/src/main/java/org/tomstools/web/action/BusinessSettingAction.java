@@ -326,4 +326,73 @@ public class BusinessSettingAction {
 		}
 		return "";
 	}
+	
+	// ------------------------------------------------------------
+		// -- 预警管理 
+		// ------------------------------------------------------------
+
+		@RequestMapping("/alert/select.do")
+		public @ResponseBody String selectAlertList() {
+			List<Map<String, Object>> result = businessSettingService.selectAlertList();
+			return JSON.toJSONString(result);
+		}
+
+		@RequestMapping("/alert/delete.do")
+		public @ResponseBody String deleteAlert(@RequestParam("key") String key,
+				@RequestParam(value = "id", required = true) Integer id, HttpServletRequest req, HttpServletResponse resp) {
+			String error = userService.check(key);
+			if (!"".equals(error)) {
+				return error;
+			}
+			try {
+				businessSettingService.deleteAlert(id);
+			} catch (Exception e) {
+				LOG.error(e.getMessage(), e);
+				return e.getMessage();
+			}
+			return "";
+		}
+
+		@RequestMapping("/alert/save.do")
+		public @ResponseBody String saveAlert(@RequestParam("key") String key,
+				@RequestParam(value = "id", required = true) Integer id,
+				@RequestParam(value = "ALERT_NAME", required = true) String alertName,
+				@RequestParam(value = "ALERT_TYPE", required = true) String alertType,
+				@RequestParam(value = "ALERT_VALUE", required = true) String alertValue,
+				@RequestParam(value = "NOTIFIERS", required = true) String notifiers,
+				@RequestParam(value = "METRICS", required = true) String metrics, HttpServletRequest req,
+				HttpServletResponse resp) {
+			String error = userService.check(key);
+			if (!"".equals(error)) {
+				return error;
+			}
+			try {
+				businessSettingService.saveAlert(id, alertName, alertType, alertValue, notifiers, metrics);
+			} catch (Exception e) {
+				LOG.error(e.getMessage(), e);
+				return e.getMessage();
+			}
+			return "";
+		}
+
+		@RequestMapping("/alert/add.do")
+		public @ResponseBody String addAlert(@RequestParam("key") String key,
+				@RequestParam(value = "ALERT_NAME", required = true) String alertName,
+				@RequestParam(value = "ALERT_TYPE", required = true) String alertType,
+				@RequestParam(value = "ALERT_VALUE", required = true) String alertValue,
+				@RequestParam(value = "NOTIFIERS", required = true) String notifiers,
+				@RequestParam(value = "METRICS", required = true) String metrics, HttpServletRequest req,
+				HttpServletResponse resp) {
+			String error = userService.check(key);
+			if (!"".equals(error)) {
+				return error;
+			}
+			try {
+				businessSettingService.addAlert(alertName, alertType, alertValue, notifiers, metrics);
+			} catch (Exception e) {
+				LOG.error(e.getMessage(), e);
+				return e.getMessage();
+			}
+			return "";
+		}
 }

@@ -36,7 +36,14 @@ public class SolrSchedule {
 		} catch (Exception e) {
 			LOG.error("【统计网站舆论词条】调度任务执行失败：" + e.getMessage(),e);
 		}
-
-		
+	}
+	
+	public void alert(){
+		LOG.info("【预警】调度任务开始执行...");
+		try {
+			LOG.info("【预警】调度任务执行完毕。" + solrService.alert());
+		} catch (Exception e) {
+			LOG.error("【预警】调度任务执行失败：" + e.getMessage(),e);
+		}
 	}
 }

@@ -3,6 +3,9 @@
  */
 package org.tomstools.web.action;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -10,17 +13,27 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.FileCopyUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
+import org.tomstools.web.model.User;
 import org.tomstools.web.service.SolrService;
+import org.tomstools.web.service.UserService;
 
 import com.alibaba.fastjson.JSON;
 
@@ -35,9 +48,13 @@ import com.alibaba.fastjson.JSON;
 @Controller
 @RequestMapping("/crawl")
 public class StatAction {
+	private static final Log LOG = LogFactory.getLog(StatAction.class);
 	private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
 	@Autowired
 	private SolrService solrService;
+
+	@Autowired
+	private UserService userService;
 
 	@RequestMapping("/stat/words.do")
 	public @ResponseBody String words(@RequestParam("key") String key, @RequestParam("startTime") String startTime,
@@ -108,7 +125,8 @@ public class StatAction {
 			start = new Date(end.getTime() - SolrService.STAT_TIME_DEFAULT);
 		}
 
-		List<Map<String, Object>> result = solrService.statWordsCountQuery(start, end, langId, countryId,siteTypeId,siteId);
+		List<Map<String, Object>> result = solrService.statWordsCountQuery(start, end, langId, countryId, siteTypeId,
+				siteId);
 		if (null != result) {
 			return JSON.toJSONString(result);
 		} else {
@@ -332,7 +350,7 @@ public class StatAction {
 			HttpServletRequest req, HttpServletResponse resp) throws Exception {
 		resp.setContentType("application/json;charset=UTF-8");
 
-		List<Map<String, Object>> result = solrService.selectSite(siteTypeId,"1");
+		List<Map<String, Object>> result = solrService.selectSite(siteTypeId, "1");
 		if (null != result) {
 			return JSON.toJSONString(result);
 		} else {
@@ -353,5 +371,115 @@ public class StatAction {
 		} else {
 			return "[]";
 		}
+	}
+
+	@RequestMapping("/query/alertQuery.do")
+	public @ResponseBody String alertQuery(@RequestParam("key") String key, @RequestParam("startTime") String startTime,
+			@RequestParam("endTime") String endTime,
+			@RequestParam(value = "NOTIFY_STATUS", required = false) String notifyStatus,
+			@RequestParam(value = "ALERT_TYPE", required = false) String alertType, HttpServletRequest req,
+			HttpServletResponse resp) throws Exception {
+		resp.setContentType("application/json;charset=UTF-8");
+		Date end = null;
+		if (!StringUtils.isEmpty(endTime)) {
+			end = DATE_FORMAT.parse(endTime);
+		} else {
+			end = new Date();
+		}
+		Date start = null;
+		if (!StringUtils.isEmpty(startTime)) {
+			start = DATE_FORMAT.parse(startTime);
+		} else {
+			start = new Date(end.getTime() - SolrService.STAT_TIME_DEFAULT);
+		}
+
+		List<Map<String, Object>> s = solrService.selectAlertLog(start, end, notifyStatus, alertType);
+
+		return JSON.toJSONString(s);
+	}
+
+	@RequestMapping("/query/weeklyQuery.do")
+	public @ResponseBody String weeklyQuery(@RequestParam("key") String key,
+			@RequestParam(value = "YEAR", required = false) Integer year,
+			@RequestParam(value = "MONTH", required = false) Integer month,
+			@RequestParam(value = "WEEK", required = false) Integer week, HttpServletRequest req,
+			HttpServletResponse resp) throws Exception {
+		resp.setContentType("application/json;charset=UTF-8");
+
+		List<Map<String, Object>> s = solrService.selectWeekly(year, month, week);
+
+		return JSON.toJSONString(s);
+	}
+
+	@RequestMapping(value = "/weekly/upload.do", method = RequestMethod.POST)
+	public @ResponseBody String upload(@RequestParam("key") String key, @RequestParam("YEAR") int year,
+			@RequestParam("MONTH") int month, @RequestParam("WEEK") int week, MultipartHttpServletRequest request,
+			HttpServletResponse response) {
+		User user = userService.getUserByKey(key);
+		String error = userService.check(user);
+		if (!"".equals(error)) {
+			return error;
+		}
+		File path = new File(userService.getConfig(user.getUserId(), "UPLOAD_PATH"));
+		if (!path.exists()) {
+			// 创建目录
+			if (!path.mkdirs()) {
+				LOG.warn("Create directory failed! \"" + path.getAbsolutePath() + "\"");
+			}
+		}
+		// 逐个处理文件
+		Map<String, MultipartFile> files = request.getFileMap();
+		MultipartFile mpf = null;
+		int count = 1;
+		for (Entry<String, MultipartFile> entry : files.entrySet()) {
+			mpf = entry.getValue();
+			String fileName = mpf.getOriginalFilename();
+			int index = fileName.lastIndexOf(".");
+			File filePath = new File(path,
+					String.format("weekly-%d-%d-%d.%d.%d%s", year, month, week,count++,System.currentTimeMillis(), fileName.substring(index)));
+			try {
+				// 保存文件
+				FileCopyUtils.copy(mpf.getBytes(), new FileOutputStream(filePath));
+				solrService.saveWeekly(year, month, week, filePath.getAbsolutePath(), fileName, mpf.getSize(), mpf.getContentType(),
+						user.getUserId());
+			} catch (IOException e) {
+				LOG.error(e.getMessage(), e);
+				return "上传失败：" + e.getMessage() + "";
+			}
+		}
+		return "";
+	}
+
+	@RequestMapping("/weekly/download.do")
+	public void weeklyDownload(@RequestParam("key") String key, @RequestParam(value = "id", required = true) Integer id,
+			HttpServletRequest req, HttpServletResponse resp) throws Exception {
+		resp.setContentType("application/json;charset=UTF-8");
+
+		Map<String, Object> weekly = solrService.selectWeeklyById(id);
+		String path = String.valueOf(weekly.get("PATH"));
+		try {
+			resp.setContentType(String.valueOf(weekly.get("FILE_TYPE")));
+			resp.setHeader("Content-disposition",
+					"attachment; filename=\"" + String.valueOf(weekly.get("FILE_NAME")) + "\"");
+			FileUtils.copyFile(new File(path), resp.getOutputStream());
+		} catch (IOException e) {
+			LOG.error(e.getMessage(), e);
+		}
+	}
+	@RequestMapping("/weekly/delete.do")
+	public @ResponseBody String weeklyDelete(@RequestParam("key") String key, @RequestParam(value = "id", required = true) Integer id,
+			HttpServletRequest req, HttpServletResponse resp) throws Exception {
+
+		String error = userService.check(key);
+		if (!"".equals(error)) {
+			return error;
+		}
+		try {
+			solrService.deleteWeeklyById(id);
+		} catch (Exception e) {
+			LOG.error(e.getMessage(), e);
+			return e.getMessage();
+		}
+		return "";
 	}
 }

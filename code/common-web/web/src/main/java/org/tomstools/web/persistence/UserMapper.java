@@ -1,6 +1,7 @@
 package org.tomstools.web.persistence;
 
 import java.util.List;
+import java.util.Map;
 
 import org.apache.ibatis.annotations.Param;
 import org.tomstools.web.model.Config;
@@ -17,7 +18,7 @@ import org.tomstools.web.model.User;
  * @version 1.0
  */
 public interface UserMapper {
-
+	public List<Map<String,Object>> selectUserList();
     /**
      * 根据用户名和密码获取用户信息
      * 

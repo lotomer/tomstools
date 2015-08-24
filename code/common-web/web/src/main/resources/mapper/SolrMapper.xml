@@ -51,4 +51,47 @@
     <insert id="saveStat">
     	INSERT INTO T_POM_S_STAT (TYPE_ID,SIZE_ZM,SIZE_FM,SIZE_ZM_E,SIZE_FM_E,STAT_TIME) VALUES (#{TYPE_ID},#{SIZE_ZM},#{SIZE_FM},#{SIZE_ZM_E},#{SIZE_FM_E},#{STAT_TIME})
     </insert> -->
+    
+    <select id="selectAlertLog" resultType="map"><![CDATA[
+        SELECT l.ID,l.ALERT_ID,l.ALERT_VALUE,l.CURRENT_VALUE,DATE_FORMAT(l.ALERT_TIME,'%Y-%m-%d %H:%i:%S') ALERT_TIME,l.NOTIFY_STATUS,
+		CASE WHEN l.NOTIFY_TIME IS NULL THEN NULL ELSE DATE_FORMAT(l.NOTIFY_TIME,'%Y-%m-%d %H:%i:%S') end NOTIFY_TIME,s.ALERT_NAME,s.ALERT_TYPE FROM T_ALERT_LOG l LEFT JOIN T_ALERT_SETTING s ON (l.ALERT_ID=s.ALERT_ID)
+		WHERE 
+		]]><if test="NOTIFY_STATUS != null">
+        	l.NOTIFY_STATUS=#{NOTIFY_STATUS} AND
+        </if><if test="ALERT_TYPE != null">
+        	s.ALERT_TYPE=#{ALERT_TYPE} AND
+        </if><![CDATA[
+		ALERT_TIME BETWEEN #{START_TIME} AND #{END_TIME} AND s.IS_VALID=1
+		ORDER BY NOTIFY_TIME desc
+    ]]></select>
+    
+    <insert id="saveAlertLog">
+    	INSERT INTO T_ALERT_LOG (ALERT_ID,ALERT_VALUE,CURRENT_VALUE,ALERT_TIME) VALUES (#{ALERT_ID},#{ALERT_VALUE},#{CURRENT_VALUE},now())
+    </insert>
+    
+    <select id="selectWeekly" resultType="map"><![CDATA[
+        SELECT ID,YEAR,MONTH,WEEK,PATH,FILE_TYPE,FILE_SIZE,FILE_NAME,w.USER_ID,DATE_FORMAT(IN_TIME,'%Y-%m-%d %H:%i:%S') IN_TIME,u.NICK_NAME 
+		FROM T_POM_WEEKLY w LEFT JOIN T_M_USERS u ON (w.USER_ID=u.USER_ID) 
+		WHERE
+		]]><if test="YEAR != null">
+        	`YEAR`=#{YEAR} AND
+        </if><if test="MONTH != null">
+        	`MONTH`=#{MONTH} AND
+        </if><if test="WEEK != null">
+        	`WEEK`=#{WEEK} AND
+        </if><![CDATA[
+        1=1
+		ORDER BY IN_TIME desc
+    ]]></select>
+    <insert id="saveWeekly">
+    	INSERT INTO T_POM_WEEKLY (YEAR,MONTH,WEEK,PATH,FILE_TYPE,FILE_SIZE,FILE_NAME,USER_ID,IN_TIME) VALUES (#{YEAR},#{MONTH},#{WEEK},#{PATH},#{FILE_TYPE},#{FILE_SIZE},#{FILE_NAME},#{USER_ID},now())
+    </insert>
+     <select id="selectWeeklyById" resultType="map"><![CDATA[
+        SELECT ID,YEAR,MONTH,WEEK,PATH,FILE_TYPE,FILE_SIZE,FILE_NAME
+		FROM T_POM_WEEKLY
+		WHERE ID=#{ID}
+    ]]></select>
+    <delete id="deleteWeeklyById">
+    	DELETE FROM T_POM_WEEKLY WHERE ID=#{ID}
+    </delete>
 </mapper>

@@ -18,13 +18,35 @@ function loadData(containerId, url, params, successCallback) {
 		success : successCallback
 	});
 }
-function initCombobox(containId,url,onSelectCallback,force){
-	var result = [],o = new Object();
+function initComboboxWithData(containId,data,onSelectCallback,force,valueField,textField){
+	var result = [],o = new Object(),valueField = undefined != valueField ? valueField: 'id',textField = undefined != textField ? textField: 'name';
 	if (!force){
 	    o.id = '*';
 	    o.text = '-- 请选择 --';
 	    result.push(o);
 	}
+	if (isArray(data)){
+        for (var i = 0, len = data.length; i < len; i++) {
+        	var o = new Object();
+        	if (typeof(data[i]) != "object"){
+        		o.id = o.text = data[i];
+        	}else{
+	            o.id = data[i][valueField];
+	            o.text = data[i][textField];
+        	}
+        	result.push(o);
+        }
+        $('#' + containId).combobox({
+            valueField: 'id',
+            textField: 'text',
+            panelHeight: 'auto',
+            editable: false,
+            data: result,
+            onSelect:onSelectCallback
+        }).combobox("select",result[0].id);
+    }
+}
+function initCombobox(containId,url,onSelectCallback,force,valueField,textField){
     // 获取该集群数据。如果指定了集群名，则获取该集群下的所有主机列表；如果没有指定集群名，则获取所有集群列表
     $.ajax({
         url: url,
@@ -33,22 +55,7 @@ function initCombobox(containId,url,onSelectCallback,force){
         //data: {c:clusterName},
         success: function(data){
             // 获取成功
-            if (data){
-                for (var i = 0, len = data.length; i < len; i++) {
-                    var o = new Object();
-                    o.id = data[i].id;
-                    o.text = data[i].name;
-                    result.push(o);
-                }
-                $('#' + containId).combobox({
-                    valueField: 'id',
-                    textField: 'text',
-                    panelHeight: 'auto',
-                    editable: false,
-                    data: result,
-                    onSelect:onSelectCallback
-                }).combobox("select",result[0].id);
-            }
+            initComboboxWithData(containId, data, onSelectCallback, force, valueField, textField);
         }
     });
 }
@@ -101,6 +108,24 @@ function toDecimal(s,len) {
 function storageSpaceAdapt (value,defaultUnit){
 	return numberAdaptUnit(value,defaultUnit,1024);
 }
+
+//判断数组中是否包含某元素
+function arrayIndexOf (arr,element) {
+	return $.inArray(element,arr);
+//    if (!arr.length) {
+//        return -1;
+//    }else if (typeof(arr.indexOf) == "function") {
+//        return arr.indexOf(element);
+//    }else {
+//        for (var i = arr.length - 1,; i > -1; i--) {
+//             if (arr[i] == element) {
+//                 return i;
+//             }
+//        }
+//        
+//        return -1;
+//    }
+}
 /**
  * 数值自适应单位<br/>
  * 比如：numberAdaptUnit(90000000,"M",1024)得到的结果是{value:85.83,unit:"T",times:1048576}
@@ -112,7 +137,7 @@ function storageSpaceAdapt (value,defaultUnit){
 function numberAdaptUnit (value,defaultUnit,radix) {
 	var times=1,realUnit = defaultUnit != undefined ? defaultUnit : '';
     if(!value) return {value:value,unit:realUnit,times:times};
-    var units=["","K","M","G","T","P","E","Z","Y","B"],max = parseFloat(value),isMatched = false,position = units.indexOf(defaultUnit);
+    var units=["","K","M","G","T","P","E","Z","Y","B"],max = parseFloat(value),isMatched = false,position = arrayIndexOf(units,defaultUnit);
     position = position < 1 ? 0 : position;
     
     if (max < 1){
@@ -283,4 +308,40 @@ function getAjaxData(url,params) {
     });
     
     return tmp;
+}
+//---------------------------------------------------  
+//日期格式化  
+//格式 YYYY/yyyy/YY/yy 表示年份  
+//MM/M 月份  
+//W/w 星期  
+//dd/DD/d/D 日期  
+//hh/HH/h/H 时间  
+//mm/m 分钟  
+//ss/SS/s/S 秒  
+//---------------------------------------------------  
+Date.prototype.format = function(formatStr)   
+{   
+  var str = formatStr;   
+  var Week = ['日','一','二','三','四','五','六'];  
+
+  str=str.replace(/yyyy|YYYY/,this.getFullYear());   
+  str=str.replace(/yy|YY/,(this.getYear() % 100)>9?(this.getYear() % 100).toString():'0' + (this.getYear() % 100));   
+
+  str=str.replace(/MM/,this.getMonth()>9?this.getMonth().toString():'0' + this.getMonth());   
+  str=str.replace(/M/g,this.getMonth());   
+
+  str=str.replace(/w|W/g,Week[this.getDay()]);   
+
+  str=str.replace(/dd|DD/,this.getDate()>9?this.getDate().toString():'0' + this.getDate());   
+  str=str.replace(/d|D/g,this.getDate());   
+
+  str=str.replace(/hh|HH/,this.getHours()>9?this.getHours().toString():'0' + this.getHours());   
+  str=str.replace(/h|H/g,this.getHours());   
+  str=str.replace(/mm/,this.getMinutes()>9?this.getMinutes().toString():'0' + this.getMinutes());   
+  str=str.replace(/m/g,this.getMinutes());   
+
+  str=str.replace(/ss|SS/,this.getSeconds()>9?this.getSeconds().toString():'0' + this.getSeconds());   
+  str=str.replace(/s|S/g,this.getSeconds());   
+
+  return str;   
 }

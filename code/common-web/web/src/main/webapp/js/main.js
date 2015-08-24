@@ -21,22 +21,7 @@ var METRIC_NAMES = {'mem_report' : {bmem_used:'已用',bmem_shared:'共享',bmem
                         'hdfs' : [{'K':1024},{'M':1024*1024},{'G':1024*1024*1024},{'T':1024*1024*1024*1024}]
                        };
 
-// 判断数组中是否包含某元素
-function arrayContains (arr,element) {
-    if (!arr.length) {
-        return false;
-    }else if (typeof(arr.indexOf) == "function") {
-        return arr.indexOf(element) > -1;
-    }else {
-        for (var i = arr.length,len = -1; i > len; i--) {
-             if (arr[i] == element) {
-                 return true;
-             }
-        }
-        
-        return false;
-    }
-}   
+
 function datetimeFormat(dt,format){
     var date = dt;
     if (typeof(date) == 'string') {

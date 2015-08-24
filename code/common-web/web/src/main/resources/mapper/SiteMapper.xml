@@ -60,7 +60,9 @@
     <select id="selectDetail" resultType="map"><![CDATA[
     	SELECT TITLE,URL,CRAWL_TIME,DATE_FORMAT(CRAWL_TIME,'%Y-%m-%d') DT FROM T_POM_R_DETAIL ORDER BY CRAWL_TIME DESC LIMIT #{START},#{ROWS}
     ]]></select>
-    
+    <select id="checkUrl" resultType="string"><![CDATA[
+    	SELECT 1 FROM T_POM_R_DETAIL WHERE URL=#{URL}
+    ]]></select>
     
     
     <select id="selectStats" resultType="map"><![CDATA[

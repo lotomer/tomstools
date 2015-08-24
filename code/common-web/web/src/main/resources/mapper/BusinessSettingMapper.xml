@@ -75,4 +75,20 @@
     <insert id="addWord">
     	INSERT INTO T_POM_C_WORD (WORD,TENDENCY,LANG_ID,IN_TIME) VALUES (#{WORD},#{TENDENCY},#{LANG_ID},now())
     </insert>
+    
+    <!-- 词汇管理-->
+    <select id="selectAlertList" resultType="map">
+        SELECT * 
+		FROM T_ALERT_SETTING
+		WHERE IS_VALID=1 
+    </select>
+    <update id="deleteAlert">
+    	UPDATE T_ALERT_SETTING SET IS_VALID=0 WHERE ALERT_ID=#{ALERT_ID}
+    </update>
+    <update id="saveAlert">
+    	UPDATE T_ALERT_SETTING SET ALERT_NAME=#{ALERT_NAME},ALERT_TYPE=#{ALERT_TYPE},ALERT_VALUE=#{ALERT_VALUE},NOTIFIERS=#{NOTIFIERS},METRICS=#{METRICS},UPDATE_TIME=now()  WHERE ALERT_ID=#{ALERT_ID}
+    </update>
+    <insert id="addAlert">
+    	INSERT INTO T_ALERT_SETTING (ALERT_NAME,ALERT_TYPE,ALERT_VALUE,NOTIFIERS,METRICS,UPDATE_TIME) VALUES (#{ALERT_NAME},#{ALERT_TYPE},#{ALERT_VALUE},#{NOTIFIERS},#{METRICS},now())
+    </insert>
 </mapper>

@@ -105,7 +105,7 @@
 		for (var i = 0, oLen = datas.length; i < oLen; i++) {
 			var aData = datas[i];
 			// 添加到x坐标数据
-			if (-1 == x.indexOf(aData.dt)){
+			if (-1 == arrayIndexOf(x,aData.dt)){
 				x.push(aData.dt);
 			}
 			if (!xData[aData.TYPE_NAME]){

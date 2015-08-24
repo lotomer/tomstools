@@ -89,5 +89,22 @@ public class BusinessSettingService {
 	public void addWord(Integer typeId, Integer langId, String word) {
 		businessSettingMapper.addWord(typeId,langId,word);
 	}
+
+	public List<Map<String, Object>> selectAlertList() {
+		return businessSettingMapper.selectAlertList();
+	}
+
+	public void deleteAlert(Integer id) {
+		businessSettingMapper.deleteAlert(id);
+	}
+
+	public void saveAlert(Integer id, String alertName, String alertType, String alertValue, String notifiers,
+			String metrics) {
+		businessSettingMapper.saveAlert(id, alertName, alertType, alertValue, notifiers, metrics);
+	}
+
+	public void addAlert(String alertName, String alertType, String alertValue, String notifiers, String metrics) {
+		businessSettingMapper.addAlert(alertName, alertType, alertValue, notifiers, metrics);
+	}
 	
 }

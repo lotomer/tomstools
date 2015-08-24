@@ -56,8 +56,8 @@
 					class="easyui-textbox"></input></td>
 				<td><a href="#" id="btnAdd" class="easyui-linkbutton"
 					data-options="iconCls:'icon-add'" style="width: 80px">添加</a></td>
-					<td><a href="#" id="btnImport" class="easyui-linkbutton"
-					data-options="" style="width: 80px">导入</a></td>
+				<!-- <td><a href="#" id="btnImport" class="easyui-linkbutton"
+					data-options="" style="width: 80px">导入</a></td> -->	
 				
 			</tr>
 		</table>

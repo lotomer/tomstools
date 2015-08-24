@@ -5,11 +5,13 @@ package org.tomstools.web.service;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.regex.Pattern;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -47,61 +49,62 @@ public class SolrService {
 
 	}
 
-//	public int statWords() throws Exception {
-//		SolrTools solrTool = new SolrTools(userService.getConfig(-1, CONFIG_SOLR_URL));
-//		int count = 0;
-//		// 1、获取舆论词条规则
-//		List<Map<String, Object>> words = businessSettingMapper.selectWordsList();
-//		for (Map<String, Object> word : words) {
-//			Integer typeId = (Integer) word.get("TYPE_ID");
-//			if (null == typeId) {
-//				continue;
-//			}
-//			String templateZM = (String) word.get("TEMPLATE_ZM");
-//			String templateFM = (String) word.get("TEMPLATE_FM");
-//			String templateZM_E = (String) word.get("TEMPLATE_ZM_E");
-//			String templateFM_E = (String) word.get("TEMPLATE_FM_E");
-//			long countZM = 0;
-//			long countFM = 0;
-//			long countZM_E = 0;
-//			long countFM_E = 0;
-//			// 获取上次统计时间
-//			Date lastStatTime = solrMapper.selectLastStatTime(typeId);
-//			Date beginTime = null;
-//			Date endTime = new Date();
-//			if (null != lastStatTime) {
-//				beginTime = new Date(lastStatTime.getTime());
-//			} else {
-//				beginTime = new Date(endTime.getTime() - STAT_TIME_DEFAULT);
-//			}
-//			// 获取正面信息数
-//			if (!StringUtils.isEmpty(templateZM)) {
-//				countZM = solrTool.count("text:" + templateZM, beginTime, endTime);
-//			}
-//			// 获取负面信息数
-//			if (!StringUtils.isEmpty(templateFM)) {
-//				countFM = solrTool.count("text:" + templateFM, beginTime, endTime);
-//			}
-//
-//			// 获取正面信息数
-//			if (!StringUtils.isEmpty(templateZM_E)) {
-//				countZM_E = solrTool.count("text:" + templateZM_E, beginTime, endTime);
-//			}
-//			// 获取负面信息数
-//			if (!StringUtils.isEmpty(templateFM_E)) {
-//				countFM_E = solrTool.count("text:" + templateFM_E, beginTime, endTime);
-//			}
-//			// 将数据入库
-//			if (0 != countZM || 0 != countFM) {
-//				solrMapper.saveStat(typeId, countZM, countFM, countZM_E, countFM_E, endTime);
-//				++count;
-//			}
-//		}
-//		
-//		return count;
-//	}
-
-	
+	// public int statWords() throws Exception {
+	// SolrTools solrTool = new SolrTools(userService.getConfig(-1,
+	// CONFIG_SOLR_URL));
+	// int count = 0;
+	// // 1、获取舆论词条规则
+	// List<Map<String, Object>> words =
+	// businessSettingMapper.selectWordsList();
+	// for (Map<String, Object> word : words) {
+	// Integer typeId = (Integer) word.get("TYPE_ID");
+	// if (null == typeId) {
+	// continue;
+	// }
+	// String templateZM = (String) word.get("TEMPLATE_ZM");
+	// String templateFM = (String) word.get("TEMPLATE_FM");
+	// String templateZM_E = (String) word.get("TEMPLATE_ZM_E");
+	// String templateFM_E = (String) word.get("TEMPLATE_FM_E");
+	// long countZM = 0;
+	// long countFM = 0;
+	// long countZM_E = 0;
+	// long countFM_E = 0;
+	// // 获取上次统计时间
+	// Date lastStatTime = solrMapper.selectLastStatTime(typeId);
+	// Date beginTime = null;
+	// Date endTime = new Date();
+	// if (null != lastStatTime) {
+	// beginTime = new Date(lastStatTime.getTime());
+	// } else {
+	// beginTime = new Date(endTime.getTime() - STAT_TIME_DEFAULT);
+	// }
+	// // 获取正面信息数
+	// if (!StringUtils.isEmpty(templateZM)) {
+	// countZM = solrTool.count("text:" + templateZM, beginTime, endTime);
+	// }
+	// // 获取负面信息数
+	// if (!StringUtils.isEmpty(templateFM)) {
+	// countFM = solrTool.count("text:" + templateFM, beginTime, endTime);
+	// }
+	//
+	// // 获取正面信息数
+	// if (!StringUtils.isEmpty(templateZM_E)) {
+	// countZM_E = solrTool.count("text:" + templateZM_E, beginTime, endTime);
+	// }
+	// // 获取负面信息数
+	// if (!StringUtils.isEmpty(templateFM_E)) {
+	// countFM_E = solrTool.count("text:" + templateFM_E, beginTime, endTime);
+	// }
+	// // 将数据入库
+	// if (0 != countZM || 0 != countFM) {
+	// solrMapper.saveStat(typeId, countZM, countFM, countZM_E, countFM_E,
+	// endTime);
+	// ++count;
+	// }
+	// }
+	//
+	// return count;
+	// }
 
 	public int statWordsWithHost() throws Exception {
 		SolrTools solrTool = new SolrTools(userService.getConfig(-1, CONFIG_SOLR_URL));
@@ -182,9 +185,10 @@ public class SolrService {
 				}
 			}
 		}
-		
+
 		return count;
 	}
+
 	/**
 	 * 获取统计数据
 	 * 
@@ -200,8 +204,6 @@ public class SolrService {
 		return siteMapper.selectStats(startTime, endTime, typeId);
 	}
 
-	
-
 	/**
 	 * 根据输入的词汇，结合智能词条进行统计
 	 * 
@@ -216,7 +218,7 @@ public class SolrService {
 	 */
 	public List<Map<String, Object>> statWordsWithWordCount(Date startTime, Date endTime, String queryWord)
 			throws Exception {
-		if (StringUtils.isEmpty(queryWord)){
+		if (StringUtils.isEmpty(queryWord)) {
 			return statWordsCount(startTime, endTime, null);
 		}
 		List<Map<String, Object>> result = new ArrayList<Map<String, Object>>();
@@ -271,15 +273,17 @@ public class SolrService {
 
 		return result;
 	}
+
 	private void getSiteCount(SolrTools solrTool, Map<String, Integer> sites, String template, Date beginTime,
 			Date endTime, Map<Integer, Long> siteCount) throws Exception {
-		if (StringUtils.isEmpty(template)){
+		if (StringUtils.isEmpty(template)) {
 			return;
 		}
 		int start = 0;
 		int size = 1000;
 		while (true) {
-			QueryResponse resp = solrTool.query("text:" + template, "host,title,url,tstamp", beginTime, endTime, null, start, size);
+			QueryResponse resp = solrTool.query("text:" + template, "host,title,url,tstamp", beginTime, endTime, null,
+					start, size);
 			SolrDocumentList datas = resp.getResults();
 			if (null != datas) {// 没有取完，还要继续
 				for (SolrDocument doc : datas) {
@@ -293,11 +297,16 @@ public class SolrService {
 					} else {
 						siteCount.put(siteId, 1l);
 					}
-					
+
 					// 保存明细到数据库
-					siteMapper.saveDetail(siteId,String.valueOf(doc.getFieldValue("title")),String.valueOf(doc.getFieldValue("url")),(Date)doc.getFieldValue("tstamp"));
+					// 判断对应的url是否已经存在，如果不存在则添加
+					String flag = siteMapper.checkUrl(String.valueOf(doc.getFieldValue("url")));
+					if (StringUtils.isEmpty(flag)) {
+						siteMapper.saveDetail(siteId, String.valueOf(doc.getFieldValue("title")),
+								String.valueOf(doc.getFieldValue("url")), (Date) doc.getFieldValue("tstamp"));
+					}
 				}
-				if( size == datas.size()){
+				if (size == datas.size()) {
 					start += size;
 					continue;
 				}
@@ -352,14 +361,15 @@ public class SolrService {
 	}
 
 	public List<Map<String, Object>> siteTop(Date startTime, Date endTime, int topNum) {
-		return siteMapper.selectSiteTop(startTime,endTime,topNum);
+		return siteMapper.selectSiteTop(startTime, endTime, topNum);
 	}
 
 	public List<Map<String, Object>> statMediaCount(Date startTime, Date endTime) {
-		return siteMapper.selectMediaCount(startTime,endTime);
+		return siteMapper.selectMediaCount(startTime, endTime);
 	}
+
 	public List<Map<String, Object>> statMedia(Date startTime, Date endTime) {
-		return siteMapper.selectMedia(startTime,endTime);
+		return siteMapper.selectMedia(startTime, endTime);
 	}
 
 	public List<Map<String, Object>> statWordsCountAll(Date startTime, Date endTime) {
@@ -368,25 +378,29 @@ public class SolrService {
 
 	/**
 	 * 查询文章内容。根据时间倒序
-	 * @param start	开始索引号。从0开始计数
-	 * @param rows	获取的记录数
-	 * @return	结果
+	 * 
+	 * @param start
+	 *            开始索引号。从0开始计数
+	 * @param rows
+	 *            获取的记录数
+	 * @return 结果
 	 */
 	public List<Map<String, Object>> query(Integer start, Integer rows) {
 		start = null != start ? start : 0;
 		rows = null != rows ? rows : 10;
 		// {total: 100,rows:[]}
-		return siteMapper.selectDetail(start,rows);
+		return siteMapper.selectDetail(start, rows);
 	}
-	
+
 	public List<Map<String, Object>> queryFromSolr(Integer start, Integer rows) {
 		start = null != start ? start : 0;
 		rows = null != rows ? rows : 10;
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-		List<Map<String, Object>> result = new ArrayList<Map<String,Object>>();
+		List<Map<String, Object>> result = new ArrayList<Map<String, Object>>();
 		SolrTools solrTool = new SolrTools(userService.getConfig(-1, CONFIG_SOLR_URL));
 		try {
-			QueryResponse resp = solrTool.querySortByTime(null, "title,url,tstamp", null, null, ORDER.desc, start, rows);
+			QueryResponse resp = solrTool.querySortByTime(null, "title,url,tstamp", null, null, ORDER.desc, start,
+					rows);
 			SolrDocumentList docs = resp.getResults();
 			for (SolrDocument doc : docs) {
 				HashMap<String, Object> row = new HashMap<String, Object>();
@@ -397,30 +411,38 @@ public class SolrService {
 				row.put("tstamp", sdf.format(tstamp));
 			}
 		} catch (Exception e) {
-			LOG.error(e.getMessage(),e);
+			LOG.error(e.getMessage(), e);
 		}
-		
+
 		// {total: 100,rows:[]}
 		return result;
 	}
 
 	/**
 	 * 根据语言、国家、时间等条件统计词条信息
-	 * @param start	开始时间
-	 * @param end	结束时间
-	 * @param langId	语言编号
-	 * @param countryId	国家编号
-	 * @param siteId 
-	 * @param siteTypeId 
+	 * 
+	 * @param start
+	 *            开始时间
+	 * @param end
+	 *            结束时间
+	 * @param langId
+	 *            语言编号
+	 * @param countryId
+	 *            国家编号
+	 * @param siteId
+	 * @param siteTypeId
 	 * @return
 	 */
-	public List<Map<String, Object>> statWordsCountQuery(Date start, Date end, Integer langId, Integer countryId, Integer siteTypeId, Integer siteId) {
-		return siteMapper.statWordsCountQuery(start,end,langId,countryId,siteTypeId,siteId);
+	public List<Map<String, Object>> statWordsCountQuery(Date start, Date end, Integer langId, Integer countryId,
+			Integer siteTypeId, Integer siteId) {
+		return siteMapper.statWordsCountQuery(start, end, langId, countryId, siteTypeId, siteId);
 	}
 
 	/**
 	 * 根据站点类型状态获取站点类型列表
-	 * @param isValid	站点类型状态。1 有效；0 无效。如果是null则表示所有
+	 * 
+	 * @param isValid
+	 *            站点类型状态。1 有效；0 无效。如果是null则表示所有
 	 * @return
 	 */
 	public List<Map<String, Object>> selectSiteType(String isValid) {
@@ -428,6 +450,76 @@ public class SolrService {
 	}
 
 	public List<Map<String, Object>> selectSite(Integer siteTypeId, String isValid) {
-		return solrMapper.selectSite(siteTypeId,isValid);
+		return solrMapper.selectSite(siteTypeId, isValid);
+	}
+
+	/** 预警 */
+	public int alert() {
+		Calendar endTime = Calendar.getInstance();
+		Calendar startTime = Calendar.getInstance();
+		startTime.set(Calendar.DAY_OF_MONTH, 0);
+		startTime.set(Calendar.HOUR_OF_DAY, 0);
+		startTime.set(Calendar.MINUTE, 0);
+		startTime.set(Calendar.SECOND, 0);
+
+		List<Map<String, Object>> statCounts = siteMapper.selectStatsCount(startTime.getTime(), endTime.getTime(),
+				null);
+		if (null == statCounts || statCounts.isEmpty()) {
+			return 0;
+		}
+		Map<String, Integer> counts = new HashMap<String, Integer>();
+		for (Map<String, Object> map : statCounts) {
+			counts.put(String.valueOf(map.get("TYPE_ID")), Integer.parseInt(String.valueOf(map.get("SIZE_FM")))
+					+ Integer.parseInt(String.valueOf(map.get("SIZE_FM_E"))));
+		}
+		// 获取预警配置列表
+		List<Map<String, Object>> alertList = businessSettingMapper.selectAlertList();
+		// 逐个处理预警配置
+		int count = 0;
+		for (Map<String, Object> alertInfo : alertList) {
+			String metrics = String.valueOf(alertInfo.get("METRICS"));
+			if (!StringUtils.isEmpty(metrics)) {
+				String[] typeIds = metrics.split(Pattern.quote("$$$"))[0].split(",");
+				int value = 0;
+				for (int i = 0; i < typeIds.length; i++) {
+					if (counts.containsKey(typeIds[i])) {
+						value += counts.get(typeIds[i]);
+					}
+				}
+
+				// 判断是否超过预警值
+				int threhold = Integer.valueOf(String.valueOf(alertInfo.get("ALERT_VALUE")));
+				if (value >= threhold) {
+					// 达到预警，则生成预警信息
+					solrMapper.saveAlertLog(Integer.valueOf(String.valueOf(alertInfo.get("ALERT_ID"))), threhold,
+							value);
+					count++;
+				}
+
+			}
+		}
+		return count;
+	}
+
+	public List<Map<String, Object>> selectAlertLog(Date startTime, Date endTime, String notifyStatus,
+			String alertType) {
+		return solrMapper.selectAlertLog(startTime, endTime, notifyStatus, alertType);
+	}
+
+	public List<Map<String, Object>> selectWeekly(Integer year, Integer month, Integer week) {
+		return solrMapper.selectWeekly(year, month, week);
+	}
+
+	public Map<String, Object> selectWeeklyById(Integer id) {
+		return solrMapper.selectWeeklyById(id);
+	}
+
+	public void saveWeekly(int year, int month, int week, String filePath, String fileName, long size,
+			String contentType, int userId) {
+		solrMapper.saveWeekly(year, month, week, filePath, fileName, size, contentType, userId);
+	}
+
+	public void deleteWeeklyById(Integer id) {
+		solrMapper.deleteWeeklyById(id);
 	}
 }

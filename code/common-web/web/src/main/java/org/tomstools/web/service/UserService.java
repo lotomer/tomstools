@@ -42,6 +42,9 @@ public class UserService {
     private Map<String, String> commonConfigs;
     private Map<Integer, Map<String, String>> userConfigs;
 
+    public List<Map<String, Object>> getUserList(){
+    	return userMapper.selectUserList();
+    }
     /**
      * 根据用户密钥获取用户信息
      * 
@@ -275,6 +278,23 @@ public class UserService {
 			}
 		} else {
 			return "没有找到密钥对应的用户。密钥：" + key;
+		}
+	}
+	
+	/**
+     * 校验用户
+     * @param user	用户
+     * @return   校验通过，则返回空字符串； 校验不通过，则返回错误信息。不返回null
+     */
+	public String check(User user) {
+		if (null != user) {
+			if ("".equals(user.getKey())) {
+				return "密钥已失效！";
+			} else {
+				return "";
+			}
+		} else {
+			return "用户不能为null！";
 		}
 	}
 }

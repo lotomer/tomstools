@@ -72,4 +72,19 @@ public interface BusinessSettingMapper {
 	public void addWord(@Param("TENDENCY") Integer typeId, @Param("LANG_ID") Integer langId,
 			@Param("WORD") String word);
 
+	//////////////////////////////////////////////////
+	// 预警管理
+	//////////////////////////////////////////////////
+	public List<Map<String, Object>> selectAlertList();
+
+	public void deleteAlert(@Param("ALERT_ID") Integer id);
+
+	public void saveAlert(@Param("ALERT_ID") Integer id, @Param("ALERT_NAME") String alertName,
+			@Param("ALERT_TYPE") String alertType, @Param("ALERT_VALUE") String alertValue,
+			@Param("NOTIFIERS") String notifiers, @Param("METRICS") String metrics);
+
+	public void addAlert(@Param("ALERT_NAME") String alertName,
+			@Param("ALERT_TYPE") String alertType, @Param("ALERT_VALUE") String alertValue,
+			@Param("NOTIFIERS") String notifiers, @Param("METRICS") String metrics);
+
 }

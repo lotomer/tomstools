@@ -23,8 +23,8 @@ http://www.springframework.org/schema/task/spring-task.xsd">
 
 	<bean id="solrSchedule" class="org.tomstools.web.schedule.SolrSchedule" />
 	<task:scheduled-tasks>
-		<!-- <task:scheduled ref="solrSchedule" method="statWords"
-			cron="0 0/30 * * * ?" /> -->
+		<task:scheduled ref="solrSchedule" method="alert"
+			cron="0 0/30 * * * ?" />
 		<task:scheduled ref="solrSchedule" method="statWordsWithHost"
 			cron="0 0/30 * * * ?" />
 	</task:scheduled-tasks>
