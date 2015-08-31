@@ -28,10 +28,10 @@
             </tr>
 			<tr>
 				<td><label>开始时间：</label></td>
-				<td><input id="st" class="easyui-datetimebox"
+				<td><input id="st" class="easyui-datebox"
 					data-options="showSeconds:false"></td>
 				<td><label>结束时间：</label></td>
-				<td><input id="et" class="easyui-datetimebox"
+				<td><input id="et" class="easyui-datebox"
 					data-options="showSeconds:false"></td>
 				<td></td>
 				<td><a href="#" id="btnStat" class="easyui-linkbutton"

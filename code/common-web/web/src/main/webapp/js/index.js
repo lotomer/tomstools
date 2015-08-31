@@ -51,11 +51,11 @@ function onChangeTheme(theme,old){
 function getTheme (comboboxId) {
     return $('#' + comboboxId).combobox("getValue");
 }
-function createPage(containerId,pageId,pageName,subPageId,contentURL,params,width,height,queryParams,theme,id,name,isAppend,canClose){
+function createPage(containerId,pageId,pageName,subPageId,contentURL,params,width,height,queryParams,theme,id,name,isAppend,canClose,flag){
 	if (pageName){
         // 看是否包含子页面
         if (subPageId){
-            return doCreatePageWithSubPages(containerId,id,name,contentURL,pageId,pageName,params,width,height,isAppend,queryParams,canClose,theme);
+            return doCreatePageWithSubPages(containerId,id,name,contentURL,pageId,pageName,params,width,height,isAppend,queryParams,canClose,theme,flag);
         }else{
             var msg = "未找到对应的URL！";
             if (!id) id = "page" + pageId;
@@ -74,7 +74,7 @@ function createPage(containerId,pageId,pageName,subPageId,contentURL,params,widt
                 });
                 return false;
             }
-            return doCreatePage(containerId,id,name,contentURL,pageId,pageName,params,width,height,isAppend,queryParams,canClose,theme);
+            return doCreatePage(containerId,id,name,contentURL,pageId,pageName,params,width,height,isAppend,queryParams,canClose,theme,flag);
         }
     }else{
         window.messager.show({
@@ -87,15 +87,13 @@ function createPage(containerId,pageId,pageName,subPageId,contentURL,params,widt
     }
 }
 // 根据page信息创建页面。如果page包含子页面，则使用子页面框架创建页面
-function doCreatePage(containerId,menuId,menuName,contentURL,pageId,pageName,params,width,height,isAppend,queryParams,canClose,theme){
-    //log(page);
-    return createModuleByContent(containerId,menuId,menuName,contentURL,pageId,pageName,params,width,height,isAppend,queryParams,canClose,true,theme);
+function doCreatePage(containerId,menuId,menuName,contentURL,pageId,pageName,params,width,height,isAppend,queryParams,canClose,theme,flag){
+    return createModuleByContent(containerId,menuId,menuName,contentURL,pageId,pageName,params,width,height,isAppend,queryParams,canClose,true,theme,false,flag);
 }
-function doCreatePageWithSubPages(containerId,menuId,menuName,contentURL,pageId,pageName,params,width,height,isAppend,queryParams,canClose,theme){
-	//log(page);
-    return createModuleByContent(containerId,menuId,menuName,"container.do?pageId=" + pageId + "&key=" + encodeURIComponent(key),pageId,pageName,params,width,height,isAppend,queryParams,canClose,true,theme);
+function doCreatePageWithSubPages(containerId,menuId,menuName,contentURL,pageId,pageName,params,width,height,isAppend,queryParams,canClose,theme,flag){
+    return createModuleByContent(containerId,menuId,menuName,"container.do?pageId=" + pageId + "&key=" + encodeURIComponent(key),pageId,pageName,params,width,height,isAppend,queryParams,canClose,true,theme,false,flag);
 }
-function createModuleByContent(containId,menuId,menuName,contentURL,id,name,params,width,height,isAppend,queryParams,canClose,useTab,theme,maxWindow) {
+function createModuleByContent(containId,menuId,menuName,contentURL,id,name,params,width,height,isAppend,queryParams,canClose,useTab,theme,maxWindow,flag) {
     if (contentURL){ // 指定了具体的URL，则直接展现该页面
         var url = contentURL;
         if (queryParams) {
@@ -114,7 +112,7 @@ function createModuleByContent(containId,menuId,menuName,contentURL,id,name,para
         }
         if (!/[?&]key=/.test(url)) url += '&key=' + key;
         if (useTab){
-        	createWindowWithTab(containId,menuId,menuName,id,name,url,width,height,isAppend,canClose);
+        	createWindowWithTab(containId,menuId,menuName,id,name,url,width,height,isAppend,canClose,flag);
         }else{
         	createWindow(containId,menuId,menuName,id,name,url,width,height,isAppend,false,canClose,maxWindow);
         }
@@ -129,20 +127,37 @@ function createModuleByContent(containId,menuId,menuName,contentURL,id,name,para
         return false;
     }
 }
-function createWindowWithTab(containId,menuId,menuName,id,title,url,w,h,isAppend,canClose) {
+// flag: 0 创建并打开；1 仅创建tab页，不显示内容；2 已存在tab页，仅显示内容
+function createWindowWithTab(containId,menuId,menuName,id,title,url,w,h,isAppend,canClose,flag) {
     // 判断是否已经存在
     var tab = $('#' + containId).tabs('getTab',menuName),id = menuId + "_" + id;
     if(tab){
         $('#' + containId).tabs('select',menuName);
-        $('#p_i_' + id).attr('src',url);
+        var o = $('#p_i_' + id);
+        if (!o[0]) {
+        	$('#p_' + id).append('<iframe id="p_i_' + id + '" frameborder="0" border="0" scrolling="auto" src="' + url + '" width="100%" height="99%"/>');
+        }else{
+        	// 屏蔽更新功能
+        	//o.attr('src',url);
+        }
     }else{
         $('#' + containId).tabs('add',{
             id:'p_' + id,
             title:menuName,
             //content:'Tab Body',
             //href : url,
-            fit:true,
-            closable:canClose ? true : false,
+            fit:false,
+            //closable:canClose ? true : false,
+            closable:false,
+            tools:[{    
+                iconCls:'icon-mini-refresh',    
+                handler:function(){    
+                	var o = $('#p_i_' + id);
+                    if (o[0]) {
+                    	o.attr('src',url);
+                    }
+                }    
+            }],
             onResize : function  (w,h) {
                 //console.info(w + ':' + h);
             },
@@ -150,7 +165,9 @@ function createWindowWithTab(containId,menuId,menuName,id,title,url,w,h,isAppend
                 window.top.closeModule(menuId,menuName);
             }
         });
-        $('#p_' + id).append('<iframe id="p_i_' + id + '" frameborder="0" border="0" scrolling="auto" src="' + url + '" width="100%" height="99%"/>');
+        if (!flag){
+        	$('#p_' + id).append('<iframe id="p_i_' + id + '" frameborder="0" border="0" scrolling="auto" src="' + url + '" width="100%" height="99%"/>');
+        }
     }
 }
 function createWindow(containId,menuId,menuName,id,title,url,w,h,isAppend,useIframe,canClose,maxWindow) {

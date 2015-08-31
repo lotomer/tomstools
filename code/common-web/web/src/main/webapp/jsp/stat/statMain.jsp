@@ -428,7 +428,6 @@
 					'<div id="divMetric_' + containId
 							+ '" style="width:100%;height:100%"></div>');
 			var divMetric = $('#divMetric_' + containId);
-			log(datas);
 			var pageSize = 5;
 			divMetric.datagrid({
 				title:'新增分布',
@@ -485,7 +484,6 @@
 			if (!datas) {
 				return;
 			}
-			log(datas);
 			var ec = window.echarts;
 			$('#' + containId).append(
 					'<div id="divMetric_' + containId

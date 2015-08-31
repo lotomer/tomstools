@@ -251,22 +251,22 @@ public class SolrTools {
 	}
 
 	public static void main(String[] args) throws Exception {
-		test1();
+		test1("http://192.168.172.129:8983/solr");
 	}
 
-	public static void test1() throws Exception {
-		List<String> results = new SolrTools("http://192.168.1.202:8983/solr").getAnalysis("习大大与大家分享开发的实践经验");
+	public static void test1(String solrServer) throws Exception {
+		List<String> results = new SolrTools(solrServer).getAnalysis("习大大与大家分享开发的实践经验");
 		for (String word : results) {
 			System.out.println(word);
 		}
 	}
 
-	public static void test2() throws Exception {
+	public static void test2(String solrServer) throws Exception {
 		Calendar c = Calendar.getInstance();
 		Date end = c.getTime();
 		Date start = new Date(end.getTime() - 3600 * 24 * 1000);
 		ArrayList<String> serverUrls = new ArrayList<String>();
-		serverUrls.add("http://192.168.1.202:8983/solr");
+		serverUrls.add(solrServer);
 		SolrTools solr = new SolrTools(serverUrls);
 		String query = "text:习大大 AND 论坛  NOT 2014";
 		List<String> selectFields = new ArrayList<String>();

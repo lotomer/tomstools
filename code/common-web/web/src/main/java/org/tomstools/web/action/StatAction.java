@@ -63,7 +63,10 @@ public class StatAction {
 		resp.setContentType("application/json;charset=UTF-8");
 		Date end = null;
 		if (!StringUtils.isEmpty(endTime)) {
-			end = DATE_FORMAT.parse(endTime);
+			Calendar c = Calendar.getInstance();
+			c.setTime(DATE_FORMAT.parse(endTime));
+			c.add(Calendar.DAY_OF_MONTH, 1);
+			end = c.getTime();
 		} else {
 			end = new Date();
 		}
@@ -87,7 +90,10 @@ public class StatAction {
 		resp.setContentType("application/json;charset=UTF-8");
 		Date end = null;
 		if (!StringUtils.isEmpty(endTime)) {
-			end = DATE_FORMAT.parse(endTime);
+			Calendar c = Calendar.getInstance();
+			c.setTime(DATE_FORMAT.parse(endTime));
+			c.add(Calendar.DAY_OF_MONTH, 1);
+			end = c.getTime();
 		} else {
 			end = new Date();
 		}
@@ -114,7 +120,10 @@ public class StatAction {
 		resp.setContentType("application/json;charset=UTF-8");
 		Date end = null;
 		if (!StringUtils.isEmpty(endTime)) {
-			end = DATE_FORMAT.parse(endTime);
+			Calendar c = Calendar.getInstance();
+			c.setTime(DATE_FORMAT.parse(endTime));
+			c.add(Calendar.DAY_OF_MONTH, 1);
+			end = c.getTime();
 		} else {
 			end = new Date();
 		}
@@ -141,7 +150,10 @@ public class StatAction {
 		resp.setContentType("application/json;charset=UTF-8");
 		Date end = null;
 		if (!StringUtils.isEmpty(endTime)) {
-			end = DATE_FORMAT.parse(endTime);
+			Calendar c = Calendar.getInstance();
+			c.setTime(DATE_FORMAT.parse(endTime));
+			c.add(Calendar.DAY_OF_MONTH, 1);
+			end = c.getTime();
 		} else {
 			end = new Date();
 		}
@@ -382,7 +394,10 @@ public class StatAction {
 		resp.setContentType("application/json;charset=UTF-8");
 		Date end = null;
 		if (!StringUtils.isEmpty(endTime)) {
-			end = DATE_FORMAT.parse(endTime);
+			Calendar c = Calendar.getInstance();
+			c.setTime(DATE_FORMAT.parse(endTime));
+			c.add(Calendar.DAY_OF_MONTH, 1);
+			end = c.getTime();
 		} else {
 			end = new Date();
 		}
@@ -435,13 +450,13 @@ public class StatAction {
 			mpf = entry.getValue();
 			String fileName = mpf.getOriginalFilename();
 			int index = fileName.lastIndexOf(".");
-			File filePath = new File(path,
-					String.format("weekly-%d-%d-%d.%d.%d%s", year, month, week,count++,System.currentTimeMillis(), fileName.substring(index)));
+			File filePath = new File(path, String.format("weekly-%d-%d-%d.%d.%d%s", year, month, week, count++,
+					System.currentTimeMillis(), fileName.substring(index)));
 			try {
 				// 保存文件
 				FileCopyUtils.copy(mpf.getBytes(), new FileOutputStream(filePath));
-				solrService.saveWeekly(year, month, week, filePath.getAbsolutePath(), fileName, mpf.getSize(), mpf.getContentType(),
-						user.getUserId());
+				solrService.saveWeekly(year, month, week, filePath.getAbsolutePath(), fileName, mpf.getSize(),
+						mpf.getContentType(), user.getUserId());
 			} catch (IOException e) {
 				LOG.error(e.getMessage(), e);
 				return "上传失败：" + e.getMessage() + "";
@@ -466,9 +481,11 @@ public class StatAction {
 			LOG.error(e.getMessage(), e);
 		}
 	}
+
 	@RequestMapping("/weekly/delete.do")
-	public @ResponseBody String weeklyDelete(@RequestParam("key") String key, @RequestParam(value = "id", required = true) Integer id,
-			HttpServletRequest req, HttpServletResponse resp) throws Exception {
+	public @ResponseBody String weeklyDelete(@RequestParam("key") String key,
+			@RequestParam(value = "id", required = true) Integer id, HttpServletRequest req, HttpServletResponse resp)
+					throws Exception {
 
 		String error = userService.check(key);
 		if (!"".equals(error)) {

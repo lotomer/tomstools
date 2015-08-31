@@ -84,47 +84,48 @@ public class MainControl {
 			} else {
 				User user = userService.getUser(userName, userPassword);
 				if (null != user) { // 认证通过
+					// 获取用户特定的样式
+					model.addAttribute("theme", getTheme(userService.getConfig(user.getUserId(), "THEME")));
 					// 校验客户端IP，如果有限制的话
-					if (StringUtils.isEmpty(user.getClientIp()) || check(user.getClientIp(),req)){
-						
-					
-					List<Page> pages = userService.getUserPages(user.getUserId());
-					if (null == pages) {
-						pages = Collections.emptyList();
-					}
-					String realKey = user.getKey();
-					model.addAttribute("pages", JSON.toJSONString(pages));
+					if (StringUtils.isEmpty(user.getClientIp()) || check(user.getClientIp(), req)) {
+						List<Page> pages = userService.getUserPages(user.getUserId());
+						if (null == pages) {
+							pages = Collections.emptyList();
+						}
+						String realKey = user.getKey();
+						model.addAttribute("pages", JSON.toJSONString(pages));
 
-					List<Menu> menus = userService.getUserMenus(user.getUserId());
-					if (null == menus) {
-						menus = Collections.emptyList();
-					}
-					model.addAttribute("menus", JSON.toJSONString(menus));
-					model.addAttribute("user", user);
-					if (!StringUtils.isEmpty(referer)) {
-						String url = referer;
-						if (!url.contains("?")) {
-							url = url + "?key=" + realKey;
-						} else if (url.endsWith("?")) {
-							url = url + "key=" + realKey;
-						} else {
-							url = URLUtil.removeURLQueryAttibute(url, "key");
-							if (url.endsWith("&")) {
+						List<Menu> menus = userService.getUserMenus(user.getUserId());
+						if (null == menus) {
+							menus = Collections.emptyList();
+						}
+						model.addAttribute("menus", JSON.toJSONString(menus));
+						model.addAttribute("user", user);
+						if (!StringUtils.isEmpty(referer)) {
+							String url = referer;
+							if (!url.contains("?")) {
+								url = url + "?key=" + realKey;
+							} else if (url.endsWith("?")) {
 								url = url + "key=" + realKey;
 							} else {
-								url = url + "&key=" + realKey;
+								url = URLUtil.removeURLQueryAttibute(url, "key");
+								if (url.endsWith("&")) {
+									url = url + "key=" + realKey;
+								} else {
+									url = url + "&key=" + realKey;
+								}
 							}
+							LOG.info("redirect to " + url);
+							try {
+								resp.sendRedirect(url);
+							} catch (IOException e) {
+								LOG.error(e.getMessage(), e);
+							}
+							return null;
+						} else {
+							return "index";
 						}
-						LOG.info("redirect to " + url);
-						try {
-							resp.sendRedirect(url);
-						} catch (IOException e) {
-							LOG.error(e.getMessage(), e);
-						}
-						return null;
 					} else {
-						return "index";
-					}}else{
 						model.addAttribute("error", "客户端受限！");
 					}
 				} else {
@@ -139,10 +140,10 @@ public class MainControl {
 	}
 
 	private boolean check(String clientIp, HttpServletRequest req) {
-		String [] cs = clientIp.split(",");
+		String[] cs = clientIp.split(",");
 		String realIp = req.getRemoteHost();
 		for (int i = 0; i < cs.length; i++) {
-			if (cs[i].equalsIgnoreCase(realIp)){
+			if (cs[i].equalsIgnoreCase(realIp)) {
 				// 匹配上，则通过验证
 				return true;
 			}

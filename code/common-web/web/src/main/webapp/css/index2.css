@@ -1,0 +1,87 @@
+﻿body {
+	margin: 0px;
+	background-image: none;
+	position: static;
+	top:5px;
+	left: 20px;
+	width: 1320px;
+	margin-left: 0;
+	margin-right: 0;
+	text-align: left;
+}
+
+#divMenu label {
+	padding-right: 10px;
+}
+.topBg{
+	background-color: #f7f3f7;
+}
+#base {
+	position: absolute;
+	z-index: 0;
+}
+
+.menu_item,.menu_item_select {
+	left: 0px;
+	width: 75px;
+	height: 58px;
+	padding-left: 5px;
+	border-bottom:2px solid white;
+}
+
+#u00 {
+	background-color: #222222;
+	width: 80px;
+	height: 250px;
+}
+
+.menu_item_select {
+	cursor: auto;
+	background-color: orange;
+}
+
+.menu_item {
+	cursor: pointer;
+	background-color: #222222;
+}
+
+#u24 {
+	position: absolute;
+	left: 1110px;
+	top: 39px;
+	width: 80px;
+	height: 27px;
+}
+
+.ax_h1 {
+	font-family: "Arial Bold", "Arial";
+	font-weight: 700;
+	font-style: normal;
+	font-size: 32px;
+	color: #333;
+	text-align: left;
+	line-height: normal;
+}
+
+.panel-header, .panel-body {
+	border-width: 0PX;
+	border-style: solid;
+}
+
+.tabs{
+	border-width: 0;
+}
+.tabs-header, .tabs-tool {
+	background-color: #AAA;
+	border-width: 0;
+}
+.tabs li{
+	width: 140px;
+	border-width: 0;
+}
+.tabs-inner{
+	width:122px;
+	border-top-width: 0;
+	border-left: 1px solid white;
+	border-right: 1px solid white;
+}

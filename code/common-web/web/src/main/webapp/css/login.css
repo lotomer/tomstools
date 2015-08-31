@@ -3,6 +3,7 @@ html,body{
 	padding:0;
 	width:100%;
 }
+#cb-theme~span{display: none}
 #login-hundx{
         position:absolute;
         top:140px;

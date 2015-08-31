@@ -68,8 +68,6 @@
 		$('#fileupload').fileupload({
 	        dataType: 'html',
 	        autoUpload:true,
-	        acceptFileTypes:/(\.|\/)(pdf|doc|docx)$/i,
-	        maxFileSize:50000000, //50M
 	        url:'crawl/weekly/upload.do?key='+key + '&YEAR=' + $('#selYear').combobox("getValue") + '&MONTH=' +$('#selMonth').combobox("getValue")+ '&WEEK=' + $('#selWeek').combobox("getValue"),
 	        done: function (e, data) {
 	            if (data.result){
@@ -89,6 +87,10 @@
 	            });
 	        }
 	    });
+		$('#fileupload').fileupload('option', {
+            maxFileSize: 5000000,
+            acceptFileTypes: /(\.|\/)(pdf|doc|docx)$/i
+        });
 	});
 	function removeit(id) {
         if (id){

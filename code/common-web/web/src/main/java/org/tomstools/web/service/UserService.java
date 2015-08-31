@@ -158,7 +158,7 @@ public class UserService {
      * @since 1.0
      */
     public User getUser(String userName, String userPassword) {
-        String pwd = encryptPassword(userPassword);
+        String pwd = encryptPassword(userName,userPassword);
         // 先认证，获取用户信息
         User user = userMapper.selectUser(userName, pwd);
         if (null != user) {
@@ -212,9 +212,9 @@ public class UserService {
         }
     }
 
-    private String encryptPassword(String password) {
+    private String encryptPassword(String userName,String password) {
         try {
-            return new String(passwordEncryptor.encrypt(password.getBytes()));
+            return new String(passwordEncryptor.encrypt((userName + "$$$" + password).getBytes()));
         } catch (Exception e) {
             LOG.warn(e.getMessage(), e);
             return password;
@@ -296,5 +296,9 @@ public class UserService {
 		} else {
 			return "用户不能为null！";
 		}
+	}
+	public static void main(String[] args) {
+		UserService userService = new UserService();
+		System.out.println(userService.encryptPassword("user1","123"));
 	}
 }

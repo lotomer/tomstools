@@ -135,7 +135,6 @@ function getEchartsReportDatas(metricName, obj, type) {
     return ret;
 }
 function createEcharts(ec, containerId, datas, filters, metricName, echartType,threshold,normalColor,warnColor) {
-    log(datas);
     if (datas) {
         var titles = [], values = [], option = undefined;
         if (echartType == 'line' || echartType == 'bar') {
@@ -186,14 +185,11 @@ function createEcharts(ec, containerId, datas, filters, metricName, echartType,t
                 }
                 titles.push(name);
             }
-            log(titles);
-            log(values);
             if (values) {
                 option = getOptionWithPie(ec, datas.dt, values, titles,
                         undefined, datas.unit, METRIC_MAXVALUE[metricName]);
             }
         }
-        log(option);
         if (option) {
             return doCreateChart(ec, containerId, option);
         }
