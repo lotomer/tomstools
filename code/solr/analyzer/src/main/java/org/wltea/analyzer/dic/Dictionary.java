@@ -1,15 +1,14 @@
 package org.wltea.analyzer.dic;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.Collection;
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.wltea.analyzer.cfg.Configuration;
 
 public class Dictionary {
+	private static final Log LOG = LogFactory.getLog(Dictionary.class);
 	private static Dictionary singleton;
 	private DictSegment _MainDict;
 	private DictSegment _StopWordDict;
@@ -28,11 +27,13 @@ public class Dictionary {
 	 * 
 	 * @param cfg
 	 */
-	public static void reloadExtWords(Configuration cfg) {
-		initial(cfg);
-		Dictionary self = getSingleton();
+	public static void reloadDictionary(Configuration cfg) {
+		LOG.warn("Reload dictionary!");
+		Dictionary self = initial(cfg);
 		// 重新加载扩展词库
 		self.loadExtDict();
+		// 重新加载停用词
+		self.loadStopWordDict();
 	}
 
 	public static Dictionary initial(Configuration cfg) {
@@ -93,84 +94,23 @@ public class Dictionary {
 
 	private void loadMainDict() {
 		this._MainDict = new DictSegment(Character.valueOf('\000'));
-
-		InputStream is = getClass().getClassLoader().getResourceAsStream(this.cfg.getMainDictionary());
-		if (is == null) {
-			throw new RuntimeException("Main Dictionary not found!!!");
-		}
-		try {
-			BufferedReader br = new BufferedReader(new InputStreamReader(is, "UTF-8"), 512);
-			String theWord = null;
-			do {
-				theWord = br.readLine();
-				if ((theWord != null) && (!"".equals(theWord.trim())))
-					this._MainDict.fillSegment(theWord.trim().toLowerCase().toCharArray());
-			} while (theWord != null);
-		} catch (IOException ioe) {
-			System.err.println("Main Dictionary loading exception.");
-			ioe.printStackTrace();
-			try {
-				if (is != null) {
-					is.close();
-					is = null;
-				}
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		} finally {
-			try {
-				if (is != null) {
-					is.close();
-					is = null;
-				}
-			} catch (IOException e) {
-				e.printStackTrace();
+		List<String> dictWords = this.cfg.getMainDictionary();
+		LOG.warn("Main dicts: " + dictWords.size());
+		if (null != dictWords && 0 != dictWords.size()){
+			for (int i = 0; i < dictWords.size(); i++) {
+				this._MainDict.fillSegment(dictWords.get(i).trim().toLowerCase().toCharArray());
 			}
 		}
-
+		
 		loadExtDict();
 	}
 
 	public void loadExtDict() {
-		List<String> extDictFiles = this.cfg.getExtDictionarys();
-		if (extDictFiles != null) {
-			InputStream is = null;
-			for (String extDictName : extDictFiles) {
-				System.out.println("加载扩展词典：" + extDictName);
-				is = getClass().getClassLoader().getResourceAsStream(extDictName);
-
-				if (is != null) {
-					try {
-						BufferedReader br = new BufferedReader(new InputStreamReader(is, "UTF-8"), 512);
-						String theWord = null;
-						do {
-							theWord = br.readLine();
-							if ((theWord != null) && (!"".equals(theWord.trim()))) {
-								this._MainDict.fillSegment(theWord.trim().toLowerCase().toCharArray());
-							}
-						} while (theWord != null);
-					} catch (IOException ioe) {
-						System.err.println("Extension Dictionary loading exception.");
-						ioe.printStackTrace();
-						try {
-							if (is != null) {
-								is.close();
-								is = null;
-							}
-						} catch (IOException e) {
-							e.printStackTrace();
-						}
-					} finally {
-						try {
-							if (is != null) {
-								is.close();
-								is = null;
-							}
-						} catch (IOException e) {
-							e.printStackTrace();
-						}
-					}
-				}
+		List<String> extDictWords = this.cfg.getExtDictionarys();
+		LOG.warn("Ext dicts: " + extDictWords.size());
+		if (null != extDictWords && 0 != extDictWords.size()){
+			for (int i = 0; i < extDictWords.size(); i++) {
+				this._MainDict.fillSegment(extDictWords.get(i).trim().toLowerCase().toCharArray());
 			}
 		}
 	}
@@ -178,83 +118,22 @@ public class Dictionary {
 	private void loadStopWordDict() {
 		this._StopWordDict = new DictSegment(Character.valueOf('\000'));
 
-		List<String> extStopWordDictFiles = this.cfg.getExtStopWordDictionarys();
-		if (extStopWordDictFiles != null) {
-			InputStream is = null;
-			for (String extStopWordDictName : extStopWordDictFiles) {
-				System.out.println("加载扩展停止词典：" + extStopWordDictName);
-
-				is = getClass().getClassLoader().getResourceAsStream(extStopWordDictName);
-
-				if (is != null) {
-					try {
-						BufferedReader br = new BufferedReader(new InputStreamReader(is, "UTF-8"), 512);
-						String theWord = null;
-						do {
-							theWord = br.readLine();
-							if ((theWord != null) && (!"".equals(theWord.trim()))) {
-								this._StopWordDict.fillSegment(theWord.trim().toLowerCase().toCharArray());
-							}
-						} while (theWord != null);
-					} catch (IOException ioe) {
-						System.err.println("Extension Stop word Dictionary loading exception.");
-						ioe.printStackTrace();
-						try {
-							if (is != null) {
-								is.close();
-								is = null;
-							}
-						} catch (IOException e) {
-							e.printStackTrace();
-						}
-					} finally {
-						try {
-							if (is != null) {
-								is.close();
-								is = null;
-							}
-						} catch (IOException e) {
-							e.printStackTrace();
-						}
-					}
-				}
+		List<String> extStopWords = this.cfg.getExtStopWordDictionarys();
+		LOG.warn("Ext stopwords: " + extStopWords.size());
+		if (null != extStopWords && 0 != extStopWords.size()){
+			for (int i = 0; i < extStopWords.size(); i++) {
+				this._StopWordDict.fillSegment(extStopWords.get(i).trim().toLowerCase().toCharArray());
 			}
 		}
 	}
-
+ 
 	private void loadQuantifierDict() {
 		this._QuantifierDict = new DictSegment(Character.valueOf('\000'));
-
-		InputStream is = getClass().getClassLoader().getResourceAsStream(this.cfg.getQuantifierDicionary());
-		if (is == null)
-			throw new RuntimeException("Quantifier Dictionary not found!!!");
-		try {
-			BufferedReader br = new BufferedReader(new InputStreamReader(is, "UTF-8"), 512);
-			String theWord = null;
-			do {
-				theWord = br.readLine();
-				if ((theWord != null) && (!"".equals(theWord.trim())))
-					this._QuantifierDict.fillSegment(theWord.trim().toLowerCase().toCharArray());
-			} while (theWord != null);
-		} catch (IOException ioe) {
-			System.err.println("Quantifier Dictionary loading exception.");
-			ioe.printStackTrace();
-			try {
-				if (is != null) {
-					is.close();
-					is = null;
-				}
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		} finally {
-			try {
-				if (is != null) {
-					is.close();
-					is = null;
-				}
-			} catch (IOException e) {
-				e.printStackTrace();
+		List<String> quantifierDictWords = this.cfg.getQuantifierDicionary();
+		LOG.warn("Quantifier dicts: " + quantifierDictWords.size());
+		if (null != quantifierDictWords && 0 != quantifierDictWords.size()){
+			for (int i = 0; i < quantifierDictWords.size(); i++) {
+				this._QuantifierDict.fillSegment(quantifierDictWords.get(i).trim().toLowerCase().toCharArray());
 			}
 		}
 	}

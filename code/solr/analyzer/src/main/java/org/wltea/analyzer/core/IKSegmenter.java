@@ -25,7 +25,7 @@ public final class IKSegmenter {
 
 	public IKSegmenter(Reader input, boolean useSmart, Configuration cfg) {
 		this.input = input;
-		this.cfg = null != cfg ? cfg :DefaultConfig.getInstance();
+		this.cfg = null != cfg ? cfg : new DefaultConfig();
 		this.cfg.setUseSmart(useSmart);
 		init();
 	}
@@ -33,7 +33,7 @@ public final class IKSegmenter {
 	private void init() {
 		//使用重新加载功能，方便中途重新加载数据
 		//Dictionary.initial(this.cfg);
-		Dictionary.reloadExtWords(cfg);
+		Dictionary.reloadDictionary(cfg);
 
 		this.context = new AnalyzeContext(this.cfg);
 

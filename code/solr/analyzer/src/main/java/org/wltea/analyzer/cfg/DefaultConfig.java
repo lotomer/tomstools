@@ -1,101 +1,159 @@
-/*     */ package org.wltea.analyzer.cfg;
-/*     */ 
-/*     */ import java.io.IOException;
-/*     */ import java.io.InputStream;
-/*     */ import java.util.ArrayList;
-/*     */ import java.util.InvalidPropertiesFormatException;
-/*     */ import java.util.List;
-/*     */ import java.util.Properties;
-/*     */ 
-/*     */ public class DefaultConfig
-/*     */   implements Configuration
-/*     */ {
-/*     */   private static final String PATH_DIC_MAIN = "org/wltea/analyzer/dic/main2012.dic";
-/*     */   private static final String PATH_DIC_QUANTIFIER = "org/wltea/analyzer/dic/quantifier.dic";
-/*     */   private static final String FILE_NAME = "IKAnalyzer.cfg.xml";
-/*     */   private static final String EXT_DICT = "ext_dict";
-/*     */   private static final String EXT_STOP = "ext_stopwords";
-/*     */   private Properties props;
-/*     */   private boolean useSmart;
-/*     */ 
-/*     */   public static Configuration getInstance()
-/*     */   {
-/*  67 */     return new DefaultConfig();
-/*     */   }
-/*     */ 
-/*     */   private DefaultConfig()
-/*     */   {
-/*  74 */     this.props = new Properties();
-/*     */ 
-/*  76 */     InputStream input = getClass().getClassLoader().getResourceAsStream("IKAnalyzer.cfg.xml");
-/*  77 */     if (input != null)
-/*     */       try {
-/*  79 */         this.props.loadFromXML(input);
-/*     */       } catch (InvalidPropertiesFormatException e) {
-/*  81 */         e.printStackTrace();
-/*     */       } catch (IOException e) {
-/*  83 */         e.printStackTrace();
-/*     */       }
-/*     */   }
-/*     */ 
-/*     */   public boolean useSmart()
-/*     */   {
-/*  95 */     return this.useSmart;
-/*     */   }
-/*     */ 
-/*     */   public void setUseSmart(boolean useSmart)
-/*     */   {
-/* 104 */     this.useSmart = useSmart;
-/*     */   }
-/*     */ 
-/*     */   public String getMainDictionary()
-/*     */   {
-/* 113 */     return "org/wltea/analyzer/dic/main2012.dic";
-/*     */   }
-/*     */ 
-/*     */   public String getQuantifierDicionary()
-/*     */   {
-/* 121 */     return "org/wltea/analyzer/dic/quantifier.dic";
-/*     */   }
-/*     */ 
-/*     */   public List<String> getExtDictionarys()
-/*     */   {
-/* 129 */     List extDictFiles = new ArrayList(2);
-/* 130 */     String extDictCfg = this.props.getProperty("ext_dict");
-/* 131 */     if (extDictCfg != null)
-/*     */     {
-/* 133 */       String[] filePaths = extDictCfg.split(";");
-/* 134 */       if (filePaths != null) {
-/* 135 */         for (String filePath : filePaths) {
-/* 136 */           if ((filePath != null) && (!"".equals(filePath.trim()))) {
-/* 137 */             extDictFiles.add(filePath.trim());
-/*     */           }
-/*     */         }
-/*     */       }
-/*     */     }
-/* 142 */     return extDictFiles;
-/*     */   }
-/*     */ 
-/*     */   public List<String> getExtStopWordDictionarys()
-/*     */   {
-/* 151 */     List extStopWordDictFiles = new ArrayList(2);
-/* 152 */     String extStopWordDictCfg = this.props.getProperty("ext_stopwords");
-/* 153 */     if (extStopWordDictCfg != null)
-/*     */     {
-/* 155 */       String[] filePaths = extStopWordDictCfg.split(";");
-/* 156 */       if (filePaths != null) {
-/* 157 */         for (String filePath : filePaths) {
-/* 158 */           if ((filePath != null) && (!"".equals(filePath.trim()))) {
-/* 159 */             extStopWordDictFiles.add(filePath.trim());
-/*     */           }
-/*     */         }
-/*     */       }
-/*     */     }
-/* 164 */     return extStopWordDictFiles;
-/*     */   }
-/*     */ }
+package org.wltea.analyzer.cfg;
 
-/* Location:           G:\临时目录\BaiduYunDownload\IKAnalyzer.jar
- * Qualified Name:     org.wltea.analyzer.cfg.DefaultConfig
- * JD-Core Version:    0.6.2
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.InvalidPropertiesFormatException;
+import java.util.List;
+import java.util.Properties;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+/**
+ * 修改记录：将扩展词和停用词从文件中读取
+ * 
+ * @author Administrator
+ *
  */
+public class DefaultConfig implements Configuration {
+	private static final Log LOG = LogFactory.getLog(DefaultConfig.class);
+	private static final String PATH_DIC_MAIN = "org/wltea/analyzer/dic/main2012.dic";
+	private static final String PATH_DIC_QUANTIFIER = "org/wltea/analyzer/dic/quantifier.dic";
+	private static final String FILE_NAME = "IKAnalyzer.cfg.xml";
+	private static final String EXT_DICT = "ext_dict";
+	private static final String EXT_STOP = "ext_stopwords";
+	private Properties props;
+	private boolean useSmart;
+
+//	public static Configuration getInstance() {
+//		return new DefaultConfig();
+//	}
+
+	public DefaultConfig() {
+		this.props = new Properties();
+
+		InputStream input = getClass().getClassLoader().getResourceAsStream(FILE_NAME);
+		if (input != null){
+			LOG.info("Load config file success:" + FILE_NAME);
+			try {
+				this.props.loadFromXML(input);
+			} catch (InvalidPropertiesFormatException e) {
+				LOG.error(e.getMessage(),e);
+			} catch (IOException e) {
+				LOG.error(e.getMessage(),e);
+			}
+		}else{
+			LOG.warn("Load config file failed:" + FILE_NAME);
+		}
+	}
+
+	public boolean useSmart() {
+		return this.useSmart;
+	}
+
+	public void setUseSmart(boolean useSmart) {
+		this.useSmart = useSmart;
+	}
+
+	public List<String> getMainDictionary() {
+		return loadWordsFromFile(PATH_DIC_MAIN);
+	}
+
+	public List<String> getQuantifierDicionary() {
+		return loadWordsFromFile(PATH_DIC_QUANTIFIER);
+	}
+
+	public List<String> getExtDictionarys() {
+		LOG.info("getExtDictionarys from file.");
+		List<String> extDictFiles = new ArrayList<String>(2);
+		String extDictCfg = getProperty(EXT_DICT);
+		if (extDictCfg != null) {
+			String[] filePaths = extDictCfg.split(";");
+			if (filePaths != null) {
+				for (String filePath : filePaths) {
+					if ((filePath != null) && (!"".equals(filePath.trim()))) {
+						extDictFiles.add(filePath.trim());
+					}
+				}
+			}
+		}
+
+		return loadWordsFromFile(extDictFiles);
+	}
+
+	public List<String> getExtStopWordDictionarys() {
+		LOG.info("getExtStopWordDictionarys from file.");
+		List<String> extStopWordDictFiles = new ArrayList<String>(2);
+		String extStopWordDictCfg = getProperty(EXT_STOP);
+		if (extStopWordDictCfg != null) {
+			String[] filePaths = extStopWordDictCfg.split(";");
+			if (filePaths != null) {
+				for (String filePath : filePaths) {
+					if ((filePath != null) && (!"".equals(filePath.trim()))) {
+						extStopWordDictFiles.add(filePath.trim());
+					}
+				}
+			}
+		}
+
+		return loadWordsFromFile(extStopWordDictFiles);
+	}
+
+	private List<String> loadWordsFromFile(String wordDictFile) {
+		LOG.info("Load words from file：" + wordDictFile);
+		InputStream is = getClass().getClassLoader().getResourceAsStream(wordDictFile);
+		
+		if (is != null) {
+			List<String> words = new ArrayList<String>();
+			try {
+				BufferedReader br = new BufferedReader(new InputStreamReader(is, "UTF-8"), 512);
+				String theWord = null;
+				do {
+					theWord = br.readLine();
+					if ((theWord != null) && (!"".equals(theWord.trim()))) {
+						words.add(theWord.trim().toLowerCase());
+					}
+				} while (theWord != null);
+			} catch (IOException ioe) {
+				LOG.error("Load words from file failed: " + ioe.getMessage());
+			} finally {
+				try {
+					if (is != null) {
+						is.close();
+						is = null;
+					}
+				} catch (IOException e) {
+					LOG.error(e.getMessage(),e);
+				}
+			}
+			
+			return words;
+		}
+		
+		return Collections.emptyList();
+	}
+	private List<String> loadWordsFromFile(List<String> wordDictFiles) {
+		if (wordDictFiles != null) {
+			List<String> words = new ArrayList<String>();
+			
+			for (String wordDictFile : wordDictFiles) {
+				words.addAll(loadWordsFromFile(wordDictFile));
+			}
+			
+			return words;
+		}else{
+			return Collections.emptyList();
+		}
+	}
+	
+	protected String getProperty(String key,String defaultValue){
+		return props.getProperty(key,defaultValue);
+	}
+	protected String getProperty(String key){
+		return props.getProperty(key,null);
+	}
+}
