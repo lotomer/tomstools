@@ -150,7 +150,7 @@ function createWindowWithTab(containId,menuId,menuName,id,title,url,w,h,isAppend
             //closable:canClose ? true : false,
             closable:false,
             tools:[{    
-                iconCls:'icon-mini-refresh',    
+                iconCls:'icon-reload',    
                 handler:function(){    
                 	var o = $('#p_i_' + id);
                     if (o[0]) {

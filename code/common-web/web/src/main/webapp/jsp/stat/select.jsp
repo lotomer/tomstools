@@ -11,6 +11,20 @@
 <link rel="stylesheet" type="text/css" href="css/main.css">
 </head>
 <body class="easyui-layout">
+	<div data-options="region:'north',split:true"
+		style="height: 50px;padding:5px 30px;">
+		<table>
+			<tr>
+				<td style="width:65px"><label>词条：</label></td>
+                <td style="width:140px"><input id="WORDS" class="easyui-combobox"></input></td>
+                
+				<td></td>
+				<td><a href="#" id="btnQuery" class="easyui-linkbutton"
+					data-options="iconCls:'icon-search'" style="width: 80px">查询</a></td>
+			</tr>
+		</table>
+	</div>
+
 	<div id="divStatWordsContent" data-options="region:'center',split:true">
 	</div>
 </body>
@@ -32,35 +46,23 @@
 	// 页面初始化
 	$(function() {
 		// 绑定事件
-		function initEcharts(ec) {
-			window.echarts = ec;
-			query();
-		}
-		// 路径配置
-		require.config({
-			paths : {
-				echarts : 'js/echarts'
-			}
-		});
-		// 使用
-		require([ 'echarts', 'echarts/chart/pie', // 按需加载
-		'echarts/chart/line', // 按需加载
-		'echarts/chart/bar', // 按需加载
-		'echarts/chart/gauge'
-		], initEcharts);
+		$('#btnQuery').bind("click",query);
+		initCombobox("WORDS", "setting/words/select.do", undefined, false,"TYPE_ID","TYPE_NAME");
+		query();
 	});
 
 	/**
 	 * 执行查询
 	 */
 	function query() {
-		var containId = "divStatWordsContent";
+		var containId = "divStatWordsContent",typeId = $('#WORDS').combobox("getValue"),
+		params={key : key,rows:100};
+		if ('*' != typeId){
+			params.TYPE_ID= typeId;
+		}
 		$('#' + containId).html('');
 		showLoading(containId);
-		loadData(containId, "crawl/query.do", {
-			key : key,
-			rows:100
-		}, function(datas) {
+		loadData(containId, "crawl/query.do", params, function(datas) {
 			var ec = window.echarts;
 			if (!datas) {
 				return;
@@ -74,7 +76,7 @@
 			divMetric.datagrid({
 				title:'最新舆情',
 				fitColumns : true,
-				rownumbers : false,
+				rownumbers : true,
 				showHeader : true,
 				singleSelect : true,
 				remoteSort : false,

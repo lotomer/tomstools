@@ -33,8 +33,10 @@ import org.tomstools.web.persistence.UserMapper;
  * @version 1.0
  */
 @Service("userService")
+@Transactional()
 public class UserService {
     private final static Log LOG = LogFactory.getLog(UserService.class);
+    private static final String DEFAULT_PASSWORD = "123";
     @Autowired
     private UserMapper userMapper;
     private Encryptable keyEncryptor = new MD5(new DES());
@@ -72,7 +74,9 @@ public class UserService {
     public List<Menu> getUserMenus(int userId) {
         return userMapper.selectUserMenus(userId);
     }
-
+    public List<Map<String, Object>> selectAllMenus(){
+        return userMapper.selectAllMenus();
+    }
     public List<Page> getUserSubPagesByPageId(int userId, int pageId) {
         List<Page> subpages = getUserSubPages(userId);
         List<Page> result = new ArrayList<Page>();
@@ -300,5 +304,117 @@ public class UserService {
 	public static void main(String[] args) {
 		UserService userService = new UserService();
 		System.out.println(userService.encryptPassword("user1","123"));
+	}
+	public void saveByOwner(int userId, String userName,String nickName, String newPassword, String email, String phoneNumber, String clientIp) {
+		String pwd = null;
+		if (!StringUtils.isEmpty(newPassword)){
+			pwd = encryptPassword(userName, newPassword);
+		}
+		userMapper.saveUser(userId,nickName,pwd,email,phoneNumber,clientIp);
+	}
+	public void save(int userId, String nickName, String email, String phoneNumber, String clientIp) {
+	    userMapper.saveUser(userId,nickName,null,email,phoneNumber,clientIp);
+	}
+	public List<Map<String, Object>> selectRoleList() {
+        return userMapper.selectRoleList();
+    }
+	public List<Map<String, Object>> selectSubPages() {
+        return userMapper.selectSubPages();
+    }
+	public List<Map<String, Object>> selectPageList() {
+        return userMapper.selectPageList();
+    }
+    public void deleteRole(int id) {
+        userMapper.deleteRole(id);
+    }
+    public void addRole(String roleName) {
+        userMapper.addRole(roleName);
+    }
+    public void saveRole(int id, String roleName) {
+        userMapper.saveRole(id,roleName);
+    }
+    public void saveRoleUsers(int roleId, String userIds) {
+        // 首先清除原有角色的关联数据
+        userMapper.deleteRoleUsers(roleId);
+        if (!StringUtils.isEmpty(userIds)){
+            String[] ids = userIds.split(",");
+            for (int i = 0; i < ids.length; i++) {
+                if (!StringUtils.isEmpty(ids[i])){
+                    userMapper.saveRoleUser(roleId,Integer.parseInt(ids[i]));
+                }
+            }
+        }
+    }
+    public void saveRoleMenus(int roleId, String menuIds) {
+        // 首先清除原有角色的关联数据
+        userMapper.deleteRoleMenus(roleId);
+        if (!StringUtils.isEmpty(menuIds)){
+            String[] ids = menuIds.split(",");
+            for (int i = 0; i < ids.length; i++) {
+                if (!StringUtils.isEmpty(ids[i])){
+                    userMapper.saveRoleMenu(roleId,Integer.parseInt(ids[i]));
+                    // 给菜单默认的页面授权
+                    //userMapper.saveRolePageByMenuId(roleId,Integer.parseInt(ids[i]));
+                }
+            }
+        }
+    }
+    public void saveRolePages(int roleId, String pageIds) {
+        // 首先清除原有角色的关联数据
+        userMapper.deleteRolePages(roleId);
+        if (!StringUtils.isEmpty(pageIds)){
+            String[] ids = pageIds.split(",");
+            for (int i = 0; i < ids.length; i++) {
+                if (!StringUtils.isEmpty(ids[i])){
+                    userMapper.saveRolePage(roleId,Integer.parseInt(ids[i]));
+                }
+            }
+        }
+    }
+    public List<Map<String, Object>> selectRoleUserList() {
+        return userMapper.selectRoleUserList();
+    }
+    public List<Map<String, Object>> selectRoleMenuList() {
+        return userMapper.selectRoleMenuList();
+    }
+    public List<Map<String, Object>> selectRolePageList() {
+        return userMapper.selectRolePageList();
+    }
+    public void deleteUser(int id) {
+        userMapper.deleteUser(id);
+    }
+    public void addUser(String userName, String nickName, String email, String phoneNumber, String clientIp) {
+        userMapper.addUser(userName,encryptPassword(userName, DEFAULT_PASSWORD),nickName,email,phoneNumber,clientIp);
+    }
+	public void deleteMenu(int id) {
+		userMapper.deleteMenu(id);
+	}
+	public void saveMenu(int id, String menuName, int parentId, Integer pageId, Integer orderNum,
+			String iconClass, String isShow) {
+		userMapper.saveMenu(id, menuName,parentId,pageId,orderNum,iconClass,isShow);
+	}
+	public void addMenu(String menuName, Integer parentId, Integer pageId, Integer orderNum, String iconClass,
+			String isShow) {
+		userMapper.addMenu(menuName,parentId,pageId,orderNum,iconClass,isShow);
+	}
+	public void deletePage(int id) {
+		userMapper.deletePage(id);
+	}
+	public void savePage(int id, String pageName, String contentUrl, String params, String width, String height,
+			String iconClass, String autoFreshTime) {
+		userMapper.savePage(id,pageName,contentUrl,params,width,height,iconClass,autoFreshTime);
+	}
+	public void addPage(String pageName, String contentUrl, String params, String width, String height,
+			String iconClass, String autoFreshTime) {
+		userMapper.addPage(pageName,contentUrl,params,width,height,iconClass,autoFreshTime);
+	}
+	public void deleteSubPage(int id, int subId) {
+		userMapper.deleteSubPage(id,subId);
+	}
+	public void saveSubPage(int id, int subId, String orderNum, String width, String height) {
+		userMapper.saveSubPage(id, subId,orderNum,width,height);
+	}
+	public void addSubPage(int id, int subId, String orderNum, String width, String height) {
+		userMapper.addSubPage(id, subId,orderNum,width,height);
 	}
 }

@@ -30,8 +30,8 @@
 	<div data-options="region:'south',border:false"
 		style="height: 26px; text-align: center; padding: 5px 10px;">
 		Copyright&copy;2015 网络舆情监控系统 All rights reserved.</div>
-	<div  data-options="region:'west',split:false,border:false" title=""
-		style="width: 80px;background-color: #222222">
+	<div  data-options="region:'west',split:false,border:false,fit:false" title=""
+		style="width: 80px;background-color: #222222;height: 100%"">
 		<!-- <ul id="treeMenu"></ul> -->
 		<div id="u00"></div>
 	</div>
@@ -50,6 +50,9 @@
 	var apiUrlPrefix = '${user.configs.API_URL_PREFIX}';
 	window.key = '${user.key}';
 	function menuItemClick(menuId){
+		if("menu_item_select" == $('#mn_' + menuId).attr("class")){
+			return false;
+		}
 		$('.menu_item_select').attr("class","menu_item");
 		$('#mn_' + menuId).attr("class","menu_item_select");
 		
@@ -327,9 +330,15 @@
 		}
 
 		// 找到页面
-		createPage(containerId, pageId, page.pageName, page.subPageId,
+		if (page){
+			createPage(containerId, pageId, page.pageName, page.subPageId,
 				page.contentURL, page.params, page.width, page.height,
 				queryParams, getTheme('cb-theme'), id, name, isAppend, canClose,flag);
+		}else{
+			window.messager.alert('告警',
+				'未找到PageId对应的页面：' + pageId,
+				'warning');
+		}
 	}
 
 	function closeModule(menuId, title) {

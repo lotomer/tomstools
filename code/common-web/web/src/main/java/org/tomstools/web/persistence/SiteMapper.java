@@ -32,14 +32,17 @@ public interface SiteMapper {
 
 	public List<Map<String, Object>> selectMedia(@Param("START_TIME") Date startTime, @Param("END_TIME") Date endTime);
 
-	public void saveDetail(@Param("SITE_ID") int siteId, @Param("TITLE") String title, @Param("URL") String url,
+	public void saveDetail(@Param("TYPE_ID") int typeId,@Param("TEMPLATE_TYPE") String templateType, @Param("SITE_ID") int siteId, @Param("TITLE") String title, @Param("URL") String url,
 			@Param("TSTAMP") Date tstamp);
 
-	public List<Map<String, Object>> selectDetail(@Param("START") Integer start, @Param("ROWS") Integer rows);
+	public List<Map<String, Object>> selectDetail(@Param("TYPE_ID") Integer typeId,@Param("START") Integer start, @Param("ROWS") Integer rows);
 
 	public List<Map<String, Object>> statWordsCountQuery(@Param("START_TIME") Date startTime,
 			@Param("END_TIME") Date endTime, @Param("LANG_ID") Integer langId,
 			@Param("COUNTRY_CODE") Integer countryId, @Param("SITE_TYPE_ID")Integer siteTypeId, @Param("SITE_ID")Integer siteId);
+	public List<Map<String, Object>> statWordsQueryDetail(@Param("START_TIME") Date startTime,
+			@Param("END_TIME") Date endTime, @Param("LANG_ID") Integer langId,
+			@Param("COUNTRY_CODE") Integer countryId, @Param("SITE_TYPE_ID")Integer siteTypeId, @Param("SITE_ID")Integer siteId,@Param("START") Integer start, @Param("ROWS") Integer rows);
 	
 	
 	

@@ -42,7 +42,7 @@
 		style="width: 440px;"></div>
 	<div id="divContentDetail" data-options="region:'center',split:true">
 	</div>
-	<div id="dlg" class="easyui-dialog"
+	<div id="dlg" class="easyui-dialog" data-options="modal:true"
 		style="width: 340px; height: 250px; padding: 10px 10px" closed="true"
 		buttons="#dlg-buttons">
 		<!-- <div class="ftitle">智能词条</div> -->
@@ -88,7 +88,7 @@
 			data-options="iconCls:'icon-edit',plain:true" onclick="edit()">修改</a>
 	</div>
 
-	<div id="dlgDetail" class="easyui-dialog"
+	<div id="dlgDetail" class="easyui-dialog" data-options="modal:true"
 		style="width: 340px; height: 220px; padding: 10px 10px" closed="true"
 		buttons="#dlg-buttonsDetail">
 		<!-- <div class="ftitle">智能词条</div> -->

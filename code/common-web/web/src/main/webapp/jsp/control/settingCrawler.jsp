@@ -36,7 +36,7 @@
 <body class="easyui-layout">
 	<div id="divStatWordsContent" data-options="region:'center',split:true">
 	</div>
-	<div id="dlg" class="easyui-dialog" style="width:400px;height:200px;padding:10px 10px"
+	<div id="dlg" class="easyui-dialog" data-options="modal:true" style="width:400px;height:200px;padding:10px 10px"
             closed="true" buttons="#dlg-buttons">
         <!-- <div class="ftitle">智能词条</div> -->
         <form id="fm" method="post" novalidate>

@@ -39,7 +39,7 @@ function initComboboxWithData(containId,data,onSelectCallback,force,valueField,t
         $('#' + containId).combobox({
             valueField: 'id',
             textField: 'text',
-            panelHeight: 'auto',
+            //panelHeight: 'auto',
             editable: false,
             data: result,
             onSelect:onSelectCallback
@@ -172,22 +172,22 @@ function numberAdaptUnit (value,defaultUnit,radix) {
     }
     return {value:toDecimal(max / times,3),unit: realUnit,times:times};
 }
-function getHostStateStyle(state){
-	if (state == 'UP') {
-	    return '';
-        //return 'background-color:green;color:white';
-    }else {
-        return 'background-color:red;color:white';
-    }
-}
-function getServiceStateStyle(state){
-	if (state == 'OK') {
-	    return '';
-        //return 'background-color:green;color:white';
-    }else {
-        return 'background-color:red;color:white';
-    }
-}
+//function getHostStateStyle(state){
+//	if (state == 'UP') {
+//	    return '';
+//        //return 'background-color:green;color:white';
+//    }else {
+//        return 'background-color:red;color:white';
+//    }
+//}
+//function getServiceStateStyle(state){
+//	if (state == 'OK') {
+//	    return '';
+//        //return 'background-color:green;color:white';
+//    }else {
+//        return 'background-color:red;color:white';
+//    }
+//}
 
 function log(o){
 	if (console && console.log){console.log(o);}

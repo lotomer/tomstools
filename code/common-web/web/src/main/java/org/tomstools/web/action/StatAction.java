@@ -6,6 +6,7 @@ package org.tomstools.web.action;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -15,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import javax.mail.internet.MimeUtility;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -136,6 +138,42 @@ public class StatAction {
 
 		List<Map<String, Object>> result = solrService.statWordsCountQuery(start, end, langId, countryId, siteTypeId,
 				siteId);
+		if (null != result) {
+			return JSON.toJSONString(result);
+		} else {
+			return "[]";
+		}
+	}
+
+	@RequestMapping("/stat/wordsQueryDetail.do")
+	public @ResponseBody String wordsQueryDetail(@RequestParam("key") String key,
+			@RequestParam("startTime") String startTime, @RequestParam("endTime") String endTime,
+			@RequestParam(value = "langId", required = false) Integer langId,
+			@RequestParam(value = "countryId", required = false) Integer countryId,
+			@RequestParam(value = "siteTypeId", required = false) Integer siteTypeId,
+			@RequestParam(value = "siteId", required = false) Integer siteId,
+			@RequestParam(value = "start", required = false) Integer startNum,
+			@RequestParam(value = "rows", required = false) Integer rows, HttpServletRequest req,
+			HttpServletResponse resp) throws Exception {
+		resp.setContentType("application/json;charset=UTF-8");
+		Date end = null;
+		if (!StringUtils.isEmpty(endTime)) {
+			Calendar c = Calendar.getInstance();
+			c.setTime(DATE_FORMAT.parse(endTime));
+			c.add(Calendar.DAY_OF_MONTH, 1);
+			end = c.getTime();
+		} else {
+			end = new Date();
+		}
+		Date start = null;
+		if (!StringUtils.isEmpty(startTime)) {
+			start = DATE_FORMAT.parse(startTime);
+		} else {
+			start = new Date(end.getTime() - SolrService.STAT_TIME_DEFAULT);
+		}
+
+		List<Map<String, Object>> result = solrService.statWordsQueryDetail(start, end, langId, countryId, siteTypeId,
+				siteId, startNum, rows);
 		if (null != result) {
 			return JSON.toJSONString(result);
 		} else {
@@ -372,12 +410,13 @@ public class StatAction {
 
 	@RequestMapping("/query.do")
 	public @ResponseBody String query(@RequestParam("key") String key,
+			@RequestParam(value = "TYPE_ID", required = false) Integer typeId,
 			@RequestParam(value = "start", required = false) Integer start,
 			@RequestParam(value = "rows", required = false) Integer rows, HttpServletRequest req,
 			HttpServletResponse resp) throws Exception {
 		resp.setContentType("application/json;charset=UTF-8");
 
-		List<Map<String, Object>> result = solrService.query(start, rows);
+		List<Map<String, Object>> result = solrService.query(typeId, start, rows);
 		if (null != result) {
 			return JSON.toJSONString(result);
 		} else {
@@ -468,14 +507,41 @@ public class StatAction {
 	@RequestMapping("/weekly/download.do")
 	public void weeklyDownload(@RequestParam("key") String key, @RequestParam(value = "id", required = true) Integer id,
 			HttpServletRequest req, HttpServletResponse resp) throws Exception {
-		resp.setContentType("application/json;charset=UTF-8");
-
+		// resp.setContentType("application/json;charset=UTF-8");
 		Map<String, Object> weekly = solrService.selectWeeklyById(id);
 		String path = String.valueOf(weekly.get("PATH"));
+		String filename = URLEncoder.encode(String.valueOf(weekly.get("FILE_NAME")), "UTF8");
+		// 如果没有UA，则默认使用IE的方式进行编码，因为毕竟IE还是占多数的
+		String userAgent = req.getHeader("User-Agent");
+		String rtn = "filename=\"" + filename + "\"";
+		if (userAgent != null) {
+			userAgent = userAgent.toLowerCase();
+			// IE浏览器，只能采用URLEncoder编码
+			if (userAgent.indexOf("msie") != -1) {
+				rtn = "filename=\"" + filename + "\"";
+			}
+			// Opera浏览器只能采用filename*
+			else if (userAgent.indexOf("opera") != -1) {
+				rtn = "filename*=UTF-8''" + filename;
+			}
+			// Safari浏览器，只能采用ISO编码的中文输出
+			else if (userAgent.indexOf("safari") != -1) {
+				rtn = "filename=\"" + new String(filename.getBytes("UTF-8"), "ISO8859-1") + "\"";
+			}
+			// Chrome浏览器，只能采用MimeUtility编码或ISO编码的中文输出
+			else if (userAgent.indexOf("applewebkit") != -1) {
+				filename = MimeUtility.encodeText(filename, "UTF8", "B");
+				rtn = "filename=\"" + filename + "\"";
+			}
+			// FireFox浏览器，可以使用MimeUtility或filename*或ISO编码的中文输出
+			else if (userAgent.indexOf("mozilla") != -1) {
+				rtn = "filename*=UTF-8''" + filename;
+			}
+		}
+		String disp = "attachment; " + rtn + "";
 		try {
 			resp.setContentType(String.valueOf(weekly.get("FILE_TYPE")));
-			resp.setHeader("Content-disposition",
-					"attachment; filename=\"" + String.valueOf(weekly.get("FILE_NAME")) + "\"");
+			resp.setHeader("Content-disposition", disp);
 			FileUtils.copyFile(new File(path), resp.getOutputStream());
 		} catch (IOException e) {
 			LOG.error(e.getMessage(), e);

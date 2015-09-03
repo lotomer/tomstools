@@ -33,6 +33,28 @@
     ]]></select>
     
     <select id="statWordsCountQuery" resultType="map"><![CDATA[
+        SELECT TYPE_ID,TYPE_NAME,SUM(FM) SIZE_FM,SUM(FM_E) SIZE_FM_E,SUM(ZM) SIZE_ZM,SUM(ZM_E) SIZE_ZM_E
+		FROM (
+		SELECT s.TYPE_ID,r.TYPE_NAME,s.CRAWL_TIME,
+		CASE s.TEMPLATE_TYPE WHEN 'ZM' THEN 1 ELSE 0 END ZM,
+		CASE s.TEMPLATE_TYPE WHEN 'ZM_E' THEN 1 ELSE 0 END ZM_E,
+		CASE s.TEMPLATE_TYPE WHEN 'FM' THEN 1 ELSE 0 END FM,
+		CASE s.TEMPLATE_TYPE WHEN 'FM_E' THEN 1 ELSE 0 END FM_E
+		FROM T_POM_R_DETAIL s LEFT JOIN T_CRAWL_C_SITE cs ON (s.SITE_ID=cs.SITE_ID) 
+		LEFT JOIN T_POM_C_RULE r ON (s.TYPE_ID=r.TYPE_ID)  WHERE 
+        ]]><if test="COUNTRY_CODE != null">
+        	cs.COUNTRY_CODE=#{COUNTRY_CODE} AND
+        </if><if test="LANG_ID != null">
+        	cs.LANG_ID=#{LANG_ID} AND
+        </if><if test="SITE_ID != null">
+        	cs.SITE_ID=#{SITE_ID} AND
+        </if><if test="SITE_TYPE_ID != null">
+        	cs.SITE_TYPE_ID=#{SITE_TYPE_ID} AND
+        </if><![CDATA[
+		CRAWL_TIME BETWEEN #{START_TIME} AND #{END_TIME}
+		) a GROUP BY TYPE_ID,TYPE_NAME ORDER BY SIZE_FM desc,SIZE_FM_E desc,SIZE_ZM desc,SIZE_ZM_E desc
+    ]]></select>
+    <select id="statWordsCountQuery_BAK" resultType="map"><![CDATA[
         SELECT r.TYPE_ID,r.TYPE_NAME,sum(SIZE_ZM) SIZE_ZM,SUM(SIZE_FM) SIZE_FM,sum(SIZE_ZM_E) SIZE_ZM_E,SUM(SIZE_FM_E) SIZE_FM_E 
 		FROM T_POM_S_STAT_SITE s LEFT JOIN T_CRAWL_C_SITE cs ON (s.SITE_ID=cs.SITE_ID) 
 		LEFT JOIN T_POM_C_RULE r ON (s.TYPE_ID=r.TYPE_ID)  WHERE 
@@ -48,17 +70,36 @@
 		STAT_TIME BETWEEN #{START_TIME} AND #{END_TIME}
 		GROUP BY r.TYPE_ID ORDER BY SIZE_FM desc,SIZE_FM_E desc,SIZE_ZM desc,SIZE_ZM_E desc
     ]]></select>
+    <select id="statWordsQueryDetail" resultType="map"><![CDATA[
+        SELECT s.DETAIL_SEQ,s.TEMPLATE_TYPE,s.TYPE_ID,r.TYPE_NAME,s.SITE_ID,cs.SITE_NAME,s.TITLE,s.URL,s.CRAWL_TIME,s.IN_TIME
+		FROM T_POM_R_DETAIL s LEFT JOIN T_CRAWL_C_SITE cs ON (s.SITE_ID=cs.SITE_ID) 
+		LEFT JOIN T_POM_C_RULE r ON (s.TYPE_ID=r.TYPE_ID) WHERE
+        ]]><if test="COUNTRY_CODE != null">
+        	cs.COUNTRY_CODE=#{COUNTRY_CODE} AND
+        </if><if test="LANG_ID != null">
+        	cs.LANG_ID=#{LANG_ID} AND
+        </if><if test="SITE_ID != null">
+        	cs.SITE_ID=#{SITE_ID} AND
+        </if><if test="SITE_TYPE_ID != null">
+        	cs.SITE_TYPE_ID=#{SITE_TYPE_ID} AND
+        </if><![CDATA[
+		CRAWL_TIME BETWEEN #{START_TIME} AND #{END_TIME}
+		ORDER BY CRAWL_TIME DESC  LIMIT #{START},#{ROWS}
+    ]]></select>
     
     <insert id="saveStat">
     	INSERT INTO T_POM_S_STAT_SITE (TYPE_ID,SIZE_ZM,SIZE_FM,SIZE_ZM_E,SIZE_FM_E,STAT_TIME,SITE_ID) VALUES (#{TYPE_ID},#{SIZE_ZM},#{SIZE_FM},#{SIZE_ZM_E},#{SIZE_FM_E},#{STAT_TIME},#{SITE_ID})
     </insert>
     
     <insert id="saveDetail">
-    	INSERT INTO T_POM_R_DETAIL (SITE_ID,TITLE,URL,CRAWL_TIME,IN_TIME) VALUES (#{SITE_ID},#{TITLE},#{URL},#{TSTAMP},now())
+    	INSERT INTO T_POM_R_DETAIL (TYPE_ID,TEMPLATE_TYPE,SITE_ID,TITLE,URL,CRAWL_TIME,IN_TIME) VALUES (#{TYPE_ID},#{TEMPLATE_TYPE},#{SITE_ID},#{TITLE},#{URL},#{TSTAMP},now())
     </insert>
     
     <select id="selectDetail" resultType="map"><![CDATA[
-    	SELECT TITLE,URL,CRAWL_TIME,DATE_FORMAT(CRAWL_TIME,'%Y-%m-%d') DT FROM T_POM_R_DETAIL ORDER BY CRAWL_TIME DESC LIMIT #{START},#{ROWS}
+    	SELECT TITLE,URL,CRAWL_TIME,DATE_FORMAT(CRAWL_TIME,'%Y-%m-%d') DT 
+    	FROM T_POM_R_DETAIL
+    	]]><if test="TYPE_ID != null"> WHERE TYPE_ID=#{TYPE_ID}</if>
+    	<![CDATA[ORDER BY CRAWL_TIME DESC LIMIT #{START},#{ROWS}
     ]]></select>
     <select id="checkUrl" resultType="string"><![CDATA[
     	SELECT 1 FROM T_POM_R_DETAIL WHERE URL=#{URL}

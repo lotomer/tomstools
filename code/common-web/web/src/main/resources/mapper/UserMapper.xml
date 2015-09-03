@@ -2,19 +2,49 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="org.tomstools.web.persistence.UserMapper">
 	<select id="selectUserList" resultType="map"><![CDATA[
-        SELECT USER_ID,USER_NAME,NICK_NAME,EMAIL,PHONE_NUMBER FROM T_M_USERS WHERE IS_VALID='1'
+        SELECT u.USER_ID,USER_NAME,NICK_NAME,EMAIL,PHONE_NUMBER,CLIENT_IP,
+        DATE_FORMAT(CREATE_TIME,'%Y-%m-%d %H:%i:%s') CREATE_TIME,DATE_FORMAT(UPDATE_TIME,'%Y-%m-%d %H:%i:%s') UPDATE_TIME
+        FROM T_M_USERS u 
+        WHERE IS_VALID='1'
     ]]></select>
     <select id="selectUser" resultType="user"><![CDATA[
         SELECT u.USER_ID userId,u.USER_NAME userName,u.NICK_NAME nickName,u.EMAIL,u.PHONE_NUMBER phoneNumber,u.CLIENT_IP clientIp,CASE WHEN k.`KEY` IS NULL THEN NULL WHEN now() < k.INVALID_TIME THEN k.`KEY` ELSE '' END `key` FROM T_M_USERS u LEFT JOIN T_U_KEY k ON u.USER_ID=k.USER_ID WHERE u.USER_NAME=#{userName} AND u.USER_PASSWD=#{userPassword} AND u.IS_VALID='1'
     ]]></select>
     <select id="selectUserByKey" resultType="user"><![CDATA[
-        SELECT k.USER_ID userId,CASE WHEN now() < k.INVALID_TIME THEN k.`KEY` ELSE '' END `key`,u.USER_NAME userName,u.NICK_NAME nickName,u.CLIENT_IP clientIp FROM T_U_KEY k,T_M_USERS u where k.USER_ID=u.USER_ID AND u.IS_VALID='1' AND `KEY`= #{key}
+        SELECT k.USER_ID userId,CASE WHEN now() < k.INVALID_TIME THEN k.`KEY` ELSE '' END `key`,u.USER_NAME userName,
+        u.NICK_NAME nickName,u.CLIENT_IP clientIp,u.EMAIL email,u.PHONE_NUMBER phoneNumber 
+        FROM T_U_KEY k,T_M_USERS u where k.USER_ID=u.USER_ID AND u.IS_VALID='1'  AND `KEY`= #{key}
     ]]></select>
+    
 	<select id="selectUserMenus" resultType="menu"><![CDATA[
         SELECT m.MENU_ID menuId,m.MENU_NAME menuName,m.PAGE_ID pageId,m.PARENT_ID parentId,m.IS_SHOW isShow,m.ORDER_NUM orderNum,m.ICON_CLASS iconClass
         FROM T_M_MENUS m ,T_PRI_ROLE_MENUS rm, T_REL_ROLE_USER ru
         WHERE m.MENU_ID=rm.MENU_ID AND rm.ROLE_ID=ru.ROLE_ID AND ru.USER_ID=#{userId} AND  m.IS_VALID='1'
     ]]></select>
+    <select id="selectAllMenus" resultType="map"><![CDATA[
+        SELECT MENU_ID,MENU_NAME,PARENT_ID,ORDER_NUM,IS_SHOW,DATE_FORMAT(m.IN_TIME,'%Y-%m-%d %H:%i:%s') IN_TIME,
+		DATE_FORMAT(m.UPDATE_TIME,'%Y-%m-%d %H:%i:%s') UPDATE_TIME,m.ICON_CLASS,m.PAGE_ID,p.PAGE_NAME 
+		FROM T_M_MENUS m LEFT JOIN T_M_PAGES p ON (m.PAGE_ID=p.PAGE_ID) WHERE m.IS_VALID=1 AND (p.IS_VALID=1 OR p.IS_VALID IS NULL)
+    ]]></select>
+    <update id="deleteMenu"><![CDATA[
+        UPDATE T_M_MENUS SET IS_VALID=0 WHERE MENU_ID=#{MENU_ID}
+    ]]></update>
+    <update id="saveMenu"><![CDATA[
+        UPDATE T_M_MENUS SET MENU_NAME=#{MENU_NAME},PARENT_ID=#{PARENT_ID},UPDATE_TIME=now()
+        ]]><if test="PAGE_ID != null">
+		,PAGE_ID=#{PAGE_ID}
+        </if><if test="ICON_CLASS != null">
+        ,ICON_CLASS=#{ICON_CLASS}
+        </if><if test="ORDER_NUM != null">
+        ,ORDER_NUM=#{ORDER_NUM}
+        </if><if test="IS_SHOW != null">
+        ,IS_SHOW=#{IS_SHOW}
+        </if><![CDATA[WHERE MENU_ID=#{MENU_ID}
+    ]]></update>
+    <insert id="addMenu"><![CDATA[
+        INSERT INTO T_M_MENUS (MENU_NAME,PARENT_ID,PAGE_ID,ICON_CLASS,ORDER_NUM,IS_SHOW,IN_TIME) VALUES (#{MENU_NAME},#{PARENT_ID},#{PAGE_ID},#{ICON_CLASS},#{ORDER_NUM},#{IS_SHOW},now())
+    ]]></insert>
+    
     <select id="selectUserPages" resultType="page"><![CDATA[
         SELECT p.PAGE_ID pageId,p.PAGE_NAME pageName,-1 parentId,p.CONTENT_URL contentUrl,p.PARAMS,
         p.ICON_CLASS iconClass,p.AUTO_FRESH_TIME autoFreshTime,p.WIDTH,p.HEIGHT 
@@ -40,4 +70,118 @@
     <select id="selectAllConfigs" resultType="config"><![CDATA[
         SELECT USER_ID userId,CONFIG_NAME name,CONFIG_VALUE value FROM T_U_CONFIG
     ]]></select>
+    
+    <update id="saveUser"><![CDATA[
+        UPDATE T_M_USERS SET UPDATE_TIME=now()
+		]]><if test="NICK_NAME != null">
+		,NICK_NAME=#{NICK_NAME}
+        </if><if test="USER_PASSWD != null">
+        ,USER_PASSWD=#{USER_PASSWD}
+        </if><if test="EMAIL != null">
+        ,EMAIL=#{EMAIL}
+        </if><if test="PHONE_NUMBER != null">
+        ,PHONE_NUMBER=#{PHONE_NUMBER}
+        </if><if test="CLIENT_IP != null">
+        ,CLIENT_IP=#{CLIENT_IP}
+        </if><![CDATA[WHERE USER_ID=#{USER_ID}
+    ]]></update>
+    <update id="deleteUser"><![CDATA[
+        UPDATE T_M_USERS SET IS_VALID=0 WHERE USER_ID = #{USER_ID}
+    ]]></update>
+    <insert id="addUser"><![CDATA[
+        INSERT INTO T_M_USERS (USER_NAME,USER_PASSWD,NICK_NAME,EMAIL,PHONE_NUMBER,CLIENT_IP,CREATE_TIME) 
+        VALUES (#{USER_NAME},#{USER_PASSWD},#{NICK_NAME},#{EMAIL},#{PHONE_NUMBER},#{CLIENT_IP},now())
+    ]]></insert>
+    
+    <select id="selectRoleList" resultType="map"><![CDATA[
+        SELECT ROLE_ID,ROLE_NAME FROM T_M_ROLES WHERE IS_VALID=1
+    ]]></select>
+    
+    <select id="selectPageList" resultType="map"><![CDATA[
+        SELECT PAGE_ID,PAGE_NAME,CONTENT_URL,PARAMS,IS_VALID,WIDTH,HEIGHT,ICON_CLASS,
+		AUTO_FRESH_TIME,DATE_FORMAT(IN_TIME,'%Y-%m-%d %H:%i:%s') IN_TIME,
+		DATE_FORMAT(UPDATE_TIME,'%Y-%m-%d %H:%i:%s') UPDATE_TIME
+		FROM T_M_PAGES WHERE IS_VALID=1
+    ]]></select>
+    <update id="deletePage"><![CDATA[
+        UPDATE T_M_PAGES SET IS_VALID=0 WHERE PAGE_ID=#{PAGE_ID}
+    ]]></update>
+    <update id="savePage"><![CDATA[
+        UPDATE T_M_PAGES SET PAGE_NAME=#{PAGE_NAME},UPDATE_TIME=now()
+        ]]><if test="CONTENT_URL != null">
+		,CONTENT_URL=#{CONTENT_URL}
+        </if><if test="ICON_CLASS != null">
+        ,ICON_CLASS=#{ICON_CLASS}
+        </if><if test="PARAMS != null">
+        ,PARAMS=#{PARAMS}
+        </if><if test="WIDTH != null">
+        ,WIDTH=#{WIDTH}
+        </if><if test="HEIGHT != null">
+        ,HEIGHT=#{HEIGHT}
+        </if><if test="AUTO_FRESH_TIME != null">
+        ,AUTO_FRESH_TIME=#{AUTO_FRESH_TIME}
+        </if><![CDATA[WHERE PAGE_ID=#{PAGE_ID}
+    ]]></update>
+    <insert id="addPage"><![CDATA[
+        INSERT INTO T_M_PAGES (PAGE_NAME,CONTENT_URL,PARAMS,WIDTH,HEIGHT,ICON_CLASS,AUTO_FRESH_TIME,IN_TIME) 
+        VALUES (#{PAGE_NAME},#{CONTENT_URL},#{PARAMS},#{WIDTH},#{HEIGHT},#{ICON_CLASS},#{AUTO_FRESH_TIME},now())
+    ]]></insert>
+    
+    <select id="selectSubPages" resultType="map"><![CDATA[
+        SELECT rp.PAGE_ID,rp.WIDTH,rp.HEIGHT,rp.ORDER_NUM,p.PAGE_NAME,rp.SUB_PAGE_ID,sp.PAGE_NAME SUB_PAGE_NAME
+		FROM T_REL_PAGES rp LEFT JOIN T_M_PAGES p ON (rp.PAGE_ID=p.PAGE_ID) LEFT JOIN T_M_PAGES sp ON (rp.SUB_PAGE_ID=sp.PAGE_ID)
+		WHERE p.IS_VALID=1 AND sp.IS_VALID=1 AND rp.IS_VALID=1 
+    ]]></select>
+    <delete id="deleteSubPage"><![CDATA[
+        DELETE FROM T_REL_PAGES WHERE PAGE_ID=#{PAGE_ID} AND SUB_PAGE_ID=#{SUB_PAGE_ID}
+    ]]></delete>
+    <update id="saveSubPage"><![CDATA[
+        UPDATE T_REL_PAGES SET ORDER_NUM=#{ORDER_NUM},WIDTH=#{WIDTH},HEIGHT=#{HEIGHT} WHERE PAGE_ID=#{PAGE_ID} AND SUB_PAGE_ID=#{SUB_PAGE_ID}
+    ]]></update>
+    <insert id="addSubPage"><![CDATA[
+        INSERT INTO T_REL_PAGES (ORDER_NUM,WIDTH,HEIGHT) 
+        VALUES (#{ORDER_NUM},#{WIDTH},#{HEIGHT})
+    ]]></insert>
+    
+    <update id="deleteRole"><![CDATA[
+        UPDATE T_M_ROLES SET IS_VALID=0 WHERE ROLE_ID = #{ROLE_ID}
+    ]]></update>
+    <insert id="addRole"><![CDATA[
+        INSERT INTO T_M_ROLES (ROLE_NAME) VALUES (#{ROLE_NAME})
+    ]]></insert>
+    <update id="saveRole"><![CDATA[
+        UPDATE T_M_ROLES SET ROLE_NAME=#{ROLE_NAME} WHERE ROLE_ID = #{ROLE_ID}
+    ]]></update>
+    <delete id="deleteRoleUsers"><![CDATA[
+        DELETE FROM T_REL_ROLE_USER WHERE ROLE_ID = #{ROLE_ID}
+    ]]></delete>
+    <insert id="saveRoleUser"><![CDATA[
+        INSERT INTO T_REL_ROLE_USER (USER_ID,ROLE_ID) VALUES (#{USER_ID},#{ROLE_ID})
+    ]]></insert>
+    <select id="selectRoleUserList" resultType="map"><![CDATA[
+        SELECT USER_ID,ROLE_ID FROM T_REL_ROLE_USER
+    ]]></select>
+    <select id="selectRoleMenuList" resultType="map"><![CDATA[
+        SELECT MENU_ID,ROLE_ID FROM T_PRI_ROLE_MENUS
+    ]]></select>
+    <select id="selectRolePageList" resultType="map"><![CDATA[
+        SELECT PAGE_ID,ROLE_ID FROM T_PRI_ROLE_PAGES
+    ]]></select>
+    <delete id="deleteRoleMenus"><![CDATA[
+        DELETE FROM T_PRI_ROLE_MENUS WHERE ROLE_ID = #{ROLE_ID}
+    ]]></delete>
+    <insert id="saveRoleMenu"><![CDATA[
+        INSERT INTO T_PRI_ROLE_MENUS (MENU_ID,ROLE_ID) VALUES (#{MENU_ID},#{ROLE_ID})
+    ]]></insert>
+    
+    <delete id="deleteRolePages"><![CDATA[
+        DELETE FROM T_PRI_ROLE_PAGES WHERE ROLE_ID = #{ROLE_ID}
+    ]]></delete>
+    <insert id="saveRolePage"><![CDATA[
+        INSERT INTO T_PRI_ROLE_PAGES (PAGE_ID,ROLE_ID) VALUES (#{PAGE_ID},#{ROLE_ID})
+    ]]></insert>
+    
+    
+    
+    
 </mapper>

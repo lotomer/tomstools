@@ -148,21 +148,21 @@ public class SolrService {
 			Map<Integer, Long> siteFM_E = new HashMap<Integer, Long>();
 			// 获取正面信息数
 			if (!StringUtils.isEmpty(templateZM)) {
-				getSiteCount(solrTool, sites, templateZM, beginTime, endTime, siteZM);
+				getSiteCount(typeId,"ZM",solrTool, sites, templateZM, beginTime, endTime, siteZM);
 
 			}
 			// 获取负面信息数
 			if (!StringUtils.isEmpty(templateFM)) {
-				getSiteCount(solrTool, sites, templateFM, beginTime, endTime, siteFM);
+				getSiteCount(typeId,"FM",solrTool, sites, templateFM, beginTime, endTime, siteFM);
 			}
 
 			// 获取正面信息数
 			if (!StringUtils.isEmpty(templateZM_E)) {
-				getSiteCount(solrTool, sites, templateZM_E, beginTime, endTime, siteZM_E);
+				getSiteCount(typeId,"ZM_E",solrTool, sites, templateZM_E, beginTime, endTime, siteZM_E);
 			}
 			// 获取负面信息数
 			if (!StringUtils.isEmpty(templateFM_E)) {
-				getSiteCount(solrTool, sites, templateFM_E, beginTime, endTime, siteFM_E);
+				getSiteCount(typeId,"FM_E",solrTool, sites, templateFM_E, beginTime, endTime, siteFM_E);
 			}
 
 			// 遍历所有站点，并保存结果
@@ -274,7 +274,7 @@ public class SolrService {
 		return result;
 	}
 
-	private void getSiteCount(SolrTools solrTool, Map<String, Integer> sites, String template, Date beginTime,
+	private void getSiteCount(Integer typeId, String templateType,SolrTools solrTool, Map<String, Integer> sites, String template, Date beginTime,
 			Date endTime, Map<Integer, Long> siteCount) throws Exception {
 		if (StringUtils.isEmpty(template)) {
 			return;
@@ -302,7 +302,7 @@ public class SolrService {
 					// 判断对应的url是否已经存在，如果不存在则添加
 					String flag = siteMapper.checkUrl(String.valueOf(doc.getFieldValue("url")));
 					if (StringUtils.isEmpty(flag)) {
-						siteMapper.saveDetail(siteId, String.valueOf(doc.getFieldValue("title")),
+						siteMapper.saveDetail(typeId,templateType,siteId, String.valueOf(doc.getFieldValue("title")),
 								String.valueOf(doc.getFieldValue("url")), (Date) doc.getFieldValue("tstamp"));
 					}
 				}
@@ -385,11 +385,11 @@ public class SolrService {
 	 *            获取的记录数
 	 * @return 结果
 	 */
-	public List<Map<String, Object>> query(Integer start, Integer rows) {
+	public List<Map<String, Object>> query(Integer typeId,Integer start, Integer rows) {
 		start = null != start ? start : 0;
 		rows = null != rows ? rows : 10;
 		// {total: 100,rows:[]}
-		return siteMapper.selectDetail(start, rows);
+		return siteMapper.selectDetail(typeId,start, rows);
 	}
 
 	public List<Map<String, Object>> queryFromSolr(Integer start, Integer rows) {
@@ -437,7 +437,13 @@ public class SolrService {
 			Integer siteTypeId, Integer siteId) {
 		return siteMapper.statWordsCountQuery(start, end, langId, countryId, siteTypeId, siteId);
 	}
-
+	public List<Map<String, Object>> statWordsQueryDetail(Date startTime, Date endTime, Integer langId, Integer countryId,
+			Integer siteTypeId, Integer siteId,Integer start, Integer rows) {
+		start = null != start ? start : 0;
+		rows = null != rows ? rows : 10;
+		return siteMapper.statWordsQueryDetail(startTime, endTime, langId, countryId, siteTypeId, siteId,start,rows);
+	}
+	
 	/**
 	 * 根据站点类型状态获取站点类型列表
 	 * 

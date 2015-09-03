@@ -134,7 +134,7 @@
 				title : '文件名',
 				align : 'left',
 				halign : 'center',formatter:function(value,row,index){
-					return '<a href="crawl/weekly/download.do?key=' + key + '&ID=' +row.ID+ '">'+ value + '</a>';
+					return '<a href="crawl/weekly/download.do?key=' + key + '&id=' +row.ID+ '">'+ value + '</a>';
 				}
 			} , {
 				field : 'FILE_SIZE',
@@ -161,7 +161,7 @@
 			url : "crawl/download.do",
 			dataType : 'json',
 			async : true,
-			data : {key:key,ID:id,FILE_NAME:fileName},
+			data : {key:key,id:id,FILE_NAME:fileName},
 			success : function(data){
 				
 			}

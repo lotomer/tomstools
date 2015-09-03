@@ -11,6 +11,9 @@
     background: url("../images/top_bg.png") repeat-x scroll left top transparent;
     padding: 0px;
 }
+.layout-split-west {
+    border-right-width: 1px;
+}
 #divContent>div{
     margin: 0 0 0 1px;
 }
