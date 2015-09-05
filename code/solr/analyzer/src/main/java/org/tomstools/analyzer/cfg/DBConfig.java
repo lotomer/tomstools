@@ -3,10 +3,13 @@
  */
 package org.tomstools.analyzer.cfg;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.Collections;
 import java.util.List;
 
-import org.apache.commons.dbcp.BasicDataSource;
+import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.handlers.ColumnListHandler;
 import org.apache.commons.logging.Log;
@@ -43,15 +46,24 @@ public class DBConfig extends DefaultConfig {
 		String jdbc_user = getProperty("jdbc_user", JDBC_USER_DEFAULT);
 		String jdbc_password = getProperty("jdbc_password", JDBC_PASSWORD_DEFAULT);
 		String selectSql = getProperty("selectWordSql", JDBC_SQL_SELECT_WORDS);
-		BasicDataSource ds = new BasicDataSource();
-		ds.setDriverClassName(jdbc_classname);
-		ds.setUrl(jdbc_url);
-		ds.setUsername(jdbc_user);
-		ds.setPassword(jdbc_password);
-		ds.setMaxActive(2);
-		QueryRunner runner = new QueryRunner(ds);
+//		BasicDataSource ds = new BasicDataSource();
+//		ds.setDriverClassName(jdbc_classname);
+//		ds.setUrl(jdbc_url);
+//		ds.setUsername(jdbc_user);
+//		ds.setPassword(jdbc_password);
+//		ds.setMaxActive(2);
+//		QueryRunner runner = new QueryRunner(ds);
 		try {
-			List<String> result = runner.query(selectSql, new ColumnListHandler<String>());
+			Class.forName(jdbc_classname);
+		} catch (ClassNotFoundException e1) {
+			LOG.error(e1.getMessage(),e1);
+			return Collections.emptyList();
+		}
+		Connection connection = null;
+		QueryRunner runner = new QueryRunner();
+		try {
+			connection = DriverManager.getConnection(jdbc_url, jdbc_user, jdbc_password);
+			List<String> result = runner.query(connection,selectSql, new ColumnListHandler<String>());
 			if (null != result) {
 				LOG.info("Load ext dicts from DB: " + result.size());
 				dicts.addAll(result);
@@ -60,8 +72,11 @@ public class DBConfig extends DefaultConfig {
 		} catch (SQLException e) {
 			LOG.error("Load ext words from database failed: " + e.getMessage(), e);
 			throw new RuntimeException(e.getMessage(), e);
+		}finally{
+			DbUtils.closeQuietly(connection);
+			connection= null;
 		}
-
+		
 		return dicts;
 	}
 
@@ -75,15 +90,24 @@ public class DBConfig extends DefaultConfig {
 		String jdbc_user = getProperty("jdbc_user", JDBC_USER_DEFAULT);
 		String jdbc_password = getProperty("jdbc_password", JDBC_PASSWORD_DEFAULT);
 		String selectSql = getProperty("selectStopWordSql", JDBC_SQL_SELECT_STOPWORDS);
-		BasicDataSource ds = new BasicDataSource();
-		ds.setDriverClassName(jdbc_classname);
-		ds.setUrl(jdbc_url);
-		ds.setUsername(jdbc_user);
-		ds.setPassword(jdbc_password);
-		ds.setMaxActive(2);
-		QueryRunner runner = new QueryRunner(ds);
+//		BasicDataSource ds = new BasicDataSource();
+//		ds.setDriverClassName(jdbc_classname);
+//		ds.setUrl(jdbc_url);
+//		ds.setUsername(jdbc_user);
+//		ds.setPassword(jdbc_password);
+//		ds.setMaxActive(2);
+//		QueryRunner runner = new QueryRunner(ds);
 		try {
-			List<String> result = runner.query(selectSql, new ColumnListHandler<String>());
+			Class.forName(jdbc_classname);
+		} catch (ClassNotFoundException e1) {
+			LOG.error(e1.getMessage(),e1);
+			return Collections.emptyList();
+		}
+		Connection connection = null;
+		QueryRunner runner = new QueryRunner();
+		try {
+			connection = DriverManager.getConnection(jdbc_url, jdbc_user, jdbc_password);
+			List<String> result = runner.query(connection,selectSql, new ColumnListHandler<String>());
 			if (null != result) {
 				LOG.info("Load ext stopwords from DB: " + result.size());
 				dicts.addAll(result);
@@ -92,9 +116,16 @@ public class DBConfig extends DefaultConfig {
 		} catch (SQLException e) {
 			LOG.error("Load ext stopwords from database failed: " + e.getMessage(), e);
 			throw new RuntimeException(e.getMessage(), e);
+		}finally {
+			DbUtils.closeQuietly(connection);
+			connection = null;
 		}
 
 		return dicts;
 
+	}
+	public static void main(String[] args) {
+		DBConfig config = new DBConfig();
+		System.out.println(config.getExtStopWordDictionarys());
 	}
 }
