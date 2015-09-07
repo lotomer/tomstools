@@ -75,6 +75,7 @@ public class DBConfig extends DefaultConfig {
 		}finally{
 			DbUtils.closeQuietly(connection);
 			connection= null;
+			runner = null;
 		}
 		
 		return dicts;
@@ -119,6 +120,7 @@ public class DBConfig extends DefaultConfig {
 		}finally {
 			DbUtils.closeQuietly(connection);
 			connection = null;
+			runner = null;
 		}
 
 		return dicts;
