@@ -22,6 +22,8 @@ import org.apache.solr.common.SolrDocumentList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+import org.tomstools.common.parse.TemplateParser;
+import org.tomstools.web.model.User;
 import org.tomstools.web.persistence.BusinessSettingMapper;
 import org.tomstools.web.persistence.SiteMapper;
 import org.tomstools.web.persistence.SolrMapper;
@@ -44,6 +46,8 @@ public class SolrService {
 	private SiteMapper siteMapper;
 	@Autowired
 	private UserService userService;
+	@Autowired
+	private MailService mailService;
 
 	public SolrService() {
 
@@ -148,21 +152,21 @@ public class SolrService {
 			Map<Integer, Long> siteFM_E = new HashMap<Integer, Long>();
 			// 获取正面信息数
 			if (!StringUtils.isEmpty(templateZM)) {
-				getSiteCount(typeId,"ZM",solrTool, sites, templateZM, beginTime, endTime, siteZM);
+				getSiteCount(typeId, "ZM", solrTool, sites, templateZM, beginTime, endTime, siteZM);
 
 			}
 			// 获取负面信息数
 			if (!StringUtils.isEmpty(templateFM)) {
-				getSiteCount(typeId,"FM",solrTool, sites, templateFM, beginTime, endTime, siteFM);
+				getSiteCount(typeId, "FM", solrTool, sites, templateFM, beginTime, endTime, siteFM);
 			}
 
 			// 获取正面信息数
 			if (!StringUtils.isEmpty(templateZM_E)) {
-				getSiteCount(typeId,"ZM_E",solrTool, sites, templateZM_E, beginTime, endTime, siteZM_E);
+				getSiteCount(typeId, "ZM_E", solrTool, sites, templateZM_E, beginTime, endTime, siteZM_E);
 			}
 			// 获取负面信息数
 			if (!StringUtils.isEmpty(templateFM_E)) {
-				getSiteCount(typeId,"FM_E",solrTool, sites, templateFM_E, beginTime, endTime, siteFM_E);
+				getSiteCount(typeId, "FM_E", solrTool, sites, templateFM_E, beginTime, endTime, siteFM_E);
 			}
 
 			// 遍历所有站点，并保存结果
@@ -274,8 +278,8 @@ public class SolrService {
 		return result;
 	}
 
-	private void getSiteCount(Integer typeId, String templateType,SolrTools solrTool, Map<String, Integer> sites, String template, Date beginTime,
-			Date endTime, Map<Integer, Long> siteCount) throws Exception {
+	private void getSiteCount(Integer typeId, String templateType, SolrTools solrTool, Map<String, Integer> sites,
+			String template, Date beginTime, Date endTime, Map<Integer, Long> siteCount) throws Exception {
 		if (StringUtils.isEmpty(template)) {
 			return;
 		}
@@ -302,7 +306,7 @@ public class SolrService {
 					// 判断对应的url是否已经存在，如果不存在则添加
 					String flag = siteMapper.checkUrl(String.valueOf(doc.getFieldValue("url")));
 					if (StringUtils.isEmpty(flag)) {
-						siteMapper.saveDetail(typeId,templateType,siteId, String.valueOf(doc.getFieldValue("title")),
+						siteMapper.saveDetail(typeId, templateType, siteId, String.valueOf(doc.getFieldValue("title")),
 								String.valueOf(doc.getFieldValue("url")), (Date) doc.getFieldValue("tstamp"));
 					}
 				}
@@ -385,11 +389,11 @@ public class SolrService {
 	 *            获取的记录数
 	 * @return 结果
 	 */
-	public List<Map<String, Object>> query(Integer typeId,Integer start, Integer rows) {
+	public List<Map<String, Object>> query(Integer typeId, Integer start, Integer rows) {
 		start = null != start ? start : 0;
 		rows = null != rows ? rows : 10;
 		// {total: 100,rows:[]}
-		return siteMapper.selectDetail(typeId,start, rows);
+		return siteMapper.selectDetail(typeId, start, rows);
 	}
 
 	public List<Map<String, Object>> queryFromSolr(Integer start, Integer rows) {
@@ -437,13 +441,14 @@ public class SolrService {
 			Integer siteTypeId, Integer siteId) {
 		return siteMapper.statWordsCountQuery(start, end, langId, countryId, siteTypeId, siteId);
 	}
-	public List<Map<String, Object>> statWordsQueryDetail(Date startTime, Date endTime, Integer langId, Integer countryId,
-			Integer siteTypeId, Integer siteId,Integer start, Integer rows) {
+
+	public List<Map<String, Object>> statWordsQueryDetail(Date startTime, Date endTime, Integer langId,
+			Integer countryId, Integer siteTypeId, Integer siteId, Integer wordsId,Integer start, Integer rows) {
 		start = null != start ? start : 0;
 		rows = null != rows ? rows : 10;
-		return siteMapper.statWordsQueryDetail(startTime, endTime, langId, countryId, siteTypeId, siteId,start,rows);
+		return siteMapper.statWordsQueryDetail(startTime, endTime, langId, countryId, siteTypeId, siteId, wordsId,start, rows);
 	}
-	
+
 	/**
 	 * 根据站点类型状态获取站点类型列表
 	 * 
@@ -527,5 +532,94 @@ public class SolrService {
 
 	public void deleteWeeklyById(Integer id) {
 		solrMapper.deleteWeeklyById(id);
+	}
+
+	/**
+	 * 指定时间内词条预警TopN
+	 * 
+	 * @param startTime
+	 *            开始时间
+	 * @param endTime
+	 *            结束时间
+	 * @param topNum
+	 *            TopN
+	 * @return
+	 */
+	public List<Map<String, Object>> selectWordsAlertTop(Date startTime, Date endTime, int topNum) {
+		return solrMapper.selectWordsAlertTop(startTime, endTime, topNum);
+	}
+
+	public int alertProcess() {
+		// 获取预警通知信息
+		int count = 0;
+		String tmplTitle = "【${ALERT_NAME}】预警";
+		String tmplContent = "${NOTIFIER}：\n    您好。\n    您监控的词条【${WORDS}】达到预警条件！预警值：${ALERT_VALUE},当前值：${CURRENT_VALUE}";
+		Calendar now = Calendar.getInstance();
+		Calendar start = Calendar.getInstance(); // 当月
+		start.set(Calendar.DAY_OF_MONTH, 1);
+		start.set(Calendar.HOUR_OF_DAY, 0);
+		start.set(Calendar.MINUTE, 0);
+		start.set(Calendar.SECOND, 0);
+		Date startTime = start.getTime();
+		Date endTime = now.getTime();
+		List<Map<String, Object>> alertLogs = selectAlertLog(startTime, endTime, "0", null);
+		for (int i = 0; i < alertLogs.size(); i++) {
+			Map<String, Object> alertLog = alertLogs.get(i);
+			String notifiers = String.valueOf(alertLog.get("NOTIFIERS"));
+			String alertType = String.valueOf(alertLog.get("ALERT_TYPE"));
+			String metrics = String.valueOf(alertLog.get("METRICS"));
+			String arr[] = metrics.split(Pattern.quote("$$$"), 2);
+			if (arr.length == 2) {
+				alertLog.put("WORDS", arr[1]);
+			} else {
+				alertLog.put("WORDS", arr[0]);
+			}
+
+			String notifierArray[] = notifiers.split(Pattern.quote("$$$"), 2);
+			if (notifierArray.length == 2) {
+				String[] notifierIds = notifierArray[0].split(",");
+				// String[] notifierNames = notifierArray[1].split(",");
+				for (int j = 0; j < notifierIds.length; j++) {
+					Integer userId = null;
+					try {
+						userId = Integer.parseInt(notifierIds[j]);
+					} catch (NumberFormatException e) {
+						LOG.warn("用户编码不是数字：" + notifierIds[j]);
+						continue;
+					}
+					if (userId != null) {
+						User user = userService.getUserById(userId);
+						if (null != user) {
+							++count;
+							alertLog.put("NOTIFIER", user.getNickName());
+							String title = TemplateParser.parse(alertLog, tmplTitle);
+							String content = TemplateParser.parse(alertLog, tmplContent);
+							if ("1".equals(alertType)) {// 邮件
+								notifyByEmail(user.getEmail(), title, content);
+							} else if ("2".equals(alertType)) {// 短信
+								notifyBySms(user.getPhoneNumber(), title, content);
+							}
+						}
+					}
+				}
+			}
+			
+			// 通知完了就更新状态
+			solrMapper.updateAlertLogNotified((Long)alertLog.get("ID"), count == 0? 2:1);
+		}
+
+		return count;
+	}
+
+	private void notifyBySms(String phoneNumber, String title, String content) {
+		if (!StringUtils.isEmpty(phoneNumber) && !StringUtils.isEmpty(content)) {
+			LOG.info("发送短信:" + content);
+		}
+	}
+
+	private void notifyByEmail(String email, String title, String content) {
+		if (!StringUtils.isEmpty(email) && !StringUtils.isEmpty(content)) {
+			mailService.sendMail(title, content, email);
+		}
 	}
 }

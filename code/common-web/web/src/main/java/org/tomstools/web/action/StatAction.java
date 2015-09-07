@@ -152,6 +152,7 @@ public class StatAction {
 			@RequestParam(value = "countryId", required = false) Integer countryId,
 			@RequestParam(value = "siteTypeId", required = false) Integer siteTypeId,
 			@RequestParam(value = "siteId", required = false) Integer siteId,
+			@RequestParam(value = "wordsId", required = false) Integer wordsId,
 			@RequestParam(value = "start", required = false) Integer startNum,
 			@RequestParam(value = "rows", required = false) Integer rows, HttpServletRequest req,
 			HttpServletResponse resp) throws Exception {
@@ -173,7 +174,7 @@ public class StatAction {
 		}
 
 		List<Map<String, Object>> result = solrService.statWordsQueryDetail(start, end, langId, countryId, siteTypeId,
-				siteId, startNum, rows);
+				siteId, wordsId,startNum, rows);
 		if (null != result) {
 			return JSON.toJSONString(result);
 		} else {
@@ -564,5 +565,24 @@ public class StatAction {
 			return e.getMessage();
 		}
 		return "";
+	}
+	@RequestMapping("/stat/wordsAlertTop.do")
+	public @ResponseBody String selectWordsAlertTop(@RequestParam("key") String key,
+			@RequestParam(value = "topNum", required = false) Integer topNum, HttpServletRequest req,
+			HttpServletResponse resp) throws Exception {
+		resp.setContentType("application/json;charset=UTF-8");
+		Calendar now = Calendar.getInstance();
+		Calendar start = Calendar.getInstance();  //当月
+		start.set(Calendar.DAY_OF_MONTH, 1);
+		start.set(Calendar.HOUR_OF_DAY, 0);
+		start.set(Calendar.MINUTE, 0);
+		start.set(Calendar.SECOND, 0);
+		List<Map<String, Object>> result = solrService.selectWordsAlertTop(start.getTime(), now.getTime(),
+				null != topNum ? topNum : 5);
+		if (null != result) {
+			return JSON.toJSONString(result);
+		} else {
+			return "[]";
+		}
 	}
 }

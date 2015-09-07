@@ -9,7 +9,7 @@ http://www.springframework.org/schema/jdbc http://www.springframework.org/schema
 http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
 
 	<!-- 数据源连接信息配置文件 -->
-	<context:property-placeholder location="classpath:jdbc.properties" />
+	<context:property-placeholder location="classpath:jdbc.properties,classpath:mail.properties" />
 
 	<!-- in-memory database and a datasource <jdbc:embedded-database id="dataSource"> 
 		<jdbc:script location="classpath:database/jpetstore-hsqldb-schema.sql"/> 
@@ -96,6 +96,20 @@ http://www.springframework.org/schema/tx http://www.springframework.org/schema/t
 	<!-- <bean class="org.springframework.http.converter.StringHttpMessageConverter"> 
 		<property name="supportedMediaTypes" value="text/plain;charset=UTF-8" /> 
 		</bean> -->
-	
+
+	<bean id="javaMailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">  
+		<property name="host" value="${mail.host}"></property>
+		<property name="port" value="${mail.port}"></property>
+		<property name="username" value="${mail.user}"></property>
+		<property name="password" value="${mail.password}"></property>  
+		<!-- 相当于javax.mail.Session中的props属性-->  
+		<property name="javaMailProperties">  
+		    <props>  
+		        <prop key="mail.smtp.auth">${mail.smtp.auth}</prop>  
+		        <prop key="mail.smtp.from">${mail.smtp.from}</prop>  
+		        <prop key="mail.debug">${mail.debug}</prop>  
+		    </props>  
+		</property>  
+	</bean>
 	<bean id="multipartResolver"  class="org.springframework.web.multipart.commons.CommonsMultipartResolver"/>
 </beans>

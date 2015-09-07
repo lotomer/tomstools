@@ -68,6 +68,8 @@ public interface SolrMapper {
 	public void saveAlertLog(@Param("ALERT_ID") Integer alertId, @Param("ALERT_VALUE") int threhold,
 			@Param("CURRENT_VALUE") int value);
 
+	public void updateAlertLogNotified(@Param("ID")  Long id, @Param("NOTIFY_STATUS") int notifyStatus);
+	
 	public List<Map<String, Object>> selectWeekly(@Param("YEAR") Integer year, @Param("MONTH") Integer month,
 			@Param("WEEK") Integer week);
 
@@ -76,4 +78,8 @@ public interface SolrMapper {
 	public void saveWeekly(@Param("YEAR") int year, @Param("MONTH") int month, @Param("WEEK") int week,
 			@Param("PATH") String filePath, @Param("FILE_NAME") String fileName, @Param("FILE_SIZE") long size,
 			@Param("FILE_TYPE") String contentType, @Param("USER_ID") int userId);
+
+	public List<Map<String, Object>> selectWordsAlertTop(@Param("START_TIME") Date startTime, @Param("END_TIME") Date endTime,
+			@Param("TOP_NUM") int topNum);
+
 }

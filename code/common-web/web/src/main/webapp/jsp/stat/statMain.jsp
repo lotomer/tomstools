@@ -41,11 +41,15 @@
 		</div>
 		<div id="divXZFB" style="width: 350px; height: 155px; float: left;"></div>
 		
-		<div id="divYQZS" style="width: 1180px; height: 155px; float: left"></div>
+		<div id="divYQZS" style="width: 930px; height: 155px; float: left"></div>
+		<div id="divYQYJ" style="width: 250px; height: 155px; float: left">
+			<div class="msg msgTitle" style="width:200px;">词条预警</div>
+			<div class="msg" id="divCTYQ" style="width:280px;text-align: left;"></div>
+		</div>
 	</div>
 	
 	<div id="toolZXYQ">
-        <a href="javascript:void(0)" style="width:50px" onclick="javascript:window.top.createPageById(201001)">更多...</a>
+        <a href="javascript:void(0)" style="width:50px" onclick="javascript:window.top.createPageById(102002)">更多...</a>
     </div>
 </body>
 <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
@@ -114,6 +118,7 @@
 		loadZRYQ();
 		loadXZFB();
 		loadZXYQ();
+		loadYQYJ();
 		loadYQZS();
 	}
 	function loadMain(ec,zm,fm){
@@ -512,7 +517,7 @@
 						return '<a href="' + row.URL + '" target="_blank" title="' + value + '" style="display:block;overflow:hidden; text-overflow:ellipsis;">' + value + '</a>';
 					}
 				}, {
-					field : 'DT',
+					field : 'CRAWL_TIME',
 					title : '时间',
 					align : 'center',
 					halign : 'center'
@@ -521,7 +526,6 @@
 			}).datagrid('clientPaging');
 		});
 	}
-
 	// 舆情走势
 	function loadYQZS() {
 		var containId = "divYQZS";
@@ -636,6 +640,35 @@
 						mychart.resize();
 					});
 				});
+	}
+	function showYQ(containId,words){
+		$('#' + containId).append('<a href="#" onclick="javascript:window.top.createPageById(103004)" value="' +words+ '"  style="width:100px;float:left;display:block;overflow:hidden; text-overflow:ellipsis;">' + words+ '</a>');
+	}
+	// 舆情预警
+	function loadYQYJ() {
+		var containId = "divCTYQ", TopN = 5;
+		
+		loadData(containId, "crawl/stat/wordsAlertTop.do", {
+			key : key,
+			topNum : TopN
+		}, function(datas) {
+			if (!datas) {
+				return;
+			}
+
+			$('#' + containId).html('');
+			for (var i = 0, oLen = datas.length; i < oLen; i++) {
+				var aData = datas[i].METRICS.split('$$$');
+				if (aData.length > 1){
+					var wordsList = aData[1].split(',');
+					for(var j = 0,jLen = wordsList.length; j < jLen;j++){
+						if (j < TopN){
+							showYQ(containId,wordsList[j]);
+						}
+					}
+				}
+			}
+		});
 	}
 </script>
 </html>

@@ -18,6 +18,15 @@ function loadData(containerId, url, params, successCallback) {
 		success : successCallback
 	});
 }
+function loadCrossDomainData(url, successCallback) {
+	$.ajax({
+		url : "ajax/remote.do",
+		dataType : 'json',
+		async : true,
+		data : {key:key,url:url},
+		success : successCallback
+	});
+}
 function initComboboxWithData(containId,data,onSelectCallback,force,valueField,textField){
 	var result = [],o = new Object(),valueField = undefined != valueField ? valueField: 'id',textField = undefined != textField ? textField: 'name';
 	if (!force){
@@ -344,4 +353,13 @@ Date.prototype.format = function(formatStr)
   str=str.replace(/s|S/g,this.getSeconds());   
 
   return str;   
+}
+
+function showMessage(title,msg){
+	$.messager.show({
+		title : title,
+		msg : msg,
+		width: '400px',
+		height: '400px'
+	});
 }

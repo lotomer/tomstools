@@ -10,6 +10,9 @@
     <select id="selectUser" resultType="user"><![CDATA[
         SELECT u.USER_ID userId,u.USER_NAME userName,u.NICK_NAME nickName,u.EMAIL,u.PHONE_NUMBER phoneNumber,u.CLIENT_IP clientIp,CASE WHEN k.`KEY` IS NULL THEN NULL WHEN now() < k.INVALID_TIME THEN k.`KEY` ELSE '' END `key` FROM T_M_USERS u LEFT JOIN T_U_KEY k ON u.USER_ID=k.USER_ID WHERE u.USER_NAME=#{userName} AND u.USER_PASSWD=#{userPassword} AND u.IS_VALID='1'
     ]]></select>
+    <select id="selectUserById" resultType="user"><![CDATA[
+        SELECT u.USER_ID userId,u.USER_NAME userName,u.NICK_NAME nickName,u.EMAIL,u.PHONE_NUMBER phoneNumber,u.CLIENT_IP clientIp FROM T_M_USERS u  WHERE u.USER_ID=#{USER_ID} AND u.IS_VALID='1'
+    ]]></select>
     <select id="selectUserByKey" resultType="user"><![CDATA[
         SELECT k.USER_ID userId,CASE WHEN now() < k.INVALID_TIME THEN k.`KEY` ELSE '' END `key`,u.USER_NAME userName,
         u.NICK_NAME nickName,u.CLIENT_IP clientIp,u.EMAIL email,u.PHONE_NUMBER phoneNumber 

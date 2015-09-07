@@ -146,10 +146,7 @@
             },
             success : function(result) {
                 if (result) {
-                    $.messager.show({
-                        title : 'Error',
-                        msg : result
-                    });
+                	showMessage("保存失败",result);
                 } else {
                     $('#dlg').dialog('close'); // close the dialog
                     //$('#divMetric').treegrid("reload"); // reload the user data
@@ -172,10 +169,7 @@
                             $('#divMetric').treegrid('unselectAll');
                             doQuery();
                         } else {
-                            $.messager.show({ // show error message
-                                title : '异常',
-                                msg : result
-                            });
+                        	showMessage("删除失败",result);
                         }
                     }, 'html');
                 }

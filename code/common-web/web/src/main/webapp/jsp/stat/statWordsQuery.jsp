@@ -33,7 +33,8 @@
 				<td><label>结束时间：</label></td>
 				<td><input id="et" class="easyui-datebox"
 					data-options="showSeconds:false"></td>
-				<td></td>
+                <td style="width:65px"><label>词条：</label></td>
+                <td style="width:140px"><input id="selWords" class="easyui-combobox"></input></td>
 				<td><a href="#" id="btnQuery" class="easyui-linkbutton"
 					data-options="iconCls:'icon-search'" style="width: 120px">舆情信息查询</a></td>
 				<td><a href="#" id="btnStat" class="easyui-linkbutton"
@@ -75,6 +76,7 @@
 			}
 		});
 		initCombobox("selSite","crawl/selectSite.do");
+		initCombobox("selWords","setting/words/select.do",undefined,false,"TYPE_ID","TYPE_NAME");
 		query();
 	});
 	
@@ -89,7 +91,8 @@
 		lang = $('#selLang').datetimebox('getValue'), // 语言
 		country = $('#selCountry').datetimebox('getValue'), // 国家
 		siteTypeId = $('#selSiteType').datetimebox('getValue'), // 站点类型
-		siteId = $('#selSite').datetimebox('getValue'); // 站点
+		siteId = $('#selSite').datetimebox('getValue'), // 站点
+		wordsId = $('#selWords').datetimebox('getValue');
 		var params = {
 				key : key,
 				startTime : startTime,
@@ -107,6 +110,9 @@
 		}
 		if (siteId && '*' != siteId){
 			params.siteId = siteId;
+		}
+		if (wordsId && '*' != wordsId){
+			params.wordsId = wordsId;
 		}
 		$('#' + containerId).html('');
 		showLoading(containerId);
@@ -245,6 +251,7 @@
 				field : 'TITLE',
 				title : '标题',
 				align : 'left',
+				width: 500,
 				halign : 'center',
 				formatter: function(value,row){
 					return '<a href="' + row.URL + '" target="_blank" title="' + value + '" style="display:block;overflow:hidden; text-overflow:ellipsis;">' + value + '</a>';
@@ -257,9 +264,21 @@
 				formatter: function(value,row){
 					return '<a href="' + row.URL + '" target="_blank" title="' + value + '" style="display:block;overflow:hidden; text-overflow:ellipsis;">' + value + '</a>';
 				}
+			}, {
+				field : 'a',
+				title : ' ',
+				align : 'left',
+				halign : 'center',
+				formatter: function(value,row){
+					return '<a href="#" onclick="javascript:window.top.createPageById(201004,\'&p=value:' + encodeURIComponent(row.URL) + '\')" >查看正文</a>';
+				}
 			} ] ],
 			data : datas
 		}).datagrid('clientPaging');
+	}
+	
+	function gotoSearch(id){
+		window.top.createPageById(201004);
 	}
 </script>
 </html>

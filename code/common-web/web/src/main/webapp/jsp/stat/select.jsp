@@ -87,19 +87,51 @@
 				pagination: pageSize < datas.length,
 			    pageSize:pageSize,
 			    pageList: getPageList(pageSize),
-				columns : [ [ {
+			    columns : [ [ {
+					field : 'TYPE_NAME',
+					title : '词条',
+					align : 'left',
+					halign : 'center',
+					sortable : "true"
+				}, {
+					field : 'SITE_NAME',
+					title : '站点',
+					align : 'center',
+					halign : 'center'
+				}, {
+					field : 'TEMPLATE_TYPE',
+					title : '所属模板',
+					align : 'center',
+					halign : 'center',
+					formatter: function(value,row){
+						if (value == 'ZM'){
+							return '正面';
+						}else if (value == 'ZM_E'){
+							return '正面（英文）';
+						}else if (value == 'FM'){
+							return '负面';
+						}else if (value == 'FM_E'){
+							return '负面（英文）';
+						}else{
+							return '未定义';
+						}
+					}
+				}, {
 					field : 'TITLE',
 					title : '标题',
 					align : 'left',
-					halign : 'left',width:280,
-					formatter : function(value, row) {
+					halign : 'center',
+					formatter: function(value,row){
 						return '<a href="' + row.URL + '" target="_blank" title="' + value + '" style="display:block;overflow:hidden; text-overflow:ellipsis;">' + value + '</a>';
 					}
 				}, {
-					field : 'DT',
-					title : '时间',
-					align : 'center',
-					halign : 'center'
+					field : 'URL',
+					title : 'URL',
+					align : 'left',
+					halign : 'center',
+					formatter: function(value,row){
+						return '<a href="' + row.URL + '" target="_blank" title="' + value + '" style="display:block;overflow:hidden; text-overflow:ellipsis;">' + value + '</a>';
+					}
 				} ] ],
 				data : datas
 			}).datagrid('clientPaging');

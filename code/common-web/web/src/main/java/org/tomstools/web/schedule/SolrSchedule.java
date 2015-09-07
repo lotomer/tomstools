@@ -46,4 +46,13 @@ public class SolrSchedule {
 			LOG.error("【预警】调度任务执行失败：" + e.getMessage(),e);
 		}
 	}
+	
+	public void alertProcess(){
+		LOG.info("【预警处理】调度任务开始执行...");
+		try {
+			LOG.info("【预警处理】调度任务执行完毕。" + solrService.alertProcess());
+		} catch (Exception e) {
+			LOG.error("【预警处理】调度任务执行失败：" + e.getMessage(),e);
+		}
+	}
 }

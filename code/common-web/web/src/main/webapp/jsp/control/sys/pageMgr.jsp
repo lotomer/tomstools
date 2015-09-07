@@ -99,15 +99,6 @@
     // 页面初始化
     $(function() {
         query();
-        $.ajax({
-        	url : URL_PREFIX + '/selectSubs.do',
-			dataType : 'json',
-			async : true,
-			//data : params,
-			success : function(data){
-				//SUB_PAGES=data;
-			}
-		});
     });
 
     function initComboboxValue(){

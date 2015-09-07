@@ -138,7 +138,7 @@ function createWindowWithTab(containId,menuId,menuName,id,title,url,w,h,isAppend
         	$('#p_' + id).append('<iframe id="p_i_' + id + '" frameborder="0" border="0" scrolling="auto" src="' + url + '" width="100%" height="99%"/>');
         }else{
         	// 屏蔽更新功能
-        	//o.attr('src',url);
+        	o.attr('src',url);
         }
     }else{
         $('#' + containId).tabs('add',{

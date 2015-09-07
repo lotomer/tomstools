@@ -22,6 +22,11 @@
 			<version>0.0.1</version>
 		</dependency>
 
+        <dependency>
+            <groupId>javax.mail</groupId>
+            <artifactId>mail</artifactId>
+            <version>1.4.7</version>
+        </dependency>
 		<dependency>
 			<groupId>com.alibaba</groupId>
 			<artifactId>fastjson</artifactId>
@@ -45,6 +50,11 @@
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-context</artifactId>
+			<version>${spring.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-context-support</artifactId>
 			<version>${spring.version}</version>
 		</dependency>
 		<dependency>
@@ -129,6 +139,7 @@
 				<directory>src/main/resources</directory>
 				<includes>
 					<include>jdbc.properties</include>
+					<include>mail.properties</include>
 				</includes>
 				<!-- 使用profile中的变量进行替换 -->
 				<filtering>true</filtering>
@@ -137,6 +148,7 @@
 				<directory>src/main/resources</directory>
 				<excludes>
 					<exclude>jdbc.properties</exclude>
+					<exclude>mail.properties</exclude>
 				</excludes>
 				<filtering>false</filtering>
 			</resource>
@@ -147,7 +159,7 @@
 				<artifactId>tomcat7-maven-plugin</artifactId>
 				<version>2.2</version>
 				<configuration>
-					<port>80</port>
+					<port>8080</port>
 					<uriEncoding>UTF-8</uriEncoding>
 				</configuration>
 			</plugin>
@@ -158,6 +170,7 @@
 		<profile>
 			<id>develop</id>
 			<properties>
+				<!-- 数据库连接配置 -->
 				<!-- <datasource>dataSource_dev</datasource> -->
 				<datasource>dataSource_c3p0</datasource>
 
@@ -166,6 +179,16 @@
 				<jdbc_user>root</jdbc_user>
 				<jdbc_password>root123</jdbc_password>
 				<jndi>NONE</jndi>
+				
+				<!-- 邮件发送配置 -->
+				<mail.host>smtp.163.com</mail.host>
+				<mail.port>25</mail.port>
+				<mail.user>lotomer</mail.user>
+				<mail.password>851023</mail.password>
+				
+				<mail.smtp.auth>true</mail.smtp.auth>
+				<mail.smtp.from>lotomer@163.com</mail.smtp.from>
+				<mail.debug>false</mail.debug>
 			</properties>
 			<activation>
 				<activeByDefault>true</activeByDefault>

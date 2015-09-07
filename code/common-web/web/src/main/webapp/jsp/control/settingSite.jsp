@@ -186,10 +186,7 @@
 			},
 			success : function(result) {
 				if (result) {
-					$.messager.show({
-						title : 'Error',
-						msg : result
-					});
+                	showMessage("保存失败",result);
 				} else {
 					$('#dlg').dialog('close'); // close the dialog
 					$('#divMetric').datagrid("reload"); // reload the user data
@@ -210,10 +207,7 @@
 							$('#divMetric').datagrid('reload'); // reload the user data 
 							$('#divMetric').datagrid('unselectAll');
 						} else {
-							$.messager.show({ // show error message
-								title : '异常',
-								msg : result
-							});
+		                	showMessage("删除失败",result);
 						}
 					}, 'html');
 				}
@@ -264,7 +258,10 @@
 				field : 'SITE_HOST',
 				title : '站点域名',
 				align : 'center',
-				halign : 'center'
+				halign : 'center',
+				formatter : function(value, row) {
+					return '<a href="http://' + value + '" target="_blank" title="' + value + '" style="display:block;overflow:hidden; text-overflow:ellipsis;">' + value + '</a>';
+				}
 			}, {
 				field : 'SITE_TYPE_NAME',
 				title : '站点类型',
@@ -316,10 +313,7 @@
 			},
 			success : function(result) {
 				if (result) {
-					$.messager.show({
-						title : 'Error',
-						msg : result
-					});
+                	showMessage("保存失败",result);
 				} else {
 					$('#dlgDetail').dialog('close'); // close the dialog
 					$('#divMetricDetail').datagrid("reload"); // reload the user data
@@ -342,10 +336,7 @@
 							$('#divMetricDetail').datagrid('reload'); // reload the user data 
 							$('#divMetricDetail').datagrid('unselectAll');
 						} else {
-							$.messager.show({ // show error message
-								title : '异常',
-								msg : result
-							});
+		                	showMessage("删除失败",result);
 						}
 					}, 'html');
 				}
@@ -391,7 +382,10 @@
 				field : 'URL',
 				title : '待爬取URL',
 				align : 'left',
-				halign : 'center'
+				halign : 'center',
+				formatter : function(value, row) {
+					return '<a href="' + value + '" target="_blank" title="' + value + '">' + value + '</a>';
+				}
 			} ] ]
 		}).datagrid('clientPaging');
 	}

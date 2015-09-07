@@ -417,4 +417,7 @@ public class UserService {
 	public void addSubPage(int id, int subId, String orderNum, String width, String height) {
 		userMapper.addSubPage(id, subId,orderNum,width,height);
 	}
+	public User getUserById(int userId) {
+		return userMapper.selectUserById(userId);
+	}
 }

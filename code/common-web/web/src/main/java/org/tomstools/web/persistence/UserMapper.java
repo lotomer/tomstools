@@ -37,6 +37,7 @@ public interface UserMapper {
 	// u.USER_NAME=#{userName} AND u.USER_PASSWD=#{userPassword} AND
 	// u.IS_VALID='1'")
 	public User selectUser(@Param("userName") String userName, @Param("userPassword") String userPassword);
+	public User selectUserById(@Param("USER_ID")  int userId);
 
 	/**
 	 * 根据密钥获取用户编号
@@ -196,4 +197,5 @@ public interface UserMapper {
 	public void addSubPage(@Param("PAGE_ID") int id, @Param("SUB_PAGE_ID") int subId,
 			@Param("ORDER_NUM") String orderNum, @Param("WIDTH") String width, @Param("HEIGHT") String height);
 
+	
 }
