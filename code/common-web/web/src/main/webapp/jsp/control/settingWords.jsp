@@ -10,87 +10,105 @@
 <link rel="stylesheet" type="text/css" href="css/easyui/themes/icon.css">
 <link rel="stylesheet" type="text/css" href="css/main.css">
 <style type="text/css">
-        #fm{
-            margin:0;
-            padding:10px 10px;
-        }
-        .ftitle{
-            font-size:14px;
-            font-weight:bold;
-            padding:5px 0;
-            margin-bottom:10px;
-            border-bottom:1px solid #ccc;
-        }
-        .fitem{
-            margin-bottom:5px;
-        }
-        .fitem label{
-            display:inline-block;
-            width:90px;
-        }
-        .fitem input{
-            width:400px;
-        }
-        .left{
-        	float:left;
-        	width:530px;
-        }
-        .right{
-        	float:left;
-        	width:230px;
-        }
-    </style>
+#fm {
+	margin: 0;
+	padding: 10px 10px;
+}
+
+.ftitle {
+	font-size: 14px;
+	font-weight: bold;
+	padding: 5px 0;
+	margin-bottom: 10px;
+	border-bottom: 1px solid #ccc;
+}
+
+.fitem {
+	margin-bottom: 5px;
+}
+
+.fitem label {
+	display: inline-block;
+	width: 70px;
+}
+
+.fitem input,.fitem textarea {
+	width: 500px;
+}
+.fitem textarea {
+	height: 70px
+}
+
+.left {
+	float: left;
+	width: 610px;
+}
+
+.right {
+	float: left;
+	width: 230px;
+}
+.btnClick{
+	float:left;
+	clear:right;
+	width:50px;
+}
+</style>
 </head>
 <body class="easyui-layout">
 	<div id="divStatWordsContent" data-options="region:'center',split:true">
 	</div>
-	<div id="dlg" class="easyui-dialog" data-options="modal:true" style="width:800px;height:500px;padding:10px 10px"
-            closed="true" buttons="#dlg-buttons">
-        <!-- <div class="ftitle">智能词条</div> -->
-        <div class="left">
-        <form id="fm" method="post" novalidate>
-            <div class="fitem">
-                <label>词条名：</label>
-                <input name="TYPE_NAME" class="easyui-textbox" required="required">
-            </div>
-            <div class="fitem">
-                <label>正面模板：</label>
-                <input name="TEMPLATE_ZM" class="easyui-textbox " style="height:80px" data-options="multiline:true" required="required">
-            </div>
-            <div class="fitem">
-                <label>负面模板：</label>
-                <input name="TEMPLATE_FM" class="easyui-textbox " style="height:80px" data-options="multiline:true">
-            </div>
-            <div class="fitem">
-                <label>正面模板<br>（英文）：</label>
-                <input name="TEMPLATE_ZM_E" class="easyui-textbox " style="height:80px" data-options="multiline:true">
-            </div>
-            <div class="fitem">
-                <label>负面模板<br>（英文）：</label>
-                <input name="TEMPLATE_FM_E" class="easyui-textbox" style="height:80px" data-options="multiline:true">
-            </div>
-        </form>
-        </div>
-        <div class="right">
-	        <p>模板说明：</p>
-	        <ul>
-	        	<li>词汇之间支持运算符：AND、OR、NOT</li>
-	        	<li>支持用圆括号“()”构建子表达式</li>
-	        	<li>“~”表示模糊检索，如检索拼写类似于”roam”的项这样写：roam~将找到形如foam和roams的单词；roam~0.8，检索返回相似度在0.8以上的记录。</li>
-	        	<li>邻近检索，如检索相隔10个单词的”apache”和”jakarta”，”jakarta apache”~10</li>
-	        	<li>“^”控制相关度检索，如检索jakarta apache，同时希望去让”jakarta”的相关度更加好，那么在其后加上”^”符号和增量值，即jakarta^4 apache</li>
-	        	<li>“+” 存在操作符，要求符号”+”后的项必须在文档相应的域中存在</li>
-	        </ul>
-        </div>
-    </div>
-    <div id="dlg-buttons">
-        <a href="javascript:void(0)" class="easyui-linkbutton c6" iconCls="icon-ok" onclick="save()" style="width:90px">保存</a>
-        <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#dlg').dialog('close')" style="width:90px">取消</a>
-    </div>
+	<div id="dlg" class="easyui-dialog" data-options="modal:true"
+		style="width: 900px; height: 465px; padding: 10px 10px" closed="true"
+		buttons="#dlg-buttons">
+		<!-- <div class="ftitle">智能词条</div> -->
+		<div class="left">
+			<form id="fm" method="post" novalidate>
+				<div class="fitem">
+					<label>词条名：</label> <input name="TYPE_NAME" class="easyui-textbox"
+						required="required">
+				</div>
+				<div class="fitem">
+					<label>正面模板：</label> <textarea class="ta" name="TEMPLATE_ZM" id="TEMPLATE_ZM" required="required"></textarea>
+				</div>
+				<div class="fitem">
+					<label>负面模板：</label> <textarea class="ta" name="TEMPLATE_FM" id="TEMPLATE_FM" required="required"></textarea>
+				</div>
+				<div class="fitem">
+					<label>正面模板<br>（英文）：
+					</label> <textarea name="TEMPLATE_ZM_E" id="TEMPLATE_ZM_E" required="required"></textarea> 
+				</div>
+				<div class="fitem">
+					<label>负面模板<br>（英文）：
+					</label> <textarea name="TEMPLATE_FM_E" id="TEMPLATE_FM_E" required="required"></textarea>
+				</div>
+			</form>
+		</div>
+		<div class="right">
+			<div style="float:left;width:50px;">
+				<input class="btnClick" type="button" name=" " value="空格">
+				<input class="btnClick" type="button" name="( )" value="( )" title="括号">
+				<input class="btnClick" type="button" name="AND" value="AND" title="与">
+				<input class="btnClick" type="button" name="OR" value="OR" title="或">
+				<input class="btnClick" type="button" name="NOT" value="NOT" title="非">
+			</div>
+			<div style="float:left;width:180px;">
+				<input class="easyui-combobox" id="WORD" name="WORD" style="width:120px"></input>
+				<a href="javascript:void(0)" class="easyui-linkbutton" data-options="iconCls:'icon-add',plain:true" onclick="addWord()">添加</a>
+			</div>
+		</div>
+	</div>
+	<div id="dlg-buttons">
+		<a href="javascript:void(0)" class="easyui-linkbutton c6"
+			iconCls="icon-ok" onclick="save()" style="width: 90px">保存</a> <a
+			href="javascript:void(0)" class="easyui-linkbutton"
+			iconCls="icon-cancel" onclick="javascript:$('#dlg').dialog('close')"
+			style="width: 90px">取消</a>
+	</div>
 	<div id="tb" style="height: auto">
 		<a href="javascript:void(0)" class="easyui-linkbutton"
-			data-options="iconCls:'icon-add',plain:true" onclick="add()">新增</a>
-		<a href="javascript:void(0)" class="easyui-linkbutton"
+			data-options="iconCls:'icon-add',plain:true" onclick="add()">新增</a> <a
+			href="javascript:void(0)" class="easyui-linkbutton"
 			data-options="iconCls:'icon-remove',plain:true" onclick="removeit()">删除</a>
 		<a href="javascript:void(0)" class="easyui-linkbutton"
 			data-options="iconCls:'icon-edit',plain:true" onclick="edit()">修改</a>
@@ -103,65 +121,184 @@
 <script type="text/javascript" src="js/utils.js"></script>
 <script type="text/javascript">
 	// 面板与内容之间的差值
-	var theme = '${theme}', key = '${user.key}';
+	var theme = '${theme}', key = '${user.key}', SEL_TEXT;
+	var SEL,TEXTAREA_ID; //全局变量
+	function textClick(e) {
+		if (document.all) {//IE要保存Range
+			e.target.focus();
+			SEL = document.selection.createRange();
+		}
+		TEXTAREA_ID = e.target.id;
+	}
 	// 页面初始化
 	$(function() {
+		/*  在textarea处插入文本--Start */
+		(function($) {
+			$.fn.extend({
+				insertContent : function(myValue, t) {
+					var $t = $(this)[0];
+					if (document.selection) { // ie  
+						this.focus();
+						var sel = document.selection.createRange();
+						sel.text = myValue;
+						this.focus();
+						sel.moveStart('character', -l);
+						var wee = sel.text.length;
+						if (arguments.length == 2) {
+							var l = $t.value.length;
+							sel.moveEnd("character", wee + t);
+							t <= 0 ? sel.moveStart("character", wee - 2 * t
+									- myValue.length) : sel.moveStart(
+									"character", wee - t - myValue.length);
+							sel.select();
+						}
+					} else if ($t.selectionStart || $t.selectionStart == '0') {
+						var startPos = $t.selectionStart;
+						var endPos = $t.selectionEnd;
+						var scrollTop = $t.scrollTop;
+						$t.value = $t.value.substring(0, startPos) + myValue
+								+ $t.value.substring(endPos, $t.value.length);
+						this.focus();
+						$t.selectionStart = startPos + myValue.length;
+						$t.selectionEnd = startPos + myValue.length;
+						$t.scrollTop = scrollTop;
+						if (arguments.length == 2) {
+							$t.setSelectionRange(startPos - t, $t.selectionEnd
+									+ t);
+							this.focus();
+						}
+					} else {
+						this.value += myValue;
+						this.focus();
+					}
+				}
+			})
+		})(jQuery);
+		$.ajax({
+			url : 'setting/word/select.do?key='+key,
+			dataType : 'json',
+			async : true,
+			success : function(data){
+				if (data && data.length){
+					data.sort(function(a,b){return b.TENDENCY-a.TENDENCY;});
+					window.WORDLIST=data;
+					$('#WORD').combobox({
+			            valueField: "WORD",
+			            textField: "WORD",
+			            groupField:"TENDENCY",
+			            panelHeight: 350,
+			            editable: true,
+			            selectOnNavigation: true,
+			            groupFormatter: function(group){
+			        		if (-1 == group){
+			        			return "贬义词";
+			        		}else if (1 == group){
+			        			return "褒义词";
+			        		}else{
+			        			return "中性词";
+			        		}
+			        	},
+			            data: data
+			        });
+					
+				}
+			}
+		});
+		$("textarea.ta").bind("keypress",function(e) {
+			if (e.keyCode != 8   // 删除键-向前
+				&& e.keyCode != 46 //删除键-向后
+				&& e.keyCode != 37 //方向键-向左
+				&& e.keyCode != 38 //方向键-向上
+				&& e.keyCode != 39 //方向键-向右
+				&& e.keyCode != 40 //方向键-向下
+				){
+				// 屏蔽
+				e.preventDefault();
+			}
+		});
+		$("textarea").bind("click",textClick);
+		$(".btnClick").bind("click", function(e) {
+			insertWord(e.target.name);
+		});
 		// 绑定事件
 		query();
 	});
-	 var url;
-     function add(){
-         $('#dlg').dialog('open').dialog('setTitle','新增词条');
-         $('#fm').form('clear');
-         url = 'setting/words/add.do?key='+key;
-     }
-     function edit(){
-         var row = $('#divMetric').datagrid('getSelected');
-         if (row){
-             $('#dlg').dialog('open').dialog('setTitle','修改词条');
-             $('#fm').form('load',row);
-             url = 'setting/words/save.do?key='+ key + '&id='+row.TYPE_ID;
-         }
-     }
-     function save(){
-         $('#fm').form('submit',{
-             url: url,
-             onSubmit: function(){
-                 return $(this).form('validate');
-             },
-             success: function(result){
-                 if (result){
-                     $.messager.show({
-                         title: 'Error',
-                         msg: result
-                     });
-                 } else {
-                     $('#dlg').dialog('close');        // close the dialog
-                     $('#divMetric').datagrid("reload");    // reload the user data
-                 }
-             }
-         });
-     }
-     function removeit(){
-         var row = $('#divMetric').datagrid('getSelected');
-         if (row){
-             $.messager.confirm('删除确认','确定要删除吗？',function(r){
-                 if (r){
-                     $.post("setting/words/delete.do",{id:row.TYPE_ID,key:key},function(result){
-                         if (!result){
-                             $('#divMetric').datagrid('reload');    // reload the user data
-                             $('#divMetric').datagrid('unselectAll');
-                         } else {
-                             $.messager.show({    // show error message
-                                 title: '异常',
-                                 msg: result
-                             });
-                         }
-                     },'html');
-                 }
-             });
-         }
-     }
+	function insertWord(word){
+		if (TEXTAREA_ID){
+			var obj = $("#" + TEXTAREA_ID);
+			obj.insertContent(word);
+			//insertText(obj,e.target.value,e.target.name);
+		}
+	}
+	function addWord(){
+		var word = $('#WORD').combobox("getValue");
+		// 如果是在词汇表中，则添加
+		if (isArray(window.WORDLIST)){
+			var matched = false,wordList=window.WORDLIST;
+			for (var i = 0,iLen=wordList.length; i < iLen; i++) {
+				if (wordList[i].WORD == word){
+					insertWord(word);
+					break;
+				}
+			}
+		}
+	}
+	var url;
+	function add() {
+		$('#dlg').dialog('open').dialog('setTitle', '新增词条');
+		$('#fm').form('clear');
+		url = 'setting/words/add.do?key=' + key;
+	}
+	function edit() {
+		var row = $('#divMetric').datagrid('getSelected');
+		if (row) {
+			$('#dlg').dialog('open').dialog('setTitle', '修改词条');
+			$('#fm').form('load', row);
+			url = 'setting/words/save.do?key=' + key + '&id=' + row.TYPE_ID;
+		}
+	}
+	function save() {
+		$('#fm').form('submit', {
+			url : url,
+			onSubmit : function() {
+				return $(this).form('validate');
+			},
+			success : function(result) {
+				if (result) {
+					$.messager.show({
+						title : 'Error',
+						msg : result
+					});
+				} else {
+					$('#dlg').dialog('close'); // close the dialog
+					$('#divMetric').datagrid("reload"); // reload the user data
+				}
+			}
+		});
+	}
+	function removeit() {
+		var row = $('#divMetric').datagrid('getSelected');
+		if (row) {
+			$.messager.confirm('删除确认', '确定要删除吗？', function(r) {
+				if (r) {
+					$.post("setting/words/delete.do", {
+						id : row.TYPE_ID,
+						key : key
+					}, function(result) {
+						if (!result) {
+							$('#divMetric').datagrid('reload'); // reload the user data
+							$('#divMetric').datagrid('unselectAll');
+						} else {
+							$.messager.show({ // show error message
+								title : '异常',
+								msg : result
+							});
+						}
+					}, 'html');
+				}
+			});
+		}
+	}
 	/**
 	 * 执行查询
 	 */
@@ -178,7 +315,7 @@
 		divMetric.datagrid({
 			toolbar : '#tb',
 			//title:'${title}',
-			url:"setting/words/select.do",
+			url : "setting/words/select.do",
 			fitColumns : true,
 			rownumbers : true,
 			singleSelect : true,
@@ -215,7 +352,7 @@
 				title : '负面模板（英文）',
 				align : 'center',
 				halign : 'center'
-			}] ]
+			} ] ]
 		}).datagrid('clientPaging');
 	}
 </script>

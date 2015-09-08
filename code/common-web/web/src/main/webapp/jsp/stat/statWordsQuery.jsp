@@ -35,10 +35,10 @@
 					data-options="showSeconds:false"></td>
                 <td style="width:65px"><label>词条：</label></td>
                 <td style="width:140px"><input id="selWords" class="easyui-combobox"></input></td>
-				<td><a href="#" id="btnQuery" class="easyui-linkbutton"
-					data-options="iconCls:'icon-search'" style="width: 120px">舆情信息查询</a></td>
 				<td><a href="#" id="btnStat" class="easyui-linkbutton"
 					data-options="iconCls:'icon-search'" style="width: 80px">统计</a></td>
+				<td><a href="#" id="btnQuery" class="easyui-linkbutton"
+					data-options="iconCls:'icon-search'" style="width: 120px">舆情信息查询</a></td>
 			</tr>
 		</table>
 	</div>
@@ -96,8 +96,7 @@
 		var params = {
 				key : key,
 				startTime : startTime,
-				endTime : endTime,
-				rows:100
+				endTime : endTime
 			};
 		if (lang && '*' != lang){
 			params.langId = lang;
@@ -116,7 +115,11 @@
 		}
 		$('#' + containerId).html('');
 		showLoading(containerId);
-		loadData(containerId, "crawl/stat/wordsQueryDetail.do", params, processDetailData);
+		var url = "crawl/stat/wordsQueryDetail.do";
+		//for(var name in params){
+			//url = url + "&" + name + "=" + encodeURIComponent(params[name]);
+		//}
+		doQueryDetail(containerId, url,params);
 	}
 	function stat() {
 		// 获取查询条件
@@ -196,26 +199,31 @@
 			data : datas
 		}).datagrid('clientPaging');
 	}
-	
-	function processDetailData(datas) {
-		var divMetric = $('#divStatWordsContent');
-		$('#divStatWordsContent').html('');
-		if (!datas) {
-			return;
-		}
-		$('#divStatWordsContent').append('<div id="divMetric" style="width:100%;height:100%"></div>');
+	function doQueryDetail(containerId,url,params){
+		
+	//}
+	//function processDetailData(datas) {
+		var divMetric = $('#' + containerId);
+		$('#' + containerId).html('');
+		//if (!datas) {
+		//	return;
+		//}
+		$('#' + containerId).append('<div id="divMetric" style="width:100%;height:100%"></div>');
 		var divMetric = $('#divMetric');
 		var pageSize = 15;
 		divMetric.datagrid({
 			//title:'${title}',
-			fitColumns : true,
+			fitColumns : false,
 			rownumbers : true,
 			singleSelect : true,
-			remoteSort : false,
+			url: url,
+			queryParams: params,
+			//data : datas,
+			//remoteSort : false,
 			idField : "DETAIL_SEQ",
 			//sortName : "status",
 			//sortOrder : "asc",
-			pagination : pageSize < datas.length,
+			pagination : true,//pageSize < datas.length,
 			pageSize : pageSize,
 			pageList : getPageList(pageSize),
 			columns : [ [ {
@@ -233,7 +241,7 @@
 				field : 'TEMPLATE_TYPE',
 				title : '所属模板',
 				align : 'center',
-				halign : 'center',
+				halign : 'center',sortable:true,
 				formatter: function(value,row){
 					if (value == 'ZM'){
 						return '正面';
@@ -251,7 +259,7 @@
 				field : 'TITLE',
 				title : '标题',
 				align : 'left',
-				width: 500,
+				width: 400,
 				halign : 'center',
 				formatter: function(value,row){
 					return '<a href="' + row.URL + '" target="_blank" title="' + value + '" style="display:block;overflow:hidden; text-overflow:ellipsis;">' + value + '</a>';
@@ -272,9 +280,13 @@
 				formatter: function(value,row){
 					return '<a href="#" onclick="javascript:window.top.createPageById(201004,\'&p=value:' + encodeURIComponent(row.URL) + '\')" >查看正文</a>';
 				}
-			} ] ],
-			data : datas
-		}).datagrid('clientPaging');
+			}, {
+				field : 'CRAWL_TIME',
+				title : '网页爬取时间',
+				align : 'left',
+				halign : 'center'
+			} ] ]
+		});//.datagrid('clientPaging');
 	}
 	
 	function gotoSearch(id){

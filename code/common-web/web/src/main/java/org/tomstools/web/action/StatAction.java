@@ -10,6 +10,7 @@ import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -153,7 +154,7 @@ public class StatAction {
 			@RequestParam(value = "siteTypeId", required = false) Integer siteTypeId,
 			@RequestParam(value = "siteId", required = false) Integer siteId,
 			@RequestParam(value = "wordsId", required = false) Integer wordsId,
-			@RequestParam(value = "start", required = false) Integer startNum,
+			@RequestParam(value = "page", required = false) Integer page,
 			@RequestParam(value = "rows", required = false) Integer rows, HttpServletRequest req,
 			HttpServletResponse resp) throws Exception {
 		resp.setContentType("application/json;charset=UTF-8");
@@ -172,14 +173,19 @@ public class StatAction {
 		} else {
 			start = new Date(end.getTime() - SolrService.STAT_TIME_DEFAULT);
 		}
-
-		List<Map<String, Object>> result = solrService.statWordsQueryDetail(start, end, langId, countryId, siteTypeId,
+		rows = rows == null? 10 : rows;
+		int startNum = page == null ? 0 : (page - 1) * rows;
+		int total = solrService.countWordsQueryDetail(start, end, langId, countryId, siteTypeId,
+				siteId, wordsId);
+		List<Map<String, Object>> details = solrService.statWordsQueryDetail(start, end, langId, countryId, siteTypeId,
 				siteId, wordsId,startNum, rows);
-		if (null != result) {
-			return JSON.toJSONString(result);
-		} else {
-			return "[]";
+		if (null == details){
+			details = Collections.emptyList();
 		}
+		Map<String,Object> result = new HashMap<String, Object>();
+		result.put("total", total);
+		result.put("rows", details);
+		return JSON.toJSONString(result);
 	}
 
 	@RequestMapping("/stat/wordsCount.do")
@@ -429,7 +435,9 @@ public class StatAction {
 	public @ResponseBody String alertQuery(@RequestParam("key") String key, @RequestParam("startTime") String startTime,
 			@RequestParam("endTime") String endTime,
 			@RequestParam(value = "NOTIFY_STATUS", required = false) String notifyStatus,
-			@RequestParam(value = "ALERT_TYPE", required = false) String alertType, HttpServletRequest req,
+			@RequestParam(value = "ALERT_TYPE", required = false) String alertType, 
+			@RequestParam(value = "page", required = false) Integer page,
+			@RequestParam(value = "rows", required = false) Integer rows,HttpServletRequest req,
 			HttpServletResponse resp) throws Exception {
 		resp.setContentType("application/json;charset=UTF-8");
 		Date end = null;
@@ -447,10 +455,17 @@ public class StatAction {
 		} else {
 			start = new Date(end.getTime() - SolrService.STAT_TIME_DEFAULT);
 		}
-
-		List<Map<String, Object>> s = solrService.selectAlertLog(start, end, notifyStatus, alertType);
-
-		return JSON.toJSONString(s);
+		int total = solrService.countAlertLog(start, end, notifyStatus, alertType);
+		rows = rows == null? total : rows;
+		int startNum = page == null ? 0 : (page - 1) * rows;
+		List<Map<String, Object>> details = solrService.selectAlertLog(start, end, notifyStatus, alertType,startNum,rows);
+		if (null == details){
+			details = Collections.emptyList();
+		}
+		Map<String,Object> result = new HashMap<String, Object>();
+		result.put("total", total);
+		result.put("rows", details);
+		return JSON.toJSONString(result);
 	}
 
 	@RequestMapping("/query/weeklyQuery.do")

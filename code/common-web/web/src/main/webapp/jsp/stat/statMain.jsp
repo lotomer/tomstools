@@ -44,7 +44,7 @@
 		<div id="divYQZS" style="width: 930px; height: 155px; float: left"></div>
 		<div id="divYQYJ" style="width: 250px; height: 155px; float: left">
 			<div class="msg msgTitle" style="width:200px;">词条预警</div>
-			<div class="msg" id="divCTYQ" style="width:280px;text-align: left;"></div>
+			<div class="msg" id="divCTYQ" style="width:240px;text-align: left;"></div>
 		</div>
 	</div>
 	

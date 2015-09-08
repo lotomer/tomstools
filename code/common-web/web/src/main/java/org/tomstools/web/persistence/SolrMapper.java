@@ -60,8 +60,13 @@ public interface SolrMapper {
 	 * 查询预警信息
 	 * 
 	 * @param alertType
+	 * @param rows 
+	 * @param start 
 	 */
 	public List<Map<String, Object>> selectAlertLog(@Param("START_TIME") Date startTime,
+			@Param("END_TIME") Date endTime, @Param("NOTIFY_STATUS") String notifyStatus,
+			@Param("ALERT_TYPE") String alertType, @Param("START") int start, @Param("ROWS") int rows);
+	public int countAlertLog(@Param("START_TIME") Date startTime,
 			@Param("END_TIME") Date endTime, @Param("NOTIFY_STATUS") String notifyStatus,
 			@Param("ALERT_TYPE") String alertType);
 

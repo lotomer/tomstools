@@ -73,9 +73,6 @@
 		,alertType = $('#selAlertType').combobox("getValue");
 		$('#divStatWordsContent').html('');
 		showLoading("divStatWordsContent");
-		loadData(startTime, endTime,notifyStatus,alertType,processData);
-	}
-	function loadData(startTime, endTime,notifyStatus,alertType,successCallback) {
 		var params = {
 				key : key,
 				startTime : startTime,
@@ -87,21 +84,12 @@
 		if (notifyStatus != undefined && notifyStatus != "*"){
 			params["NOTIFY_STATUS"] = notifyStatus;
 		}
-		$.ajax({
-			url : "crawl/query/alertQuery.do",
-			dataType : 'json',
-			async : true,
-			data : params,
-			success : successCallback
-		});
+		doQuery("divStatWordsContent", "crawl/query/alertQuery.do",params);
 	}
-	function processData(datas) {
-		var divMetric = $('#divStatWordsContent');
-		$('#divStatWordsContent').html('');
-		if (!datas) {
-			return;
-		}
-		$('#divStatWordsContent').append('<div id="divMetric" style="width:100%;height:100%"></div>');
+	function doQuery(containerId,url,params) {
+		var divMetric = $('#' + containerId);
+		$('#' + containerId).html('');
+				$('#' + containerId).append('<div id="divMetric" style="width:100%;height:100%"></div>');
 		var divMetric = $('#divMetric');
 		var pageSize = 13;
 		divMetric.datagrid({
@@ -109,11 +97,14 @@
 			fitColumns : true,
 			rownumbers : true,
 			singleSelect : true,
-			remoteSort : false,
+			//remoteSort : false,
+			url : url,
+			queryParams: params,
+			//data : datas,
 			idField : "ID",
 			sortName : "ALERT_TIME",
 			sortOrder : "desc",
-			pagination : pageSize < datas.length,
+			pagination : true,//pageSize < datas.length,
 			pageSize : pageSize,
 			pageList : getPageList(pageSize),
 			columns : [ [ {
@@ -169,9 +160,8 @@
 				title : '通知时间',
 				align : 'center',
 				halign : 'center'
-			} ] ],
-			data : datas
-		}).datagrid('clientPaging');
+			} ] ]
+		});//.datagrid('clientPaging');
 	}
 </script>
 </html>

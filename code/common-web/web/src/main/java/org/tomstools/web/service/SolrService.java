@@ -448,7 +448,10 @@ public class SolrService {
 		rows = null != rows ? rows : 10;
 		return siteMapper.statWordsQueryDetail(startTime, endTime, langId, countryId, siteTypeId, siteId, wordsId,start, rows);
 	}
-
+	public int countWordsQueryDetail(Date startTime, Date endTime, Integer langId, Integer countryId, Integer siteTypeId,
+			Integer siteId, Integer wordsId) {
+		return siteMapper.countWordsQueryDetail(startTime, endTime, langId, countryId, siteTypeId, siteId, wordsId);
+	}
 	/**
 	 * 根据站点类型状态获取站点类型列表
 	 * 
@@ -513,10 +516,14 @@ public class SolrService {
 	}
 
 	public List<Map<String, Object>> selectAlertLog(Date startTime, Date endTime, String notifyStatus,
-			String alertType) {
-		return solrMapper.selectAlertLog(startTime, endTime, notifyStatus, alertType);
+			String alertType, int start, Integer rows) {
+		rows = null == rows ? Integer.MAX_VALUE : rows;
+		return solrMapper.selectAlertLog(startTime, endTime, notifyStatus, alertType,start,rows);
 	}
-
+	public int countAlertLog(Date startTime, Date endTime, String notifyStatus,
+			String alertType) {
+		return solrMapper.countAlertLog(startTime, endTime, notifyStatus, alertType);
+	}
 	public List<Map<String, Object>> selectWeekly(Integer year, Integer month, Integer week) {
 		return solrMapper.selectWeekly(year, month, week);
 	}
@@ -562,7 +569,7 @@ public class SolrService {
 		start.set(Calendar.SECOND, 0);
 		Date startTime = start.getTime();
 		Date endTime = now.getTime();
-		List<Map<String, Object>> alertLogs = selectAlertLog(startTime, endTime, "0", null);
+		List<Map<String, Object>> alertLogs = selectAlertLog(startTime, endTime, "0", null,0,null);
 		for (int i = 0; i < alertLogs.size(); i++) {
 			Map<String, Object> alertLog = alertLogs.get(i);
 			String notifiers = String.valueOf(alertLog.get("NOTIFIERS"));

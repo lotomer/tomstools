@@ -3,99 +3,134 @@
 <head>
 <meta charset="utf-8">
 <title>jQuery File Upload Example</title>
-<script src="js/jquery.min.js"></script>
- 
-<script src="js/vendor/jquery.ui.widget.js"></script>
-<script src="js/jquery.iframe-transport.js"></script>
-<script src="js/jquery.fileupload.js"></script>
-  <script type="text/javascript" src="js/utils.js"></script>
-<!-- bootstrap just to have good looking page -->
-<script src="bootstrap/js/bootstrap.min.js"></script>
-<link href="bootstrap/css/bootstrap.css" type="text/css" rel="stylesheet" />
- 
-<!-- we code these -->
+<link rel="stylesheet" type="text/css"
+	href='css/easyui/themes/default/easyui.css'>
+<link rel="stylesheet" type="text/css" href="css/easyui/themes/icon.css">
+<link rel="stylesheet" type="text/css" href="css/main.css">
 <style type="text/css">
-#dropzone {
-    background: #ccccc;
-    width: 150px;
-    height: 50px;
-    line-height: 50px;
-    text-align: center;
-    font-weight: bold;
+#fm {
+	margin: 0;
+	padding: 10px 10px;
 }
-#dropzone.in {
-    width: 600px;
-    height: 200px;
-    line-height: 200px;
-    font-size: larger;
+
+.ftitle {
+	font-size: 14px;
+	font-weight: bold;
+	padding: 5px 0;
+	margin-bottom: 10px;
+	border-bottom: 1px solid #ccc;
 }
-#dropzone.hover {
-    background: lawngreen;
+
+.fitem {
+	margin-bottom: 5px;
 }
-#dropzone.fade {
-    -webkit-transition: all 0.3s ease-out;
-    -moz-transition: all 0.3s ease-out;
-    -ms-transition: all 0.3s ease-out;
-    -o-transition: all 0.3s ease-out;
-    transition: all 0.3s ease-out;
-    opacity: 1;
+
+.fitem label {
+	display: inline-block;
+	width: 90px;
+}
+
+.fitem input {
+	width: 400px;
+}
+
+.left {
+	float: left;
+	width: 530px;
+}
+
+.right {
+	float: left;
+	width: 230px;
 }
 </style>
-<script type="text/javascript">
-$(function () {
-    $('#fileupload').fileupload({
-        dataType: 'json',
- 
-        done: function (e, data) {
-            $("tr:has(td)").remove();
-            $.each(data.result, function (index, file) {
- 
-                $("#uploaded-files").append(
-                        $('<tr/>')
-                        .append($('<td/>').text(file.fileName))
-                        .append($('<td/>').text(file.fileSize))
-                        .append($('<td/>').text(file.fileType))
-                        .append($('<td/>').html("<a href='rest/controller/get/"+index+"'>Click</a>"))
-                        )//end $("#uploaded-files").append()
-            }); 
-        },
- 
-        progressall: function (e, data) {
-            var progress = parseInt(data.loaded / data.total * 100, 10);
-            log(progress);
-            $('#progress .bar').css(
-                'width',
-                progress + '%'
-            );
-        },
- 
-        dropZone: $('#dropzone')
-    });
-});
-</script>
 </head>
- 
+
 <body>
-<h1>Spring MVC - jQuery File Upload</h1>
-<div style="width:500px;padding:20px">
- 
-    <input id="fileupload" type="file" name="files[]" data-url="controller/upload.do" multiple>
- 
-    <div id="dropzone">Drop files here</div>
- 
-    <div id="progress">
-        <div style="width: 0%;"></div>
-    </div>
- 
-    <table id="uploaded-files">
-        <tr>
-            <th>File Name</th>
-            <th>File Size</th>
-            <th>File Type</th>
-            <th>Download</th>
-        </tr>
-    </table>
- 
-</div>
-</body> 
+	<h1>Spring MVC - jQuery File Upload</h1>
+	<div style="width: 500px; padding: 20px">
+		<textarea rows="5" cols="500" id="ddd"></textarea>
+		<textarea rows="5" cols="500" id="fe"></textarea>
+<div class="fitem">
+					<label>正面模板：</label> <input name=aa id="aa"
+						class="easyui-textbox " style="height: 80px"
+						data-options="multiline:true" required="required">
+				</div>
+		<input class="btnClick" type="button" value="( )" name="0"> <input
+			class="btnClick" type="button" value="AND" name="-1"> <input
+			class="btnClick" type="button" value="OR" name="1">
+	</div>
+</body>
+<script type="text/javascript" src="js/jquery.min.js"></script>
+<script type="text/javascript" src="js/easyui/jquery.easyui.min.js"></script>
+<script type="text/javascript"
+	src="js/easyui/locale/easyui-lang-zh_CN.js"></script>
+<script type="text/javascript" src="js/utils.js"></script>
+<script type="text/javascript">
+var SEL,TEXTAREA_ID; //全局变量
+
+log(encodeURIComponent("\"http://sports.sohu.com/20140822/n403682998.shtml\""));
+function textClick(e) {
+	if (document.all) {//IE要保存Range
+		e.target.focus();
+		SEL = document.selection.createRange();
+	}
+	TEXTAREA_ID = e.target.id;
+	log(TEXTAREA_ID);
+}
+	$(function() {
+		/*  在textarea处插入文本--Start */
+		(function($) {
+			$.fn.extend({
+				insertContent : function(myValue, t) {
+					var $t = $(this)[0];
+					if (document.selection) { // ie  
+						this.focus();
+						var sel = document.selection.createRange();
+						sel.text = myValue;
+						this.focus();
+						sel.moveStart('character', -l);
+						var wee = sel.text.length;
+						if (arguments.length == 2) {
+							var l = $t.value.length;
+							sel.moveEnd("character", wee + t);
+							t <= 0 ? sel.moveStart("character", wee - 2 * t
+									- myValue.length) : sel.moveStart(
+									"character", wee - t - myValue.length);
+							sel.select();
+						}
+					} else if ($t.selectionStart || $t.selectionStart == '0') {
+						var startPos = $t.selectionStart;
+						var endPos = $t.selectionEnd;
+						var scrollTop = $t.scrollTop;
+						$t.value = $t.value.substring(0, startPos) + myValue
+								+ $t.value.substring(endPos, $t.value.length);
+						this.focus();
+						$t.selectionStart = startPos + myValue.length;
+						$t.selectionEnd = startPos + myValue.length;
+						$t.scrollTop = scrollTop;
+						if (arguments.length == 2) {
+							$t.setSelectionRange(startPos - t, $t.selectionEnd
+									+ t);
+							this.focus();
+						}
+					} else {
+						this.value += myValue;
+						this.focus();
+					}
+				}
+			})
+		})(jQuery);
+		$("textarea").bind("click",textClick);
+		/* 在textarea处插入文本--Ending */
+		$(".btnClick").bind("click", function(e) {log(TEXTAREA_ID);
+			if (TEXTAREA_ID)
+			$("#" + TEXTAREA_ID).insertContent(e.target.value);
+			//$("#ddd").insertContent(e.target.value);
+			//obj.insertContent(e.target.id);
+			//insertText(obj,,e.target.name);
+		});
+
+	});
+</script>
 </html>

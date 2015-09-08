@@ -29,24 +29,29 @@
 
 .fitem label {
 	display: inline-block;
-	width: 90px;
+	width: 70px;
 }
 
 .fitem input,.fitem textarea {
-	width: 400px;
+	width: 500px;
 }
 .fitem textarea {
-	height: 80px
+	height: 70px
 }
 
 .left {
 	float: left;
-	width: 530px;
+	width: 610px;
 }
 
 .right {
 	float: left;
 	width: 230px;
+}
+.btnClick{
+	float:left;
+	clear:right;
+	width:50px;
 }
 </style>
 </head>
@@ -54,7 +59,7 @@
 	<div id="divStatWordsContent" data-options="region:'center',split:true">
 	</div>
 	<div id="dlg" class="easyui-dialog" data-options="modal:true"
-		style="width: 900px; height: 520px; padding: 10px 10px" closed="true"
+		style="width: 900px; height: 465px; padding: 10px 10px" closed="true"
 		buttons="#dlg-buttons">
 		<!-- <div class="ftitle">智能词条</div> -->
 		<div class="left">
@@ -64,10 +69,10 @@
 						required="required">
 				</div>
 				<div class="fitem">
-					<label>正面模板：</label> <textarea readonly="readonly" name="TEMPLATE_ZM" id="TEMPLATE_ZM" required="required"></textarea>
+					<label>正面模板：</label> <textarea class="ta" name="TEMPLATE_ZM" id="TEMPLATE_ZM" required="required"></textarea>
 				</div>
 				<div class="fitem">
-					<label>负面模板：</label> <textarea readonly="readonly" name="TEMPLATE_FM" id="TEMPLATE_FM" required="required"></textarea>
+					<label>负面模板：</label> <textarea class="ta" name="TEMPLATE_FM" id="TEMPLATE_FM" required="required"></textarea>
 				</div>
 				<div class="fitem">
 					<label>正面模板<br>（英文）：
@@ -80,11 +85,17 @@
 			</form>
 		</div>
 		<div class="right">
-			<input class="btnClick" type="button" name=" " value="空格">
-			<input class="btnClick" type="button" name="( )" value="( )" title="括号">
-			<input class="btnClick" type="button" name="AND" value="AND" title="与">
-			<input class="btnClick" type="button" name="OR" value="OR" title="或">
-			<input class="btnClick" type="button" name="NOT" value="NOT" title="非">
+			<div style="float:left;width:50px;">
+				<input class="btnClick" type="button" name=" " value="空格">
+				<input class="btnClick" type="button" name="( )" value="( )" title="括号">
+				<input class="btnClick" type="button" name="AND" value="AND" title="与">
+				<input class="btnClick" type="button" name="OR" value="OR" title="或">
+				<input class="btnClick" type="button" name="NOT" value="NOT" title="非">
+			</div>
+			<div style="float:left;width:180px;">
+				<input class="easyui-combobox" id="WORD" name="WORD" style="width:120px"></input>
+				<a href="javascript:void(0)" class="easyui-linkbutton" data-options="iconCls:'icon-add',plain:true" onclick="addWord()">添加</a>
+			</div>
 		</div>
 	</div>
 	<div id="dlg-buttons">
@@ -163,22 +174,75 @@
 				}
 			})
 		})(jQuery);
-		$('textarea').keydown(function(e) {
-            if (e.keyCode == 13) {
-               
-            }
-        });
+		$.ajax({
+			url : 'setting/word/select.do?key='+key,
+			dataType : 'json',
+			async : true,
+			success : function(data){
+				if (data && data.length){
+					data.sort(function(a,b){return b.TENDENCY-a.TENDENCY;});
+					window.WORDLIST=data;
+					$('#WORD').combobox({
+			            valueField: "WORD",
+			            textField: "WORD",
+			            groupField:"TENDENCY",
+			            panelHeight: 350,
+			            editable: true,
+			            selectOnNavigation: true,
+			            groupFormatter: function(group){
+			        		if (-1 == group){
+			        			return "贬义词";
+			        		}else if (1 == group){
+			        			return "褒义词";
+			        		}else{
+			        			return "中性词";
+			        		}
+			        	},
+			            data: data
+			        });
+					
+				}
+			}
+		});
+		$("textarea.ta").bind("keypress",function(e) {
+			if (e.keyCode != 8   // 删除键-向前
+				&& e.keyCode != 46 //删除键-向后
+				&& e.keyCode != 37 //方向键-向左
+				&& e.keyCode != 38 //方向键-向上
+				&& e.keyCode != 39 //方向键-向右
+				&& e.keyCode != 40 //方向键-向下
+				){
+				// 屏蔽
+				e.preventDefault();
+			}
+		});
 		$("textarea").bind("click",textClick);
 		$(".btnClick").bind("click", function(e) {
-			if (TEXTAREA_ID){
-				var obj = $("#" + TEXTAREA_ID);
-				obj.insertContent(e.target.name);
-				//insertText(obj,e.target.value,e.target.name);
-			}
+			insertWord(e.target.name);
 		});
 		// 绑定事件
 		query();
 	});
+	function insertWord(word){
+		if (TEXTAREA_ID){
+			var obj = $("#" + TEXTAREA_ID);
+			obj.insertContent(word);
+			//insertText(obj,e.target.value,e.target.name);
+		}
+	}
+	function addWord(){
+		var word = $('#WORD').combobox("getValue");
+		// 如果是在词汇表中，则添加
+		if (isArray(window.WORDLIST)){
+			var matched = false,wordList=window.WORDLIST;
+			for (var i = 0,iLen=wordList.length; i < iLen; i++) {
+				if (wordList[i].WORD == word){
+					insertWord(word);
+					break;
+				}
+			}
+		}
+	}
 	var url;
 	function add() {
 		$('#dlg').dialog('open').dialog('setTitle', '新增词条');

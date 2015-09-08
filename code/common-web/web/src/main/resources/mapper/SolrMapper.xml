@@ -62,7 +62,17 @@
         	s.ALERT_TYPE=#{ALERT_TYPE} AND
         </if><![CDATA[
 		ALERT_TIME BETWEEN #{START_TIME} AND #{END_TIME} AND s.IS_VALID=1
-		ORDER BY NOTIFY_TIME desc
+		ORDER BY NOTIFY_TIME desc  LIMIT #{START},#{ROWS}
+    ]]></select>
+    <select id="countAlertLog" resultType="int"><![CDATA[
+        SELECT count(*) FROM T_ALERT_LOG l LEFT JOIN T_ALERT_SETTING s ON (l.ALERT_ID=s.ALERT_ID)
+		WHERE 
+		]]><if test="NOTIFY_STATUS != null">
+        	l.NOTIFY_STATUS=#{NOTIFY_STATUS} AND
+        </if><if test="ALERT_TYPE != null">
+        	s.ALERT_TYPE=#{ALERT_TYPE} AND
+        </if><![CDATA[
+		ALERT_TIME BETWEEN #{START_TIME} AND #{END_TIME} AND s.IS_VALID=1
     ]]></select>
     
     <insert id="saveAlertLog">
@@ -99,8 +109,9 @@
     </delete>
     
     <select id="selectWordsAlertTop" resultType="map"><![CDATA[
-        SELECT s.METRICS FROM T_ALERT_LOG l LEFT JOIN T_ALERT_SETTING s ON (l.ALERT_ID=s.ALERT_ID)
-		WHERE s.IS_VALID=1 AND l.ALERT_TIME BETWEEN #{START_TIME} AND #{END_TIME}
-		GROUP BY s.METRICS ORDER BY l.ALERT_TIME desc limit #{TOP_NUM}
+        SELECT METRICS FROM (
+			SELECT s.METRICS,cast(l.CURRENT_VALUE AS signed integer) CURRENT_VALUE FROM T_ALERT_LOG l LEFT JOIN T_ALERT_SETTING s ON (l.ALERT_ID=s.ALERT_ID)
+			WHERE s.IS_VALID=1 AND l.ALERT_TIME BETWEEN #{START_TIME} AND #{END_TIME}
+		) a GROUP BY a.METRICS ORDER BY CURRENT_VALUE DESC limit #{TOP_NUM}
     ]]></select>
 </mapper>

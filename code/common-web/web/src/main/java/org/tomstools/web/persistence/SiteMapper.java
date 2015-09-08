@@ -47,6 +47,10 @@ public interface SiteMapper {
 			@Param("END_TIME") Date endTime, @Param("LANG_ID") Integer langId, @Param("COUNTRY_CODE") Integer countryId,
 			@Param("SITE_TYPE_ID") Integer siteTypeId, @Param("SITE_ID") Integer siteId,
 			@Param("TYPE_ID") Integer wordsId, @Param("START") Integer start, @Param("ROWS") Integer rows);
+	public int countWordsQueryDetail(@Param("START_TIME") Date startTime,
+			@Param("END_TIME") Date endTime, @Param("LANG_ID") Integer langId, @Param("COUNTRY_CODE") Integer countryId,
+			@Param("SITE_TYPE_ID") Integer siteTypeId, @Param("SITE_ID") Integer siteId,
+			@Param("TYPE_ID") Integer wordsId);
 
 	/**
 	 * 获取指定时间内指定词条按日统计结果。<br>

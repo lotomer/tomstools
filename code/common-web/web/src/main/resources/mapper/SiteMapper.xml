@@ -88,6 +88,23 @@
 		CRAWL_TIME BETWEEN #{START_TIME} AND #{END_TIME}
 		ORDER BY CRAWL_TIME DESC  LIMIT #{START},#{ROWS}
     ]]></select>
+    <select id="countWordsQueryDetail" resultType="int"><![CDATA[
+        SELECT count(*)
+		FROM T_POM_R_DETAIL s LEFT JOIN T_CRAWL_C_SITE cs ON (s.SITE_ID=cs.SITE_ID) 
+		LEFT JOIN T_POM_C_RULE r ON (s.TYPE_ID=r.TYPE_ID) WHERE
+        ]]><if test="COUNTRY_CODE != null">
+        	cs.COUNTRY_CODE=#{COUNTRY_CODE} AND
+        </if><if test="LANG_ID != null">
+        	cs.LANG_ID=#{LANG_ID} AND
+        </if><if test="SITE_ID != null">
+        	cs.SITE_ID=#{SITE_ID} AND
+        </if><if test="SITE_TYPE_ID != null">
+        	cs.SITE_TYPE_ID=#{SITE_TYPE_ID} AND
+        </if><if test="TYPE_ID != null">
+        	s.TYPE_ID=#{TYPE_ID} AND
+        </if><![CDATA[
+		CRAWL_TIME BETWEEN #{START_TIME} AND #{END_TIME}
+    ]]></select>
     
     <insert id="saveStat">
     	INSERT INTO T_POM_S_STAT_SITE (TYPE_ID,SIZE_ZM,SIZE_FM,SIZE_ZM_E,SIZE_FM_E,STAT_TIME,SITE_ID) VALUES (#{TYPE_ID},#{SIZE_ZM},#{SIZE_FM},#{SIZE_ZM_E},#{SIZE_FM_E},#{STAT_TIME},#{SITE_ID})
