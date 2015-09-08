@@ -21,28 +21,28 @@
 </head>
 <body class="easyui-layout">
 	<div id="divStatMainContent" style="padding-left:10px;" data-options="region:'center',split:true">
-		<div id="divMain" style="width: 200px; height: 185px; float: left"></div>
-		<div id="divJRYQ" style="width: 220px; height: 185px; float: left">
+		<div id="divMain" style="width: 20%; height: 185px; float: left"></div>
+		<div id="divJRYQ" style="width: 20%; height: 185px; float: left">
 			<div class="msg msgTitle" style="width:220px;">今日舆情</div>
 			<div class="msg" style="width:60px;background-color: #228b22;color: white;">正面</div>
 			<div class="msg" style="width:160px;text-align: left;background-color: #f2f2f2;"><label style="float: left;">舆情</label><span id="divJRYQ_ZM" style="width:60px;text-align:center;font-size:20px;color: #228b22">0</span><label style="padding-right:20px;float: right;">篇</label></div>
 			<div class="msg" style="width:60px;background-color: #ff4500;clear:left;color: white">负面</div>
 			<div class="msg" style="width:160px;text-align: left;background-color: #f2f2f2;"><label style="float: left;">舆情</label><span id="divJRYQ_FM" style="width:60px;text-align:center;font-size:20px;color: #ff4500">0</span><label style="padding-right:20px;float: right;">篇</label></div>
 		</div>
-		<div id="divYQMTLX" style="width: 350px; height: 185px; float: left"></div>
-		<div id="divSiteTop" style="width: 380px; height: 185px; float: left"></div>
+		<div id="divYQMTLX" style="width: 25%; height: 185px; float: left"></div>
+		<div id="divSiteTop" style="width: 30%; height: 185px; float: left"></div>
 		
-		<div id="divZXYQ" style="width: 460px; height: 155px; float: left"></div>
-		<div id="divZRYQ" style="width: 300px; height: 155px; background-color: #f2f2f2;float: left;padding:0 20px;">
+		<div id="divZXYQ" style="width: 40%; height: 155px; float: left"></div>
+		<div id="divZRYQ" style="width: 25%; height: 155px; background-color: #f2f2f2;float: left;padding:0 20px;">
 			<div class="msg msgTitle" style="width:280px;">昨日舆情</div>
 			<div class="msg" style="width:280px;text-align: left;">文章总数：<span id="divZRYQ_TOTAL" style="color: #48b">0</span>&nbsp;&nbsp;&nbsp;疑似负面：<span id="divZRYQ_FM" style="color: red">0</span></div>
 			<div class="msg" style="width:80px;clear:left;margin-right: 40px;font-size:20px;text-align: left;">美誉度</div>
 			<div class="msg" style="width:80px;color: white;font-size:20px;" id="divZRYQ_TIPS"></div>
 		</div>
-		<div id="divXZFB" style="width: 350px; height: 155px; float: left;"></div>
+		<div id="divXZFB" style="width: 30%; height: 155px; float: left;"></div>
 		
-		<div id="divYQZS" style="width: 930px; height: 155px; float: left"></div>
-		<div id="divYQYJ" style="width: 250px; height: 155px; float: left">
+		<div id="divYQZS" style="width: 78%; height: 155px; float: left"></div>
+		<div id="divYQYJ" style="width: 17%; height: 155px; float: left">
 			<div class="msg msgTitle" style="width:200px;">词条预警</div>
 			<div class="msg" id="divCTYQ" style="width:240px;text-align: left;"></div>
 		</div>
@@ -236,8 +236,37 @@
 					var divMetric = $('#divMetric_' + containId), titles = [  ], value = {
 						name : "信息量",
 						type : "pie",
-			            radius : '55%',
-			            center: ['50%', '60%'],
+			            radius : '45%',
+			            center: ['50%', '60%'],itemStyle : {
+			                normal : {
+			                    labelLine : {
+			                        show : true,
+			                        length : 1
+			                    },
+			                    label : {
+			                        show : true,
+			                        //position : 'inner',
+			                        formatter : '{b}({d}%)',
+			                        textStyle : {
+			                            //color : 'white'
+			                        }
+			                    }
+			                },
+			                emphasis : {
+			                    labelLine : {
+			                        show : true,
+			                        length : 1
+			                    },
+			                    label : {
+			                        show : true,
+			                        //position : 'inner',
+			                        formatter : '{b}({d}%)',
+			                        textStyle : {
+			                            //color : 'white'
+			                        }
+			                    }
+			                }
+			            },
 						data : []
 					};
 					for (var i = 0, oLen = datas.length; i < oLen; i++) {
@@ -253,7 +282,7 @@
 						},
 						tooltip : {
 					        trigger: 'item',
-					        formatter: "{a} <br/>{b} : {c} ({d}%)"
+					        formatter: "{b}: {c} ({d}%)"
 						},
 						legend : {
 							show : false,
