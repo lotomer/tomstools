@@ -283,6 +283,8 @@ public class SolrService {
 		if (StringUtils.isEmpty(template)) {
 			return;
 		}
+		long total = 0;
+		long saveCount = 0;
 		int start = 0;
 		int size = 1000;
 		while (true) {
@@ -291,23 +293,25 @@ public class SolrService {
 			SolrDocumentList datas = resp.getResults();
 			if (null != datas) {// 没有取完，还要继续
 				for (SolrDocument doc : datas) {
+				    total++;
 					String host = String.valueOf(doc.getFieldValue("host"));
 					// 从host中解析站点
 					int siteId = getSiteIdByHost(sites, host);
-					// 记录次数
-					Long count = siteCount.get(siteId);
-					if (null != count) {
-						siteCount.put(siteId, count + 1);
-					} else {
-						siteCount.put(siteId, 1l);
-					}
 
 					// 保存明细到数据库
 					// 判断对应的url是否已经存在，如果不存在则添加
 					String flag = siteMapper.checkUrl(String.valueOf(doc.getFieldValue("url")));
 					if (StringUtils.isEmpty(flag)) {
+					    saveCount++;
 						siteMapper.saveDetail(typeId, templateType, siteId, String.valueOf(doc.getFieldValue("title")),
 								String.valueOf(doc.getFieldValue("url")), (Date) doc.getFieldValue("tstamp"));
+    					// 记录次数
+    					Long count = siteCount.get(siteId);
+    					if (null != count) {
+    						siteCount.put(siteId, count + 1);
+    					} else {
+    						siteCount.put(siteId, 1l);
+    					}
 					}
 				}
 				if (size == datas.size()) {
@@ -317,6 +321,8 @@ public class SolrService {
 			}
 			break;
 		}
+		
+		LOG.info("typeId:" + typeId + ", templateType:" + templateType + ", total:" + total + ", saveCount:" + saveCount);
 	}
 
 	private static int getSiteIdByHost(Map<String, Integer> sites, String host) {
