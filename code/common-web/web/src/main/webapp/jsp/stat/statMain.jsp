@@ -45,10 +45,10 @@
     		<div id="divZRYQ" style="width: 25%;padding:0 20px;">
     			<div class="msg msgTitle" style="width:280px;">昨日舆情</div>
     			<div class="msgRow">
-    				<div class="msg" style="width:280px;text-align: left;"><div>文章总数：</div><div id="divZRYQ_TOTAL" style="color: #48b;">0</div><div>&nbsp;&nbsp;&nbsp;疑似负面：</div><div id="divZRYQ_FM" style="color: red;">0</div></div>
+    				<div class="msg" style="width:280px;text-align: left;"><div>文章总数：</div><div id="divZRYQ_TOTAL" style="color: #48b;width:60px;text-align:center">0</div><div>疑似负面：</div><div id="divZRYQ_FM" style="color: red;width:44px;text-align:center">0</div></div>
     			</div>
     			<div class="msgRow">
-	    			<div class="msg" style="width:80px;clear:left;margin: 0 30px 0 10px;font-size:20px;text-align: left;">美誉度</div>
+	    			<div class="msg" style="width:80px;clear:left;margin: 0px 50px 0px 20px;font-size:20px;text-align: left;">美誉度</div>
 	    			<div class="msg" style="width:80px;color: white;font-size:20px;" id="divZRYQ_TIPS"></div>
     			</div>
     		</div>
@@ -359,25 +359,25 @@
 											+ '" style="width:100%;height:100%"></div>');
 					var divMetric = $('#divMetric_' + containId), titles = [ "信息量" ], size = {
 						name : titles[0],
-						type : "bar",
+						type : "bar",barWidth:40,
 						data : [],
 						itemStyle : {
 							normal : {
 								color : "blue",
 								label : {
 									show : true,
-									position : 'insideTop',
+									position : 'top',
 									textStyle : {
-										color : "white"
+										color : "black"
 									}
 								}
 							},emphasis : {
 								color : "blue",
 								label : {
 									show : true,
-									position : 'insideTop',
+									position : 'top',
 									textStyle : {
-										color : "white"
+										color : "black"
 									}
 								}
 							}
@@ -395,7 +395,10 @@
 							subtext : '最近7天  来源网站TOP' + topNum
 						},
 						tooltip : {
-							trigger : 'axis'
+							trigger : 'axis',
+					        axisPointer : {            // 坐标轴指示器，坐标轴触发有效
+					            type : 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
+					        }
 						},
 						legend : {
 							show : false,

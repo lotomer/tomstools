@@ -131,19 +131,22 @@
     ]]></insert>
     
     <select id="selectSubPages" resultType="map"><![CDATA[
-        SELECT rp.PAGE_ID,rp.WIDTH,rp.HEIGHT,rp.ORDER_NUM,p.PAGE_NAME,rp.SUB_PAGE_ID,sp.PAGE_NAME SUB_PAGE_NAME
+        SELECT rp.PAGE_ID,rp.WIDTH,rp.HEIGHT,rp.ORDER_NUM,p.PAGE_NAME,rp.SUB_PAGE_ID,sp.PAGE_NAME SUB_PAGE_NAME 
 		FROM T_REL_PAGES rp LEFT JOIN T_M_PAGES p ON (rp.PAGE_ID=p.PAGE_ID) LEFT JOIN T_M_PAGES sp ON (rp.SUB_PAGE_ID=sp.PAGE_ID)
 		WHERE p.IS_VALID=1 AND sp.IS_VALID=1 AND rp.IS_VALID=1 
     ]]></select>
     <delete id="deleteSubPage"><![CDATA[
         DELETE FROM T_REL_PAGES WHERE PAGE_ID=#{PAGE_ID} AND SUB_PAGE_ID=#{SUB_PAGE_ID}
     ]]></delete>
+    <delete id="deleteAllSubPage"><![CDATA[
+        DELETE FROM T_REL_PAGES WHERE PAGE_ID=#{PAGE_ID}
+    ]]></delete>
     <update id="saveSubPage"><![CDATA[
         UPDATE T_REL_PAGES SET ORDER_NUM=#{ORDER_NUM},WIDTH=#{WIDTH},HEIGHT=#{HEIGHT} WHERE PAGE_ID=#{PAGE_ID} AND SUB_PAGE_ID=#{SUB_PAGE_ID}
     ]]></update>
     <insert id="addSubPage"><![CDATA[
-        INSERT INTO T_REL_PAGES (ORDER_NUM,WIDTH,HEIGHT) 
-        VALUES (#{ORDER_NUM},#{WIDTH},#{HEIGHT})
+        INSERT INTO T_REL_PAGES (PAGE_ID,SUB_PAGE_ID,ORDER_NUM,WIDTH,HEIGHT) 
+        VALUES (#{PAGE_ID},#{SUB_PAGE_ID},#{ORDER_NUM},#{WIDTH},#{HEIGHT})
     ]]></insert>
     
     <update id="deleteRole"><![CDATA[
@@ -183,8 +186,4 @@
     <insert id="saveRolePage"><![CDATA[
         INSERT INTO T_PRI_ROLE_PAGES (PAGE_ID,ROLE_ID) VALUES (#{PAGE_ID},#{ROLE_ID})
     ]]></insert>
-    
-    
-    
-    
 </mapper>

@@ -197,5 +197,6 @@ public interface UserMapper {
 	public void addSubPage(@Param("PAGE_ID") int id, @Param("SUB_PAGE_ID") int subId,
 			@Param("ORDER_NUM") String orderNum, @Param("WIDTH") String width, @Param("HEIGHT") String height);
 
-	
+	public void deleteAllSubPage(@Param("PAGE_ID")  int id);
+
 }

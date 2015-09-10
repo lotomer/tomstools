@@ -420,4 +420,7 @@ public class UserService {
 	public User getUserById(int userId) {
 		return userMapper.selectUserById(userId);
 	}
+	public void deleteAllSubPage(int id) {
+		userMapper.deleteAllSubPage(id);
+	}
 }

@@ -133,7 +133,7 @@
         var row = $('#divMetric').treegrid('getSelected');
         if (row) {
             $('#dlg').dialog('open').dialog('setTitle', '修改' + NAME);
-            $('#fm').form('load', row);
+            $('#fm').form('clear').form('load', row);
             url =URL_PREFIX + '/save.do?key=' + key + '&id=' + row[ID_KEY];
             //selectCombobox(row);
         }

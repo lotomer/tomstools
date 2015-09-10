@@ -107,6 +107,37 @@ function toDecimal(s,len) {
     f = Math.round(f*tmp)/tmp;  
     return f;  
 }
+function valueFormatter(params,ticket,callback){
+    var o = numberAdaptUnit(callback);
+    return ticket + ":" +o.value + o.unit;
+}
+function byteFormatter(params,ticket,callback){
+    var o = storageSpaceAdapt(callback);
+    return ticket + ":" +o.value + o.unit;
+}
+function byteTipFormatter(params,ticket,callback){
+    return tipFormatter(params);
+}
+function tipFormatter (params,defaultUnit) {
+    if(params){
+        if (params instanceof Object && params.data) {
+            var name = params.data.name,value = params.data.value;
+            return name + ':' + storageSpaceAdapt(value,defaultUnit);
+        }else if (params instanceof Array) {
+            var msg = undefined;
+            for (var i = 0,iLen = params.length; i < iLen; i++) {
+                if(!msg) msg = params[i].name;
+                msg += '<br/>' + params[i].seriesName + ':' + storageSpaceAdapt(params[i].value,defaultUnit);
+            }
+            
+            return msg;
+        }else if(typeof(params) == "string" ) {
+            return storageSpaceAdapt(params,defaultUnit);
+        }
+    }
+    
+    return '';
+}
 
 /**
  * 字节转换，自动适应合适的单位
@@ -148,7 +179,7 @@ function numberAdaptUnit (value,defaultUnit,radix) {
     if(!value) return {value:value,unit:realUnit,times:times};
     var units=["","K","M","G","T","P","E","Z","Y","B"],max = parseFloat(value),isMatched = false,position = arrayIndexOf(units,defaultUnit);
     position = position < 1 ? 0 : position;
-    
+    radix = radix == undefined ? 1000 : radix;
     if (max < 1){
     	for (var k = position; k > -1; k--) {
 	        var t = Math.pow(radix,0 - k);
@@ -318,6 +349,17 @@ function getAjaxData(url,params) {
     
     return tmp;
 }
+function formatProgress(value){
+    if (undefined != value){
+        var s = '<div style="width:100%;border:1px solid #ccc">' +
+                '<div style="width:' + value + '%;background:#cc0000;color:#000">' + value + '%' + '</div>'
+                '</div>';
+        return s;
+    } else {
+        return '';
+    }
+}
+
 //---------------------------------------------------  
 //日期格式化  
 //格式 YYYY/yyyy/YY/yy 表示年份  

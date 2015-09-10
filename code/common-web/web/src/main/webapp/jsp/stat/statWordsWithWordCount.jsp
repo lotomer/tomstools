@@ -112,14 +112,14 @@
 
 		var divMetric = $('#divMetric'), titles = [ "正面信息量", "负面信息量" ], zm = {
 			name : titles[0],
-			type : "bar",
+			type : "bar",barWidth:40,
 			data : [],
 			itemStyle : {
 				normal : {
 					color : "blue",
 					label : {
 						show : true,
-						position : 'insideTop',
+						position : 'top',
 						textStyle : {
 							color : "black"
 						}
@@ -128,14 +128,14 @@
 			}
 		}, fm = {
 			name : titles[1],
-			type : "bar",
+			type : "bar",barWidth:40,
 			data : [],
 			itemStyle : {
 				normal : {
 					color : "red",
 					label : {
 						show : true,
-						position : 'insideTop',
+						position : 'top',
 						textStyle : {
 							color : "black"
 						}
@@ -155,7 +155,10 @@
 			//subtext: '纯属虚构'
 			},
 			tooltip : {
-				trigger : 'axis'
+				trigger : 'axis',
+		        axisPointer : {            // 坐标轴指示器，坐标轴触发有效
+		            type : 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
+		        }
 			},
 			legend : {
 				data : titles

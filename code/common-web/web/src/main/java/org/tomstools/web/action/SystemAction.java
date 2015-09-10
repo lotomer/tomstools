@@ -447,16 +447,31 @@ public class SystemAction {
         List<Map<String, Object>> result = userService.selectSubPages();
         return JSON.toJSONString(result);
     }
-    @RequestMapping("/subpage/delete.do")
-    public @ResponseBody String deleteSubPage(@RequestParam("key") String key,
-            @RequestParam(value = "id", required = true) Integer id,
-            @RequestParam(value = "subId", required = true) Integer subId, HttpServletRequest req, HttpServletResponse resp) {
+    @RequestMapping("/subpage/deleteAll.do")
+    public @ResponseBody String deleteAllSubPage(@RequestParam("key") String key,
+            @RequestParam(value = "PAGE_ID", required = true) Integer pageId, HttpServletRequest req, HttpServletResponse resp) {
         String error = userService.check(key);
         if (!"".equals(error)) {
             return error;
         }
         try {
-            userService.deleteSubPage(id,subId);
+            userService.deleteAllSubPage(pageId);
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
+            return e.getMessage();
+        }
+        return "";
+    }
+    @RequestMapping("/subpage/delete.do")
+    public @ResponseBody String deleteSubPage(@RequestParam("key") String key,
+            @RequestParam(value = "PAGE_ID", required = true) Integer pageId,
+            @RequestParam(value = "SUB_PAGE_ID", required = true) Integer subPageId, HttpServletRequest req, HttpServletResponse resp) {
+        String error = userService.check(key);
+        if (!"".equals(error)) {
+            return error;
+        }
+        try {
+            userService.deleteSubPage(pageId,subPageId);
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
             return e.getMessage();
@@ -465,8 +480,8 @@ public class SystemAction {
     }
     @RequestMapping("/subpage/save.do")
     public @ResponseBody String saveSubPage(@RequestParam("key") String key,
-            @RequestParam(value = "id", required = true) Integer id,
-            @RequestParam(value = "subId", required = true) Integer subId,
+            @RequestParam(value = "PAGE_ID", required = true) Integer pageId,
+            @RequestParam(value = "SUB_PAGE_ID", required = true) Integer subPageId,
             @RequestParam(value = "ORDER_NUM", required = false) String orderNum,
             @RequestParam(value = "WIDTH", required = false) String width,
             @RequestParam(value = "HEIGHT", required = false) String height, HttpServletRequest req,
@@ -485,7 +500,7 @@ public class SystemAction {
         	height = "500";
         }
         try {
-            userService.saveSubPage(id, subId,orderNum,width,height);
+            userService.saveSubPage(pageId, subPageId,orderNum,width,height);
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
             return e.getMessage();
@@ -495,8 +510,8 @@ public class SystemAction {
 
     @RequestMapping("/subpage/add.do")
     public @ResponseBody String addSubPage(@RequestParam("key") String key,
-            @RequestParam(value = "id", required = true) Integer id,
-            @RequestParam(value = "subId", required = true) Integer subId,
+            @RequestParam(value = "PAGE_ID", required = true) Integer id,
+            @RequestParam(value = "SUB_PAGE_ID", required = true) Integer subId,
             @RequestParam(value = "ORDER_NUM", required = false) String orderNum,
             @RequestParam(value = "WIDTH", required = false) String width,
             @RequestParam(value = "HEIGHT", required = false) String height, HttpServletRequest req,

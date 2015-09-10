@@ -38,42 +38,23 @@
 </style>
 </head>
 <body class="easyui-layout">
-    <div id="divStatWordsContent" data-options="region:'west',split:true"
-        style="width: 440px;"></div>
+    <div id="divContent" data-options="region:'west',split:true"
+        style="width: 240px;"></div>
     <div id="divContentDetail" data-options="region:'center',split:true">
     </div>
     <div id="dlg" class="easyui-dialog" data-options="modal:true"
-        style="width: 340px; height: 250px; padding: 10px 10px" closed="true"
+        style="width: 340px; height: 150px; padding: 10px 10px" closed="true"
         buttons="#dlg-buttons">
         <form id="fm" method="post" novalidate>
-            <input type="hidden" name="LANG_ID" id="LANG_ID" /> <input
-                type="hidden" name="SITE_TYPE_ID" id="SITE_TYPE_ID" /> <input
-                type="hidden" name="COUNTRY_CODE" id="COUNTRY_CODE" />
             <div class="fitem">
-                <label>语言：</label> <input id="selLang" class="easyui-combobox"
+                <label>主页面</label> <input id="PAGE_ID" name="PAGE_ID" class="easyui-combobox"
                     required="required"></input>
-            </div>
-            <div class="fitem">
-                <label>国家：</label> <input id="selCountry" class="easyui-combobox"
-                    required="required"></input>
-            </div>
-            <div class="fitem">
-                <label>站点类型：</label> <input id="selSiteType" class="easyui-combobox"
-                    required="required"></input>
-            </div>
-            <div class="fitem">
-                <label>站点名：</label> <input name="SITE_NAME" class="easyui-textbox"
-                    required="required">
-            </div>
-            <div class="fitem">
-                <label>域名：</label> <input name="SITE_HOST" class="easyui-textbox "
-                    required="required">
             </div>
         </form>
     </div>
     <div id="dlg-buttons">
         <a href="javascript:void(0)" class="easyui-linkbutton c6"
-            iconCls="icon-ok" onclick="save()" style="width: 90px">保存</a> <a
+            iconCls="icon-ok" onclick="save()" style="width: 90px">确定</a> <a
             href="javascript:void(0)" class="easyui-linkbutton"
             iconCls="icon-cancel" onclick="javascript:$('#dlg').dialog('close')"
             style="width: 90px">取消</a>
@@ -83,8 +64,8 @@
             data-options="iconCls:'icon-add',plain:true" onclick="add()">新增</a> <a
             href="javascript:void(0)" class="easyui-linkbutton"
             data-options="iconCls:'icon-remove',plain:true" onclick="removeit()">删除</a>
-        <a href="javascript:void(0)" class="easyui-linkbutton"
-            data-options="iconCls:'icon-edit',plain:true" onclick="edit()">修改</a>
+        <!-- <a href="javascript:void(0)" class="easyui-linkbutton"
+            data-options="iconCls:'icon-edit',plain:true" onclick="edit()">修改</a> -->
     </div>
 
     <div id="dlgDetail" class="easyui-dialog" data-options="modal:true"
@@ -92,15 +73,18 @@
         buttons="#dlg-buttonsDetail">
         <!-- <div class="ftitle">智能词条</div> -->
         <form id="fmDetail" method="post" novalidate>
-            <input type="hidden" name="SITE_ID" id="SITE_ID" />
+        	<input type="hidden" id="PAGE_ID" name="PAGE_ID">
             <div class="fitem">
-                <label>站点名称：</label> <input name="SITE_NAME" class="easyui-textbox"
-                    required="required" data-options="disabled: true"></input>
+            	<label>子页面</label> <input id="SUB_PAGE_ID" name="SUB_PAGE_ID" class="easyui-combobox"></input>
             </div>
             <div class="fitem">
-                <label>URL地址：</label> <input name="URL" class="easyui-textbox"
-                    style="height: 80px" required="required"
-                    data-options="multiline:true"></input>
+                <label>宽：</label> <input name="WIDTH"  type="text" class="easyui-numberbox" data-options="min:0,precision:0,max:5000" required="required"></input>
+            </div>
+            <div class="fitem">
+                <label>高：</label> <input name="HEIGHT" type="text" class="easyui-numberbox" data-options="min:0,precision:0,max:2000" required="required"></input>
+            </div>
+            <div class="fitem">
+                <label>序号：</label> <input name="ORDER_NUM" type="text" class="easyui-numberbox" data-options="min:0,precision:0,max:100" required="required"></input>
             </div>
         </form>
     </div>
@@ -129,31 +113,50 @@
 <script type="text/javascript" src="js/utils.js"></script>
 <script type="text/javascript">
     // 面板与内容之间的差值
-    var theme = '${theme}', key = '${user.key}',ID_KEY='MENU_ID',URL_PREFIX='sys/subpage',DETAIL_URL_PREFIX='sys/page',NAME='菜单',DETAIL_NAME='页面';
+    var theme = '${theme}', key = '${user.key}',ID_KEY='PAGE_ID',URL_PREFIX='sys/subpage',DETAIL_URL_PREFIX='sys/subpage',NAME='主页面',DETAIL_NAME='子页面';
     // 页面初始化
     $(function() {
-        // 绑定事件
+    	initQuery();
+    	initQueryDetail();
         query();
-    	
     });
-    
-    var url;
+    function initMainComboboxValue(){
+      	initCombobox("PAGE_ID","sys/page/select.do?key=" + key,undefined,false,"PAGE_ID","PAGE_NAME");
+    }
+    var url,PAGES,DATA;
     function add() {
         $('#dlg').dialog('open').dialog('setTitle', '新增' + NAME);
-        $('#fm').form('clear');
+        //$('#fm').form('clear');
+        initMainComboboxValue();
         url = URL_PREFIX + '/add.do?key=' + key;
     }
     function edit() {
+    	initMainComboboxValue();
         var row = $('#divMetric').datagrid('getSelected');
         if (row) {
             $('#dlg').dialog('open').dialog('setTitle', '修改' + NAME);
             $('#fm').form('load', row);
             url =URL_PREFIX + '/save.do?key=' + key + '&id=' + row[ID_KEY];
-            //selectCombobox(row);
         }
     }
     function save() {
-        $('#fm').form('submit', {
+    	var exists = false,data = $('#divMetric').datagrid("getData"),pageId = $('#PAGE_ID').combobox("getValue"),pageName = $('#PAGE_ID').combobox("getText");
+    	// 判断是否已经存在
+    	for(var i = 0,iLen = data.rows.length; i<iLen;i++){
+    		if (pageId == data.rows[i].PAGE_ID){
+    			exists = true;
+    			break;
+    		}
+    	}
+    	if (!exists){
+	    	data.total += 1;
+	    	data.rows.push({PAGE_ID:pageId,PAGE_NAME:pageName});
+	    	$('#divMetric').datagrid("loadData",data);
+	    	$('#divMetric').datagrid("unselectAll");
+	    	$('#divMetricDetail').datagrid("loadData",[]);
+    	}
+    	$('#dlg').dialog('close');
+       /* $('#fm').form('submit', {
             url : url,
             onSubmit : function() {
                 return $(this).form('validate');
@@ -169,14 +172,14 @@
                     $('#divMetric').datagrid("reload"); // reload the user data
                 }
             }
-        });
+        });*/
     }
     function removeit() {
         var row = $('#divMetric').datagrid('getSelected');
         if (row) {
             $.messager.confirm('删除确认', '确定要删除吗？', function(r) {
                 if (r) {
-                    $.post(URL_PREFIX + '/delete.do', {
+                    $.post(URL_PREFIX + '/deleteAll.do', {
                         id : row[ID_KEY],
                         key : key
                     }, function(result) {
@@ -184,10 +187,7 @@
                             $('#divMetric').datagrid('reload'); // reload the user data 
                             $('#divMetric').datagrid('unselectAll');
                         } else {
-                            $.messager.show({ // show error message
-                                title : '异常',
-                                msg : result
-                            });
+                        	showMessage('删除失败',result);
                         }
                     }, 'html');
                 }
@@ -195,20 +195,46 @@
         }
     }
 
-    /**
-     * 执行查询
-     */
-    function query() {
-        $('#divStatWordsContent').html('');
-        showLoading("divStatWordsContent");
-        $('#divStatWordsContent').html('');
-        $('#divStatWordsContent').append(
+    function successCallback(datas){
+    	var pages = {};
+    	for (var i = 0; i < datas.length; i++) {
+    		var data = datas[i];
+			if (!pages[data.PAGE_ID]){
+				pages[data.PAGE_ID] = {PAGE_ID:data.PAGE_ID,PAGE_NAME:data.PAGE_NAME,children:[]};
+			}
+			
+			pages[data.PAGE_ID].children.push({PAGE_ID:data.PAGE_ID,SUB_PAGE_ID:data.SUB_PAGE_ID,SUB_PAGE_NAME:data.SUB_PAGE_NAME,ORDER_NUM:data.ORDER_NUM,WIDTH:data.WIDTH,HEIGHT:data.HEIGHT});
+		}
+    	
+    	// 显示主页面列表
+    	var pageList = [];
+    	for ( var pageId in pages) {
+			pageList.push(pages[pageId]);
+		}
+    	PAGES=pages;
+    	
+    	$('#divMetric').datagrid("loadData",pageList);
+    	$('#divMetric').datagrid("unselectAll");
+    	$('#divMetricDetail').datagrid("unselectAll");
+    	$('#divMetricDetail').datagrid("loadData",[]);
+    	if (DATA){
+        	$('#divMetric').datagrid("selectRecord",DATA.PAGE_ID);
+    		//DATA = undefined;
+    	}
+    }
+    function initQuery(){
+    	$('#divContent').html('');
+        showLoading("divContent");
+        $('#divContent').html('');
+        $('#divContent').append(
                 '<div id="divMetric" style="width:100%;height:100%"></div>');
-        var divMetric = $('#divMetric'), pageSize = 15;
+        var divMetric = $('#divMetric'), pageSize = 150;
         divMetric.datagrid({
             toolbar : '#tb',
             title : NAME + '列表',
-            url : URL_PREFIX + '/select.do',
+            //url : URL_PREFIX + '/select.do',
+            data:[],
+            width:233,
             fitColumns : true,
             rownumbers : true,
             singleSelect : true,
@@ -216,73 +242,64 @@
             idField : ID_KEY,
             //sortName : "status",
             //sortOrder : "asc",
-            pagination : true,
+            pagination : false,
             pageSize : pageSize,
             pageList : getPageList(pageSize),
             onSelect : function(index, row) {
-                /*siteData = row;
-                $('#divMetricDetail').datagrid({
-                    title : "待爬取URL列表【" + row.SITE_NAME + "】"
-                }).datagrid("load", {
-                    key : key,
-                    SITE_ID : row.SITE_ID
-                });
-                $('#divMetricDetail').datagrid("unselectAll");*/
+            	DATA = row;
+                if (PAGES && PAGES[row.PAGE_ID]){
+	                $('#divMetricDetail').datagrid({
+	                    title : DETAIL_NAME + "列表【" + row.PAGE_NAME + "】"
+	                }).datagrid("loadData", PAGES[row.PAGE_ID].children);
+	                $('#divMetricDetail').datagrid("unselectAll");
+                }
             },
             columns : [ [ {
-                field : 'SITE_NAME',
-                title : '站点名',
+                field : 'PAGE_NAME',
+                title : NAME + '名',
                 align : 'center',
                 halign : 'center'
-            }, {
-                field : 'SITE_HOST',
-                title : '站点域名',
-                align : 'center',
-                halign : 'center'
-            }, {
-                field : 'SITE_TYPE_NAME',
-                title : '站点类型',
-                align : 'center',
-                halign : 'center'
-            }, {
-                field : 'LANG_NAME',
-                title : '语言',
-                align : 'center',
-                halign : 'center',
-                sortable : "true"
-            }, {
-                field : 'COUNTRY_NAME',
-                title : '区域',
-                align : 'center',
-                halign : 'center'
-            } ] ]
+            }] ]
         }).datagrid('clientPaging');
     }
-
+    /**
+     * 执行查询
+     */
+    function query() {
+        loadData("", URL_PREFIX + '/select.do', {key:key}, successCallback);
+        initDetailComboboxValue();
+    }
+    function initDetailComboboxValue(){
+      	initCombobox("SUB_PAGE_ID","sys/page/select.do?key=" + key,undefined,true,"PAGE_ID","PAGE_NAME");
+    }
     var urlDetail;
     function addDetail() {
-        if (siteData == undefined)
+        if (DATA == undefined)
             return;
         $('#dlgDetail').dialog('open').dialog('setTitle', '新增' + DETAIL_NAME);
-        $('#fmDetail').form('clear').form("load", siteData);
+        $('#SUB_PAGE_ID').combobox('readonly',false);
+        $('#fmDetail').form('clear');
+        initDetailComboboxValue();
+        $('#fmDetail').form('load', DATA);
         urlDetail = DETAIL_URL_PREFIX + '/add.do?key=' + key;
     }
     function editDetail() {
-        if (siteData == undefined)
+        if (DATA == undefined)
             return;
+        
         var row = $('#divMetricDetail').datagrid('getSelected');
         if (row) {
+        	log(row);
             $('#dlgDetail').dialog('open').dialog('setTitle', '修改' + DETAIL_NAME);
-            $('#fmDetail').form("clear").form("load", siteData).form('load',
-                    row);
-            urlDetail =DETAIL_URL_PREFIX + '/save.do?key=' + key + '&id='
-                    + row.ID;
-            selectCombobox(row);
+            $('#fmDetail').form("clear");
+            //initDetailComboboxValue();
+            $('#fmDetail').form('load',row);
+            urlDetail =DETAIL_URL_PREFIX + '/save.do?key=' + key;
+
+            $('#SUB_PAGE_ID').combobox('readonly',true);
         }
     }
     function saveDetail() {
-        if (siteData == undefined)
-            return;
         $('#fmDetail').form('submit', {
             url : urlDetail,
             onSubmit : function() {
@@ -290,48 +307,45 @@
             },
             success : function(result) {
                 if (result) {
-                    $.messager.show({
-                        title : 'Error',
-                        msg : result
-                    });
+                	showMessage("保存失败",result);
                 } else {
                     $('#dlgDetail').dialog('close'); // close the dialog
-                    $('#divMetricDetail').datagrid("reload"); // reload the user data
+                    query();
+                    //$('#divMetricDetail').datagrid("reload"); // reload the user data
                 }
             }
         });
     }
     function removeitDetail() {
-        if (siteData == undefined)
+        if (DATA == undefined)
             return;
         var row = $('#divMetricDetail').datagrid('getSelected');
         if (row) {
             $.messager.confirm('删除确认', '确定要删除吗？', function(r) {
                 if (r) {
-                    $.post("setting/siteDetail/delete.do", {
-                        id : row.ID,
+                    $.post(DETAIL_URL_PREFIX + "/delete.do", {
+                        PAGE_ID : row.PAGE_ID,
+                        SUB_PAGE_ID : row.SUB_PAGE_ID,
                         key : key
                     }, function(result) {
                         if (!result) {
-                            $('#divMetricDetail').datagrid('reload'); // reload the user data 
-                            $('#divMetricDetail').datagrid('unselectAll');
+                        	query();
+                            //$('#divMetricDetail').datagrid('reload'); // reload the user data 
+                            //$('#divMetricDetail').datagrid('unselectAll');
                         } else {
-                            $.messager.show({ // show error message
-                                title : '异常',
-                                msg : result
-                            });
+                        	showMessage('删除失败',result);
                         }
                     }, 'html');
                 }
             });
         }
     }
-
+	
     /**
      * 执行查询
      */
-    function queryDetail() {
-        $('#divContentDetail').html('');
+    function initQueryDetail() {
+    	$('#divContentDetail').html('');
         showLoading("divContentDetail");
         $('#divContentDetail').html('');
         $('#divContentDetail')
@@ -343,31 +357,50 @@
 
         divMetric.datagrid({
             toolbar : '#tbDetail',
-            title : "待爬取URL列表【所有站点】",
-            url : "setting/siteDetail/select.do",
+            title :  DETAIL_NAME + "列表",
+            //url : "setting/siteDetail/select.do",
+            data:[],
             queryParams : params,
             fitColumns : true,
             rownumbers : true,
             singleSelect : true,
             remoteSort : false,
-            idField : "ID",
-            //sortName : "status",
-            //sortOrder : "asc",
+            idField : "SUB_PAGE_ID",
+            sortName : "ORDER_NUM",
+            sortOrder : "asc",
             pagination : true,
             pageSize : pageSize,
             pageList : getPageList(pageSize),
             columns : [ [  {
-                field : 'SITE_NAME',
-                title : '站点名',
+                field : 'SUB_PAGE_NAME',
+                title : DETAIL_NAME + '名',
                 align : 'center',
                 halign : 'center'
             } ,{
-                field : 'URL',
-                title : '待爬取URL',
-                align : 'left',
+                field : 'WIDTH',
+                title : '宽',
+                align : 'center',
+                halign : 'center'
+            },{
+                field : 'HEIGHT',
+                title : '高',
+                align : 'center',
+                halign : 'center'
+            },{
+                field : 'ORDER_NUM',
+                title : '序号',
+                align : 'center',
                 halign : 'center'
             } ] ]
         }).datagrid('clientPaging');
+    }
+    function showMessage(title,msg){
+    	$.messager.show({
+            title : title,
+            msg : msg,
+        	height:'200px',
+        	width:'400px'
+        });
     }
 </script>
 </html>

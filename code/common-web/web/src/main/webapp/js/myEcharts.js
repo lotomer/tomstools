@@ -280,17 +280,24 @@ function getOptionWithLineOrBar(ec, dt, values, titles, tipStr, realUnit,
     return option;
 }
 function getOptionWithPie(ec, dt, values, titles, tipStr, realUnit, maxValue,
-        dateFormatterStr, clickCallback) {
+        valueFormatter, clickCallback,legendOrient,center) {
+    // 将数值为0的改为'-'，以便不显示在饼图中
+    for (var i = 0, iLen = values.length; i < iLen; i++) {
+        if (!values[i].value){
+            values[i].value = '-';
+        }
+    }
+    valueFormatter = valueFormatter == undefined ? "{b}:{c}" : valueFormatter;
     // function
     // createPie(ownerId,index,dataset,title,ec,titles,tipFormat,valueFormat,w,h){
     var option = {
         tooltip : {
             trigger : 'item',
-            formatter : '{b}:{c}' + realUnit
+            formatter : '{b}:{c}' + realUnit != undefined? realUnit : ''
         },
         legend : {
             // orient : 'vertical',
-            // x : 'left',
+            x : 'left',
             data : titles
         },
         toolbox : {
@@ -328,39 +335,15 @@ function getOptionWithPie(ec, dt, values, titles, tipStr, realUnit, maxValue,
             name : 'title',
             type : 'pie',
             data : values,
-            itemStyle : {
-                normal : {
-                    labelLine : {
-                        show : false,
-                        length : 1
-                    },
-                    label : {
-                        show : true,
-                        position : 'inner',
-                        formatter : '{b}:{c}' + realUnit,
-                        textStyle : {
-                            color : 'white'
-                        }
-                    }
-                },
-                emphasis : {
-                    labelLine : {
-                        show : false,
-                        length : 1
-                    },
-                    label : {
-                        show : true,
-                        position : 'inner',
-                        formatter : '{b}:{c}' + realUnit,
-                        textStyle : {
-                            color : 'white'
-                        }
-                    }
-                }
-            },
-            center : [ '50%', '60%' ]
+            itemStyle: {normal: {labelLine:{show:false,length:1},label: {show: true,position:'inner',formatter:valueFormatter,textStyle:{color:'white'}}},
+                        emphasis: {labelLine:{show:false,length:1},label: {show: true,position:'inner',formatter:valueFormatter,textStyle:{color:'white'}}}},
+            center : center != undefined ? center : [ '50%', '60%' ]
         } ]
     };
+    if (legendOrient != undefined){
+        option.legend.orient = legendOrient;
+    }
+    
     if (tipStr != undefined) {
         option.tooltip.formatter = tipStr;
     }
