@@ -163,10 +163,7 @@
             },
             success : function(result) {
                 if (result) {
-                    $.messager.show({
-                        title : 'Error',
-                        msg : result
-                    });
+					showErrorMessage('操作失败',result);
                 } else {
                     $('#dlg').dialog('close'); // close the dialog
                     $('#divMetric').datagrid("reload"); // reload the user data
@@ -187,7 +184,7 @@
                             $('#divMetric').datagrid('reload'); // reload the user data 
                             $('#divMetric').datagrid('unselectAll');
                         } else {
-                        	showMessage('删除失败',result);
+                        	showErrorMessage('删除失败',result);
                         }
                     }, 'html');
                 }
@@ -307,7 +304,7 @@
             },
             success : function(result) {
                 if (result) {
-                	showMessage("保存失败",result);
+                	showErrorMessage("保存失败",result);
                 } else {
                     $('#dlgDetail').dialog('close'); // close the dialog
                     query();
@@ -333,7 +330,7 @@
                             //$('#divMetricDetail').datagrid('reload'); // reload the user data 
                             //$('#divMetricDetail').datagrid('unselectAll');
                         } else {
-                        	showMessage('删除失败',result);
+                        	showErrorMessage('删除失败',result);
                         }
                     }, 'html');
                 }
@@ -393,14 +390,6 @@
                 halign : 'center'
             } ] ]
         }).datagrid('clientPaging');
-    }
-    function showMessage(title,msg){
-    	$.messager.show({
-            title : title,
-            msg : msg,
-        	height:'200px',
-        	width:'400px'
-        });
     }
 </script>
 </html>

@@ -488,7 +488,7 @@ public class StatAction {
 		User user = userService.getUserByKey(key);
 		String error = userService.check(user);
 		if (!"".equals(error)) {
-			return error;
+			return "NEED_LOGIN:" + error;
 		}
 		File path = new File(userService.getConfig(user.getUserId(), "UPLOAD_PATH"));
 		if (!path.exists()) {
@@ -571,7 +571,7 @@ public class StatAction {
 
 		String error = userService.check(key);
 		if (!"".equals(error)) {
-			return error;
+			return "NEED_LOGIN:" + error;
 		}
 		try {
 			solrService.deleteWeeklyById(id);

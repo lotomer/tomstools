@@ -6,6 +6,22 @@ window.messager = $.messager;
 function trim(str){
 	return str.replace(/(^\s*)|(\s*$)/g,'');
 }
+function showErrorMessage(title,msg){
+	if (msg.startWith("NEED_LOGIN:")){
+		showMessage("保存失败","用户已失效，请重新登录",true);
+		window.top.location.href = "login.do";
+	}else{
+		showMessage("保存失败",msg);
+	}
+}
+String.prototype.startWith=function(str){
+	if (str != null && str != "" && this.length != 0
+			&& str.length <= this.length && this.substr(0, str.length) == str){
+		return true;
+	}else{
+		return false;
+	}
+}
 function showLoading(parentId){
 	$('#' + parentId).html('<div class="loading"><div><span>&nbsp;</span><label>正在加载数据，请稍候...</label></div></div>');
 }
@@ -397,11 +413,16 @@ Date.prototype.format = function(formatStr)
   return str;   
 }
 
-function showMessage(title,msg){
-	$.messager.show({
-		title : title,
-		msg : msg,
-		width: '400px',
-		height: '400px'
-	});
+function showMessage(title,msg,type){
+	if (!type){
+		$.messager.show({
+			title : title,
+			msg : msg,
+			width: '200px',
+			height: '100px'
+		});
+	}else{
+		alert(msg);
+	}
+	
 }

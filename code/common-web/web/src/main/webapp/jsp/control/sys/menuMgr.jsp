@@ -146,7 +146,7 @@
             },
             success : function(result) {
                 if (result) {
-                	showMessage("保存失败",result);
+					showErrorMessage("保存失败",result);
                 } else {
                     $('#dlg').dialog('close'); // close the dialog
                     //$('#divMetric').treegrid("reload"); // reload the user data
@@ -169,7 +169,7 @@
                             $('#divMetric').treegrid('unselectAll');
                             doQuery();
                         } else {
-                        	showMessage("删除失败",result);
+                        	showErrorMessage("删除失败",result);
                         }
                     }, 'html');
                 }

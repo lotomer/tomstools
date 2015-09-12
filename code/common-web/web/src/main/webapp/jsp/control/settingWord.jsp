@@ -100,28 +100,19 @@
 	function add(){
 		var param = {key:key},word=$('#inputWords').textbox("getValue"),typeId=$('#selType').combobox("getValue"),langId=$('#selLang').combobox("getValue");
 		if ("" == word){
-			$.messager.show({    // show error message
-                title: '提示',
-                msg: '请输入词汇！'
-            });
+			$.messager.show({title: '提示',msg: '请输入词汇！'});
 			return;
 		}else{
 			param["WORD"] = word;
 		}
 		if ("*" == langId){
-			$.messager.show({    // show error message
-                title: '提示',
-                msg: '请选择类别！'
-            });
+			$.messager.show({title: '提示',msg: '请选择类别！'});
 			return;
 		}else{
 			param["LANG_ID"] = langId;
 		}
 		if ("*" == typeId){
-			$.messager.show({    // show error message
-                title: '提示',
-                msg: '请选择类别！'
-            });
+			$.messager.show({title: '提示',msg: '请选择类别！'});
 			return;
 		}else{
 			param["TYPE_ID"] = typeId;
@@ -129,12 +120,10 @@
 		$.post("setting/word/add.do",param,function(result){
             if (!result){
                 showWord(word,typeId,langId);
+                showMessage('操作成功',"新词词汇成功：" + word);
+                $('#inputWords').textbox("clear");
             } else {
-                $.messager.show({    // show error message
-                    title: '添加失败',
-                    timeout:8000,
-                    msg: result
-                });
+				showErrorMessage('操作失败',result);
             }
         },'html');
 	}
@@ -188,11 +177,7 @@
                         if (!result){
                             $('#word_' + id).remove();
                         } else {
-                            $.messager.show({    // show error message
-                                title: '删除失败',
-                                timeout:8000,
-                                msg: result
-                            });
+							showErrorMessage('操作失败',result);
                         }
                     },'html');
                 }
@@ -208,10 +193,7 @@
             },
             success: function(result){
                 if (result){
-                    $.messager.show({
-                        title: 'Error',
-                        msg: result
-                    });
+					showErrorMessage('操作失败',result);
                 } else {
                     $('#dlg').dialog('close');        // close the dialog
                     $('#divMetric').datagrid("reload");    // reload the user data

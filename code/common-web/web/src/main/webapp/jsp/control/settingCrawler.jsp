@@ -99,10 +99,7 @@
             },
             success: function(result){
                 if (result){
-                    $.messager.show({
-                        title: 'Error',
-                        msg: result
-                    });
+					showErrorMessage('操作失败',result);
                 } else {
                     $('#dlg').dialog('close');        // close the dialog
                     $('#divMetric').datagrid("reload");    // reload the user data
@@ -119,10 +116,7 @@
                         if (!result){
                             $('#divMetric').datagrid('reload');    // reload the user data
                         } else {
-                            $.messager.show({    // show error message
-                                title: '异常',
-                                msg: result
-                            });
+							showErrorMessage('操作失败',result);
                         }
                     },'html');
                 }

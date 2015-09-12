@@ -35,7 +35,7 @@ public class SystemAction {
         resp.setContentType("application/json;charset=UTF-8");
         String error = userService.check(key);
         if (!"".equals(error)) {
-            return error;
+            return "NEED_LOGIN:" + error;
         }
         List<Map<String, Object>> s = userService.getUserList();
 
@@ -56,7 +56,7 @@ public class SystemAction {
         User user = userService.getUserByKey(key);
         String error = userService.check(user);
         if (!"".equals(error)) {
-            return error;
+            return "NEED_LOGIN:" + error;
         }
         if (null != userId){
             // 旧密码为空，则只允许修改密码之外的字段
@@ -78,7 +78,7 @@ public class SystemAction {
             @RequestParam(value = "id", required = true) Integer id, HttpServletRequest req, HttpServletResponse resp) {
         String error = userService.check(key);
         if (!"".equals(error)) {
-            return error;
+            return "NEED_LOGIN:" + error;
         }
         try {
             userService.deleteUser(id);
@@ -98,7 +98,7 @@ public class SystemAction {
             HttpServletResponse resp) {
         String error = userService.check(key);
         if (!"".equals(error)) {
-            return error;
+            return "NEED_LOGIN:" + error;
         }
         try {
             userService.addUser(userName,nickName,email,phoneNumber,clientIp);
@@ -123,7 +123,7 @@ public class SystemAction {
             @RequestParam(value = "id", required = true) Integer id, HttpServletRequest req, HttpServletResponse resp) {
         String error = userService.check(key);
         if (!"".equals(error)) {
-            return error;
+            return "NEED_LOGIN:" + error;
         }
         try {
             userService.deleteRole(id);
@@ -141,7 +141,7 @@ public class SystemAction {
             HttpServletResponse resp) {
         String error = userService.check(key);
         if (!"".equals(error)) {
-            return error;
+            return "NEED_LOGIN:" + error;
         }
         try {
             userService.saveRole(id, roleName);
@@ -158,7 +158,7 @@ public class SystemAction {
             HttpServletResponse resp) {
         String error = userService.check(key);
         if (!"".equals(error)) {
-            return error;
+            return "NEED_LOGIN:" + error;
         }
         try {
             userService.addRole(roleName);
@@ -194,7 +194,7 @@ public class SystemAction {
             HttpServletResponse resp) {
         String error = userService.check(key);
         if (!"".equals(error)) {
-            return error;
+            return "NEED_LOGIN:" + error;
         }
         try {
             userService.saveRoleUsers(id, userIds);
@@ -212,7 +212,7 @@ public class SystemAction {
             HttpServletResponse resp) {
         String error = userService.check(key);
         if (!"".equals(error)) {
-            return error;
+            return "NEED_LOGIN:" + error;
         }
         try {
             userService.saveRoleMenus(id, menuIds);
@@ -230,7 +230,7 @@ public class SystemAction {
             HttpServletResponse resp) {
         String error = userService.check(key);
         if (!"".equals(error)) {
-            return error;
+            return "NEED_LOGIN:" + error;
         }
         try {
             userService.saveRolePages(id, pageIds);
@@ -255,7 +255,7 @@ public class SystemAction {
             @RequestParam(value = "id", required = true) Integer id, HttpServletRequest req, HttpServletResponse resp) {
         String error = userService.check(key);
         if (!"".equals(error)) {
-            return error;
+            return "NEED_LOGIN:" + error;
         }
         try {
             userService.deleteMenu(id);
@@ -278,7 +278,7 @@ public class SystemAction {
             HttpServletResponse resp) {
         String error = userService.check(key);
         if (!"".equals(error)) {
-            return error;
+            return "NEED_LOGIN:" + error;
         }
         Integer pid = -1;
         if (!"*".equals(parentId)){
@@ -321,7 +321,7 @@ public class SystemAction {
             HttpServletResponse resp) {
         String error = userService.check(key);
         if (!"".equals(error)) {
-            return error;
+            return "NEED_LOGIN:" + error;
         }
         Integer pid = -1;
         if (!"*".equals(parentId)){
@@ -365,7 +365,7 @@ public class SystemAction {
             @RequestParam(value = "id", required = true) Integer id, HttpServletRequest req, HttpServletResponse resp) {
         String error = userService.check(key);
         if (!"".equals(error)) {
-            return error;
+            return "NEED_LOGIN:" + error;
         }
         try {
             userService.deletePage(id);
@@ -388,7 +388,7 @@ public class SystemAction {
             HttpServletResponse resp) {
         String error = userService.check(key);
         if (!"".equals(error)) {
-            return error;
+            return "NEED_LOGIN:" + error;
         }
         if (StringUtils.isEmpty(autoFreshTime)){
         	autoFreshTime = "0";
@@ -420,7 +420,7 @@ public class SystemAction {
             HttpServletResponse resp) {
         String error = userService.check(key);
         if (!"".equals(error)) {
-            return error;
+            return "NEED_LOGIN:" + error;
         }
         if (StringUtils.isEmpty(autoFreshTime)){
         	autoFreshTime = "0";
@@ -452,7 +452,7 @@ public class SystemAction {
             @RequestParam(value = "PAGE_ID", required = true) Integer pageId, HttpServletRequest req, HttpServletResponse resp) {
         String error = userService.check(key);
         if (!"".equals(error)) {
-            return error;
+            return "NEED_LOGIN:" + error;
         }
         try {
             userService.deleteAllSubPage(pageId);
@@ -468,7 +468,7 @@ public class SystemAction {
             @RequestParam(value = "SUB_PAGE_ID", required = true) Integer subPageId, HttpServletRequest req, HttpServletResponse resp) {
         String error = userService.check(key);
         if (!"".equals(error)) {
-            return error;
+            return "NEED_LOGIN:" + error;
         }
         try {
             userService.deleteSubPage(pageId,subPageId);
@@ -488,7 +488,7 @@ public class SystemAction {
             HttpServletResponse resp) {
         String error = userService.check(key);
         if (!"".equals(error)) {
-            return error;
+            return "NEED_LOGIN:" + error;
         }
         if (StringUtils.isEmpty(orderNum)){
         	orderNum = "0";
@@ -518,7 +518,7 @@ public class SystemAction {
             HttpServletResponse resp) {
         String error = userService.check(key);
         if (!"".equals(error)) {
-            return error;
+            return "NEED_LOGIN:" + error;
         }
         if (StringUtils.isEmpty(orderNum)){
         	orderNum = "0";

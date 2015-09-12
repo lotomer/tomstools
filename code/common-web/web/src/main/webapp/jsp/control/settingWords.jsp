@@ -86,7 +86,7 @@
 		</div>
 		<div class="right">
 			<div style="float:left;width:50px;">
-				<input class="btnClick" type="button" name=" " value="空格">
+				<input class="btnClick" type="button" name="" value="空格">
 				<input class="btnClick" type="button" name="( )" value="( )" title="括号">
 				<input class="btnClick" type="button" name="AND" value="AND" title="与">
 				<input class="btnClick" type="button" name="OR" value="OR" title="或">
@@ -215,7 +215,9 @@
 				// 屏蔽
 				e.preventDefault();
 			}
-		});
+		}).focus(function() {  
+            this.style.imeMode='disabled';  
+        }); ;
 		$("textarea").bind("click",textClick);
 		$(".btnClick").bind("click", function(e) {
 			insertWord(e.target.name);
@@ -227,20 +229,24 @@
 		if (TEXTAREA_ID){
 			var obj = $("#" + TEXTAREA_ID);
 			obj.insertContent(word);
+			// 在后面追加一个空格
+			obj.insertContent(" ");
 			//insertText(obj,e.target.value,e.target.name);
 		}
 	}
 	function addWord(){
-		var word = $('#WORD').combobox("getValue");
+		var word = $('#WORD').combobox("getText");
 		// 如果是在词汇表中，则添加
 		if (isArray(window.WORDLIST)){
-			var matched = false,wordList=window.WORDLIST;
+			var wordList=window.WORDLIST;
 			for (var i = 0,iLen=wordList.length; i < iLen; i++) {
 				if (wordList[i].WORD == word){
 					insertWord(word);
-					break;
+					$('#WORD').combobox("clear");
+					return;
 				}
 			}
+			showMessage("提示",'词汇【' + word + '】不存在，请录入词汇。<a href="#" onclick="javascript:window.top.createPageById(104004)">点击进行录入</a>');
 		}
 	}
 	var url;
@@ -265,10 +271,7 @@
 			},
 			success : function(result) {
 				if (result) {
-					$.messager.show({
-						title : 'Error',
-						msg : result
-					});
+					showErrorMessage('操作失败',result);
 				} else {
 					$('#dlg').dialog('close'); // close the dialog
 					$('#divMetric').datagrid("reload"); // reload the user data
@@ -289,10 +292,7 @@
 							$('#divMetric').datagrid('reload'); // reload the user data
 							$('#divMetric').datagrid('unselectAll');
 						} else {
-							$.messager.show({ // show error message
-								title : '异常',
-								msg : result
-							});
+							showErrorMessage('操作失败',result);
 						}
 					}, 'html');
 				}

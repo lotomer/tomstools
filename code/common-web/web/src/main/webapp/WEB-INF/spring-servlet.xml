@@ -28,7 +28,7 @@ http://www.springframework.org/schema/task/spring-task.xsd">
 		<task:scheduled ref="solrSchedule" method="alertProcess"
 			cron="0 0/1 * * * ?" />
 		<task:scheduled ref="solrSchedule" method="statWordsWithHost"
-			cron="0 0/60 * * * ?" />
+			cron="0 0/30 * * * ?" />
 	</task:scheduled-tasks>
 	<task:annotation-driven />
 </beans>

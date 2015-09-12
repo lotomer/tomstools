@@ -12,6 +12,9 @@
     <select id="selectWordsList" resultType="map"><![CDATA[
         SELECT TYPE_ID,TYPE_NAME,TEMPLATE_ZM,TEMPLATE_FM,TEMPLATE_ZM_E,TEMPLATE_FM_E FROM T_POM_C_RULE WHERE IS_VALID=1
     ]]></select>
+    <select id="selecTypeIdByName" resultType="int"><![CDATA[
+        SELECT TYPE_ID FROM T_POM_C_RULE WHERE TYPE_NAME=#{TYPE_NAME} AND IS_VALID=1 LIMIT 1
+    ]]></select>
     <update id="deleteWords">
     	UPDATE T_POM_C_RULE SET IS_VALID=0 WHERE TYPE_ID=#{TYPE_ID}
     </update>
@@ -30,6 +33,11 @@
 		LEFT JOIN T_M_COUNTRY c ON (cs.COUNTRY_CODE=c.COUNTRY_CODE)
 		LEFT JOIN T_M_LANGUAGE l ON (cs.LANG_ID=l.LANG_ID)
 		WHERE cs.IS_VALID=1 AND st.IS_VALID=1
+    ]]></select>
+    <select id="selectSiteIdByName" resultType="int"><![CDATA[
+        SELECT SITE_ID
+		FROM T_CRAWL_C_SITE
+		WHERE SITE_NAME=#{SITE_NAME} AND IS_VALID=1 LIMIT 1
     ]]></select>
     <update id="deleteSite">
     	UPDATE T_CRAWL_C_SITE SET IS_VALID=0 WHERE SITE_ID=#{SITE_ID}
@@ -52,6 +60,11 @@
 		</if>
 		u.IS_VALID=1 AND s.IS_VALID=1 
     </select>
+    <select id="selectIdBySiteIdAndUrl" resultType="int">
+        SELECT ID
+		FROM T_CRAWL_C_CRAWL_URLS
+		WHERE SITE_ID=#{SITE_ID} AND URL=#{URL} AND IS_VALID=1 LIMIT 1
+    </select>
     <update id="deleteSiteDetail">
     	UPDATE T_CRAWL_C_CRAWL_URLS SET IS_VALID=0 WHERE ID=#{ID}
     </update>
@@ -69,18 +82,29 @@
 		WHERE 
 		u.IS_VALID=1
     </select>
+    <select id="selectWordIdByWord" resultType="int">
+        SELECT ID
+		FROM T_POM_C_WORD
+		WHERE WORD=#{WORD} AND IS_VALID=1 LIMIT 1
+    </select>
     <delete id="deleteWord">
-    	DELETE FROM T_POM_C_WORD WHERE WORD=#{WORD}
+    	DELETE FROM T_POM_C_WORD WHERE
     </delete>
     <insert id="addWord">
     	INSERT INTO T_POM_C_WORD (WORD,TENDENCY,LANG_ID,IN_TIME) VALUES (#{WORD},#{TENDENCY},#{LANG_ID},now())
     </insert>
     
-    <!-- 词汇管理-->
+    <!-- 预警管理-->
+    
     <select id="selectAlertList" resultType="map">
         SELECT * 
 		FROM T_ALERT_SETTING
 		WHERE IS_VALID=1 
+    </select>
+    <select id="selectAlertIdByName" resultType="int">
+        SELECT ALERT_ID 
+		FROM T_ALERT_SETTING
+		WHERE ALERT_NAME=#{ALERT_NAME} AND IS_VALID=1  LIMIT 1
     </select>
     <update id="deleteAlert">
     	UPDATE T_ALERT_SETTING SET IS_VALID=0 WHERE ALERT_ID=#{ALERT_ID}

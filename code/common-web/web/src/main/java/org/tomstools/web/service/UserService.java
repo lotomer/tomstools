@@ -274,15 +274,7 @@ public class UserService {
      */
 	public String check(String key) {
 		User user = getUserByKey(key);
-		if (null != user) {
-			if ("".equals(user.getKey())) {
-				return "密钥已失效！";
-			} else {
-				return "";
-			}
-		} else {
-			return "没有找到密钥对应的用户。密钥：" + key;
-		}
+		return check(user);
 	}
 	
 	/**
@@ -292,14 +284,11 @@ public class UserService {
      */
 	public String check(User user) {
 		if (null != user) {
-			if ("".equals(user.getKey())) {
-				return "密钥已失效！";
-			} else {
+			if (!"".equals(user.getKey())) {
 				return "";
 			}
-		} else {
-			return "用户不能为null！";
 		}
+		return "用户已失效！";
 	}
 	public static void main(String[] args) {
 		UserService userService = new UserService();

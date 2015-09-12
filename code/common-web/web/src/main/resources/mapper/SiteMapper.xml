@@ -122,7 +122,7 @@
     	<![CDATA[ORDER BY CRAWL_TIME DESC LIMIT #{START},#{ROWS}
     ]]></select>
     <select id="checkUrl" resultType="string"><![CDATA[
-    	SELECT 1 FROM T_POM_R_DETAIL WHERE URL=#{URL}
+    	SELECT 1 FROM T_POM_R_DETAIL WHERE URL=#{URL} LIMIT 1
     ]]></select>
     
     

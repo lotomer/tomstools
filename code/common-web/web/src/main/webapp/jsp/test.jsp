@@ -289,10 +289,7 @@
 							$('#divMetric').datagrid('reload'); // reload the user data
 							$('#divMetric').datagrid('unselectAll');
 						} else {
-							$.messager.show({ // show error message
-								title : '异常',
-								msg : result
-							});
+							showErrorMessage('操作失败',result);
 						}
 					}, 'html');
 				}

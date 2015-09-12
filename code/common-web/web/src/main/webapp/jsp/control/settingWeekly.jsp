@@ -71,7 +71,7 @@
 	        url:'crawl/weekly/upload.do?key='+key + '&YEAR=' + $('#selYear').combobox("getValue") + '&MONTH=' +$('#selMonth').combobox("getValue")+ '&WEEK=' + $('#selWeek').combobox("getValue"),
 	        done: function (e, data) {
 	            if (data.result){
-	            	$.messager.alert('警告','上传失败！' + data.result, 'warning');
+					showErrorMessage('上传失败',result);
 	            }else{
 	            	$.messager.alert('提示','上传完成！','info');
 	            }
@@ -100,10 +100,7 @@
                         if (!result){
                             $('#divMetric').datagrid('reload');    // reload the user data
                         } else {
-                            $.messager.show({    // show error message
-                                title: '异常',
-                                msg: result
-                            });
+							showErrorMessage('操作失败',result);
                         }
                     },'html');
                 }

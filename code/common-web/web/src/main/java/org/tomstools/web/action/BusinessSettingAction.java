@@ -36,7 +36,7 @@ public class BusinessSettingAction {
 	@Autowired
 	private UserService userService;
 	// ------------------------------------------------------------
-	// -- 智能词条管理 
+	// -- 智能词条管理
 	// ------------------------------------------------------------
 
 	@RequestMapping("/words/select.do")
@@ -50,13 +50,13 @@ public class BusinessSettingAction {
 			@RequestParam(value = "id", required = true) Integer id, HttpServletRequest req, HttpServletResponse resp) {
 		String error = userService.check(key);
 		if (!"".equals(error)) {
-			return error;
+			return "NEED_LOGIN:" + error;
 		}
 		try {
 			businessSettingService.deleteWords(id);
 		} catch (Exception e) {
 			LOG.error(e.getMessage(), e);
-			return e.getMessage();
+			return "删除失败";// e.getMessage();
 		}
 		return "";
 	}
@@ -72,13 +72,14 @@ public class BusinessSettingAction {
 			HttpServletResponse resp) {
 		String error = userService.check(key);
 		if (!"".equals(error)) {
-			return error;
+			return "NEED_LOGIN:" + error;
 		}
 		try {
 			businessSettingService.saveWords(id, typeName, templateZM, templateFM, templateZM_E, templateFM_E);
 		} catch (Exception e) {
 			LOG.error(e.getMessage(), e);
-			return e.getMessage();
+			// return e.getMessage();
+			return "保存失败";
 		}
 		return "";
 	}
@@ -93,15 +94,20 @@ public class BusinessSettingAction {
 			HttpServletResponse resp) {
 		String error = userService.check(key);
 		if (!"".equals(error)) {
-			return error;
+			return "NEED_LOGIN:" + error;
+		}
+
+		Integer id = businessSettingService.selecTypeIdByName(typeName);
+		if (null != id) {
+			return "词条已经存在！";
 		}
 		try {
 			businessSettingService.addWords(typeName, templateZM, templateFM, templateZM_E, templateFM_E);
+			return "";
 		} catch (Exception e) {
 			LOG.error(e.getMessage(), e);
-			return e.getMessage();
+			return "新增失败";
 		}
-		return "";
 	}
 
 	@RequestMapping("/crawl/status.do")
@@ -118,18 +124,18 @@ public class BusinessSettingAction {
 			HttpServletResponse resp) {
 		String error = userService.check(key);
 		if (!"".equals(error)) {
-			return error;
+			return "NEED_LOGIN:" + error;
 		}
 		try {
 			businessSettingService.saveCrawler(id, crawlName, crawlFrequency);
 		} catch (Exception e) {
 			LOG.error(e.getMessage(), e);
-			return e.getMessage();
+			return "新增失败";// e.getMessage();
 		}
 		return "";
 	}
 	// ------------------------------------------------------------
-	// -- 站点管理 
+	// -- 站点管理
 	// ------------------------------------------------------------
 
 	@RequestMapping("/site/select.do")
@@ -143,13 +149,13 @@ public class BusinessSettingAction {
 			@RequestParam(value = "id", required = true) Integer id, HttpServletRequest req, HttpServletResponse resp) {
 		String error = userService.check(key);
 		if (!"".equals(error)) {
-			return error;
+			return "NEED_LOGIN:" + error;
 		}
 		try {
 			businessSettingService.deleteSite(id);
 		} catch (Exception e) {
 			LOG.error(e.getMessage(), e);
-			return e.getMessage();
+			return "删除失败";// e.getMessage();
 		}
 		return "";
 	}
@@ -165,13 +171,13 @@ public class BusinessSettingAction {
 			HttpServletResponse resp) {
 		String error = userService.check(key);
 		if (!"".equals(error)) {
-			return error;
+			return "NEED_LOGIN:" + error;
 		}
 		try {
 			businessSettingService.saveSite(id, siteName, siteHost, siteTypeId, langId, countryCode);
 		} catch (Exception e) {
 			LOG.error(e.getMessage(), e);
-			return e.getMessage();
+			return "保存失败";// e.getMessage();
 		}
 		return "";
 	}
@@ -186,13 +192,17 @@ public class BusinessSettingAction {
 			HttpServletResponse resp) {
 		String error = userService.check(key);
 		if (!"".equals(error)) {
-			return error;
+			return "NEED_LOGIN:" + error;
+		}
+		Integer id = businessSettingService.selectSiteIdByName(siteName);
+		if (null != id) {
+			return "网站已经存在！";
 		}
 		try {
 			businessSettingService.addSite(siteName, siteHost, siteTypeId, langId, countryCode);
 		} catch (Exception e) {
 			LOG.error(e.getMessage(), e);
-			return e.getMessage();
+			return "新增失败";// e.getMessage();
 		}
 		return "";
 	}
@@ -205,7 +215,7 @@ public class BusinessSettingAction {
 			@RequestParam(value = "SITE_ID", required = false) Integer siteId) {
 		String error = userService.check(key);
 		if (!"".equals(error)) {
-			return error;
+			return "NEED_LOGIN:" + error;
 		}
 		List<Map<String, Object>> result = businessSettingService.selectSiteDetailList(siteId);
 		return JSON.toJSONString(result);
@@ -216,13 +226,13 @@ public class BusinessSettingAction {
 			@RequestParam(value = "id", required = true) Integer id, HttpServletRequest req, HttpServletResponse resp) {
 		String error = userService.check(key);
 		if (!"".equals(error)) {
-			return error;
+			return "NEED_LOGIN:" + error;
 		}
 		try {
 			businessSettingService.deleteSiteDetail(id);
 		} catch (Exception e) {
 			LOG.error(e.getMessage(), e);
-			return e.getMessage();
+			return "删除";// e.getMessage();
 		}
 		return "";
 	}
@@ -234,13 +244,13 @@ public class BusinessSettingAction {
 			HttpServletResponse resp) {
 		String error = userService.check(key);
 		if (!"".equals(error)) {
-			return error;
+			return "NEED_LOGIN:" + error;
 		}
 		try {
 			businessSettingService.saveSiteDetail(id, url);
 		} catch (Exception e) {
 			LOG.error(e.getMessage(), e);
-			return e.getMessage();
+			return "保存失败";// e.getMessage();
 		}
 		return "";
 	}
@@ -252,13 +262,17 @@ public class BusinessSettingAction {
 			HttpServletResponse resp) {
 		String error = userService.check(key);
 		if (!"".equals(error)) {
-			return error;
+			return "NEED_LOGIN:" + error;
+		}
+		Integer id = businessSettingService.selectIdBySiteIdAndUrl(siteId, url);
+		if (null != id) {
+			return "网站对应的URL已经存在！";
 		}
 		try {
 			businessSettingService.addSiteDetail(siteId, url);
 		} catch (Exception e) {
 			LOG.error(e.getMessage(), e);
-			return e.getMessage();
+			return "新增失败";// e.getMessage();
 		}
 		return "";
 	}
@@ -271,19 +285,20 @@ public class BusinessSettingAction {
 		List<Map<String, Object>> result = businessSettingService.selectWordList();
 		return JSON.toJSONString(result);
 	}
-	
+
 	@RequestMapping("/word/delete.do")
 	public @ResponseBody String deleteWord(@RequestParam("key") String key,
-			@RequestParam(value = "id", required = true) String word, HttpServletRequest req, HttpServletResponse resp) {
+			@RequestParam(value = "id", required = true) String word, HttpServletRequest req,
+			HttpServletResponse resp) {
 		String error = userService.check(key);
 		if (!"".equals(error)) {
-			return error;
+			return "NEED_LOGIN:" + error;
 		}
 		try {
 			businessSettingService.deleteWord(word);
 		} catch (Exception e) {
 			LOG.error(e.getMessage(), e);
-			return e.getMessage();
+			return "删除失败";// e.getMessage();
 		}
 		return "";
 	}
@@ -295,16 +310,17 @@ public class BusinessSettingAction {
 			@RequestParam(value = "LANG_ID", required = true) Integer langId,
 			@RequestParam(value = "WORD", required = true) String word, HttpServletRequest req,
 			HttpServletResponse resp) {
-//		String error = userService.check(key);
-//		if (!"".equals(error)) {
-//			return error;
-//		}
-//		try {
-//			businessSettingService.saveWord(id, siteName, siteHost, siteTypeId, langId, countryCode);
-//		} catch (Exception e) {
-//			LOG.error(e.getMessage(), e);
-//			return e.getMessage();
-//		}
+		// String error = userService.check(key);
+		// if (!"".equals(error)) {
+		// return "NEED_LOGIN:" + error;
+		// }
+		// try {
+		// businessSettingService.saveWord(id, siteName, siteHost, siteTypeId,
+		// langId, countryCode);
+		// } catch (Exception e) {
+		// LOG.error(e.getMessage(), e);
+		// return e.getMessage();
+		// }
 		return "";
 	}
 
@@ -316,83 +332,91 @@ public class BusinessSettingAction {
 			HttpServletResponse resp) {
 		String error = userService.check(key);
 		if (!"".equals(error)) {
-			return error;
+			return "NEED_LOGIN:" + error;
+		}
+		Integer id = businessSettingService.selectWordIdByWord(word);
+		if (null != id) {
+			return "词汇已经存在！";
 		}
 		try {
-			businessSettingService.addWord(typeId,  langId, word);
+			businessSettingService.addWord(typeId, langId, word);
 		} catch (Exception e) {
 			LOG.error(e.getMessage(), e);
-			return e.getMessage();
+			return "新增失败";// e.getMessage();
 		}
 		return "";
 	}
-	
+
 	// ------------------------------------------------------------
-		// -- 预警管理 
-		// ------------------------------------------------------------
+	// -- 预警管理
+	// ------------------------------------------------------------
 
-		@RequestMapping("/alert/select.do")
-		public @ResponseBody String selectAlertList() {
-			List<Map<String, Object>> result = businessSettingService.selectAlertList();
-			return JSON.toJSONString(result);
-		}
+	@RequestMapping("/alert/select.do")
+	public @ResponseBody String selectAlertList() {
+		List<Map<String, Object>> result = businessSettingService.selectAlertList();
+		return JSON.toJSONString(result);
+	}
 
-		@RequestMapping("/alert/delete.do")
-		public @ResponseBody String deleteAlert(@RequestParam("key") String key,
-				@RequestParam(value = "id", required = true) Integer id, HttpServletRequest req, HttpServletResponse resp) {
-			String error = userService.check(key);
-			if (!"".equals(error)) {
-				return error;
-			}
-			try {
-				businessSettingService.deleteAlert(id);
-			} catch (Exception e) {
-				LOG.error(e.getMessage(), e);
-				return e.getMessage();
-			}
-			return "";
+	@RequestMapping("/alert/delete.do")
+	public @ResponseBody String deleteAlert(@RequestParam("key") String key,
+			@RequestParam(value = "id", required = true) Integer id, HttpServletRequest req, HttpServletResponse resp) {
+		String error = userService.check(key);
+		if (!"".equals(error)) {
+			return "NEED_LOGIN:" + error;
 		}
+		try {
+			businessSettingService.deleteAlert(id);
+		} catch (Exception e) {
+			LOG.error(e.getMessage(), e);
+			return "删除失败";// e.getMessage();
+		}
+		return "";
+	}
 
-		@RequestMapping("/alert/save.do")
-		public @ResponseBody String saveAlert(@RequestParam("key") String key,
-				@RequestParam(value = "id", required = true) Integer id,
-				@RequestParam(value = "ALERT_NAME", required = true) String alertName,
-				@RequestParam(value = "ALERT_TYPE", required = true) String alertType,
-				@RequestParam(value = "ALERT_VALUE", required = true) String alertValue,
-				@RequestParam(value = "NOTIFIERS", required = true) String notifiers,
-				@RequestParam(value = "METRICS", required = true) String metrics, HttpServletRequest req,
-				HttpServletResponse resp) {
-			String error = userService.check(key);
-			if (!"".equals(error)) {
-				return error;
-			}
-			try {
-				businessSettingService.saveAlert(id, alertName, alertType, alertValue, notifiers, metrics);
-			} catch (Exception e) {
-				LOG.error(e.getMessage(), e);
-				return e.getMessage();
-			}
-			return "";
+	@RequestMapping("/alert/save.do")
+	public @ResponseBody String saveAlert(@RequestParam("key") String key,
+			@RequestParam(value = "id", required = true) Integer id,
+			@RequestParam(value = "ALERT_NAME", required = true) String alertName,
+			@RequestParam(value = "ALERT_TYPE", required = true) String alertType,
+			@RequestParam(value = "ALERT_VALUE", required = true) String alertValue,
+			@RequestParam(value = "NOTIFIERS", required = true) String notifiers,
+			@RequestParam(value = "METRICS", required = true) String metrics, HttpServletRequest req,
+			HttpServletResponse resp) {
+		String error = userService.check(key);
+		if (!"".equals(error)) {
+			return "NEED_LOGIN:" + error;
 		}
+		try {
+			businessSettingService.saveAlert(id, alertName, alertType, alertValue, notifiers, metrics);
+		} catch (Exception e) {
+			LOG.error(e.getMessage(), e);
+			return "保存失败";// e.getMessage();
+		}
+		return "";
+	}
 
-		@RequestMapping("/alert/add.do")
-		public @ResponseBody String addAlert(@RequestParam("key") String key,
-				@RequestParam(value = "ALERT_NAME", required = true) String alertName,
-				@RequestParam(value = "ALERT_TYPE", required = true) String alertType,
-				@RequestParam(value = "ALERT_VALUE", required = true) String alertValue,
-				@RequestParam(value = "NOTIFIERS", required = true) String notifiers,
-				@RequestParam(value = "METRICS", required = true) String metrics, HttpServletRequest req,
-				HttpServletResponse resp) {
-			String error = userService.check(key);
-			if (!"".equals(error)) {
-				return error;
-			}
-			try {
-				businessSettingService.addAlert(alertName, alertType, alertValue, notifiers, metrics);
-			} catch (Exception e) {
-				LOG.error(e.getMessage(), e);
-				return e.getMessage();
-			}
-			return "";
+	@RequestMapping("/alert/add.do")
+	public @ResponseBody String addAlert(@RequestParam("key") String key,
+			@RequestParam(value = "ALERT_NAME", required = true) String alertName,
+			@RequestParam(value = "ALERT_TYPE", required = true) String alertType,
+			@RequestParam(value = "ALERT_VALUE", required = true) String alertValue,
+			@RequestParam(value = "NOTIFIERS", required = true) String notifiers,
+			@RequestParam(value = "METRICS", required = true) String metrics, HttpServletRequest req,
+			HttpServletResponse resp) {
+		String error = userService.check(key);
+		if (!"".equals(error)) {
+			return "NEED_LOGIN:" + error;
 		}
+		Integer id = businessSettingService.selectAlertIdByName(alertName);
+		if (null != id) {
+			return "预警名称对应的预警信息已经存在！";
+		}
+		try {
+			businessSettingService.addAlert(alertName, alertType, alertValue, notifiers, metrics);
+		} catch (Exception e) {
+			LOG.error(e.getMessage(), e);
+			return "新增";// e.getMessage();
+		}
+		return "";
+	}
 }

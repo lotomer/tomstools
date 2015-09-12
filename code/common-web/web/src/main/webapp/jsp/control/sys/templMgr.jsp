@@ -164,10 +164,7 @@
             },
             success : function(result) {
                 if (result) {
-                    $.messager.show({
-                        title : 'Error',
-                        msg : result
-                    });
+					showErrorMessage('操作失败',result);
                 } else {
                     $('#dlg').dialog('close'); // close the dialog
                     $('#divMetric').datagrid("reload"); // reload the user data
@@ -188,10 +185,7 @@
                             $('#divMetric').datagrid('reload'); // reload the user data 
                             $('#divMetric').datagrid('unselectAll');
                         } else {
-                            $.messager.show({ // show error message
-                                title : '异常',
-                                msg : result
-                            });
+							showErrorMessage('操作失败',result);
                         }
                     }, 'html');
                 }
@@ -294,10 +288,7 @@
             },
             success : function(result) {
                 if (result) {
-                    $.messager.show({
-                        title : 'Error',
-                        msg : result
-                    });
+					showErrorMessage('操作失败',result);
                 } else {
                     $('#dlgDetail').dialog('close'); // close the dialog
                     $('#divMetricDetail').datagrid("reload"); // reload the user data
@@ -320,10 +311,7 @@
                             $('#divMetricDetail').datagrid('reload'); // reload the user data 
                             $('#divMetricDetail').datagrid('unselectAll');
                         } else {
-                            $.messager.show({ // show error message
-                                title : '异常',
-                                msg : result
-                            });
+							showErrorMessage('操作失败',result);
                         }
                     }, 'html');
                 }

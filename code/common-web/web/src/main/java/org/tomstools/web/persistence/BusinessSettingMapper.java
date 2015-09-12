@@ -25,6 +25,7 @@ public interface BusinessSettingMapper {
 	// 词条
 	//////////////////////////////////////////////////
 	public List<Map<String, Object>> selectWordsList();
+	public Integer selecTypeIdByName(@Param("TYPE_NAME") String typeName);
 
 	public void deleteWords(@Param("TYPE_ID") Integer id);
 
@@ -40,6 +41,7 @@ public interface BusinessSettingMapper {
 	// 站点
 	//////////////////////////////////////////////////
 	public List<Map<String, Object>> selectSiteList();
+	public Integer selectSiteIdByName(@Param("SITE_NAME") String siteName);
 
 	public void deleteSite(@Param("SITE_ID") Integer id);
 
@@ -55,6 +57,7 @@ public interface BusinessSettingMapper {
 	// 站点URL列表
 	//////////////////////////////////////////////////
 	public List<Map<String, Object>> selectSiteDetailList(@Param("SITE_ID") Integer siteId);
+	public Integer selectIdBySiteIdAndUrl(@Param("SITE_ID") Integer siteId, @Param("URL") String url);
 
 	public void deleteSiteDetail(@Param("ID") Integer id);
 
@@ -66,6 +69,7 @@ public interface BusinessSettingMapper {
 	// 词汇管理
 	//////////////////////////////////////////////////
 	public List<Map<String, Object>> selectWordList();
+	public Integer selectWordIdByWord(@Param("WORD") String word);
 
 	public void deleteWord(@Param("WORD") String word);
 
@@ -76,6 +80,7 @@ public interface BusinessSettingMapper {
 	// 预警管理
 	//////////////////////////////////////////////////
 	public List<Map<String, Object>> selectAlertList();
+	public Integer selectAlertIdByName(@Param("ALERT_NAME") String alertName);
 
 	public void deleteAlert(@Param("ALERT_ID") Integer id);
 

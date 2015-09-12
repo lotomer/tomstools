@@ -106,5 +106,25 @@ public class BusinessSettingService {
 	public void addAlert(String alertName, String alertType, String alertValue, String notifiers, String metrics) {
 		businessSettingMapper.addAlert(alertName, alertType, alertValue, notifiers, metrics);
 	}
+
+	public Integer selectAlertIdByName(String alertName) {
+		return businessSettingMapper.selectAlertIdByName(alertName);
+	}
+
+	public Integer selectWordIdByWord(String word) {
+		return businessSettingMapper.selectWordIdByWord(word);
+	}
+
+	public Integer selectIdBySiteIdAndUrl(Integer siteId, String url) {
+		return businessSettingMapper.selectIdBySiteIdAndUrl(siteId,url);
+	}
+
+	public Integer selectSiteIdByName(String siteName) {
+		return businessSettingMapper.selectSiteIdByName(siteName);
+	}
+
+	public Integer selecTypeIdByName(String typeName) {
+		return businessSettingMapper.selecTypeIdByName(typeName);
+	}
 	
 }

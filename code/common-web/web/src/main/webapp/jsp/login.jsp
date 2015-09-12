@@ -95,6 +95,8 @@
                     	login();
                 	}
                 }
+            }).focus(function() {  
+                this.style.imeMode='disabled';  
             });
             initTheme('cb-theme', theme);
             $("#userName").focus();
