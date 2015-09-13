@@ -149,7 +149,7 @@
 			//sortName : "status",
 			//sortOrder : "asc",
 			//pagination : pageSize < datas.length,
-			//pageSize : pageSize,
+			pageSize : 500,
 			//pageList : getPageList(pageSize),'
 			columns : [ [ {
 				field : 'CRAWL_NAME',
@@ -180,6 +180,7 @@
 				title : '当前状态',
 				align : 'center',
 				halign : 'center',
+				sortable : "true",
 				formatter : function(value, row) {
 					if (0 == value) {
 						return "正在运行";
@@ -194,9 +195,8 @@
 			}, {
 				field : 'MSG',
 				title : '最新状态信息',
-				align : 'center',
-				halign : 'center',
-				sortable : "true"
+				align : 'left',
+				halign : 'center'
 
 			} ] ]
 		}).datagrid('clientPaging');

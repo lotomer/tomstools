@@ -8,10 +8,10 @@
 <link rel="stylesheet" type="text/css"
 	href='css/easyui/themes/${theme}/easyui.css'>
 <link rel="stylesheet" type="text/css" href="css/easyui/themes/icon.css">
-<!-- <link rel="stylesheet" type="text/css" href="css/index.css"> -->
-<link rel="stylesheet" type="text/css" href="css/index2.css">
+<link rel="stylesheet" type="text/css" href="css/index.css">
 </head>
-<body class="easyui-layout">
+<body >
+	<div id="divContainer" class="easyui-layout">
 	<div data-options="region:'north',border:false" style="height: 53px;" class="topBg">
 		<div style="width: 550px; float: left; height: 49px;" class="logo">
 			<img src="images/logo.gif" width="80px" height="49px">
@@ -31,12 +31,15 @@
 		style="height: 26px; text-align: center; padding: 5px 10px;">
 		Copyright&copy;2015 网络舆情监控系统 All rights reserved.</div>
 	<div  data-options="region:'west',split:false,border:false,fit:false" title=""
-		style="width: 80px;background-color: #222222;height: 100%"">
-		<!-- <ul id="treeMenu"></ul> -->
-		<div id="u00"></div>
+		style="width: 80px;height: 100%">
+		<div id="menu" style="width: 100%;background-color: #333;height: 99%">
+			<!-- <ul id="treeMenu"></ul> -->
+			<div id="u00"></div>
+		</div>
 	</div>
 	<div id="divContent"
 		data-options="region:'center',split:true,onResize:resizeContent,border:false">
+	</div>
 	</div>
 </body>
 <script type="text/javascript" src="js/jquery.min.js"></script>
@@ -140,9 +143,18 @@
 		//setTimeout(showDefault, 3000);
 		createMenu(data);
 		showDefault();
-
 		$('#btnUserControl').bind('click', function() {
 			createModuleByMenuId(105005);
+		});
+		$('#menu>div').mouseover( function() {
+			if ("menu_item_select" != $(this).attr("class")){
+				$(this).attr('class','menu_item_over');
+			}
+		});
+		$('#menu>div').mouseleave( function() {
+			if ("menu_item_select" != $(this).attr("class")){
+				$(this).attr('class','menu_item');
+			}
 		});
 		$('#btnLogout').bind(
 				'click',

@@ -12,7 +12,7 @@
 </head>
 <body class="easyui-layout">
 	<div data-options="region:'north',split:true"
-		style="height: 80px;padding:5px 30px;">
+		style="height: 72px;padding:5px 30px;">
 		<table>
 			<tr>
                 <!-- <td style="width:65px"><label>监控词汇 ：</label></td>
@@ -259,32 +259,32 @@
 				field : 'TITLE',
 				title : '标题',
 				align : 'left',
-				width: 400,
+				width: 685,
 				halign : 'center',
 				formatter: function(value,row){
 					return '<a href="' + row.URL + '" target="_blank" title="' + value + '" style="display:block;overflow:hidden; text-overflow:ellipsis;">' + value + '</a>';
 				}
-			}, {
+			/*}, {
 				field : 'URL',
 				title : 'URL',
 				align : 'left',
 				halign : 'center',
 				formatter: function(value,row){
 					return '<a href="' + row.URL + '" target="_blank" title="' + value + '" style="display:block;overflow:hidden; text-overflow:ellipsis;">' + value + '</a>';
-				}
-			}, {
-				field : 'a',
-				title : ' ',
-				align : 'left',
-				halign : 'center',
-				formatter: function(value,row){
-					return '<a href="#" onclick="javascript:window.top.createPageById(201004,\'&p=value:' + encodeURIComponent(row.URL) + '\')" >查看正文</a>';
-				}
+				}*/
 			}, {
 				field : 'CRAWL_TIME',
 				title : '网页爬取时间',
 				align : 'left',
 				halign : 'center'
+			}, {
+				field : 'a',
+				title : '查看正文快照',
+				align : 'left',
+				halign : 'center',
+				formatter: function(value,row){
+					return '<a href="#" onclick="javascript:window.top.createPageById(201004,\'&p=value:' + encodeURIComponent(row.URL) + '\')" >查看正文快照</a>';
+				}
 			} ] ]
 		});//.datagrid('clientPaging');
 	}
