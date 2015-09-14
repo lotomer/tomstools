@@ -92,4 +92,6 @@ public interface BusinessSettingMapper {
 			@Param("ALERT_TYPE") String alertType, @Param("ALERT_VALUE") String alertValue,
 			@Param("NOTIFIERS") String notifiers, @Param("METRICS") String metrics);
 
+	public List<Map<String, Object>> selectCrawlerList();
+
 }

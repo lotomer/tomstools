@@ -126,5 +126,9 @@ public class BusinessSettingService {
 	public Integer selecTypeIdByName(String typeName) {
 		return businessSettingMapper.selecTypeIdByName(typeName);
 	}
+
+	public List<Map<String, Object>> selectCrawlerList() {
+		return businessSettingMapper.selectCrawlerList();
+	}
 	
 }

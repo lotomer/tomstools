@@ -110,6 +110,11 @@ public class BusinessSettingAction {
 		}
 	}
 
+	@RequestMapping("/crawl/select.do")
+	public @ResponseBody String selectCrawlerList() {
+		List<Map<String, Object>> result = businessSettingService.selectCrawlerList();
+		return JSON.toJSONString(result);
+	}
 	@RequestMapping("/crawl/status.do")
 	public @ResponseBody String selectCrawlerStatus() {
 		List<Map<String, Object>> result = businessSettingService.selectCrawlerStatus();

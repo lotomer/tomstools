@@ -140,7 +140,7 @@
 		divMetric.datagrid({
 			toolbar : '#tb',
 			//title:'${title}',
-			url : "setting/crawl/status.do",
+			url : "setting/crawl/select.do",
 			fitColumns : true,
 			rownumbers : true,
 			singleSelect : true,
@@ -163,42 +163,7 @@
 				align : 'center',
 				halign : 'center',
 				sortable : "true"
-			}, {
-				field : 'MATCHINE',
-				title : '所在机器',
-				align : 'center',
-				halign : 'center',
-				sortable : "true"
-			}, {
-				field : 'UPDATE_TIME_STR',
-				title : '最后更新时间',
-				align : 'center',
-				halign : 'center',
-				sortable : "true"
-			}, {
-				field : 'STATUS',
-				title : '当前状态',
-				align : 'center',
-				halign : 'center',
-				sortable : "true",
-				formatter : function(value, row) {
-					if (0 == value) {
-						return "正在运行";
-					} else if (1 == value) {
-						return "已完成";
-					} else if (2 == value) {
-						return "失败";
-					} else {
-						return "异常";
-					}
-				}
-			}, {
-				field : 'MSG',
-				title : '最新状态信息',
-				align : 'left',
-				halign : 'center'
-
-			} ] ]
+			}] ]
 		}).datagrid('clientPaging');
 	}
 </script>

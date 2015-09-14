@@ -2,8 +2,15 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="org.tomstools.web.persistence.BusinessSettingMapper">
 	<!-- 爬虫 -->
+	<select id="selectCrawlerList" resultType="map"><![CDATA[
+        SELECT c.CRAWL_CODE,c.CRAWL_NAME,c.CRAWL_FREQUENCY
+        FROM T_CRAWL_M_CRAWLER c WHERE c.IS_VALID=1
+    ]]></select>
 	<select id="selectCrawlerStatus" resultType="map"><![CDATA[
-        SELECT c.CRAWL_CODE,c.CRAWL_NAME,c.CRAWL_FREQUENCY,s.MATCHINE,s.START_TIME,s.UPDATE_TIME,DATE_FORMAT(s.UPDATE_TIME,'%Y-%m-%d %H:%i:%s') UPDATE_TIME_STR,s.MSG,s.`STATUS` FROM T_CRAWL_M_CRAWLER c LEFT JOIN T_CRAWL_R_CRAWLER_STATUS s ON (c.CRAWL_CODE=s.CRAWL_CODE) WHERE c.IS_VALID=1
+        SELECT c.CRAWL_CODE,c.CRAWL_NAME,c.CRAWL_FREQUENCY,s.MATCHINE,s.START_TIME,s.UPDATE_TIME,
+        DATE_FORMAT(s.UPDATE_TIME,'%Y-%m-%d %H:%i:%s') UPDATE_TIME_STR,
+        DATE_FORMAT(s.START_TIME,'%Y-%m-%d %H:%i:%s') START_TIME_STR,s.MSG,s.`STATUS` 
+        FROM T_CRAWL_M_CRAWLER c LEFT JOIN T_CRAWL_R_CRAWLER_STATUS s ON (c.CRAWL_CODE=s.CRAWL_CODE) WHERE c.IS_VALID=1
     ]]></select>
     <update id="saveCrawler">
     	UPDATE T_CRAWL_M_CRAWLER SET CRAWL_NAME=#{CRAWL_NAME},CRAWL_FREQUENCY=#{CRAWL_FREQUENCY} WHERE CRAWL_CODE=#{CRAWL_CODE}
