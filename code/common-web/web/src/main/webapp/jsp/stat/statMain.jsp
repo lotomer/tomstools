@@ -15,8 +15,7 @@
 	.msg{text-align:center;float: left;font-size: 14px;display: inline;margin-right:10px;height:25px;   
   line-height:25px; 
   overflow:hidden;   }
-	.msgTitle,.panel-title{font-size:12px;font-weight: bold;padding:0 10px;color: #333;height:20px;
-	text-align: left;background-color: #ccc}
+	.msgTitle,.panel-title{font-size:12px;font-weight: bold;padding:0 10px;color: #333;height:20px;line-height:20px;	text-align: left;background-color: #ccc}
 	.msg>div{padding:0 2px;float:left;}
 	.msgRow{width:99%;display:inline-block;}
 	.moduleContent{padding:0 10px;}

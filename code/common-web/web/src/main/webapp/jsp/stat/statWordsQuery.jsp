@@ -213,7 +213,7 @@
 		var pageSize = 15;
 		divMetric.datagrid({
 			//title:'${title}',
-			fitColumns : false,
+			fitColumns : true,
 			rownumbers : true,
 			singleSelect : true,
 			url: url,
@@ -259,7 +259,7 @@
 				field : 'TITLE',
 				title : '标题',
 				align : 'left',
-				width: 685,
+				width: 635,
 				halign : 'center',
 				formatter: function(value,row){
 					return '<a href="' + row.URL + '" target="_blank" title="' + value + '" style="display:block;overflow:hidden; text-overflow:ellipsis;">' + value + '</a>';
