@@ -47,7 +47,7 @@ em {
 	// 页面初始化
 	$(function() {
 		$('#btnSearch').bind("click",query);
-		initComboboxWithData('FIELD', [{value:"id",text:"id"},{value:"title",text:"标题"},{value:"content",text:"正文"},{value:"text",text:"全文"}], undefined, true,"value","text");
+		initComboboxWithData('FIELD', [{value:"id",text:"URL"},{value:"title",text:"标题"},{value:"content",text:"正文"},{value:"text",text:"全文"}], undefined, true,"value","text");
 		$('#FIELD').combobox("select",'${field}');
 		$('#WORDS').textbox("setValue",'${value}');
 		query();
@@ -63,9 +63,10 @@ em {
 		var containerId = "divContent",field = $('#FIELD').combobox("getValue"), value = $('#WORDS').textbox("getValue");
 		start = start == undefined? 0 : start;
 		rows = rows == undefined? 10 : rows;
+		value = field == "id" ? encodeURIComponent('"' + value +'"') : encodeURIComponent(value);
 		$('#' + containerId).html('');
 		showLoading(containerId);
-		loadCrossDomainData(encodeURI(SOLR_URL + "/select?wt=json&hl.simple.pre=<em>&hl.simple.post=</em>&fl=title,url&hl=true&hl.fl=content,title&indent=true&q=") + field + "%3A" + encodeURIComponent(value) +"&start=" + start +"&rows=" + rows
+		loadCrossDomainData(encodeURI(SOLR_URL + "/select?wt=json&hl.simple.pre=<em>&hl.simple.post=</em>&fl=title,url&hl=true&hl.fl=content,title&indent=true&q=") + field + "%3A" + value +"&start=" + start +"&rows=" + rows
 				, function(data) {
 					if (!data) {
 						return;
@@ -83,7 +84,7 @@ em {
 						var highlight = data.highlighting;
 						for(var i=0,iLen = data.response.docs.length;i<iLen;i++){
 							var doc = data.response.docs[i],title=highlight[doc.url]["title"],content=highlight[doc.url]["content"];
-							$('#' + containerId).append('<h2><a href="' + doc.url+ '" target="_blank">' +(title?title:doc.title) +'</a></h2><p>'+ content +'</p><p>&gt;&gt;&gt; <a href="#" onclick="javascript:window.top.createPageById(201004,\'&p=field:id,value:' + encodeURIComponent('"' + doc.url + '"') + '\')" >查看正文快照</a></p><hr>');
+							$('#' + containerId).append('<h2><a href="' + doc.url+ '" target="_blank">' +(title?title:doc.title) +'</a></h2><p>'+ (content == undefined?'' : content) +'</p><p>&gt;&gt;&gt; <a href="#" onclick="javascript:window.top.createPageById(201004,\'&p=field:id,value:' + encodeURIComponent('"' + doc.url + '"') + '\')" >查看正文快照</a></p><hr>');
 						}
 					}
 				})
