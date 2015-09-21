@@ -51,7 +51,7 @@
 				<td style="width: 100px"><input id="selType"
 					class="easyui-combobox"
 					data-options='editable: false,data:[{value:-1,text:"贬义"},{value:0,text:"中性"},{value:1,text:"褒义"}]'></input></td>
-				<td style="width: 65px"><label>监控词汇 ：</label></td>
+				<td style="width: 75px"><label>监控词汇 ：</label></td>
 				<td style="width: 140px"><input id="inputWords"
 					class="easyui-textbox"></input></td>
 				<td><a href="#" id="btnAdd" class="easyui-linkbutton"

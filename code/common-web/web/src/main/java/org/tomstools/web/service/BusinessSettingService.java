@@ -130,5 +130,9 @@ public class BusinessSettingService {
 	public List<Map<String, Object>> selectCrawlerList() {
 		return businessSettingMapper.selectCrawlerList();
 	}
+
+	public String selectCrawlerError(long id) {
+		return businessSettingMapper.selectCrawlerError(id);
+	}
 	
 }

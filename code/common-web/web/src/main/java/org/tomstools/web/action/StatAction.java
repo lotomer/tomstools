@@ -218,7 +218,7 @@ public class StatAction {
 	}
 
 	@RequestMapping("/stat/today.do")
-	public @ResponseBody String wordsCountToday(@RequestParam("key") String key, HttpServletRequest req,
+	public @ResponseBody String wordsCountToday(@RequestParam("key") String key,@RequestParam(value="TYPE_ID",required=false) Integer typeId, HttpServletRequest req,
 			HttpServletResponse resp) throws Exception {
 		resp.setContentType("application/json;charset=UTF-8");
 		Calendar now = Calendar.getInstance();
@@ -227,7 +227,7 @@ public class StatAction {
 		start.set(Calendar.MINUTE, 0);
 		start.set(Calendar.SECOND, 0);
 
-		List<Map<String, Object>> result = solrService.statWordsCount(start.getTime(), now.getTime(), null);
+		List<Map<String, Object>> result = solrService.statWordsCount(start.getTime(), now.getTime(), typeId);
 		if (null != result) {
 			return JSON.toJSONString(result);
 		} else {
@@ -236,7 +236,7 @@ public class StatAction {
 	}
 
 	@RequestMapping("/stat/yesterday.do")
-	public @ResponseBody String wordsCountYesterday(@RequestParam("key") String key, HttpServletRequest req,
+	public @ResponseBody String wordsCountYesterday(@RequestParam("key") String key,@RequestParam(value="TYPE_ID",required=false) Integer typeId, HttpServletRequest req,
 			HttpServletResponse resp) throws Exception {
 		resp.setContentType("application/json;charset=UTF-8");
 		Calendar now = Calendar.getInstance();
@@ -247,7 +247,7 @@ public class StatAction {
 		start.setTime(now.getTime());
 		start.add(Calendar.DAY_OF_MONTH, -1);
 
-		List<Map<String, Object>> result = solrService.statWordsCount(start.getTime(), now.getTime(), null);
+		List<Map<String, Object>> result = solrService.statWordsCount(start.getTime(), now.getTime(), typeId);
 		if (null != result) {
 			return JSON.toJSONString(result);
 		} else {
@@ -256,7 +256,7 @@ public class StatAction {
 	}
 
 	@RequestMapping("/stat/siteTop.do")
-	public @ResponseBody String siteTop(@RequestParam("key") String key,
+	public @ResponseBody String siteTop(@RequestParam("key") String key,@RequestParam(value="TYPE_ID",required=false) Integer typeId,
 			@RequestParam(value = "topNum", required = false) Integer topNum, HttpServletRequest req,
 			HttpServletResponse resp) throws Exception {
 		resp.setContentType("application/json;charset=UTF-8");
@@ -266,7 +266,7 @@ public class StatAction {
 		start.set(Calendar.MINUTE, 0);
 		start.set(Calendar.SECOND, 0);
 		start.add(Calendar.DAY_OF_MONTH, -7);
-		List<Map<String, Object>> result = solrService.siteTop(start.getTime(), now.getTime(),
+		List<Map<String, Object>> result = solrService.siteTop(start.getTime(), now.getTime(),typeId,
 				null != topNum ? topNum : 5);
 		if (null != result) {
 			return JSON.toJSONString(result);
@@ -274,10 +274,74 @@ public class StatAction {
 			return "[]";
 		}
 	}
+	@RequestMapping("/query/wordsTop.do")
+	public @ResponseBody String selectWordsTop(@RequestParam("key") String key,
+			@RequestParam(value = "topNum", required = false) Integer topNum, HttpServletRequest req,
+			HttpServletResponse resp) throws Exception {
+		resp.setContentType("application/json;charset=UTF-8");
+		User user = userService.getUserByKey(key);
+		if (user != null){
+			String s = userService.getConfig(user.getUserId(), "DAYS_AGO_4_TOP_WORDS");
+			int days = 1;
+			if (!StringUtils.isEmpty(s)){
+				try {
+					days = Integer.valueOf(s);
+				} catch (NumberFormatException e) {
+				}
+			}
+			
+			Calendar now = Calendar.getInstance();
+			Calendar start = Calendar.getInstance();
+			//start.set(Calendar.HOUR_OF_DAY, 0);
+			//start.set(Calendar.MINUTE, 0);
+			//start.set(Calendar.SECOND, 0);
+			start.add(Calendar.DAY_OF_MONTH, 0 - days);
+			List<Map<String, Object>> result = solrService.selectWordsTop(start.getTime(), now.getTime(),
+					null != topNum ? topNum : 5);
+			if (null != result) {
+				return JSON.toJSONString(result);
+			}
+		}
+			return "[]";
+	}
+
+	@RequestMapping("/query/hotwordTop.do")
+	public @ResponseBody String selectHotwordTop(@RequestParam("key") String key,
+			@RequestParam(value = "topNum", required = false) Integer topNum, 
+			@RequestParam(value = "DAYS", required = false) Integer days,
+			@RequestParam(value = "FLAG", required = false) String flag, HttpServletRequest req,
+			HttpServletResponse resp) throws Exception {
+		resp.setContentType("application/json;charset=UTF-8");
+		User user = userService.getUserByKey(key);
+		if (user != null){
+			if (null == days){
+				String s = userService.getConfig(user.getUserId(), "DAYS_AGO_4_TOP_HOTWORD");
+				if (!StringUtils.isEmpty(s)){
+					try {
+						days = Integer.valueOf(s);
+					} catch (NumberFormatException e) {
+					}
+				}
+			}
+			
+			Calendar now = Calendar.getInstance();
+			Calendar start = Calendar.getInstance();
+			//start.set(Calendar.HOUR_OF_DAY, 0);
+			//start.set(Calendar.MINUTE, 0);
+			//start.set(Calendar.SECOND, 0);
+			start.add(Calendar.DAY_OF_MONTH, 0 - days);
+			List<Map<String, Object>> result = solrService.selectHotwordTop(start.getTime(), now.getTime(),
+					null != topNum ? topNum : 5,flag);
+			if (null != result) {
+				return JSON.toJSONString(result);
+			}
+		}
+			return "[]";
+	}
 
 	/** 媒体类型统计 */
 	@RequestMapping("/stat/mediaCount.do")
-	public @ResponseBody String statMediaCount(@RequestParam("key") String key, HttpServletRequest req,
+	public @ResponseBody String statMediaCount(@RequestParam("key") String key,@RequestParam(value="TYPE_ID",required=false) Integer typeId, HttpServletRequest req,
 			HttpServletResponse resp) throws Exception {
 		resp.setContentType("application/json;charset=UTF-8");
 		Calendar now = Calendar.getInstance();
@@ -286,7 +350,7 @@ public class StatAction {
 		start.set(Calendar.MINUTE, 0);
 		start.set(Calendar.SECOND, 0);
 		start.add(Calendar.DAY_OF_MONTH, -7);
-		List<Map<String, Object>> result = solrService.statMediaCount(start.getTime(), now.getTime());
+		List<Map<String, Object>> result = solrService.statMediaCount(start.getTime(), now.getTime(),typeId);
 		if (null != result) {
 			return JSON.toJSONString(result);
 		} else {
@@ -296,7 +360,7 @@ public class StatAction {
 
 	/** 媒体类型分时间统计 */
 	@RequestMapping("/stat/media.do")
-	public @ResponseBody String statMedia(@RequestParam("key") String key, HttpServletRequest req,
+	public @ResponseBody String statMedia(@RequestParam("key") String key,@RequestParam(value="TYPE_ID",required=false) Integer typeId, HttpServletRequest req,
 			HttpServletResponse resp) throws Exception {
 		resp.setContentType("application/json;charset=UTF-8");
 		Calendar now = Calendar.getInstance();
@@ -305,7 +369,7 @@ public class StatAction {
 		start.set(Calendar.MINUTE, 0);
 		start.set(Calendar.SECOND, 0);
 		start.add(Calendar.DAY_OF_MONTH, -7);
-		List<Map<String, Object>> result = solrService.statMedia(start.getTime(), now.getTime());
+		List<Map<String, Object>> result = solrService.statMedia(start.getTime(), now.getTime(),typeId);
 		if (null != result) {
 			return JSON.toJSONString(result);
 		} else {
@@ -313,8 +377,8 @@ public class StatAction {
 		}
 	}
 
-	private void get(Map<String, Object> total, Map<String, Object> fm, Date startTime, Date endTime, String key) {
-		List<Map<String, Object>> r = solrService.statWordsCountAll(startTime, endTime);
+	private void get(Map<String, Object> total, Map<String, Object> fm, Date startTime, Date endTime, String key, Integer typeId) {
+		List<Map<String, Object>> r = solrService.statWordsCountAll(startTime, endTime,typeId);
 		if (null != r && 0 != r.size() && null != r.get(0)) {
 			Long sizeZM = Long.valueOf(String.valueOf(r.get(0).get("SIZE_ZM")));
 			Long sizeFM = Long.valueOf(String.valueOf(r.get(0).get("SIZE_FM")));
@@ -333,7 +397,7 @@ public class StatAction {
 	 * 时间维度分为：今日、最近七天、最近一个月、最近一年 内容分为：总数、负面数
 	 */
 	@RequestMapping("/stat/increment.do")
-	public @ResponseBody String increment(@RequestParam("key") String key, HttpServletRequest req,
+	public @ResponseBody String increment(@RequestParam("key") String key,@RequestParam(value="TYPE_ID",required=false) Integer typeId, HttpServletRequest req,
 			HttpServletResponse resp) throws Exception {
 		resp.setContentType("application/json;charset=UTF-8");
 		List<Map<String, Object>> result = new ArrayList<Map<String, Object>>();
@@ -350,18 +414,18 @@ public class StatAction {
 		start.set(Calendar.SECOND, 0);
 		// start.add(Calendar.DAY_OF_MONTH, -7);
 		// 获取今天数据
-		get(total, fm, start.getTime(), now.getTime(), "1d");
+		get(total, fm, start.getTime(), now.getTime(), "1d",typeId);
 		// 获取最近七天的数据
 		start.add(Calendar.DAY_OF_MONTH, -7);
-		get(total, fm, start.getTime(), now.getTime(), "7d");
+		get(total, fm, start.getTime(), now.getTime(), "7d",typeId);
 		// 获取最近一个月的数据
 		start.add(Calendar.DAY_OF_MONTH, 7);
 		start.add(Calendar.MONTH, -1);
-		get(total, fm, start.getTime(), now.getTime(), "1m");
+		get(total, fm, start.getTime(), now.getTime(), "1m",typeId);
 		// 获取最近一年的数据
 		start.add(Calendar.MONTH, 1);
 		start.add(Calendar.YEAR, -1);
-		get(total, fm, start.getTime(), now.getTime(), "1y");
+		get(total, fm, start.getTime(), now.getTime(), "1y",typeId);
 
 		return JSON.toJSONString(result);
 	}

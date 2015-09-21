@@ -94,4 +94,6 @@ public interface BusinessSettingMapper {
 
 	public List<Map<String, Object>> selectCrawlerList();
 
+	public String selectCrawlerError(@Param("STATUS_ID") long id);
+
 }

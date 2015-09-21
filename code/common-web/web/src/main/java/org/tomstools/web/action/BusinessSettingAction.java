@@ -110,6 +110,13 @@ public class BusinessSettingAction {
 		}
 	}
 
+	@RequestMapping("/crawl/error.do")
+	public @ResponseBody String selectCrawlerError(@RequestParam("key") String key,
+			@RequestParam(value = "id", required = true) Long id, HttpServletRequest req, HttpServletResponse resp)
+		            throws Exception {
+		String result = businessSettingService.selectCrawlerError(id);
+		return result;
+	}
 	@RequestMapping("/crawl/select.do")
 	public @ResponseBody String selectCrawlerList() {
 		List<Map<String, Object>> result = businessSettingService.selectCrawlerList();

@@ -25,10 +25,13 @@ String.prototype.startWith=function(str){
 function showLoading(parentId){
 	$('#' + parentId).html('<div class="loading"><div><span>&nbsp;</span><label>正在加载数据，请稍候...</label></div></div>');
 }
-function loadData(containerId, url, params, successCallback) {
+function showEmpty(parentId){
+	$('#' + parentId).html('<span>&nbsp;</span><label>没有数据</label></div></div>');
+}
+function loadData(containerId, url, params, successCallback,dataType) {
 	$.ajax({
 		url : url,
-		dataType : 'json',
+		dataType : dataType == undefined? 'json' : dataType,
 		async : true,
 		data : params,
 		success : successCallback

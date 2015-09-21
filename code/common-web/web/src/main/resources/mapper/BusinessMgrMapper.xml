@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.tomstools.web.persistence.BusinessMgrMapper">
+	<select id="selectTemplateList" resultType="map"><![CDATA[
+        SELECT TEMPLATE_ID,TEMPLATE_NAME,TEMPLATE_CONTENT,TEMPLATE_SCRIPT FROM T_WEB_METRIC_TEMPLATE WHERE IS_VALID='1'
+    ]]></select>
+    <select id="selecTemplateIdByName" resultType="int"><![CDATA[
+        SELECT TEMPLATE_ID,TEMPLATE_NAME,TEMPLATE_CONTENT,TEMPLATE_SCRIPT FROM T_WEB_METRIC_TEMPLATE WHERE TEMPLATE_NAME=#{TEMPLATE_NAME} AND IS_VALID='1' LIMIT 1
+    ]]></select>
+    <delete id="deleteTemplate" ><![CDATA[
+        DELETE FROM T_WEB_METRIC_TEMPLATE WHERE TEMPLATE_ID=#{ID}
+    ]]></delete>
+    <update id="saveTemplate" ><![CDATA[
+        UPDATE T_WEB_METRIC_TEMPLATE SET TEMPLATE_NAME=#{TEMPLATE_NAME},TEMPLATE_CONTENT=#{TEMPLATE_CONTENT},TEMPLATE_SCRIPT=#{TEMPLATE_SCRIPT} WHERE TEMPLATE_ID=#{ID}
+    ]]></update>
+    <insert id="addTemplate" ><![CDATA[
+        INSERT INTO T_WEB_METRIC_TEMPLATE (TEMPLATE_NAME,TEMPLATE_CONTENT,TEMPLATE_SCRIPT) VALUES (#{TEMPLATE_NAME},#{TEMPLATE_CONTENT},#{TEMPLATE_SCRIPT})
+    ]]></insert>
+    
+    <select id="selectSubmetricList" resultType="map"><![CDATA[
+        SELECT SUB_WEB_METRIC_ID,SUB_WEB_METRIC_CODE,URL,URL_BAK,CONTENT_TYPE,PAGE_ENCODING FROM T_METRIC_WEB_SUB WHERE IS_VALID='1'
+    ]]></select>
+    <select id="selecSubmetricIdByName" resultType="int"><![CDATA[
+        SELECT SUB_WEB_METRIC_ID FROM T_METRIC_WEB_SUB WHERE SUB_WEB_METRIC_CODE=#{SUB_WEB_METRIC_CODE} AND IS_VALID='1' LIMIT 1
+    ]]></select>
+    <delete id="deleteSubmetric" ><![CDATA[
+        DELETE FROM T_METRIC_WEB_SUB WHERE SUB_WEB_METRIC_ID=#{ID}
+    ]]></delete>
+    <update id="saveSubmetric" ><![CDATA[
+        UPDATE T_METRIC_WEB_SUB SET SUB_WEB_METRIC_CODE=#{SUB_WEB_METRIC_CODE},URL=#{URL},URL_BAK=#{URL_BAK},CONTENT_TYPE=#{CONTENT_TYPE},PAGE_ENCODING=#{PAGE_ENCODING} WHERE SUB_WEB_METRIC_ID=#{ID}
+    ]]></update>
+    <insert id="addSubmetric" ><![CDATA[
+        INSERT INTO T_METRIC_WEB_SUB (SUB_WEB_METRIC_CODE,URL,URL_BAK,CONTENT_TYPE,PAGE_ENCODING) VALUES (#{SUB_WEB_METRIC_CODE},#{URL},#{URL_BAK},#{CONTENT_TYPE},#{PAGE_ENCODING})
+    ]]></insert>
+	
+	
+    <select id="selectSubmetricDetailList" resultType="map"><![CDATA[
+        SELECT DETAIL_ID,SUB_WEB_METRIC_ID,METRIC_TITLE,METRIC_SELECTOR,VALUE_TYPE,ORDER_NUM FROM T_METRIC_WEB_SUB_DETAIL WHERE SUB_WEB_METRIC_ID=#{ID} AND IS_VALID='1'
+    ]]></select>
+    <delete id="deleteAllSubmetricDetail"><![CDATA[
+        DELETE FROM T_METRIC_WEB_SUB_DETAIL WHERE SUB_WEB_METRIC_ID=#{ID}
+    ]]></delete>
+    <delete id="deleteSubmetricDetail" ><![CDATA[
+        DELETE FROM T_METRIC_WEB_SUB_DETAIL WHERE DETAIL_ID=#{ID}
+    ]]></delete>
+    <update id="saveSubmetricDetail" ><![CDATA[
+        UPDATE T_METRIC_WEB_SUB_DETAIL SET METRIC_TITLE=#{METRIC_TITLE},METRIC_SELECTOR=#{METRIC_SELECTOR},VALUE_TYPE=#{VALUE_TYPE},ORDER_NUM=#{ORDER_NUM}
+	    WHERE DETAIL_ID=#{ID}
+    ]]></update>
+    <insert id="addSubmetricDetail" ><![CDATA[
+        INSERT INTO T_METRIC_WEB_SUB_DETAIL (SUB_WEB_METRIC_ID,METRIC_TITLE,METRIC_SELECTOR,VALUE_TYPE,ORDER_NUM) 
+        VALUES (#{ID},#{METRIC_TITLE},#{METRIC_SELECTOR},#{VALUE_TYPE},#{ORDER_NUM})
+    ]]></insert>
+	
+	
+	<select id="selectMetricSubsist" resultType="map"><![CDATA[
+        SELECT w.WEB_METRIC_ID,w.WEB_METRIC_CODE,w.WEB_METRIC_TITLE,s.SUB_WEB_METRIC_ID,
+		s.SUB_WEB_METRIC_CODE
+		FROM T_REL_WEB_METRIC_SUB r 
+		LEFT JOIN T_METRIC_WEB w ON (r.WEB_METRIC_ID=w.WEB_METRIC_ID )
+		LEFT JOIN T_METRIC_WEB_SUB s ON (r.SUB_WEB_METRIC_ID=s.SUB_WEB_METRIC_ID)
+		WHERE s.IS_VALID=1 AND w.IS_VALID=1
+    ]]></select>
+    <select id="selectMetricTemplatesist" resultType="map"><![CDATA[
+        SELECT w.WEB_METRIC_ID,w.WEB_METRIC_CODE,w.WEB_METRIC_TITLE,t.TEMPLATE_ID,t.TEMPLATE_NAME
+		FROM T_REL_METRIC_TEMPLATE r 
+		LEFT JOIN T_METRIC_WEB w ON (r.WEB_METRIC_ID=w.WEB_METRIC_ID )
+		LEFT JOIN T_WEB_METRIC_TEMPLATE t ON (r.TEMPLATE_ID=t.TEMPLATE_ID)
+		WHERE t.IS_VALID=1 AND w.IS_VALID=1
+    ]]></select>
+    <select id="selectMetricList" resultType="map"><![CDATA[
+        SELECT WEB_METRIC_ID,WEB_METRIC_CODE,WEB_METRIC_TITLE FROM T_METRIC_WEB WHERE IS_VALID='1'
+    ]]></select>
+    <select id="selecMetricIdByName" resultType="int"><![CDATA[
+        SELECT WEB_METRIC_ID FROM T_METRIC_WEB WHERE WEB_METRIC_CODE=#{WEB_METRIC_CODE} AND IS_VALID='1'
+        ]]><if test="ID != null">
+        	AND WEB_METRIC_ID != #{ID} 
+        </if><![CDATA[
+        LIMIT 1
+    ]]></select>
+    <delete id="deleteMetric" ><![CDATA[
+        DELETE FROM T_METRIC_WEB WHERE WEB_METRIC_ID=#{ID}
+    ]]></delete>
+    <update id="saveMetric" ><![CDATA[
+        UPDATE T_METRIC_WEB SET WEB_METRIC_CODE=#{WEB_METRIC_CODE},WEB_METRIC_TITLE=#{WEB_METRIC_TITLE} WHERE WEB_METRIC_ID=#{ID}
+    ]]></update>
+    <insert id="addMetric" ><![CDATA[
+        INSERT INTO T_METRIC_WEB (WEB_METRIC_CODE,WEB_METRIC_TITLE) VALUES (#{WEB_METRIC_CODE},#{WEB_METRIC_TITLE})
+    ]]></insert>
+    
+    
+    <delete id="deletesAllRelSubs" ><![CDATA[
+        DELETE FROM T_REL_WEB_METRIC_SUB WHERE WEB_METRIC_ID=#{ID}
+    ]]></delete>
+    <insert id="saveRelSub" ><![CDATA[
+        INSERT INTO T_REL_WEB_METRIC_SUB (WEB_METRIC_ID,SUB_WEB_METRIC_ID) VALUES (#{ID},#{SUB_ID})
+    ]]></insert>
+    <delete id="deletesAllRelTemplates" ><![CDATA[
+        DELETE FROM T_REL_METRIC_TEMPLATE WHERE WEB_METRIC_ID=#{ID}
+    ]]></delete>
+    <insert id="saveRelTemplate" ><![CDATA[
+        INSERT INTO T_REL_METRIC_TEMPLATE (WEB_METRIC_ID,TEMPLATE_ID) VALUES (#{ID},#{SUB_ID})
+    ]]></insert>
+</mapper>

@@ -241,9 +241,7 @@
 			pageList : getPageList(pageSize),
 			onSelect : function(index, row) {
 				siteData = row;
-				$('#divMetricDetail').datagrid({
-					title : "待爬取URL列表【" + row.SITE_NAME + "】"
-				}).datagrid("load", {
+				$('#divMetricDetail').datagrid("load", {
 					key : key,
 					SITE_ID : row.SITE_ID
 				});
@@ -360,7 +358,7 @@
 
 		divMetric.datagrid({
 			toolbar : '#tbDetail',
-			title : "待爬取URL列表【所有站点】",
+			title : "待爬取URL列表",
 			url : "setting/siteDetail/select.do",
 			queryParams : params,
 			fitColumns : true,

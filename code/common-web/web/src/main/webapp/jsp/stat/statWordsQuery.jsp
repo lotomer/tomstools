@@ -283,14 +283,10 @@
 				align : 'left',
 				halign : 'center',
 				formatter: function(value,row){
-					return '<a href="#" onclick="javascript:window.top.createPageById(201004,\'&p=value:' + encodeURIComponent(row.URL) + '\')" >查看正文快照</a>';
+					return '<a href="#" onclick="javascript:window.top.createPageById(201004,\'&p=field:id,value:' + encodeURIComponent('"' + row.URL + '"') + '\')" >查看正文快照</a>';
 				}
 			} ] ]
 		});//.datagrid('clientPaging');
-	}
-	
-	function gotoSearch(id){
-		window.top.createPageById(201004);
 	}
 </script>
 </html>

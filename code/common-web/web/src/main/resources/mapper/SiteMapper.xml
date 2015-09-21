@@ -9,26 +9,61 @@
         SELECT STAT_TIME FROM T_POM_S_STAT_SITE WHERE TYPE_ID=#{TYPE_ID} ORDER BY STAT_TIME DESC,STAT_SEQ DESC LIMIT 1
     ]]></select>
     <select id="selectSiteTop" resultType="map"><![CDATA[
-    	SELECT CASE WHEN cs.SITE_NAME IS NULL THEN '其他' ELSE cs.SITE_NAME END SITE_NAME,sum(SIZE_ZM) + SUM(SIZE_FM) + sum(SIZE_ZM_E) + SUM(SIZE_FM_E) SIZE FROM T_POM_S_STAT_SITE s LEFT JOIN T_CRAWL_C_SITE cs ON (s.SITE_ID=cs.SITE_ID) 
-		WHERE STAT_TIME BETWEEN #{START_TIME} AND #{END_TIME} AND (cs.IS_VALID=1)
+    	SELECT CASE WHEN cs.SITE_NAME IS NULL THEN '其他' ELSE cs.SITE_NAME END SITE_NAME,sum(SIZE_ZM) + SUM(SIZE_FM) + sum(SIZE_ZM_E) + SUM(SIZE_FM_E) SIZE 
+    	FROM T_POM_S_STAT_SITE s LEFT JOIN T_CRAWL_C_SITE cs ON (s.SITE_ID=cs.SITE_ID) 
+		WHERE ]]><if test="TYPE_ID != null">
+		TYPE_ID=#{TYPE_ID} AND 
+		</if>
+		<![CDATA[STAT_TIME BETWEEN #{START_TIME} AND #{END_TIME} AND (cs.IS_VALID=1)
 		GROUP BY SITE_NAME ORDER BY SIZE desc limit #{TOP_NUM}
+    ]]></select>
+    <select id="selectWordsTop" resultType="map"><![CDATA[
+    	SELECT r.TYPE_ID,r.TYPE_NAME,sum(SIZE_ZM) + SUM(SIZE_FM) + sum(SIZE_ZM_E) + SUM(SIZE_FM_E) SIZE 
+		FROM T_POM_S_STAT_SITE s LEFT JOIN T_POM_C_RULE r ON (s.TYPE_ID=r.TYPE_ID) 
+		WHERE STAT_TIME BETWEEN #{START_TIME} AND #{END_TIME} AND (r.IS_VALID=1)
+		GROUP BY r.TYPE_ID,r.TYPE_NAME  ORDER BY SIZE desc limit #{TOP_NUM}
     ]]></select>
     <!-- <select id="selectSiteTop" resultType="map"><![CDATA[
     	SELECT CASE WHEN cs.SITE_NAME IS NULL THEN '其他' ELSE cs.SITE_NAME END SITE_NAME,sum(SIZE_ZM) + SUM(SIZE_FM) + sum(SIZE_ZM_E) + SUM(SIZE_FM_E) SIZE FROM T_POM_S_STAT_SITE s LEFT JOIN T_CRAWL_C_SITE cs ON (s.SITE_ID=cs.SITE_ID) 
 		WHERE STAT_TIME BETWEEN #{START_TIME} AND #{END_TIME} AND (cs.IS_VALID=1 OR cs.IS_VALID IS NULL)
 		GROUP BY SITE_NAME ORDER BY SIZE desc limit #{TOP_NUM}
     ]]></select> -->
+    
+    <select id="selectHotwordTop" resultType="map"><![CDATA[
+    	SELECT WORD,sum(HEAT) HEAT
+		FROM T_POM_HOTWORD
+		WHERE ]]>
+		<if test="FLAG != null">FLAG=#{FLAG} AND </if>
+		<![CDATA[IN_TIME BETWEEN #{START_TIME} AND #{END_TIME}
+		GROUP BY WORD ORDER BY HEAT desc limit #{TOP_NUM}
+    ]]></select>
+    <delete id="deleteHot"><![CDATA[
+    	DELETE FROM T_POM_HOTWORD
+		WHERE FLAG=#{FLAG}
+    ]]></delete>
+    <insert id="saveHot"><![CDATA[
+    	INSERT INTO T_POM_HOTWORD (FLAG,WORD,HEAT,IN_TIME) values (#{FLAG},#{WORD},#{HEAT},now())
+    ]]></insert>
+    
      <select id="selectMediaCount" resultType="map"><![CDATA[
      	SELECT CASE WHEN st.SITE_TYPE_NAME IS NULL THEN '其他' ELSE st.SITE_TYPE_NAME END SITE_TYPE_NAME,sum(SIZE_ZM) + SUM(SIZE_FM) + sum(SIZE_ZM_E) + SUM(SIZE_FM_E) SIZE 
 		FROM T_POM_S_STAT_SITE s LEFT JOIN T_CRAWL_C_SITE cs ON (s.SITE_ID=cs.SITE_ID) LEFT JOIN T_CRAWL_M_SITE_TYPE st ON (cs.SITE_TYPE_ID=st.SITE_TYPE_ID)
-		WHERE  STAT_TIME BETWEEN #{START_TIME} AND #{END_TIME} AND (cs.IS_VALID=1 OR cs.IS_VALID IS NULL) AND (st.IS_VALID=1 OR st.IS_VALID IS NULL)
+		WHERE  
+		]]><if test="TYPE_ID != null">
+		TYPE_ID=#{TYPE_ID} AND 
+		</if>
+		<![CDATA[STAT_TIME BETWEEN #{START_TIME} AND #{END_TIME} AND (cs.IS_VALID=1 OR cs.IS_VALID IS NULL) AND (st.IS_VALID=1 OR st.IS_VALID IS NULL)
 		GROUP BY SITE_TYPE_NAME ORDER BY SIZE desc
     ]]></select>
     
     <select id="selectMedia" resultType="map"><![CDATA[
     	SELECT CASE WHEN st.SITE_TYPE_NAME IS NULL THEN '其他' ELSE st.SITE_TYPE_NAME END SITE_TYPE_NAME,sum(SIZE_ZM) + SUM(SIZE_FM) + sum(SIZE_ZM_E) + SUM(SIZE_FM_E) SIZE,DATE_FORMAT(STAT_TIME,'%Y-%m-%d') dt 
 		FROM T_POM_S_STAT_SITE s LEFT JOIN T_CRAWL_C_SITE cs ON (s.SITE_ID=cs.SITE_ID) LEFT JOIN T_CRAWL_M_SITE_TYPE st ON (cs.SITE_TYPE_ID=st.SITE_TYPE_ID)
-		WHERE  STAT_TIME BETWEEN #{START_TIME} AND #{END_TIME} AND (cs.IS_VALID=1 OR cs.IS_VALID IS NULL) AND (st.IS_VALID=1 OR st.IS_VALID IS NULL)
+		WHERE 
+		]]><if test="TYPE_ID != null">
+		TYPE_ID=#{TYPE_ID} AND 
+		</if>
+		<![CDATA[ STAT_TIME BETWEEN #{START_TIME} AND #{END_TIME} AND (cs.IS_VALID=1 OR cs.IS_VALID IS NULL) AND (st.IS_VALID=1 OR st.IS_VALID IS NULL)
 		GROUP BY SITE_TYPE_NAME,dt ORDER BY dt desc
     ]]></select>
     
@@ -118,7 +153,7 @@
     	SELECT s.DETAIL_SEQ,s.TEMPLATE_TYPE,s.TYPE_ID,r.TYPE_NAME,s.SITE_ID,cs.SITE_NAME,s.TITLE,s.URL,DATE_FORMAT(s.CRAWL_TIME,'%Y-%m-%d') CRAWL_TIME,DATE_FORMAT(s.IN_TIME,'%Y-%m-%d') IN_TIME
 		FROM T_POM_R_DETAIL s LEFT JOIN T_CRAWL_C_SITE cs ON (s.SITE_ID=cs.SITE_ID) 
 		LEFT JOIN T_POM_C_RULE r ON (s.TYPE_ID=r.TYPE_ID)
-    	]]><if test="TYPE_ID != null"> WHERE TYPE_ID=#{TYPE_ID}</if>
+    	]]><if test="TYPE_ID != null"> WHERE s.TYPE_ID=#{TYPE_ID}</if>
     	<![CDATA[ORDER BY CRAWL_TIME DESC LIMIT #{START},#{ROWS}
     ]]></select>
     <select id="checkUrl" resultType="string"><![CDATA[
@@ -146,6 +181,8 @@
     ]]></select>
     <select id="selectStatsCountAll" resultType="map"><![CDATA[
         SELECT sum(SIZE_ZM) + SUM(SIZE_ZM_E) SIZE_ZM,sum(SIZE_FM) +SUM(SIZE_FM_E) SIZE_FM FROM T_POM_S_STAT_SITE 
- 		WHERE STAT_TIME BETWEEN #{START_TIME} AND #{END_TIME}
+ 		WHERE ]]><if test="TYPE_ID != null">
+        	TYPE_ID=#{TYPE_ID} AND
+        </if><![CDATA[STAT_TIME BETWEEN #{START_TIME} AND #{END_TIME}
     ]]></select>
 </mapper>

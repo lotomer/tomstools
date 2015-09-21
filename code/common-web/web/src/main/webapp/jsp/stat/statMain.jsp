@@ -12,23 +12,21 @@
 <style type="text/css">
 	#divStatMainContent>div{border: 0px solid red;}
 	.pnlHeader{background:none;}
-	.msg{text-align:center;float: left;font-size: 14px;display: inline;margin-right:10px;height:25px;   
-  line-height:25px; 
-  overflow:hidden;   }
-	.msgTitle,.panel-title{font-size:12px;font-weight: bold;padding:0 10px;color: #333;height:20px;line-height:20px;	text-align: left;background-color: #ccc}
+	.msg{text-align:center;float: left;font-size: 14px;display: inline;margin-right:10px;height:25px; line-height:25px;overflow:hidden;   }
+	.msgTitle,.panel-title{font-size:12px;font-weight: bold;padding:0 10px;color: #333;height:20px;line-height:20px;text-align: left;background-color: #ccc}
 	.msg>div{padding:0 2px;float:left;}
 	.msgRow{width:99%;display:inline-block;}
 	.moduleContent{padding:0 10px;}
-	.module{float:left;float:left;margin:10px 0px 5px 15px;background-color: white;}
+	.module{float:left;float:left;margin:10px 0px 3px 15px;background-color: white;}
 	.msgRow{margin: 15px 0 10px 10px;}
-	.row1 {height: 145px;}
-	.row2 {height: 180px;}
-	.row3 {height: 130px;}
-	.row1>.moduleContent{height: 125px;}
-	.row2>.moduleContent{height: 160px;}
-	.row3>.moduleContent{height: 110px;}
+	.row1 {height: 140px;}
+	.row2 {height: 155px;}
+	.row3 {height: 125px;}
+	.row1>.moduleContent{height: 120px;}
+	.row2>.moduleContent{height: 135px;}
+	.row3>.moduleContent{height: 105px;}
 	A {text-decoration: NONE} 
-	#divYQYJ A{margin-left: 10px;}
+	.moduleContent A,#WORDS A{margin-left: 10px;}
 	.datagrid-row{border-width: 1px;border-style: dotted;}
 	.datagrid-header td, .datagrid-body td, .datagrid-footer td {
 	    border-width: 0px 0px 1px 0px;
@@ -36,6 +34,11 @@
 </style>
 </head>
 <body class="easyui-layout">
+	<div id="divCondition" data-options="region:'north',split:true"
+		style="height: 40px;padding:3px 10px;">
+        <label class="msg" style="width:10%;float:left;text-align:right;">热门词条：</label>
+        <div id="WORDS" style="width:85%;float:left;"></div>
+	</div>
 	<div id="divStatMainContent" style="background-color: #888" data-options="region:'center',split:true">
 	    <div style="width: 260px;" class="module row1">
 	    	<div class="msgTitle">舆情级别</div>
@@ -62,9 +65,15 @@
     			<div class="msg" style="width:80px;color: white;font-size:16px;height: 30px;line-height: 30px;" id="divZRYQ_TIPS"></div>
    			</div>
    		</div>
-   		<div id="divYQYJ" class="module row1" style="width:231px;">
+   		<!-- <div class="module row1" style="width:231px;">
    			<div class="msgTitle">词条预警</div>
-   			<div class="msg" id="divCTYQ" style="text-align: left;margin-top:10px;"></div>
+   			<div class="moduleContent" id="divCTYQ" style="text-align: left;margin-top:10px;"></div>
+   		</div> -->
+   		<div class="module row1"  style="width:231px;">
+   			<div data-options="fit:true" class="easyui-tabs">
+	   			<div title="行业热词" id="divHotWord0" style="padding:8px 0 0 10px;"></div>
+	   			<div title="网络热点" id="divHotWord1" style="padding:8px 0 0 10px;"></div>
+   			</div>
    		</div>
    		
    		<div style="width: 260px;" class="module row2"><div class="msgTitle">舆情媒体类型</div><div id="divYQMTLX" class="moduleContent"></div></div>
@@ -97,11 +106,8 @@
 			: 5,COLOR_GOOD='#228b22',COLOR_NORMAL='#48b',COLOR_BAK='#ff4500',BACKGROUND_COLOR='#f8f8f8',TEXT_STYLE={fontSize:15,color:'black'};
 	// 页面初始化
 	$(function() {
-		// 绑定事件
-		function initEcharts(ec) {
-			window.echarts = ec;
-			query();
-		}
+		// 生成词条
+		loadData("divCondition", "crawl/query/wordsTop.do", {key:key,topNum:10}, initCondition);
 		// 路径配置
 		require.config({
 			paths : {
@@ -115,6 +121,33 @@
 		'echarts/chart/gauge'
 		], initEcharts);
 	});
+	// 绑定事件
+	function initEcharts(ec) {
+		window.echarts = ec;
+	}
+	function initCondition(data) {
+		var o1 = $('<a></a>'),option={toggle:true,text:'【全部】',group:'grpWords'};
+		$('#WORDS').append(o1);
+		option.selected = true;
+		o1.linkbutton(option);
+		for (var i = 0; i < data.length; i++) {
+			var o = $('<a></a>');
+			$('#WORDS').append(o);
+			option.id = data[i].TYPE_ID;
+			option.text = data[i].TYPE_NAME;
+			option.selected = false;
+
+			o.linkbutton(option);
+		}
+		$("#WORDS a").bind("click",function(e){
+			query($(this).attr("id"));
+		});
+		// 查询所有
+		query();
+		//initComboboxWithData("WORDS",data,function(value){
+		//	query(value.id);
+		//},true,"TYPE_ID","TYPE_NAME");
+	}
 	function getValue(zm,fm){
 		var sizeZM = 1,sizeFM=0;
 		if (zm){
@@ -137,16 +170,17 @@
 	/**
 	 * 执行查询
 	 */
-	function query() {
+	function query(typeId) {
 		$('#divMain').html('');
-		loadJRYQ();
-		loadYQMTLX();
-		loadSiteTop();
-		loadZRYQ();
-		loadXZFB();
-		loadZXYQ();
-		loadYQYJ();
-		loadYQZS();
+		loadJRYQ(typeId);
+		loadYQMTLX(typeId);
+		loadSiteTop(typeId);
+		loadZRYQ(typeId);
+		loadXZFB(typeId);
+		loadZXYQ(typeId);
+		//loadYQYJ(typeId);
+		loadHotWord(typeId);
+		loadYQZS(typeId);
 	}
 	function loadMain(ec,zm,fm){
 		var containId = "divMain";
@@ -223,10 +257,10 @@
     	});
 	}
 	// 今日舆情
-	function loadJRYQ() {
+	function loadJRYQ(typeId) {
 		var containId = "divJRYQ";
 		loadData(containId, "crawl/stat/today.do", {
-			key : key
+			key : key,TYPE_ID:typeId
 		}, function(datas) {
 			if (!datas) {
 				return;
@@ -244,7 +278,7 @@
 		});
 	}
 	// 舆情媒体类型
-	function loadYQMTLX() {
+	function loadYQMTLX(typeId) {
 		var containId = "divYQMTLX";
 		$('#' + containId).html('');
 		showLoading(containId);
@@ -252,7 +286,7 @@
 				containId,
 				"crawl/stat/mediaCount.do",
 				{
-					key : key
+					key : key,TYPE_ID:typeId
 				},
 				function(datas) {
 					$('#' + containId).html('');
@@ -311,6 +345,10 @@
 						}
 						values.data.push(o);
 					}
+					if (values.length == 0){
+						showEmpty(divMetric.attr('id'));
+						return;
+					}
 					var option = {
 						title : {
 							//x : "left",
@@ -357,7 +395,7 @@
 				});
 	}
 	// 来源网站
-	function loadSiteTop() {
+	function loadSiteTop(typeId) {
 		var containId = "divSiteTop";
 		$('#' + containId).html('');
 		showLoading(containId);
@@ -366,7 +404,7 @@
 				"crawl/stat/siteTop.do",
 				{
 					key : key,
-					topNum : topNum
+					topNum : topNum,TYPE_ID:typeId
 				},
 				function(datas) {
 					$('#' + containId).html('');
@@ -405,6 +443,10 @@
 							}
 						}
 					}, x = [];
+					if (datas.length == 0){
+						showEmpty(divMetric.attr('id'));
+						return;
+					}
 					for (var i = 0, oLen = datas.length; i < oLen; i++) {
 						var aData = datas[i];
 						x.push(aData.SITE_NAME);
@@ -472,10 +514,10 @@
 				});
 	}
 	// 昨日舆情
-	function loadZRYQ() {
+	function loadZRYQ(typeId) {
 		var containId = 'divZRYQ';
 		loadData(containId, "crawl/stat/yesterday.do", {
-			key : key
+			key : key,TYPE_ID:typeId
 		}, function(datas) {
 			var ec = window.echarts;
 			if (!datas) {
@@ -495,12 +537,12 @@
 		});
 	}
 	// 新增分布
-	function loadXZFB() {
+	function loadXZFB(typeId) {
 		var containId = "divXZFB";
 		$('#' + containId).html('');
 		showLoading(containId);
 		loadData(containId, "crawl/stat/increment.do", {
-			key : key
+			key : key,TYPE_ID:typeId
 		}, function(datas) {
 			$('#' + containId).html('');
 			if (!datas) {
@@ -555,13 +597,13 @@
 		});
 	}
 	// 最新舆情
-	function loadZXYQ() {
+	function loadZXYQ(typeId) {
 		var containId = "divZXYQ";
 		$('#' + containId).html('');
 		showLoading(containId);
 		loadData(containId, "crawl/query.do", {
-			key : key,
-			rows: 5
+			key : key,TYPE_ID:typeId,
+			rows: 4
 		}, function(datas) {
 			$('#' + containId).html('');
 			if (!datas) {
@@ -605,7 +647,7 @@
 		});
 	}
 	// 舆情走势
-	function loadYQZS() {
+	function loadYQZS(typeId) {
 		var containId = "divYQZS";
 		$('#' + containId).html('');
 		showLoading(containId);
@@ -613,7 +655,7 @@
 				containId,
 				"crawl/stat/media.do",
 				{
-					key : key
+					key : key,TYPE_ID:typeId
 				},
 				function(datas) {
 					$('#' + containId).html('');
@@ -662,6 +704,10 @@
 							stack : undefined,
 							data : aData.data
 						});
+					}
+					if (values.length == 0){
+						showEmpty(divMetric.attr('id'));
+						return;
 					}
 					var option = {
 						title : {
@@ -719,15 +765,19 @@
 					});
 				});
 	}
-	function showYQ(containId,words){
-		$('#' + containId).append('<a href="#" onclick="javascript:window.top.createPageById(103004)" value="' +words+ '"  style="width:100px;float:left;display:block;overflow:hidden; text-overflow:ellipsis;">' + words+ '</a>');
+	function showYJ(containId,words){
+		$('#' + containId).append('<div style="width:100px;height:20px;"><a href="#" onclick="javascript:window.top.createPageById(103004)" title="' +words+ '"  style="white-space: nowrap;display:block;overflow:hidden; text-overflow:ellipsis;">' + words+ '</a></div>');
+	}
+	function showWord(containId,words,index){
+		$('#' + containId).append('<div style="width:180px;height:20px;"><label style="float:left;width:20px;text-align:center;margin-right:5px;color:white;background-color:' + (index < 4 ? 'red' : '#333')
+		+ '">' + index + '</label><a href="#" onclick="javascript:window.top.createPageById(201006,\'&p=field:text,value:' + encodeURIComponent(words) + '\')" title="' +words+ '"  style="white-space: nowrap;display:block;overflow:hidden; text-overflow:ellipsis;">' + words+ '</a></div>');
 	}
 	// 舆情预警
-	function loadYQYJ() {
+	function loadYQYJ(typeId) {
 		var containId = "divCTYQ", TopN = 10;
 		
 		loadData(containId, "crawl/stat/wordsAlertTop.do", {
-			key : key,
+			key : key,TYPE_ID:typeId,
 			topNum : TopN
 		}, function(datas) {
 			if (!datas) {
@@ -741,9 +791,35 @@
 					var wordsList = aData[1].split(',');
 					for(var j = 0,jLen = wordsList.length; j < jLen;j++){
 						if (j < TopN){
-							showYQ(containId,wordsList[j]);
+							showYJ(containId,wordsList[j]);
 						}
 					}
+				}
+			}
+		});
+	}
+	// 加载热点词汇
+	function loadHotWord(typeId) {
+		doLadHotWord(typeId,"0");
+		doLadHotWord(typeId,"1");
+	}
+	function doLadHotWord(typeId,flag) {
+		var containId = "divHotWord"+flag, TopN = 10;
+		
+		loadData(containId, "crawl/query/hotwordTop.do", {
+			key : key,TYPE_ID:typeId,DAYS:1,FLAG:flag,
+			topNum : TopN
+		}, function(datas) {
+			if (!datas) {
+				return;
+			}
+
+			$('#' + containId).html('');
+			for (var i = 0, oLen = datas.length; i < oLen; i++) {
+				if (i < TopN){
+					showWord(containId,datas[i].WORD,i + 1);
+				}else{
+					break;
 				}
 			}
 		});

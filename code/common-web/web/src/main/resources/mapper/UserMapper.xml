@@ -8,6 +8,11 @@
         WHERE IS_VALID='1'
     ]]></select>
     <select id="selectUser" resultType="user"><![CDATA[
+        SELECT u.USER_ID userId,u.USER_NAME userName,u.NICK_NAME nickName,u.EMAIL,u.PHONE_NUMBER phoneNumber,u.CLIENT_IP clientIp
+		FROM T_M_USERS u 
+		WHERE  u.USER_NAME=#{userName} AND u.USER_PASSWD=#{userPassword} AND u.IS_VALID='1'
+    ]]></select>
+    <select id="selectUser_BAK" resultType="user"><![CDATA[
         SELECT u.USER_ID userId,u.USER_NAME userName,u.NICK_NAME nickName,u.EMAIL,u.PHONE_NUMBER phoneNumber,u.CLIENT_IP clientIp,CASE WHEN k.`KEY` IS NULL THEN NULL WHEN now() < k.INVALID_TIME THEN k.`KEY` ELSE '' END `key` FROM T_M_USERS u LEFT JOIN T_U_KEY k ON u.USER_ID=k.USER_ID WHERE u.USER_NAME=#{userName} AND u.USER_PASSWD=#{userPassword} AND u.IS_VALID='1'
     ]]></select>
     <select id="selectUserById" resultType="user"><![CDATA[
@@ -18,6 +23,18 @@
         u.NICK_NAME nickName,u.CLIENT_IP clientIp,u.EMAIL email,u.PHONE_NUMBER phoneNumber 
         FROM T_U_KEY k,T_M_USERS u where k.USER_ID=u.USER_ID AND u.IS_VALID='1'  AND `KEY`= #{key}
     ]]></select>
+    
+    <select id="getLastLoginTime" resultType="date"><![CDATA[
+        SELECT LOGIN_TIME
+        FROM T_LOG_LOGIN WHERE USER_ID=#{USER_ID} AND `KEY` != #{KEY} ORDER BY LOGIN_TIME DESC LIMIT 1
+    ]]></select>
+    <insert id="saveLoginLog"><![CDATA[
+        INSERT INTO T_LOG_LOGIN (USER_ID,`KEY`,CLIENT_IP,LOGIN_TIME) VALUES (#{USER_ID},#{KEY},#{CLIENT_IP},now())
+    ]]></insert>
+    
+    <update id="saveLogoutLog"><![CDATA[
+        UPDATE T_LOG_LOGIN SET LOGOUT_TIME=now() WHERE USER_ID=#{USER_ID} AND `KEY`=#{KEY}
+    ]]></update>
     
 	<select id="selectUserMenus" resultType="menu"><![CDATA[
         SELECT m.MENU_ID menuId,m.MENU_NAME menuName,m.PAGE_ID pageId,m.PARENT_ID parentId,m.IS_SHOW isShow,m.ORDER_NUM orderNum,m.ICON_CLASS iconClass
@@ -63,11 +80,11 @@
     ]]></insert>
     
     <update id="updateKey"><![CDATA[
-        UPDATE T_U_KEY SET `KEY` = #{key},UPDATE_TIME=now(),INVALID_TIME = DATE_ADD(NOW(),INTERVAL 30 MINUTE) WHERE USER_ID=#{userId}
+        UPDATE T_U_KEY SET UPDATE_TIME=now(),INVALID_TIME = DATE_ADD(NOW(),INTERVAL 30 MINUTE) WHERE `KEY` = #{key} AND  USER_ID=#{userId} 
     ]]></update>
     
     <update id="deleteKey"><![CDATA[
-        UPDATE T_U_KEY SET UPDATE_TIME=now(),INVALID_TIME = now() WHERE `KEY` = #{key}
+        UPDATE T_U_KEY SET UPDATE_TIME=now(),INVALID_TIME = now() WHERE USER_ID=#{USER_ID} AND `KEY` = #{key}
     ]]></update>
     
     <select id="selectAllConfigs" resultType="config"><![CDATA[

@@ -4,7 +4,9 @@
 package org.tomstools.web.action;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,8 +29,10 @@ import org.tomstools.common.parse.TemplateParser;
 import org.tomstools.web.model.Menu;
 import org.tomstools.web.model.Page;
 import org.tomstools.web.model.User;
+import org.tomstools.web.model.WebMetricInfo;
 import org.tomstools.web.service.CodeService;
 import org.tomstools.web.service.UserService;
+import org.tomstools.web.service.WebMetricService;
 
 import com.alibaba.fastjson.JSON;
 
@@ -41,91 +45,102 @@ import com.alibaba.fastjson.JSON;
  */
 @Controller
 public class MainControl {
-	private static final Log LOG = LogFactory.getLog(MainControl.class);
-	private static final String THEME_DEFAULT = "default";
-	@Autowired
-	private UserService userService;
+    private static final Log LOG = LogFactory.getLog(MainControl.class);
+    private static final String THEME_DEFAULT = "default";
+    @Autowired
+    private UserService userService;
+    @Autowired
+    private WebMetricService webMetricService;
 
-	@RequestMapping("/logout.do")
-	public String logout(@RequestParam(value = "key", required = false) final String key,
-			@RequestParam(value = "theme", defaultValue = THEME_DEFAULT) String theme, Model model) {
-		LOG.info("[logout] theme:" + theme);
-		userService.setInvalid(getKey(key));
-		model.addAttribute("theme", getTheme(theme));
-		model.addAttribute("error", "");
-		return "login";
-	}
-
-	@RequestMapping(value = "/login.do")
-	public String login(@RequestParam(value = "key", required = false) final String key,
-			@RequestParam(value = "userName", required = false) final String userName,
-			@RequestParam(value = "userPassword", required = false) final String userPassword,
-			@RequestParam(value = "verifyCode", required = false) String verifyCode,
-			@RequestParam(value = "theme", required = false, defaultValue = THEME_DEFAULT) String theme,
-			@RequestParam(value = "referer", required = false) String referer, Model model, HttpSession session,
-			HttpServletRequest req, HttpServletResponse resp) {
-		LOG.info("[login] theme:" + theme);
-		model.addAttribute("theme", getTheme(theme));
-		if (null != key && !"".equals(key)) {
-			// return index(key, theme, model, req, resp);
-		}
-		model.addAttribute("userName", userName);
-		model.addAttribute("userPassword", userPassword);
-		if (null == userName || null == userPassword) {
-			// 没有指定用户名和密码，则不提示任何错误
-		} else if ("".equals(userName) || "".equals(userPassword)) {
-			model.addAttribute("error", "用户名或密码不能为空！");
-		} else {
-			// 先进行验证码校验
-			String realCode = (String) session.getAttribute(CodeService.KEY_CODE);
-			if (null == verifyCode || !verifyCode.equalsIgnoreCase(realCode)) {
-				model.addAttribute("error", "验证码错误！");
-				model.addAttribute("msg", "用${error}");
-			} else {
-				User user = userService.getUser(userName, userPassword);
-				if (null != user) { // 认证通过
+    @RequestMapping("/logout.do")
+    public String logout(@RequestParam(value = "key", required = false) final String key,
+            @RequestParam(value = "theme", defaultValue = THEME_DEFAULT) String theme, Model model) {
+        LOG.info("[logout] theme:" + theme);
+        userService.logout(getKey(key));
+        model.addAttribute("theme", getTheme(theme));
+        model.addAttribute("error", "");
+        return "login";
+    }
+    private final static SimpleDateFormat DF = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); 
+    @RequestMapping(value="/login.do")
+    public String login(@RequestParam(value = "key", required = false) final String key,
+            @RequestParam(value = "userName", required = false) final String userName,
+            @RequestParam(value = "userPassword", required = false) final String userPassword,
+            @RequestParam(value = "verifyCode", required = false) String verifyCode,
+            @RequestParam(value = "theme", required = false, defaultValue = THEME_DEFAULT) String theme,
+            @RequestParam(value = "referer", required = false) String referer, Model model, HttpSession session,
+            HttpServletRequest req, HttpServletResponse resp) {
+        LOG.info("[login] theme:" + theme);
+        model.addAttribute("theme", getTheme(theme));
+        if (null != key && !"".equals(key)) {
+            //return index(key, theme, model, req, resp);
+        }
+        model.addAttribute("userName", userName);
+        model.addAttribute("userPassword", userPassword);
+        if (null == userName || null == userPassword) {
+            // 没有指定用户名和密码，则不提示任何错误
+        } else if ("".equals(userName) || "".equals(userPassword)) {
+            model.addAttribute("error", "用户名或密码不能为空！");
+        } else {
+            // 先进行验证码校验
+            String realCode = (String) session.getAttribute(CodeService.KEY_CODE);
+            if (null == verifyCode || !verifyCode.equalsIgnoreCase(realCode)) {
+                model.addAttribute("error", "验证码错误！");
+                model.addAttribute("msg", "用${error}");
+            } else {
+            	String clientIp = req.getRemoteHost();
+                User user = userService.login(userName, userPassword,clientIp);
+                if (null != user) { // 认证通过
 					// 获取用户特定的样式
 					model.addAttribute("theme", getTheme(userService.getConfig(user.getUserId(), "THEME")));
 					// 校验客户端IP，如果有限制的话
-					if (StringUtils.isEmpty(user.getClientIp()) || check(user.getClientIp(), req)) {
-						List<Page> pages = userService.getUserPages(user.getUserId());
-						if (null == pages) {
-							pages = Collections.emptyList();
-						}
-						String realKey = user.getKey();
-						model.addAttribute("pages", JSON.toJSONString(pages));
+					if (StringUtils.isEmpty(user.getClientIp()) || check(user.getClientIp(), clientIp)) {
+                    List<Page> pages = userService.getUserPages(user.getUserId());
+                    if (null == pages) {
+                        pages = Collections.emptyList();
+                    }
+                    String realKey = user.getKey();
+                    model.addAttribute("pages", JSON.toJSONString(pages));
 
-						List<Menu> menus = userService.getUserMenus(user.getUserId());
-						if (null == menus) {
-							menus = Collections.emptyList();
-						}
-						model.addAttribute("menus", JSON.toJSONString(menus));
-						model.addAttribute("user", user);
-						if (!StringUtils.isEmpty(referer)) {
-							String url = referer;
-							if (!url.contains("?")) {
-								url = url + "?key=" + realKey;
-							} else if (url.endsWith("?")) {
-								url = url + "key=" + realKey;
-							} else {
-								url = URLUtil.removeURLQueryAttibute(url, "key");
-								if (url.endsWith("&")) {
-									url = url + "key=" + realKey;
-								} else {
-									url = url + "&key=" + realKey;
-								}
-							}
-							LOG.info("redirect to " + url);
-							try {
-								resp.sendRedirect(url);
-							} catch (IOException e) {
-								LOG.error(e.getMessage(), e);
-							}
-							return null;
-						} else {
-							return "index";
-						}
-					} else {
+                    List<Menu> menus = userService.getUserMenus(user.getUserId());
+                    if (null == menus) {
+                        menus = Collections.emptyList();
+                    }
+                    Date now = new Date();
+                	model.addAttribute("LOGIN_TIME", DF.format(now));
+                    Date lastLoginTime = userService.getLastLoginTime(user.getUserId(),user.getKey());
+                    if (null != lastLoginTime){
+                    	model.addAttribute("LAST_LOGIN_TIME", DF.format(lastLoginTime));
+                    }else{
+                    	model.addAttribute("LAST_LOGIN_TIME", DF.format(now));
+                    }
+                    model.addAttribute("menus", JSON.toJSONString(menus));
+                    model.addAttribute("user", user);
+                    if (!StringUtils.isEmpty(referer)) {
+                        String url = referer;
+                        if (!url.contains("?")){
+                            url = url + "?key=" + realKey;
+                        }else if (url.endsWith("?")) {
+                            url = url + "key=" + realKey;
+                        }else{
+                            url = URLUtil.removeURLQueryAttibute(url, "key");
+                            if (url.endsWith("&")){
+                                url = url + "key=" + realKey;
+                            }else{
+                                url = url +  "&key=" + realKey;
+                            }
+                        }
+                        LOG.info("redirect to " + url);
+                        try {
+                            resp.sendRedirect(url);
+                        } catch (IOException e) {
+                            LOG.error(e.getMessage(),e);
+                        }
+                        return null;
+                    } else {
+                        return "index";
+                    }
+                } else {
 						model.addAttribute("error", "客户端受限！");
 					}
 				} else {
@@ -139,9 +154,8 @@ public class MainControl {
 		return "login";
 	}
 
-	private boolean check(String clientIp, HttpServletRequest req) {
+	private boolean check(String clientIp, String realIp) {
 		String[] cs = clientIp.split(",");
-		String realIp = req.getRemoteHost();
 		for (int i = 0; i < cs.length; i++) {
 			if (cs[i].equalsIgnoreCase(realIp)) {
 				// 匹配上，则通过验证
@@ -236,19 +250,56 @@ public class MainControl {
 		return "login";
 	}
 
-	private Map<String, String> generateParams(String param) {
-		Map<String, String> params = new HashMap<String, String>();
-		if (!StringUtils.isEmpty(param)) {
-			String[] array = param.split(",");
-			for (String s : array) {
-				String ss[] = s.split("\\:", 2);
-				if (2 == ss.length) {
-					params.put(ss[0], ss[1]);
-				}
-			}
-		}
-		return params;
-	}
+    @RequestMapping("/metric.do")
+    public String metric(@RequestParam(value = "key", defaultValue = "") String key,
+            @RequestParam(value = "theme", defaultValue = THEME_DEFAULT) String theme,
+            @RequestParam("metricName") String metricName, @RequestParam(value = "p", defaultValue = "") String param,
+            Model model, HttpServletRequest req, HttpServletResponse resp) {
+        LOG.info("[metric] " + metricName + ",params:" + param);
+        model.addAttribute("theme", getTheme(theme));
+        if (null == key || "".equals(key)) {
+            model.addAttribute("error", "密钥不能为空！");
+        } else {
+            key = getKey(key);
+            User user = userService.getUserByKey(key);
+            if (null != user) {
+                if ("".equals(user.getKey())) {
+                    model.addAttribute("error", "密钥已失效！");
+                } else {
+                    Map<String, String> params = generateParams(param);
+                    WebMetricInfo metricInfo = webMetricService.getWebMetric(metricName, params, user);
+                    if (null != metricInfo) {
+                        model.addAttribute("metricInfo", metricInfo);
+                        model.addAttribute("metricInfoJson", JSON.toJSONString(metricInfo));
+                        model.addAttribute("user", user);
+                        return "metric";
+                    } else {
+                        // model.addAttribute("error", "没有找到对应的指标");
+                        // return "error";
+                        throw new RuntimeException("没有找到指标名称为\"" + metricName + "\"对应的指标数据");
+                    }
+                }
+            } else {
+                model.addAttribute("error", "没有找到密钥对应的用户。密钥：" + key);
+            }
+        }
+        model.addAttribute("referer", req.getRequestURI() + "?" + req.getQueryString());
+        return "login";
+    }
+
+    private Map<String, String> generateParams(String param) {
+        Map<String, String> params = new HashMap<String, String>();
+        if (!StringUtils.isEmpty(param)) {
+            String[] array = param.split(",");
+            for (String s : array) {
+                String ss[] = s.split("\\:", 2);
+                if (2 == ss.length) {
+                    params.put(ss[0], ss[1]);
+                }
+            }
+        }
+        return params;
+    }
 
 	@RequestMapping("/redirect.do")
 	public String redirect(@RequestParam(value = "key", defaultValue = "") String key,

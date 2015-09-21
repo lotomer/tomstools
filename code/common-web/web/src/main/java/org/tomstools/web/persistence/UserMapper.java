@@ -1,5 +1,6 @@
 package org.tomstools.web.persistence;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -18,54 +19,57 @@ import org.tomstools.web.model.User;
  * @version 1.0
  */
 public interface UserMapper {
-	public List<Map<String, Object>> selectUserList();
+    public List<Map<String, Object>> selectUserList();
 
-	/**
-	 * 根据用户名和密码获取用户信息
-	 * 
-	 * @param userName
-	 *            用户名
-	 * @param userPassword
-	 *            密码
-	 * @return 用户信息
-	 * @since 1.0
-	 */
-	// @Select("SELECT u.USER_ID userId,u.USER_NAME userName,u.NICK_NAME
-	// nickName,u.EMAIL,u.PHONE_NUMBER phoneNumber,CASE WHEN k.`KEY` IS NULL
-	// THEN NULL WHEN now() < k.INVALID_TIME THEN k.`KEY` ELSE '' END `key` FROM
-	// T_M_USERS u LEFT JOIN T_U_KEY k ON u.USER_ID=k.USER_ID WHERE
-	// u.USER_NAME=#{userName} AND u.USER_PASSWD=#{userPassword} AND
-	// u.IS_VALID='1'")
-	public User selectUser(@Param("userName") String userName, @Param("userPassword") String userPassword);
+    /**
+     * 根据用户名和密码获取用户信息
+     * 
+     * @param userName
+     *            用户名
+     * @param userPassword
+     *            密码
+     * @return 用户信息
+     * @since 1.0
+     */
+    // @Select("SELECT u.USER_ID userId,u.USER_NAME userName,u.NICK_NAME
+    // nickName,u.EMAIL,u.PHONE_NUMBER phoneNumber,CASE WHEN k.`KEY` IS NULL
+    // THEN NULL WHEN now() < k.INVALID_TIME THEN k.`KEY` ELSE '' END `key` FROM
+    // T_M_USERS u LEFT JOIN T_U_KEY k ON u.USER_ID=k.USER_ID WHERE
+    // u.USER_NAME=#{userName} AND u.USER_PASSWD=#{userPassword} AND
+    // u.IS_VALID='1'")
+    public User selectUser(@Param("userName") String userName, @Param("userPassword") String userPassword);
 	public User selectUserById(@Param("USER_ID")  int userId);
 
-	/**
-	 * 根据密钥获取用户编号
-	 * 
-	 * @param key
-	 *            密钥
-	 * @return 用户编号
-	 * @since 1.0
-	 */
-	// @Select("SELECT k.USER_ID userId,k.KEY,u.USER_NAME userName,u.NICK_NAME
-	// nickName FROM T_U_KEY k,T_M_USERS u where k.USER_ID=u.USER_ID AND
-	// u.IS_VALID='1' AND `KEY`= #{key} AND now() < k.INVALID_TIME")
-	public User selectUserByKey(@Param("key") String key);
+    /**
+     * 根据密钥获取用户编号
+     * 
+     * @param key
+     *            密钥
+     * @return 用户编号
+     * @since 1.0
+     */
+    // @Select("SELECT k.USER_ID userId,CASE WHEN now() < k.INVALID_TIME THEN k.`KEY` ELSE '' END `key`,u.USER_NAME userName,
+    // u.NICK_NAME nickName,u.CLIENT_IP clientIp,u.EMAIL email,u.PHONE_NUMBER phoneNumber 
+    // FROM T_U_KEY k,T_M_USERS u where k.USER_ID=u.USER_ID AND u.IS_VALID='1'  AND `KEY`= #{key} AND now() < k.INVALID_TIME")
+    public User selectUserByKey(@Param("key") String key);
 
-	/**
-	 * 根据用户编号获取用户的菜单列表
-	 * 
-	 * @param userId
-	 *            用户编号
-	 * @return 用户菜单列表
-	 * @since 1.0
-	 */
-	// @Select("SELECT m.MENU_ID menuId,m.MENU_NAME menuName,m.PAGE_ID
-	// pageId,m.PARENT_ID parentId,m.IS_SHOW isShow,m.ORDER_NUM
-	// orderNum,m.ICON_CLASS iconClass FROM T_M_MENUS m ,T_PRI_ROLE_MENUS rm,
-	// T_REL_ROLE_USER ru WHERE m.MENU_ID=rm.MENU_ID AND rm.ROLE_ID=ru.ROLE_ID
-	// AND ru.USER_ID=#{userId} AND m.IS_VALID='1';")
-	public List<Menu> selectUserMenus(@Param("userId") int userId);
+	public void saveLoginLog(@Param("USER_ID") int userId, @Param("KEY") String key,@Param("CLIENT_IP") String clientIp);
+
+	public void saveLogoutLog(@Param("USER_ID") int userId, @Param("KEY") String key);
+    /**
+     * 根据用户编号获取用户的菜单列表
+     * 
+     * @param userId
+     *            用户编号
+     * @return 用户菜单列表
+     * @since 1.0
+     */
+    // @Select("SELECT m.MENU_ID menuId,m.MENU_NAME menuName,m.PAGE_ID
+    // pageId,m.PARENT_ID parentId,m.IS_SHOW isShow,m.ORDER_NUM
+    // orderNum,m.ICON_CLASS iconClass FROM T_M_MENUS m ,T_PRI_ROLE_MENUS rm,
+    // T_REL_ROLE_USER ru WHERE m.MENU_ID=rm.MENU_ID AND rm.ROLE_ID=ru.ROLE_ID
+    // AND ru.USER_ID=#{userId} AND m.IS_VALID='1';")
+    public List<Menu> selectUserMenus(@Param("userId") int userId);
 
 	public List<Map<String, Object>> selectAllMenus();
 
@@ -142,7 +146,7 @@ public interface UserMapper {
 	 */
 	public void updateKey(@Param("userId") int userId, @Param("key") String key);
 
-	public void deleteKey(@Param("key") String key);
+    public void deleteKey(@Param("USER_ID") int userId,@Param("key") String key);
 
 	/**
 	 * 加载配置项
@@ -198,5 +202,7 @@ public interface UserMapper {
 			@Param("ORDER_NUM") String orderNum, @Param("WIDTH") String width, @Param("HEIGHT") String height);
 
 	public void deleteAllSubPage(@Param("PAGE_ID")  int id);
+
+	public Date getLastLoginTime(@Param("USER_ID") int userId, @Param("KEY") String key);
 
 }

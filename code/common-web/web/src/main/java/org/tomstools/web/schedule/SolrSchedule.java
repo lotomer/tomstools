@@ -55,4 +55,14 @@ public class SolrSchedule {
 			LOG.error("【预警处理】调度任务执行失败：" + e.getMessage(),e);
 		}
 	}
+	
+
+	public void generateHot(){
+		LOG.info("【热点生成】调度任务开始执行...");
+		try {
+			LOG.info("【热点生成】调度任务执行完毕。" + solrService.generateHot());
+		} catch (Exception e) {
+			LOG.error("【热点生成】调度任务执行失败：" + e.getMessage(),e);
+		}
+	}
 }

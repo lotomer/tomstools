@@ -2,6 +2,10 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="org.tomstools.web.persistence.BusinessSettingMapper">
 	<!-- 爬虫 -->
+	<select id="selectCrawlerError" resultType="string"><![CDATA[
+        SELECT ERRORS
+        FROM T_CRAWL_R_CRAWLER_STATUS WHERE STATUS_ID=#{STATUS_ID}
+    ]]></select>
 	<select id="selectCrawlerList" resultType="map"><![CDATA[
         SELECT c.CRAWL_CODE,c.CRAWL_NAME,c.CRAWL_FREQUENCY
         FROM T_CRAWL_M_CRAWLER c WHERE c.IS_VALID=1
@@ -9,7 +13,7 @@
 	<select id="selectCrawlerStatus" resultType="map"><![CDATA[
         SELECT c.CRAWL_CODE,c.CRAWL_NAME,c.CRAWL_FREQUENCY,s.MATCHINE,s.START_TIME,s.UPDATE_TIME,
         DATE_FORMAT(s.UPDATE_TIME,'%Y-%m-%d %H:%i:%s') UPDATE_TIME_STR,
-        DATE_FORMAT(s.START_TIME,'%Y-%m-%d %H:%i:%s') START_TIME_STR,s.MSG,s.`STATUS` 
+        DATE_FORMAT(s.START_TIME,'%Y-%m-%d %H:%i:%s') START_TIME_STR,s.MSG,s.`STATUS`,s.STATUS_ID 
         FROM T_CRAWL_M_CRAWLER c LEFT JOIN T_CRAWL_R_CRAWLER_STATUS s ON (c.CRAWL_CODE=s.CRAWL_CODE) WHERE c.IS_VALID=1
     ]]></select>
     <update id="saveCrawler">
@@ -95,7 +99,7 @@
 		WHERE WORD=#{WORD} AND IS_VALID=1 LIMIT 1
     </select>
     <delete id="deleteWord">
-    	DELETE FROM T_POM_C_WORD WHERE
+    	DELETE FROM T_POM_C_WORD WHERE WORD=#{WORD}
     </delete>
     <insert id="addWord">
     	INSERT INTO T_POM_C_WORD (WORD,TENDENCY,LANG_ID,IN_TIME) VALUES (#{WORD},#{TENDENCY},#{LANG_ID},now())

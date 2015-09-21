@@ -25,12 +25,16 @@ public interface SiteMapper {
 			@Param("SIZE_FM_E") long countFM_E, @Param("STAT_TIME") Date statTime);
 
 	public List<Map<String, Object>> selectSiteTop(@Param("START_TIME") Date startTime, @Param("END_TIME") Date endTime,
+			 @Param("TYPE_ID") Integer typeId, @Param("TOP_NUM")int topNum);
+	public List<Map<String, Object>> selectWordsTop(@Param("START_TIME") Date startTime, @Param("END_TIME") Date endTime,
 			@Param("TOP_NUM") int topNum);
+	public List<Map<String, Object>> selectHotwordTop(@Param("START_TIME") Date startTime, @Param("END_TIME") Date endTime,
+			@Param("TOP_NUM") int topNum,@Param("FLAG") String flag);
 
 	public List<Map<String, Object>> selectMediaCount(@Param("START_TIME") Date startTime,
-			@Param("END_TIME") Date endTime);
+			@Param("END_TIME") Date endTime, @Param("TYPE_ID") Integer typeId);
 
-	public List<Map<String, Object>> selectMedia(@Param("START_TIME") Date startTime, @Param("END_TIME") Date endTime);
+	public List<Map<String, Object>> selectMedia(@Param("START_TIME") Date startTime, @Param("END_TIME") Date endTime, @Param("TYPE_ID") Integer typeId);
 
 	public void saveDetail(@Param("TYPE_ID") int typeId, @Param("TEMPLATE_TYPE") String templateType,
 			@Param("SITE_ID") int siteId, @Param("TITLE") String title, @Param("URL") String url,
@@ -82,9 +86,10 @@ public interface SiteMapper {
 	public List<Map<String, Object>> selectStatsCount(@Param("START_TIME") Date startTime,
 			@Param("END_TIME") Date endTime, @Param("TYPE_ID") Integer typeId);
 
-	/** 直接获取指定时间内的正面信息数和负面信息数 */
+	/** 直接获取指定时间内的正面信息数和负面信息数 
+	 * @param typeId */
 	public List<Map<String, Object>> selectStatsCountAll(@Param("START_TIME") Date startTime,
-			@Param("END_TIME") Date endTime);
+			@Param("END_TIME") Date endTime, @Param("TYPE_ID") Integer typeId);
 
 	/**
 	 * 判断url是否存在于舆情明细中。
@@ -94,4 +99,7 @@ public interface SiteMapper {
 	 */
 	public String checkUrl(@Param("URL") String url);
 
+	public void deleteHot(@Param("FLAG") String flag);
+
+	public void saveHot(@Param("FLAG") String flag, @Param("WORD") String word, @Param("HEAT") long heat);
 }

@@ -9,8 +9,29 @@
 	href='css/easyui/themes/${theme}/easyui.css'>
 <link rel="stylesheet" type="text/css" href="css/easyui/themes/icon.css">
 <link rel="stylesheet" type="text/css" href="css/main.css">
+<style type="text/css">
+em {
+	color:red;
+	font-style: normal;
+}
+</style>
 </head>
 <body class="easyui-layout">
+	<div data-options="region:'north',split:true"
+		style="height: 50px;padding:5px 30px;">
+		<table>
+			<tr>
+                <td style="width:140px"><input id="FIELD" class="easyui-combobox"></input></td>
+                <td style="width:800px"><input id="WORDS" class="easyui-textbox" data-options="width:780"></input></td>
+				<td><a href="#" id="btnSearch" class="easyui-linkbutton"
+					data-options="iconCls:'icon-search'" style="width: 80px">搜索</a></td>
+			</tr>
+		</table>
+	</div>
+	<div data-options="region:'south',split:true"
+		style="height: 40px;">
+		<div id="pp" style="background:#efefef;border:1px solid #ccc;"></div>
+	</div>
 	<div id="divContent" data-options="region:'center',split:true" style="padding:10px;"></div>
 </body>
 
@@ -25,29 +46,44 @@
 	var theme = '${theme}', key = '${user.key}',SOLR_URL='${user.configs.SOLR_URL}${user.configs.SOLR_CORE_PATH}';
 	// 页面初始化
 	$(function() {
-
+		$('#btnSearch').bind("click",query);
+		initComboboxWithData('FIELD', [{value:"id",text:"id"},{value:"title",text:"标题"},{value:"content",text:"正文"},{value:"text",text:"全文"}], undefined, true,"value","text");
+		$('#FIELD').combobox("select",'${field}');
+		$('#WORDS').textbox("setValue",'${value}');
 		query();
 	});
-
+	function query() {
+		doQuery();
+	}
 	/**
 	 * 执行查询
 	 */
-	function query() {
+	function doQuery(start,rows) {
 		// 获取查询条件
-		var containerId = "divContent", field = "id", value = '"'
-				+ "${value}" + '"';
+		var containerId = "divContent",field = $('#FIELD').combobox("getValue"), value = $('#WORDS').textbox("getValue");
+		start = start == undefined? 0 : start;
+		rows = rows == undefined? 10 : rows;
 		$('#' + containerId).html('');
 		showLoading(containerId);
-		loadCrossDomainData(SOLR_URL + "/select?wt=json&indent=true&q=" + field + "%3A" + encodeURIComponent(value)
+		loadCrossDomainData(encodeURI(SOLR_URL + "/select?wt=json&hl.simple.pre=<em>&hl.simple.post=</em>&fl=title,url&hl=true&hl.fl=content,title&indent=true&q=") + field + "%3A" + encodeURIComponent(value) +"&start=" + start +"&rows=" + rows
 				, function(data) {
 					if (!data) {
 						return;
 					}
 					//log(data);
 					if (data.response && data.response.numFound){
+						$('#' + containerId).html('');
+						$('#pp').pagination({
+						    total:data.response.numFound,
+						    pageSize:rows,
+						    onSelectPage: function(pageNumber, pageSize){
+						    	doQuery((pageNumber-1) * pageSize,pageSize);
+				            }
+						});
+						var highlight = data.highlighting;
 						for(var i=0,iLen = data.response.docs.length;i<iLen;i++){
-							var doc = data.response.docs[i];
-							$('#' + containerId).html('<h2><a href="' + doc.url+ '" target="_blank">' +doc.title +'</a></h2><p>'+ doc.content +"</p><hr>");
+							var doc = data.response.docs[i],title=highlight[doc.url]["title"],content=highlight[doc.url]["content"];
+							$('#' + containerId).append('<h2><a href="' + doc.url+ '" target="_blank">' +(title?title:doc.title) +'</a></h2><p>'+ content +'</p><p>&gt;&gt;&gt; <a href="#" onclick="javascript:window.top.createPageById(201004,\'&p=field:id,value:' + encodeURIComponent('"' + doc.url + '"') + '\')" >查看正文快照</a></p><hr>');
 						}
 					}
 				})

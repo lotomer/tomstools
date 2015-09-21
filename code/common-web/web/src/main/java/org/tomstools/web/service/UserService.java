@@ -4,6 +4,7 @@
 package org.tomstools.web.service;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -225,10 +226,22 @@ public class UserService {
         }
     }
 
-    public void setInvalid(String key) {
-        userMapper.deleteKey(key);
+    public void logout(String key) {
+    	User user = getUserByKey(key);
+    	if (null != user){
+    		// 删除密钥
+    		userMapper.deleteKey(user.getUserId(),key);
+    		// 记录登出日志
+    		userMapper.saveLogoutLog(user.getUserId(),key);
+    	}
     }
 
+    /**
+     * 根据配置名获取用户配置
+     * @param userId	用户编号
+     * @param configName	配置名
+     * @return 配置值。没有匹配上则返回null
+     */
     public String getConfig(int userId, String configName) {
         String value = null;
         loadConfigs();
@@ -274,7 +287,15 @@ public class UserService {
      */
 	public String check(String key) {
 		User user = getUserByKey(key);
-		return check(user);
+		if (null != user) {
+			if ("".equals(user.getKey())) {
+				return "密钥已失效！";
+			} else {
+				return "";
+			}
+		} else {
+			return "没有找到密钥对应的用户。密钥：" + key;
+		}
 	}
 	
 	/**
@@ -284,11 +305,14 @@ public class UserService {
      */
 	public String check(User user) {
 		if (null != user) {
-			if (!"".equals(user.getKey())) {
+			if ("".equals(user.getKey())) {
+				return "密钥已失效！";
+			} else {
 				return "";
 			}
+		} else {
+			return "用户不能为null！";
 		}
-		return "用户已失效！";
 	}
 	public static void main(String[] args) {
 		UserService userService = new UserService();
@@ -411,5 +435,16 @@ public class UserService {
 	}
 	public void deleteAllSubPage(int id) {
 		userMapper.deleteAllSubPage(id);
+	}
+	public User login(String userName, String userPassword, String clientIp) {
+		User user = getUser(userName, userPassword);
+		if (null != user && !StringUtils.isEmpty(user.getKey())){
+			// 记录登陆日志
+			userMapper.saveLoginLog(user.getUserId(),user.getKey(),clientIp);
+		}
+		return user;
+	}
+	public Date getLastLoginTime(int userId, String key) {
+		return userMapper.getLastLoginTime(userId,key);
 	}
 }

@@ -19,10 +19,15 @@ import org.apache.solr.client.solrj.SolrQuery.ORDER;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.tomstools.common.parse.TemplateParser;
+import org.tomstools.web.crawler.PageFetcher;
 import org.tomstools.web.model.User;
 import org.tomstools.web.persistence.BusinessSettingMapper;
 import org.tomstools.web.persistence.SiteMapper;
@@ -36,7 +41,7 @@ import org.tomstools.web.solr.SolrTools;
 @Service("solrService")
 public class SolrService {
 	private static final Log LOG = LogFactory.getLog(SolrService.class);
-	public static final long STAT_TIME_DEFAULT = 7 * 24 * 3600 * 1000; // 默认统计时长。7天
+	public static final long STAT_TIME_DEFAULT = 15 * 24 * 3600 * 1000; // 默认统计时长。7天
 	private static final String CONFIG_SOLR_URL = "SOLR_URL";
 	@Autowired
 	private SolrMapper solrMapper;
@@ -370,20 +375,26 @@ public class SolrService {
 		return solrMapper.selectCountry();
 	}
 
-	public List<Map<String, Object>> siteTop(Date startTime, Date endTime, int topNum) {
-		return siteMapper.selectSiteTop(startTime, endTime, topNum);
+	public List<Map<String, Object>> siteTop(Date startTime, Date endTime, Integer typeId, int topNum) {
+		return siteMapper.selectSiteTop(startTime, endTime, typeId,topNum);
+	}
+	public List<Map<String, Object>> selectWordsTop(Date startTime, Date endTime, int topNum) {
+		return siteMapper.selectWordsTop(startTime, endTime, topNum);
 	}
 
-	public List<Map<String, Object>> statMediaCount(Date startTime, Date endTime) {
-		return siteMapper.selectMediaCount(startTime, endTime);
+	public List<Map<String, Object>> selectHotwordTop(Date startTime, Date endTime, int topNum,String flag) {
+		return siteMapper.selectHotwordTop(startTime, endTime, topNum,flag);
+	}
+	public List<Map<String, Object>> statMediaCount(Date startTime, Date endTime, Integer typeId) {
+		return siteMapper.selectMediaCount(startTime, endTime,typeId);
 	}
 
-	public List<Map<String, Object>> statMedia(Date startTime, Date endTime) {
-		return siteMapper.selectMedia(startTime, endTime);
+	public List<Map<String, Object>> statMedia(Date startTime, Date endTime, Integer typeId) {
+		return siteMapper.selectMedia(startTime, endTime,typeId);
 	}
 
-	public List<Map<String, Object>> statWordsCountAll(Date startTime, Date endTime) {
-		return siteMapper.selectStatsCountAll(startTime, endTime);
+	public List<Map<String, Object>> statWordsCountAll(Date startTime, Date endTime, Integer typeId) {
+		return siteMapper.selectStatsCountAll(startTime, endTime,typeId);
 	}
 
 	/**
@@ -634,5 +645,66 @@ public class SolrService {
 		if (!StringUtils.isEmpty(email) && !StringUtils.isEmpty(content)) {
 			mailService.sendMail(title, content, email);
 		}
+	}
+
+	public long generateHot() throws Exception {
+		SolrTools solrTool = new SolrTools(userService.getConfig(-1, CONFIG_SOLR_URL));
+		Date endTime = new Date();
+		Date beginTime = new Date(endTime.getTime() - STAT_TIME_DEFAULT);
+		int count0 = doGenerateHot("0",solrTool,beginTime,endTime);
+		int count1 = doGenerateHot("1",solrTool,beginTime,endTime);
+		
+		return count0 + count1;
+	}
+	private static class Word{
+		final String word;
+		long heat;
+		public Word(String word, long heat) {
+			super();
+			this.word = word;
+			this.heat = heat;
+		}
+	}
+	private int doGenerateHot(String flag, SolrTools solrTool, Date beginTime, Date endTime) {
+		if (StringUtils.isEmpty(flag)){
+			return 0;
+		}
+		String configSelector = userService.getConfig(-1, "SELECTOR_4_HOT_FLAG_" + flag);
+		String url = userService.getConfig(-1, "URL_4_HOT_FLAG_" + flag);
+		String defaultCharsetName = userService.getConfig(-1, "CHARSET_4_HOT_FLAG_" + flag);
+		PageFetcher fetcher = new PageFetcher(defaultCharsetName);
+		String content = fetcher.fetchPageContent(url);
+		Document document = Jsoup.parse(content);
+		Elements nodes = document.select(configSelector);
+		if (null == nodes){
+			return 0;
+		}
+		List<Word> words = new ArrayList<Word>();
+        for (int i = 0; i < nodes.size(); i++) {
+            Element e = nodes.get(i);
+            words.add(new Word(e.text(), 100 / (i+1)));
+        }
+        // 在本地试搜以重新排名
+        for (Word word : words) {
+			try {
+				long cnt = solrTool.count("text:" + word.word, beginTime, endTime);
+				word.heat += cnt;
+			} catch (Exception e) {
+				LOG.error(e.getMessage(),e);
+			}
+		}
+        
+        // 保存结果
+        if (words.size() > 0){
+        	//先清除原有的
+        	siteMapper.deleteHot(flag);
+	        for (Word word : words) {
+				siteMapper.saveHot(flag,word.word,word.heat);
+			}
+	        
+	        return words.size();
+        }else{
+        	return 0;
+        }
 	}
 }
