@@ -4,6 +4,8 @@
 package org.tomstools.common;
 
 import java.lang.reflect.Field;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
@@ -93,6 +95,15 @@ public final class PropertyParseAssistor {
         for (int index = 0; index < subPropertyName.length; index++) {
             if (null != obj) {
                 String propertyName = subPropertyName[index];
+                // 如果是列表，则用索引号转化为map
+                if (obj instanceof List<?>) {
+                    List<?> list = (List<?>) obj;
+                    Map<String, Object> map = new HashMap<String, Object>();
+                    for (int i = 0; i < list.size(); i++) {
+                        map.put(String.valueOf(i), list.get(i));
+                    }
+                    obj = map;
+                }
                 // 判断是不是Map，如果是map，则直接取值，不是map，则利用反射机制获取属性
                 if (obj instanceof Map<?, ?>) {
                     Map<?, ?> v = (Map<?, ?>) obj;

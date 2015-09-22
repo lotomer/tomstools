@@ -33,6 +33,18 @@ public class TemplateParser {
      * @return 替换后的内容。template为null时返回结果为null
      */
     public static String parse(Map<String, ?> variables, String template) {
+        return parse(variables, template, true);
+    }
+    /**
+     * 解析模板中的变量，用map中的变量值替换，返回替换后的结果<br>
+     * 没有替换的变量显示原模板中的内容。<br>
+     * 转义字符为“\”
+     * @param variables 变量键值对列表，可为null。
+     * @param template  模板。可为null
+     * @param keepVariable 如果变量没有匹配到值，是否保留该变量。true 保留该变量；false 用空字符串替换该变量
+     * @return 替换后的内容。template为null时返回结果为null
+     */
+    public static String parse(Map<String, ?> variables, String template,boolean keepVariable) {
         LOG.debug("Start parse template.");
         if (!StringUtils.isEmpty(template)) {
             StringBuilder content = new StringBuilder();
@@ -105,7 +117,9 @@ public class TemplateParser {
                                 }
                             }
                             // 没有被替换，则使用原变量模板的内容
-                            content.append("${").append(vName).append("}");
+                            if (keepVariable){
+                                content.append("${").append(vName).append("}");
+                            }
                         } else {
                             // content.append(cs[i]);
                         }
