@@ -664,4 +664,20 @@ public class StatAction {
 			return "[]";
 		}
 	}
+	
+	@RequestMapping("/query/parseWords.do")
+	public @ResponseBody String parseWords(@RequestParam("key") String key,
+			@RequestParam(value = "WORDS", required = true) String words,HttpServletRequest req,
+			HttpServletResponse resp) throws Exception {
+		resp.setContentType("application/json;charset=UTF-8");
+		User user = userService.getUserByKey(key);
+		if (user != null){
+			
+			List<String> result = solrService.parseWords(words);
+			if (null != result) {
+				return JSON.toJSONString(result);
+			}
+		}
+		return "[]";
+	}
 }

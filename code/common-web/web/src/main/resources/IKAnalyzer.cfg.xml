@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">  
+<properties>  
+	<comment>IK Analyzer 扩展配置 数据库</comment>
+	
+	<entry key="jdbc_classname"><![CDATA[${jdbc_classname}]]></entry>
+	<entry key="jdbc_url"><![CDATA[${jdbc_url}]]></entry>
+	<entry key="jdbc_user"><![CDATA[${jdbc_user}]]></entry>
+	<entry key="jdbc_password"><![CDATA[${jdbc_password}]]></entry>
+	<entry key="selectWordSql"><![CDATA[select WORD from V_WORDS]]></entry>
+	<entry key="selectStopWordSql"><![CDATA[select WORD from V_STOPWORDS]]></entry>
+	
+	<!--用户可以在这里配置自己的扩展字典-->
+	<entry key="ext_dict">ext_word.dic</entry>
+	
+	<!--用户可以在这里配置自己的扩展停止词字典 -->
+	<entry key="ext_stopwords">ext_stopword.dic</entry>
+</properties>

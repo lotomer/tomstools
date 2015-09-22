@@ -28,22 +28,24 @@ function showLoading(parentId){
 function showEmpty(parentId){
 	$('#' + parentId).html('<span>&nbsp;</span><label>没有数据</label></div></div>');
 }
-function loadData(containerId, url, params, successCallback,dataType) {
+function loadData(containerId, url, params, successCallback,dataType,errorCallback) {
 	$.ajax({
 		url : url,
 		dataType : dataType == undefined? 'json' : dataType,
 		async : true,
 		data : params,
-		success : successCallback
+		success : successCallback,
+		error : errorCallback
 	});
 }
-function loadCrossDomainData(url, successCallback) {
+function loadCrossDomainData(url, successCallback,errorCallback) {
 	$.ajax({
 		url : "ajax/remote.do",
 		dataType : 'json',
 		async : true,
 		data : {key:key,url:url},
-		success : successCallback
+		success : successCallback,
+		error : errorCallback
 	});
 }
 function initComboboxWithData(containId,data,onSelectCallback,force,valueField,textField){

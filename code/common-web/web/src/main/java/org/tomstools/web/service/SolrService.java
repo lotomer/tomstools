@@ -26,6 +26,7 @@ import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+import org.tomstools.analyzer.AnalyzeAssistor;
 import org.tomstools.common.parse.TemplateParser;
 import org.tomstools.web.crawler.PageFetcher;
 import org.tomstools.web.model.User;
@@ -53,7 +54,9 @@ public class SolrService {
 	private UserService userService;
 	@Autowired
 	private MailService mailService;
-
+	@Autowired
+	private AnalyzeAssistor analyzer;
+	
 	public SolrService() {
 
 	}
@@ -686,8 +689,19 @@ public class SolrService {
         }
         // 在本地试搜以重新排名
         for (Word word : words) {
+        	List<String> terms = analyzer.getWords(word.word);
+        	if (terms.isEmpty()){
+        		continue;
+        	}
+        	StringBuilder msg = new StringBuilder();
+        	for (int i = 0; i < terms.size(); i++) {
+				if (i != 0){
+					msg.append(" AND ");
+				}
+				msg.append(terms.get(i));
+			}
 			try {
-				long cnt = solrTool.count("text:" + word.word, beginTime, endTime);
+				long cnt = solrTool.count("text:" + msg.toString(), beginTime, endTime);
 				word.heat += cnt;
 			} catch (Exception e) {
 				LOG.error(e.getMessage(),e);
@@ -706,5 +720,14 @@ public class SolrService {
         }else{
         	return 0;
         }
+	}
+
+	/**
+	 * 对输入文本进行分词
+	 * @param words 带分词文本
+	 * @return 分词后的结果列表。不会返回null
+	 */
+	public List<String> parseWords(String words) {
+		return analyzer.getWords(words);
 	}
 }

@@ -63,9 +63,30 @@ em {
 		var containerId = "divContent",field = $('#FIELD').combobox("getValue"), value = $('#WORDS').textbox("getValue");
 		start = start == undefined? 0 : start;
 		rows = rows == undefined? 10 : rows;
-		value = field == "id" ? encodeURIComponent('"' + value +'"') : encodeURIComponent(value);
 		$('#' + containerId).html('');
 		showLoading(containerId);
+		if (field == "id"){
+			search(containerId,field,encodeURIComponent('"' + value +'"'),start,rows);
+		}else{
+			loadData(containerId, "crawl/query/parseWords.do", {key:key,WORDS:value}, function(data){
+				if (!isArray(data)){
+					$('#' + containerId).html('没有数据');
+				}else{
+					var queryWords='';
+					for (var i = 0; i < data.length; i++) {
+						if (i != 0){
+							queryWords += ' AND ';
+						}
+						
+						queryWords += data[i];
+					}
+					search(containerId,field,encodeURIComponent(queryWords),start,rows)
+				}
+			},"json",function(){$('#' + containerId).html('加载失败');});
+		}
+	}
+
+	function search(containerId,field,value,start,rows){
 		loadCrossDomainData(encodeURI(SOLR_URL + "/select?wt=json&hl.simple.pre=<em>&hl.simple.post=</em>&fl=title,url&hl=true&hl.fl=content,title&indent=true&q=") + field + "%3A" + value +"&start=" + start +"&rows=" + rows
 				, function(data) {
 					if (!data) {
@@ -87,8 +108,7 @@ em {
 							$('#' + containerId).append('<h2><a href="' + doc.url+ '" target="_blank">' +(title?title:doc.title) +'</a></h2><p>'+ (content == undefined?'' : content) +'</p><p>&gt;&gt;&gt; <a href="#" onclick="javascript:window.top.createPageById(201004,\'&p=field:id,value:' + encodeURIComponent('"' + doc.url + '"') + '\')" >查看正文快照</a></p><hr>');
 						}
 					}
-				})
+				},function(){$('#' + containerId).html('加载失败');});
 	}
-
 </script>
 </html>

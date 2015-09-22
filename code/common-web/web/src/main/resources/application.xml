@@ -54,10 +54,10 @@ http://www.springframework.org/schema/tx http://www.springframework.org/schema/t
 		<property name="automaticTestTable" value="${c3p0.automaticTestTable}" />
 	</bean>
     
-    <!-- 使用容器中的数据库连接池时启用 -->
+    <!-- 使用容器中的数据库连接池时启用
     <bean id="dataSource_jndi" class="org.springframework.jndi.JndiObjectFactoryBean" lazy-init="true">
 	   <property name="jndiName" value="${jndi}" />
-	</bean>
+	</bean> -->
 	<!-- 配置sqlSessionFactory -->
 	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
 		<property name="dataSource" ref="${datasource}" />
@@ -112,4 +112,13 @@ http://www.springframework.org/schema/tx http://www.springframework.org/schema/t
 		</property>  
 	</bean>
 	<bean id="multipartResolver"  class="org.springframework.web.multipart.commons.CommonsMultipartResolver"/>
+	
+	<!-- 中文分词器 -->
+	<bean id="analyzer"
+		class="org.tomstools.analyzer.AnalyzeAssistor">
+		<!-- useSmart -->
+		<constructor-arg index="0" value="true"></constructor-arg>
+		<!-- useDataBase -->
+		<constructor-arg index="1" value="true"></constructor-arg>
+	</bean>
 </beans>

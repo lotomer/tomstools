@@ -26,7 +26,7 @@
 	.row2>.moduleContent{height: 135px;}
 	.row3>.moduleContent{height: 105px;}
 	A {text-decoration: NONE} 
-	.moduleContent A,#WORDS A{margin-left: 10px;}
+	.moduleContent>A,#WORDS>A{margin-left: 10px;}
 	.datagrid-row{border-width: 1px;border-style: dotted;}
 	.datagrid-header td, .datagrid-body td, .datagrid-footer td {
 	    border-width: 0px 0px 1px 0px;

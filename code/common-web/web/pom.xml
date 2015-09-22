@@ -14,6 +14,7 @@
 		<mybatis.version>3.2.8</mybatis.version>
 		<spring.boot.version>1.2.4.RELEASE</spring.boot.version>
 		<solr.version>4.10.4</solr.version>
+        <lucene.version>4.10.4</lucene.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -21,7 +22,16 @@
 			<artifactId>common</artifactId>
 			<version>0.0.1</version>
 		</dependency>
-
+		<dependency>
+			<groupId>org.tomstools</groupId>  
+		    <artifactId>analyzer</artifactId>
+		    <version>0.1.0</version>
+		</dependency>
+        <dependency>
+            <groupId>org.apache.lucene</groupId>
+            <artifactId>lucene-core</artifactId>
+            <version>${lucene.version}</version>
+        </dependency>
         <dependency>
             <groupId>javax.mail</groupId>
             <artifactId>mail</artifactId>
@@ -140,6 +150,7 @@
 				<includes>
 					<include>jdbc.properties</include>
 					<include>mail.properties</include>
+					<include>IKAnalyzer.cfg.xml</include>
 				</includes>
 				<!-- 使用profile中的变量进行替换 -->
 				<filtering>true</filtering>
@@ -149,6 +160,7 @@
 				<excludes>
 					<exclude>jdbc.properties</exclude>
 					<exclude>mail.properties</exclude>
+					<exclude>IKAnalyzer.cfg.xml</exclude>
 				</excludes>
 				<filtering>false</filtering>
 			</resource>
@@ -175,7 +187,7 @@
 				<datasource>dataSource_c3p0</datasource>
 
 				<jdbc_classname>com.mysql.jdbc.Driver</jdbc_classname>
-				<jdbc_url>jdbc:mysql://127.0.0.1:3306/common?useUnicode=true&amp;characterEncoding=UTF-8</jdbc_url>
+				<jdbc_url>jdbc:mysql://192.168.1.100:3306/common?useUnicode=true&amp;characterEncoding=UTF-8</jdbc_url>
 				<jdbc_user>root</jdbc_user>
 				<jdbc_password>root123</jdbc_password>
 				<jndi>NONE</jndi>
@@ -199,10 +211,19 @@
 			<properties>
 				<datasource>dataSource_c3p0</datasource>
 				<jdbc_classname>com.mysql.jdbc.Driver</jdbc_classname>
-				<jdbc_url>jdbc:mysql://192.168.6.121:3306/common?useUnicode=true&amp;characterEncoding=UTF-8</jdbc_url>
+				<jdbc_url>jdbc:mysql://127.0.0.1:3306/common?useUnicode=true&amp;characterEncoding=UTF-8</jdbc_url>
 				<jdbc_user>root</jdbc_user>
-				<jdbc_password>pwd</jdbc_password>
+				<jdbc_password>root123</jdbc_password>
 				<jndi>NONE</jndi>
+				<!-- 邮件发送配置 -->
+				<mail.host>smtp.163.com</mail.host>
+				<mail.port>25</mail.port>
+				<mail.user>lotomer</mail.user>
+				<mail.password>851023</mail.password>
+				
+				<mail.smtp.auth>true</mail.smtp.auth>
+				<mail.smtp.from>lotomer@163.com</mail.smtp.from>
+				<mail.debug>false</mail.debug>
 			</properties>
 		</profile>
 		<profile>

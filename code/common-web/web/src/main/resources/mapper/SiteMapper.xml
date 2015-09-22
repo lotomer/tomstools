@@ -32,9 +32,9 @@
     <select id="selectHotwordTop" resultType="map"><![CDATA[
     	SELECT WORD,sum(HEAT) HEAT
 		FROM T_POM_HOTWORD
-		WHERE ]]>
-		<if test="FLAG != null">FLAG=#{FLAG} AND </if>
-		<![CDATA[IN_TIME BETWEEN #{START_TIME} AND #{END_TIME}
+		]]>
+		<if test="FLAG != null">WHERE FLAG=#{FLAG} </if>
+		<![CDATA[
 		GROUP BY WORD ORDER BY HEAT desc limit #{TOP_NUM}
     ]]></select>
     <delete id="deleteHot"><![CDATA[
