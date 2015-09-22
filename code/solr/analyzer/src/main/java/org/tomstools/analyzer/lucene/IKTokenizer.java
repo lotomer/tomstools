@@ -31,7 +31,8 @@ public class IKTokenizer extends Tokenizer {
 		super(in);
 		this.offsetAtt = ((OffsetAttribute) addAttribute(OffsetAttribute.class));
 		this.termAtt = ((CharTermAttribute) addAttribute(CharTermAttribute.class));
-		this._IKImplement = new IKSegmenter(in, useSmart, conf);
+		this._IKImplement = new IKSegmenter(useSmart, conf);
+		this._IKImplement.setInput(in);
 	}
 
 	public boolean incrementToken() throws IOException {

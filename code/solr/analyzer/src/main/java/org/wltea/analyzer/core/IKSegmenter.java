@@ -23,23 +23,16 @@ public final class IKSegmenter {
 //		init();
 //	}
 
-	public IKSegmenter(Reader input, boolean useSmart, Configuration cfg) {
-		this.input = input;
+	public IKSegmenter(boolean useSmart, Configuration cfg) {
 		this.cfg = null != cfg ? cfg : new DefaultConfig();
 		this.cfg.setUseSmart(useSmart);
-		init();
-	}
-
-	private void init() {
-		//使用重新加载功能，方便中途重新加载数据
-		//Dictionary.initial(this.cfg);
-		Dictionary.reloadDictionary(cfg);
-
 		this.context = new AnalyzeContext(this.cfg);
-
 		this.segmenters = loadSegmenters();
-
 		this.arbitrator = new IKArbitrator();
+		Dictionary.reloadDictionary(cfg);
+	}
+	public void setInput(Reader input){
+		this.input = input;
 	}
 
 	private List<ISegmenter> loadSegmenters() {
