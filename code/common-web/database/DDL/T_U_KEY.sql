@@ -4,7 +4,7 @@ create table T_U_KEY
    `KEY`                varchar(128) not null comment '密钥',
    UPDATE_TIME          datetime not null comment '更新时间',
    INVALID_TIME         datetime not null comment '失效时间',
-   primary key (USER_ID)
+   primary key (`KEY`)
 );
 
 alter table T_U_KEY comment '用户密钥信息表';

@@ -32,26 +32,29 @@ function getMetricTitle(metricName, name) {
 
     return name;
 }
-function tipFormatter(params, defaultUnit) {
-    if (params) {
+function byteTipFormatter(params,ticket,callback){
+    return tipFormatter(params);
+}
+function tipFormatter (params,defaultUnit) {
+    if(params){
         if (params instanceof Object && params.data) {
-            var name = params.data.name, value = params.data.value;
-            return name + ':' + value + defaultUnit;
-        } else if (params instanceof Array) {
+            var name = params.data.name,value = params.data.value,o=storageSpaceAdapt(value,defaultUnit);
+            return name + ':' + o.value + o.unit;
+        }else if (params instanceof Array) {
             var msg = undefined;
-            for (var i = 0, iLen = params.length; i < iLen; i++) {
-                if (!msg)
-                    msg = params[i].name;
-                msg += '<br/>' + params[i].seriesName + ':' + params[i].value
-                        + defaultUnit;
+            for (var i = 0,iLen = params.length; i < iLen; i++) {
+                if(!msg) msg = params[i].name;
+                var o = storageSpaceAdapt(params[i].value,defaultUnit);
+                msg += '<br/>' + params[i].seriesName + ':' + o.value + o.unit;
             }
-
+            
             return msg;
-        } else if (typeof (params) == "string") {
-            return value + defaultUnit;
+        }else if(typeof(params) == "string" ) {
+            var o= storageSpaceAdapt(params,defaultUnit);
+            return o.value + o.unit;
         }
     }
-
+    
     return '';
 }
 function datetimeFormat(dt, format) {
@@ -139,7 +142,7 @@ function createEcharts(ec, containerId, datas, filters, metricName, echartType,t
         var titles = [], values = [], option = undefined;
         if (echartType == 'line' || echartType == 'bar') {
             for ( var name in datas.values) {
-                if (filters && -1 != filters.indexOf(name)) {
+                if (filters && -1 != arrayIndexOf(filters,name)) {
                     continue;
                 }
                 var metricValues = datas.values[name];
@@ -153,7 +156,7 @@ function createEcharts(ec, containerId, datas, filters, metricName, echartType,t
         } else if (echartType == 'pie') {
             var index = -1;
             for ( var name in datas.values) {
-                if (filters && -1 != filters.indexOf(name)) {
+                if (filters && -1 != arrayIndexOf(filters,name)) {
                     continue;
                 }
                 var metricValues = datas.values[name].data,o={name:name,value:'-',itemStyle: {normal: {color: normalColor }}};
@@ -247,6 +250,7 @@ function getOptionWithLineOrBar(ec, dt, values, titles, tipStr, realUnit,
         legend : {
             data : titles
         },
+        animation:false, // 取消动画效果
         grid : {
             x : 60,
             y : 40,
@@ -295,6 +299,7 @@ function getOptionWithPie(ec, dt, values, titles, tipStr, realUnit, maxValue,
             trigger : 'item',
             formatter : '{b}:{c}' + realUnit != undefined? realUnit : ''
         },
+        animation:false, // 取消动画效果
         legend : {
             // orient : 'vertical',
             x : 'left',

@@ -305,15 +305,20 @@
 		return undefined;
 	}
 	function createModuleByMenuId(menuId, queryParams,flag) {
-		createModule(getContent(menuId), queryParams,flag);
-	}
-	function createModule(content, queryParams,flag) {
-		if (!content) {
-			alert("模块不存在！模块编号：" + menuId);
-			return;
-		}
-		// pageId 必须不为空
-		if (content.pageId) {
+            var content = getContent(menuId);
+            if (!content) {
+                alert("模块不存在！模块编号：" + menuId);
+                return;
+            }
+	    createModule(content, queryParams,flag);
+        }
+        function createModule(content,queryParams,flag) {
+            if (!content) {
+                alert("模块不存在！模块编号：" + menuId);
+                return;
+            }
+            // pageId 必须不为空
+            if (content.pageId){
 			if (doCreateWindowByPageId("divContent", content.menuId,
 					content.menuName, content.pageId, false, queryParams, true,flag)) {
 			}
@@ -345,7 +350,7 @@
 		if (page){
 			createPage(containerId, pageId, page.pageName, page.subPageId,
 				page.contentURL, page.params, page.width, page.height,
-				queryParams, getTheme('cb-theme'), id, name, isAppend, canClose,flag);
+				queryParams, getTheme('cb-theme'), id, name, isAppend, canClose,undefined,page.autoFreshTime);
 		}else{
 			window.messager.alert('告警',
 				'未找到PageId对应的页面：' + pageId,

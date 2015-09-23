@@ -51,11 +51,11 @@ function onChangeTheme(theme,old){
 function getTheme (comboboxId) {
     return $('#' + comboboxId).combobox("getValue");
 }
-function createPage(containerId,pageId,pageName,subPageId,contentURL,params,width,height,queryParams,theme,id,name,isAppend,canClose,flag){
+function createPage(containerId,pageId,pageName,subPageId,contentURL,params,width,height,queryParams,theme,id,name,isAppend,canClose,flag,freshTime){
 	if (pageName){
         // 看是否包含子页面
         if (subPageId){
-            return doCreatePageWithSubPages(containerId,id,name,contentURL,pageId,pageName,params,width,height,isAppend,queryParams,canClose,theme,flag);
+            return doCreatePageWithSubPages(containerId,id,name,contentURL,pageId,pageName,params,width,height,isAppend,queryParams,canClose,theme,flag,freshTime);
         }else{
             var msg = "未找到对应的URL！";
             if (!id) id = "page" + pageId;
@@ -74,7 +74,7 @@ function createPage(containerId,pageId,pageName,subPageId,contentURL,params,widt
                 });
                 return false;
             }
-            return doCreatePage(containerId,id,name,contentURL,pageId,pageName,params,width,height,isAppend,queryParams,canClose,theme,flag);
+            return doCreatePage(containerId,id,name,contentURL,pageId,pageName,params,width,height,isAppend,queryParams,canClose,theme,flag,freshTime);
         }
     }else{
         window.messager.show({
@@ -87,17 +87,20 @@ function createPage(containerId,pageId,pageName,subPageId,contentURL,params,widt
     }
 }
 // 根据page信息创建页面。如果page包含子页面，则使用子页面框架创建页面
-function doCreatePage(containerId,menuId,menuName,contentURL,pageId,pageName,params,width,height,isAppend,queryParams,canClose,theme,flag){
-    return createModuleByContent(containerId,menuId,menuName,contentURL,pageId,pageName,params,width,height,isAppend,queryParams,canClose,true,theme,false,flag);
+function doCreatePage(containerId,menuId,menuName,contentURL,pageId,pageName,params,width,height,isAppend,queryParams,canClose,theme,flag,freshTime){
+    return createModuleByContent(containerId,menuId,menuName,contentURL,pageId,pageName,params,width,height,isAppend,queryParams,canClose,true,theme,false,flag,freshTime);
 }
-function doCreatePageWithSubPages(containerId,menuId,menuName,contentURL,pageId,pageName,params,width,height,isAppend,queryParams,canClose,theme,flag){
-    return createModuleByContent(containerId,menuId,menuName,"container.do?pageId=" + pageId + "&key=" + encodeURIComponent(key),pageId,pageName,params,width,height,isAppend,queryParams,canClose,true,theme,false,flag);
+function doCreatePageWithSubPages(containerId,menuId,menuName,contentURL,pageId,pageName,params,width,height,isAppend,queryParams,canClose,theme,flag,freshTime){
+    return createModuleByContent(containerId,menuId,menuName,"container.do?pageId=" + pageId + "&key=" + encodeURIComponent(key),pageId,pageName,params,width,height,isAppend,queryParams,canClose,true,theme,false,flag,freshTime);
 }
-function createModuleByContent(containId,menuId,menuName,contentURL,id,name,params,width,height,isAppend,queryParams,canClose,useTab,theme,maxWindow,flag) {
+function createModuleByContent(containId,menuId,menuName,contentURL,id,name,params,width,height,isAppend,queryParams,canClose,useTab,theme,maxWindow,flag,freshTime) {
     if (contentURL){ // 指定了具体的URL，则直接展现该页面
         var url = contentURL;
         if (queryParams) {
             url += queryParams;
+        }
+        if (menuName == undefined || '' == menuName){
+        	menuName = name;
         }
         if (! /[?]/.test(url)) {
             url += "?_r=" + Math.random();
@@ -109,6 +112,9 @@ function createModuleByContent(containId,menuId,menuName,contentURL,id,name,para
         }
         if(theme){
         	url += "&theme=" + theme;
+        }
+        if(theme){
+        	url += "&refresh=" + freshTime;
         }
         if (!/[?&]key=/.test(url)) url += '&key=' + key;
         if (useTab){

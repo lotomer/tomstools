@@ -16,6 +16,7 @@ import java.util.Map;
 public class User {
     private int userId;
     private String userName;
+    private String userPassword;
     private String nickName;
     private String key;
     private String email;
@@ -40,7 +41,14 @@ public class User {
     public final void setUserName(String userName) {
         this.userName = userName;
     }
-    public final String getNickName() {
+    
+    public final String getUserPassword() {
+		return userPassword;
+	}
+	public final void setUserPassword(String userPassword) {
+		this.userPassword = userPassword;
+	}
+	public final String getNickName() {
         return nickName;
     }
     public final void setNickName(String nickName) {

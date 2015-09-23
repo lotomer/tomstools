@@ -9,6 +9,7 @@ create table T_M_USERS
    IS_VALID             char(1) not null default '1' comment '是否有效。1 有效；0 无效。默认1',
    EMAIL                varchar(128),
    PHONE_NUMBER         varchar(32),
+  `CLIENT_IP` varchar(128) DEFAULT NULL COMMENT '客户端限制',
    primary key (USER_ID)
 );
 

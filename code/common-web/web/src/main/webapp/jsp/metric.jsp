@@ -27,19 +27,52 @@
 <script type="text/javascript" src="js/myEcharts.js"></script>
 <script type="text/javascript">
 // 面板与内容之间的差值
-var theme = '${theme}',key='${user.key}',apiUrlPrefix='${user.configs.API_URL_PREFIX}';
+var theme = '${theme}',key='${user.key}',apiUrlPrefix='${user.configs.API_URL_PREFIX}',autoFreshTime='${refresh}',metricName='${metricInfo.name}',p='${p}',divMetric = $('#divMetric_${metricInfo.id}');
 
 // 页面初始化
 $(function(){
     if (key) window.top.key=key;
 	showLoading("divMetric_${metricInfo.id}");
-	setTimeout("initMetric()",200);
-	
+	// 路径配置
+	require.config({
+	    paths: {
+	        echarts: 'js/echarts'
+	    }
+	});
+	// 使用
+	require(
+	    [
+	        'echarts',
+	        'echarts/chart/pie', // 按需加载
+	        'echarts/chart/line', // 按需加载
+	        'echarts/chart/bar' // 按需加载
+	    ],
+	    initClusterEcharts
+	);
 });
+var echarts;
+function initClusterEcharts (ec) {
+	echarts=ec;
+	setTimeout("initMetric()",200);
+}
+// 自定义刷新
+function refrech(){
+	var url = "metricScript.do?key=" + key +"&metricName=" + metricName +  "&p=" + encodeURIComponent(p);
+	
+	$.ajax({url:url,dataType:"script",cache:false,
+		success:function(data){
+			//log('加载成功！');
+			//eval(data);
+			autoRefrech();
+		},error:function(a,b,c){
+			log('加载失败！' + metricName);
+		}});
+}
 function initMetric() {
-	var divMetric = $('#divMetric_${metricInfo.id}');
     //showLoading('divMetric_${metricInfo.id}');
     ${metricInfo.templateScript}
+    
+    autoRefrech();
 }
 </script>
 </html>

@@ -188,7 +188,6 @@ public class UserService {
             }
             user.setConfigs(getUserConfigs(user.getUserId()));
         }
-
         return user;
     }
 

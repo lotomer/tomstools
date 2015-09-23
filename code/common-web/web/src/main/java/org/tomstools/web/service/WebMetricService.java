@@ -80,7 +80,7 @@ public class WebMetricService {
                         }
                         WebMetricGenerator webMetricGenerator = new WebMetricGenerator(
                                 TemplateParser.parse(configs, subInfo.getUrl()), urlBacks, subInfo.getPageEncoding(),
-                                subInfo.getContentType(), metrics);
+                                subInfo.getContentType(),TemplateParser.parse(configs, subInfo.getHeaders(),false), metrics);
                         subInfo.setMetrics(webMetricGenerator.generate().values());
                     }
                 }

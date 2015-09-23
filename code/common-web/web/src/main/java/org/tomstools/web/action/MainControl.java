@@ -24,6 +24,7 @@ import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.tomstools.common.URLUtil;
 import org.tomstools.common.parse.TemplateParser;
 import org.tomstools.web.model.Menu;
@@ -216,44 +217,72 @@ public class MainControl {
 		return THEME_DEFAULT;
 	}
 
-	@RequestMapping("/container.do")
-	public String container(@RequestParam(value = "key", defaultValue = "") String key,
-			@RequestParam(value = "theme", defaultValue = THEME_DEFAULT) String theme,
-			@RequestParam("pageId") int pageId, Model model, HttpServletRequest req, HttpServletResponse resp) {
-		LOG.info("[container] pageId:" + pageId);
-		model.addAttribute("theme", getTheme(theme));
-		if (null == key || "".equals(key)) {
-			model.addAttribute("error", "密钥不能为空！");
-		} else {
-			key = getKey(key);
-			User user = userService.getUserByKey(key);
-			if (null != user) {
-				if ("".equals(user.getKey())) {
-					model.addAttribute("error", "密钥已失效！");
-				} else {
-					List<Page> subPages = userService.getUserSubPagesByPageId(user.getUserId(), pageId);
-					Page page = null;
-					if (null == subPages) {
-						subPages = Collections.emptyList();
-					}
-					model.addAttribute("subPages", JSON.toJSONString(subPages));
-
-					model.addAttribute("page", page);
-					model.addAttribute("user", user);
-					return "container";
-				}
-			} else {
-				model.addAttribute("error", "没有找到密钥对应的用户。密钥：" + key);
-			}
+    @RequestMapping("/container.do")
+    public String container(@RequestParam(value = "key", defaultValue = "") String key,
+            @RequestParam(value = "theme", defaultValue = THEME_DEFAULT) String theme,
+            @RequestParam("pageId") int pageId, @RequestParam(value = "p", defaultValue = "") String param, 
+            Model model, HttpServletRequest req, HttpServletResponse resp) {
+        LOG.info("[container] pageId:" + pageId);
+        model.addAttribute("theme", getTheme(theme));
+        if (null == key || "".equals(key)) {
+            model.addAttribute("error", "密钥不能为空！");
+        } else {
+            key = getKey(key);
+            User user = userService.getUserByKey(key);
+            if (null != user) {
+                if ("".equals(user.getKey())) {
+                    model.addAttribute("error", "密钥已失效！");
+                } else {
+                	Page page =userService.getUserPageByPageId(user.getUserId(), pageId);
+                    List<Page> subPages = userService.getUserSubPagesByPageId(user.getUserId(), pageId);
+                    if (null == subPages) {
+                        subPages = Collections.emptyList();
+                    }else{
+                    	// 替换子页面的参数
+                    	Map<String, Object> configs = new HashMap<String, Object>();
+                        Map<String, String> params = generateParams(param);
+                        configs.put("request", params);
+                    	for (Page subPage : subPages) {
+							subPage.setParams("");
+							subPage.setContentURL(TemplateParser.parse(configs, subPage.getContentURL()));
+						}
+                    }
+                    model.addAttribute("subPages", JSON.toJSONString(subPages));
+                    model.addAttribute("p", param);
+                    model.addAttribute("page", page);
+                    model.addAttribute("user", user);
+                    return "container";
+                }
+            } else {
+                model.addAttribute("error", "没有找到密钥对应的用户。密钥：" + key);
+            }
+        }
+        model.addAttribute("referer", req.getRequestURI() + "?" + req.getQueryString());
+        return "login";
+    }
+    @RequestMapping("/metricScript.do")
+    public @ResponseBody String metricScript(@RequestParam(value = "key", defaultValue = "") String key,
+    		@RequestParam("metricName") String metricName,@RequestParam(value = "p", defaultValue = "") String param,HttpServletRequest req, HttpServletResponse resp){
+    	resp.setContentType("application/javascript;charset=UTF-8");
+    	key = getKey(key);
+        User user = userService.getUserByKey(key);
+        String error = userService.check(user);
+		if (!"".equals(error)) {
+			return "NEED_LOGIN:" + error;
 		}
-		model.addAttribute("referer", req.getRequestURI() + "?" + req.getQueryString());
-		return "login";
-	}
-
+		 Map<String, String> params = generateParams(param);
+         //params.put("m", m);
+         WebMetricInfo metricInfo = webMetricService.getWebMetric(metricName, params, user);
+         if (null != metricInfo) {
+             return "function tmpFun(){" + metricInfo.getTemplateScript() + "}; tmpFun();";
+         }else{
+        	 return "";
+         }
+    }
     @RequestMapping("/metric.do")
     public String metric(@RequestParam(value = "key", defaultValue = "") String key,
             @RequestParam(value = "theme", defaultValue = THEME_DEFAULT) String theme,
-            @RequestParam("metricName") String metricName, @RequestParam(value = "p", defaultValue = "") String param,
+            @RequestParam("metricName") String metricName,@RequestParam(value="refresh",defaultValue="0") String refresh, @RequestParam(value = "p", defaultValue = "") String param,
             Model model, HttpServletRequest req, HttpServletResponse resp) {
         LOG.info("[metric] " + metricName + ",params:" + param);
         model.addAttribute("theme", getTheme(theme));
@@ -272,6 +301,8 @@ public class MainControl {
                         model.addAttribute("metricInfo", metricInfo);
                         model.addAttribute("metricInfoJson", JSON.toJSONString(metricInfo));
                         model.addAttribute("user", user);
+                        model.addAttribute("refresh", refresh);
+                        model.addAttribute("p", param);
                         return "metric";
                     } else {
                         // model.addAttribute("error", "没有找到对应的指标");
@@ -303,7 +334,7 @@ public class MainControl {
 
 	@RequestMapping("/redirect.do")
 	public String redirect(@RequestParam(value = "key", defaultValue = "") String key,
-			@RequestParam(value = "theme", defaultValue = THEME_DEFAULT) String theme,
+			@RequestParam(value = "theme", defaultValue = THEME_DEFAULT) String theme,@RequestParam(value="refresh",defaultValue="0") String refresh,
 			@RequestParam(value = "jspName") String jspName, @RequestParam(value = "p", required = false) String param,
 			Model model, HttpServletRequest req, HttpServletResponse resp) {
 		LOG.info("[redirect] " + jspName);
@@ -317,6 +348,7 @@ public class MainControl {
 				model.addAttribute("user", user);
 				Map<String, String> params = generateParams(param);
 				model.addAllAttributes(params);
+                model.addAttribute("refresh", refresh);
 				return jspName;
 			} else {
 				model.addAttribute("error", "没有找到密钥对应的用户。密钥：" + key);
@@ -326,75 +358,85 @@ public class MainControl {
 		return "login";
 	}
 
-	@RequestMapping("/page.do")
-	public String page(@RequestParam(value = "key", defaultValue = "") String key,
-			@RequestParam(value = "theme", defaultValue = THEME_DEFAULT) String theme,
-			@RequestParam(value = "id") String id, @RequestParam(value = "p", required = false) String param,
-			Model model, HttpServletRequest req, HttpServletResponse resp) {
-		LOG.info("[page] " + id);
-		model.addAttribute("theme", getTheme(theme));
-		if (null == key || "".equals(key)) {
-			model.addAttribute("error", "密钥不能为空！");
-		} else {
-			key = getKey(key);
-			User user = userService.getUserByKey(key);
-			if (null != user) {
-				model.addAttribute("user", user);
-				// Map<String, String> params = new HashMap<String, String>();
-				Page page = userService.getUserPageByPageId(user.getUserId(), Integer.parseInt(id));
-				if (null != page) {
-					// 判断是否包含子页面，如果包含子页面，则直接跳转到使用容器的页面
-					List<Page> subPages = userService.getUserSubPagesByPageId(user.getUserId(), page.getPageId());
-					if (null != subPages && !subPages.isEmpty()) {
-						// 包含子页面
-						model.addAttribute("subPages", JSON.toJSONString(subPages));
-						model.addAttribute("page", page);
-						return "container";
-					}
-					Map<String, Object> configs = new HashMap<String, Object>();
-					configs.put("config", userService.getUserConfigs(user.getUserId()));
-					Map<String, String> params = generateParams(param);
-					configs.put("request", params);
-					String url = page.getContentURL();
-					if (null != url && (url.startsWith("http://") || url.startsWith("https://"))) {// 外部链接
-						if (!params.isEmpty()) {
-							StringBuilder msg = new StringBuilder();
-							boolean isFirst = true;
-							for (Entry<String, String> entry : params.entrySet()) {
-								if (isFirst) {
-									isFirst = false;
-								} else {
-									msg.append("&");
-								}
-								msg.append(entry.getKey()).append("=")
-										.append(TemplateParser.parse(configs, entry.getValue()));
-							}
-							if (!url.contains("?")) {
-								url += "?" + msg.toString();
-							} else if (url.endsWith("&")) {
-								url += msg.toString();
-							} else {
-								url += "&" + msg.toString();
-							}
+    @RequestMapping("/page.do")
+    public String page(@RequestParam(value = "key", defaultValue = "") String key,
+            @RequestParam(value = "theme", defaultValue = THEME_DEFAULT) String theme,
+            @RequestParam(value = "id") String id, @RequestParam(value = "p", required = false) String param,
+            Model model, HttpServletRequest req, HttpServletResponse resp) {
+        LOG.info("[page] " + id);
+        model.addAttribute("theme", getTheme(theme));
+        if (null == key || "".equals(key)) {
+            model.addAttribute("error", "密钥不能为空！");
+        } else {
+            key = getKey(key);
+            User user = userService.getUserByKey(key);
+            if (null != user) {
+                model.addAttribute("user", user);
+                // Map<String, String> params = new HashMap<String, String>();
+                Page page = userService.getUserPageByPageId(user.getUserId(), Integer.parseInt(id));
+                if (null != page) {
+                    // 判断是否包含子页面，如果包含子页面，则直接跳转到使用容器的页面
+                    List<Page> subPages = userService.getUserSubPagesByPageId(user.getUserId(), page.getPageId());
+                    if (null != subPages && !subPages.isEmpty()) {
+                        // 包含子页面
+                    	// 替换子页面的参数
+                    	Map<String, Object> configs = new HashMap<String, Object>();
+                        Map<String, String> params = generateParams(param);
+                        configs.put("request", params);
+                    	for (Page subPage : subPages) {
+							subPage.setParams("");
+							subPage.setContentURL(TemplateParser.parse(configs, subPage.getContentURL()));
 						}
-						page.setContentURL(TemplateParser.parse(configs, url.replaceAll("'", "\\\\'")));
-						page.setParams(null);
-					} else {
-						// 内部链接
-						if (!StringUtils.isEmpty(param)) {
-							page.setParams("p=" + TemplateParser.parse(configs, param));
-						}
-					}
-				}
-				model.addAttribute("page", page);
-				return "page";
-			} else {
-				model.addAttribute("error", "没有找到密钥对应的用户。密钥：" + key);
-			}
-		}
-		model.addAttribute("referer", req.getRequestURI() + "?" + req.getQueryString());
-		return "login";
-	}
+                        model.addAttribute("subPages", JSON.toJSONString(subPages));
+                        model.addAttribute("p", param);
+                        model.addAttribute("page", page);
+                        model.addAttribute("user", user);
+                        return "container";
+                    }
+                    Map<String, Object> configs = new HashMap<String, Object>();
+                    configs.put("config", userService.getUserConfigs(user.getUserId()));
+                    Map<String, String> params = generateParams(param);
+                    configs.put("request", params);
+                    String url = page.getContentURL();
+                    if (null != url && (url.startsWith("http://") || url.startsWith("https://"))) {// 外部链接
+                        if (!params.isEmpty()) {
+                            StringBuilder msg = new StringBuilder();
+                            boolean isFirst = true;
+                            for (Entry<String, String> entry : params.entrySet()) {
+                                if (isFirst) {
+                                    isFirst = false;
+                                } else {
+                                    msg.append("&");
+                                }
+                                msg.append(entry.getKey()).append("=")
+                                        .append(TemplateParser.parse(configs, entry.getValue()));
+                            }
+                            if (!url.contains("?")) {
+                                url += "?" + msg.toString();
+                            } else if (url.endsWith("&")) {
+                                url += msg.toString();
+                            } else {
+                                url += "&" + msg.toString();
+                            }
+                        }
+                        page.setContentURL(TemplateParser.parse(configs, url.replaceAll("'", "\\\\'")));
+                        page.setParams(null);
+                    } else {
+                        // 内部链接
+                        if (!StringUtils.isEmpty(param)) {
+                            page.setParams("p=" + TemplateParser.parse(configs, param));
+                        }
+                    }
+                }
+                model.addAttribute("page", page);
+                return "page";
+            } else {
+                model.addAttribute("error", "没有找到密钥对应的用户。密钥：" + key);
+            }
+        }
+        model.addAttribute("referer", req.getRequestURI() + "?" + req.getQueryString());
+        return "login";
+    }
 
 	private String getKey(String key) {
 		if (!StringUtils.isEmpty(key)) {

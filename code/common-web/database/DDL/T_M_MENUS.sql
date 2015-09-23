@@ -9,6 +9,7 @@ create table T_M_MENUS
    ORDER_NUM            int not null default 0 comment '显示顺序',
    IS_SHOW              char not null default '0' comment '是否显示。可选值：0 不显示；1 显示',
    IS_VALID             char(1) not null default '1' comment '是否有效。1 有效；0 无效。默认1',
+   UPDATE_TIME          datetime comment '更新时间',
    primary key (MENU_ID)
 );
 

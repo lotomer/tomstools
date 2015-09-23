@@ -20,7 +20,7 @@
     ]]></select>
     <select id="selectUserByKey" resultType="user"><![CDATA[
         SELECT k.USER_ID userId,CASE WHEN now() < k.INVALID_TIME THEN k.`KEY` ELSE '' END `key`,u.USER_NAME userName,
-        u.NICK_NAME nickName,u.CLIENT_IP clientIp,u.EMAIL email,u.PHONE_NUMBER phoneNumber 
+        u.NICK_NAME nickName,u.CLIENT_IP clientIp,u.EMAIL email,u.PHONE_NUMBER phoneNumber,u.USER_PASSWD userPassword 
         FROM T_U_KEY k,T_M_USERS u where k.USER_ID=u.USER_ID AND u.IS_VALID='1'  AND `KEY`= #{key}
     ]]></select>
     

@@ -10,6 +10,7 @@ create table T_M_PAGES
    HEIGHT               int default 500 comment '页面高度。0表示自适应',
    ICON_CLASS           varchar(32) comment '图标样式类。为空表示不指定图标',
    AUTO_FRESH_TIME      int not null default 0 comment '自动刷新时间。单位：秒。默认0，表示不自动刷新',
+   UPDATE_TIME          datetime comment '更新时间',
    primary key (PAGE_ID)
 );
 

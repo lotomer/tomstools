@@ -123,7 +123,7 @@ public class PageFetcher {
         builder.setCircularRedirectsAllowed(true);
         // httpclient.getParams().setIntParameter(CoreConnectionPNames.SO_TIMEOUT,
         // socketTimeOut);
-        logger.info("executing request " + requestBuilder.getUri());
+        logger.info("executing request \"" + requestBuilder.getUri() + "\"");
         if (logger.isInfoEnabled()) {
             logger.info("request info: " + requestInfo);
         }

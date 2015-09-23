@@ -22,6 +22,7 @@ public class WebMetricSubInfo {
     private String urlBack;
     private String pageEncoding;
     private String contentType;
+    private String headers;
     private Collection<WebMetric> metrics;
 
     public Map<String, Object> toMap() {
@@ -31,6 +32,7 @@ public class WebMetricSubInfo {
         result.put("url", url);
         result.put("urlBack", urlBack);
         result.put("pageEncoding", pageEncoding);
+        result.put("headers", headers);
         result.put("metrics", metrics);
         return result;
     }
@@ -83,7 +85,15 @@ public class WebMetricSubInfo {
         this.contentType = contentType;
     }
 
-    public final Collection<WebMetric> getMetrics() {
+    public String getHeaders() {
+		return headers;
+	}
+
+	public void setHeaders(String headers) {
+		this.headers = headers;
+	}
+
+	public final Collection<WebMetric> getMetrics() {
         return metrics;
     }
 

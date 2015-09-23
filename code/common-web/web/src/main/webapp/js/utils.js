@@ -1,6 +1,20 @@
 function isArray(o) {  
   return Object.prototype.toString.call(o) === '[object Array]';   
 }
+// 用户可自定义
+function refrech(){
+	location.reload();
+}
+
+// 刷新页面
+function autoRefrech(){
+	if (autoFreshTime){
+		var t = parseInt(autoFreshTime);
+		if (!isNaN(t) && t != 0){
+			setTimeout("refrech()",t * 1000);
+		}
+	}
+}
 //注册全局消息提示类
 window.messager = $.messager;
 function trim(str){
@@ -136,29 +150,7 @@ function byteFormatter(params,ticket,callback){
     var o = storageSpaceAdapt(callback);
     return ticket + ":" +o.value + o.unit;
 }
-function byteTipFormatter(params,ticket,callback){
-    return tipFormatter(params);
-}
-function tipFormatter (params,defaultUnit) {
-    if(params){
-        if (params instanceof Object && params.data) {
-            var name = params.data.name,value = params.data.value;
-            return name + ':' + storageSpaceAdapt(value,defaultUnit);
-        }else if (params instanceof Array) {
-            var msg = undefined;
-            for (var i = 0,iLen = params.length; i < iLen; i++) {
-                if(!msg) msg = params[i].name;
-                msg += '<br/>' + params[i].seriesName + ':' + storageSpaceAdapt(params[i].value,defaultUnit);
-            }
-            
-            return msg;
-        }else if(typeof(params) == "string" ) {
-            return storageSpaceAdapt(params,defaultUnit);
-        }
-    }
-    
-    return '';
-}
+
 
 /**
  * 字节转换，自动适应合适的单位
@@ -393,31 +385,30 @@ function formatProgress(value){
 //---------------------------------------------------  
 Date.prototype.format = function(formatStr)   
 {   
-  var str = formatStr;   
-  var Week = ['日','一','二','三','四','五','六'];  
-
-  str=str.replace(/yyyy|YYYY/,this.getFullYear());   
-  str=str.replace(/yy|YY/,(this.getYear() % 100)>9?(this.getYear() % 100).toString():'0' + (this.getYear() % 100));   
-
-  str=str.replace(/MM/,this.getMonth()>9?this.getMonth().toString():'0' + this.getMonth());   
-  str=str.replace(/M/g,this.getMonth());   
-
-  str=str.replace(/w|W/g,Week[this.getDay()]);   
-
-  str=str.replace(/dd|DD/,this.getDate()>9?this.getDate().toString():'0' + this.getDate());   
-  str=str.replace(/d|D/g,this.getDate());   
-
-  str=str.replace(/hh|HH/,this.getHours()>9?this.getHours().toString():'0' + this.getHours());   
-  str=str.replace(/h|H/g,this.getHours());   
-  str=str.replace(/mm/,this.getMinutes()>9?this.getMinutes().toString():'0' + this.getMinutes());   
-  str=str.replace(/m/g,this.getMinutes());   
-
-  str=str.replace(/ss|SS/,this.getSeconds()>9?this.getSeconds().toString():'0' + this.getSeconds());   
-  str=str.replace(/s|S/g,this.getSeconds());   
-
-  return str;   
-}
-
+    var str = formatStr;   
+    var Week = ['日','一','二','三','四','五','六'];  
+  
+    str=str.replace(/yyyy|YYYY/,this.getFullYear());   
+    str=str.replace(/yy|YY/,(this.getYear() % 100)>9?(this.getYear() % 100).toString():'0' + (this.getYear() % 100));   
+  
+    str=str.replace(/MM/,this.getMonth()>9?this.getMonth().toString():'0' + this.getMonth());   
+    str=str.replace(/M/g,this.getMonth());   
+  
+    str=str.replace(/w|W/g,Week[this.getDay()]);   
+  
+    str=str.replace(/dd|DD/,this.getDate()>9?this.getDate().toString():'0' + this.getDate());   
+    str=str.replace(/d|D/g,this.getDate());   
+  
+    str=str.replace(/hh|HH/,this.getHours()>9?this.getHours().toString():'0' + this.getHours());   
+    str=str.replace(/h|H/g,this.getHours());   
+    str=str.replace(/mm/,this.getMinutes()>9?this.getMinutes().toString():'0' + this.getMinutes());   
+    str=str.replace(/m/g,this.getMinutes());   
+  
+    str=str.replace(/ss|SS/,this.getSeconds()>9?this.getSeconds().toString():'0' + this.getSeconds());   
+    str=str.replace(/s|S/g,this.getSeconds());   
+  
+    return str;   
+}   
 function showMessage(title,msg,type){
 	if (!type){
 		$.messager.show({
