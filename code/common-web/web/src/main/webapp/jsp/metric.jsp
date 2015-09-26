@@ -57,8 +57,13 @@ function initClusterEcharts (ec) {
 }
 // 自定义刷新
 function refrech(){
-	var url = "metricScript.do?key=" + key +"&metricName=" + metricName +  "&p=" + encodeURIComponent(p);
-	
+	var url = "metricScript.do?key=" + key +"&metricName=" + metricName +  "&p=" + encodeURIComponent(p),
+		e = divMetric[0];
+	if(e.clientWidth == 0 || e.clientHeight == 0) {
+		// 处于隐藏状态，则此次不更新
+		autoRefrech();
+		return;
+	}
 	$.ajax({url:url,dataType:"script",cache:false,
 		success:function(data){
 			//log('加载成功！');

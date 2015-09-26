@@ -7,6 +7,9 @@
         <dependent-module archiveName="common-0.0.1.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/common/common">
             <dependency-type>uses</dependency-type>
         </dependent-module>
+        <dependent-module archiveName="analyzer-0.1.0.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/analyzer/analyzer">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
         <property name="context-root" value="OMP-web"/>
         <property name="java-output-path" value="/OMP-web/target/classes"/>
     </wb-module>

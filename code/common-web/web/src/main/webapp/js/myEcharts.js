@@ -355,6 +355,10 @@ function getOptionWithPie(ec, dt, values, titles, tipStr, realUnit, maxValue,
     return option;
 }
 function doCreateChart(ec, id, option, clickCallback) {
+	var e = document.getElementById(id);
+	if (e.clientWidth == 0 || e.clientHeight == 0){
+		return undefined;
+	}
     var myChart = ec.init(document.getElementById(id));
     myChart.setOption(option);
     // if (!window.charts){
@@ -366,5 +370,8 @@ function doCreateChart(ec, id, option, clickCallback) {
         var ecConfig = require('echarts/config');
         myChart.on(ecConfig.EVENT.CLICK, clickCallback);
     }
+    $(window).resize(function(){
+		if (mychart){mychart.resize(); }
+	});
     return myChart;
 }
