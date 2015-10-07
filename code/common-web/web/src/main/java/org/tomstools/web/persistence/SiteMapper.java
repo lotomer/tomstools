@@ -102,4 +102,10 @@ public interface SiteMapper {
 	public void deleteHot(@Param("FLAG") String flag);
 
 	public void saveHot(@Param("FLAG") String flag, @Param("WORD") String word, @Param("HEAT") long heat);
+	public List<Map<String, Object>> selectHot(@Param("START_TIME") Date startTime, @Param("END_TIME") Date endTime,
+			@Param("FLAG") String flag, @Param("START") Integer start, @Param("ROWS") Integer rows);
+	public void saveHotHis(@Param("FLAG") String flag);
+
+	public int countHot(@Param("START_TIME") Date startTime, @Param("END_TIME") Date endTime,
+			@Param("FLAG") String flag);
 }

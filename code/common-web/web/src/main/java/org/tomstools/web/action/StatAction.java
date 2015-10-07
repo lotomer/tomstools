@@ -338,7 +338,46 @@ public class StatAction {
 		}
 			return "[]";
 	}
-
+	@RequestMapping("/query/hotword.do")
+	public @ResponseBody String selectHotword(@RequestParam("key") String key,
+			@RequestParam(value = "page", required = false) Integer page,
+			@RequestParam(value = "rows", required = false) Integer rows,
+			@RequestParam(value = "DAYS", required = false) Integer days,
+			@RequestParam(value = "FLAG", required = false) String flag, HttpServletRequest req,
+			HttpServletResponse resp) throws Exception {
+		resp.setContentType("application/json;charset=UTF-8");
+		User user = userService.getUserByKey(key);
+		if (user != null){
+			if (null == days){
+				String s = userService.getConfig(user.getUserId(), "DAYS_AGO_4_TOP_HOTWORD");
+				if (!StringUtils.isEmpty(s)){
+					try {
+						days = Integer.valueOf(s);
+					} catch (NumberFormatException e) {
+					}
+				}
+			}
+			
+			Calendar now = Calendar.getInstance();
+			Calendar begin = Calendar.getInstance();
+			//start.set(Calendar.HOUR_OF_DAY, 0);
+			//start.set(Calendar.MINUTE, 0);
+			//start.set(Calendar.SECOND, 0);
+			begin.add(Calendar.DAY_OF_MONTH, 0 - days);
+			int total = solrService.countHot(begin.getTime(), now.getTime(),flag);
+			rows = rows == null? total : rows;
+			int startNum = page == null ? 0 : (page - 1) * rows;
+			List<Map<String, Object>> details = solrService.selectHot(begin.getTime(), now.getTime(),flag,startNum,rows);
+			if (null == details){
+				details = Collections.emptyList();
+			}
+			Map<String,Object> result = new HashMap<String, Object>();
+			result.put("total", total);
+			result.put("rows", details);
+			return JSON.toJSONString(result);
+		}
+		return "[]";
+	}
 	/** 媒体类型统计 */
 	@RequestMapping("/stat/mediaCount.do")
 	public @ResponseBody String statMediaCount(@RequestParam("key") String key,@RequestParam(value="TYPE_ID",required=false) Integer typeId, HttpServletRequest req,

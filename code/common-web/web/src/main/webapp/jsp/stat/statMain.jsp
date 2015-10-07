@@ -71,8 +71,8 @@
    		</div> -->
    		<div class="module row1"  style="width:231px;">
    			<div data-options="fit:true" class="easyui-tabs">
-	   			<div title="行业热词" id="divHotWord0" style="padding:8px 0 0 10px;"></div>
 	   			<div title="网络热点" id="divHotWord1" style="padding:8px 0 0 10px;"></div>
+	   			<div title="行业热词" id="divHotWord0" style="padding:8px 0 0 10px;"></div>
    			</div>
    		</div>
    		
@@ -769,7 +769,7 @@
 		$('#' + containId).append('<div style="width:100px;height:20px;"><a href="#" onclick="javascript:window.top.createPageById(103004)" title="' +words+ '"  style="white-space: nowrap;display:block;overflow:hidden; text-overflow:ellipsis;">' + words+ '</a></div>');
 	}
 	function showWord(containId,words,index){
-		$('#' + containId).append('<div style="width:180px;height:20px;"><label style="float:left;width:20px;text-align:center;margin-right:5px;color:white;background-color:' + (index < 4 ? 'red' : '#333')
+		$('#' + containId).append('<div style="width:160px;height:20px;float:left"><label style="float:left;width:20px;text-align:center;margin-right:5px;color:white;background-color:' + (index < 4 ? 'red' : '#333')
 		+ '">' + index + '</label><a href="#" onclick="javascript:window.top.createPageById(201006,\'&p=field:text,value:' + encodeURIComponent(words) + '\')" title="' +words+ '"  style="white-space: nowrap;display:block;overflow:hidden; text-overflow:ellipsis;">' + words+ '</a></div>');
 	}
 	// 舆情预警
@@ -804,7 +804,7 @@
 		doLadHotWord(typeId,"1");
 	}
 	function doLadHotWord(typeId,flag) {
-		var containId = "divHotWord"+flag, TopN = 10;
+		var containId = "divHotWord"+flag, TopN = 5;
 		
 		loadData(containId, "crawl/query/hotwordTop.do", {
 			key : key,TYPE_ID:typeId,DAYS:1,FLAG:flag,
@@ -822,6 +822,7 @@
 					break;
 				}
 			}
+			$('#' + containId).append('<div style="float:right;margin-right: 10px;"><a href="#" onclick="javascript:window.top.createPageById(201007,\'&p=flag:' +flag+ '\')">更多...</a></div>');
 		});
 	}
 </script>

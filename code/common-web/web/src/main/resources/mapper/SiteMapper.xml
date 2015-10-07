@@ -31,20 +31,39 @@
     
     <select id="selectHotwordTop" resultType="map"><![CDATA[
     	SELECT WORD,sum(HEAT) HEAT
-		FROM T_POM_HOTWORD
+		FROM T_POM_HOTWORD WHERE
 		]]>
-		<if test="FLAG != null">WHERE FLAG=#{FLAG} </if>
+		<if test="FLAG != null"> FLAG=#{FLAG} AND </if>
 		<![CDATA[
+		IS_VALID=1
 		GROUP BY WORD ORDER BY HEAT desc limit #{TOP_NUM}
     ]]></select>
-    <delete id="deleteHot"><![CDATA[
-    	DELETE FROM T_POM_HOTWORD
-		WHERE FLAG=#{FLAG}
-    ]]></delete>
+    <update id="deleteHot"><![CDATA[
+    	UPDATE T_POM_HOTWORD SET IS_VALID=0
+		WHERE FLAG=#{FLAG} AND IS_VALID=1
+    ]]></update>
     <insert id="saveHot"><![CDATA[
     	INSERT INTO T_POM_HOTWORD (FLAG,WORD,HEAT,IN_TIME) values (#{FLAG},#{WORD},#{HEAT},now())
     ]]></insert>
-    
+    <select id="countHot" resultType="int"><![CDATA[
+    	SELECT COUNT(1) FROM (
+	    	SELECT WORD
+			FROM T_POM_HOTWORD
+			WHERE FLAG=#{FLAG} AND IN_TIME BETWEEN #{START_TIME} AND #{END_TIME}
+			GROUP BY WORD
+		) a
+    ]]></select>
+    <select id="selectHot" resultType="map"><![CDATA[
+    	SELECT WORD,sum(HEAT) HEAT
+		FROM T_POM_HOTWORD
+		WHERE FLAG=#{FLAG} AND IN_TIME BETWEEN #{START_TIME} AND #{END_TIME}
+		GROUP BY WORD ORDER BY HEAT desc limit #{START},#{ROWS}
+    ]]></select>
+
+    <insert id="saveHotHis"><![CDATA[
+    	INSERT INTO T_POM_HOTWORD_HIS (FLAG,WORD,HEAT,IN_TIME,UPDATE_TIME) SELECT FLAG,WORD,HEAT,IN_TIME,now() FROM T_POM_HOTWORD WHERE FLAG=#{FLAG}
+    ]]></insert>
+        
      <select id="selectMediaCount" resultType="map"><![CDATA[
      	SELECT CASE WHEN st.SITE_TYPE_NAME IS NULL THEN '其他' ELSE st.SITE_TYPE_NAME END SITE_TYPE_NAME,sum(SIZE_ZM) + SUM(SIZE_FM) + sum(SIZE_ZM_E) + SUM(SIZE_FM_E) SIZE 
 		FROM T_POM_S_STAT_SITE s LEFT JOIN T_CRAWL_C_SITE cs ON (s.SITE_ID=cs.SITE_ID) LEFT JOIN T_CRAWL_M_SITE_TYPE st ON (cs.SITE_TYPE_ID=st.SITE_TYPE_ID)

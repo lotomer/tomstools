@@ -711,6 +711,7 @@ public class SolrService {
         // 保存结果
         if (words.size() > 0){
         	//先清除原有的
+        	//siteMapper.saveHotHis(flag);
         	siteMapper.deleteHot(flag);
 	        for (Word word : words) {
 				siteMapper.saveHot(flag,word.word,word.heat);
@@ -729,5 +730,15 @@ public class SolrService {
 	 */
 	public List<String> parseWords(String words) {
 		return analyzer.getWords(words);
+	}
+
+	public List<Map<String, Object>> selectHot(Date startTime, Date endTime, String flag, Integer start, Integer rows) {
+		start = null != start ? start : 0;
+		rows = null != rows ? rows : 10;
+		return siteMapper.selectHot(startTime, endTime, flag, start, rows);
+	}
+
+	public int countHot(Date startTime, Date endTime, String flag) {
+		return siteMapper.countHot(startTime, endTime, flag);
 	}
 }

@@ -87,7 +87,12 @@ em {
 	}
 
 	function search(containerId,field,value,start,rows){
-		loadCrossDomainData(encodeURI(SOLR_URL + "/select?wt=json&hl.simple.pre=<em>&hl.simple.post=</em>&fl=title,url&hl=true&hl.fl=content,title&indent=true&q=") + field + "%3A" + value +"&start=" + start +"&rows=" + rows
+		var q=field + "%3A" + value;
+		if ("text" == field){
+			// 增大标题权重
+			q="(title%3A" + value+")" + encodeURIComponent("^") +"2+content%3A" + value;
+		}
+		loadCrossDomainData(encodeURI(SOLR_URL + "/select?wt=json&hl.simple.pre=<em>&hl.simple.post=</em>&fl=title,url&hl=true&hl.fl=content,title&indent=true&q=") + q +"&start=" + start +"&rows=" + rows
 				, function(data) {
 					if (!data) {
 						return;
