@@ -93,13 +93,12 @@ public class DOMContentUtils {
         linkParams.remove(ignoreTags[i]);
     }
 
-    textNodeNames.add("a");
-    textNodeNames.add("span");
-    textNodeNames.add("label");
-    textNodeNames.add("strong");
-    textNodeNames.add("em");
-    textNodeNames.add("font");
     contentSizeMin = conf.getInt("parser.html.content.size.min", 1);
+    String tags = conf.get("parser.html.content.tags", "a,span,label,em,font,strong");
+    String[] nodeNames = tags.split(",");
+    for (int i = 0; i < nodeNames.length; i++) {
+        textNodeNames.add(nodeNames[i]);
+    }
   }
 
   /**
