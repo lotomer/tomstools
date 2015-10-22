@@ -145,16 +145,9 @@ public class DOMContentUtils {
     StringBuilder textNew = null;
     boolean isNewSection = false;
     while (walker.hasNext()) {
-
       Node currentNode = walker.nextNode();
       String nodeName = currentNode.getNodeName().toLowerCase();
       short nodeType = currentNode.getNodeType();
-      if (nodeType == Node.TEXT_NODE){
-          if (currentNode.getParentNode() instanceof Element) {
-            Element e = (Element) currentNode.getParentNode();
-            nodeName = e.getTagName().toLowerCase();
-          }
-      }
       if ("script".equalsIgnoreCase(nodeName)) {
         walker.skipChildren();
       }
@@ -172,6 +165,10 @@ public class DOMContentUtils {
         walker.skipChildren();
       }
       if (nodeType == Node.TEXT_NODE) {
+        if (currentNode.getParentNode() instanceof Element) {
+          Element e = (Element) currentNode.getParentNode();
+          nodeName = e.getTagName().toLowerCase();
+        }
         // cleanup and trim the value
         String text = currentNode.getNodeValue();
         text = text.replaceAll("\\s+", " ");
