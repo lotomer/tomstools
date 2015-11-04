@@ -204,13 +204,14 @@
 		GROUP BY r.TYPE_ID,r.TYPE_NAME,dt ORDER BY dt desc
     ]]></select>
     <select id="selectStatsCount" resultType="map"><![CDATA[
-        SELECT r.TYPE_ID,r.TYPE_NAME,sum(SIZE_ZM) SIZE_ZM,SUM(SIZE_FM) SIZE_FM,sum(SIZE_ZM_E) SIZE_ZM_E,SUM(SIZE_FM_E) SIZE_FM_E 
+        SELECT r.TYPE_ID,r.TYPE_NAME,sum(SIZE_ZM) SIZE_ZM,SUM(SIZE_FM) SIZE_FM,sum(SIZE_ZM_E) SIZE_ZM_E,SUM(SIZE_FM_E) SIZE_FM_E,SUM(SIZE_ZM+SIZE_ZM_E+SIZE_FM+SIZE_FM_E) SIZE_TOTAL
         FROM T_POM_S_STAT_SITE s LEFT JOIN T_POM_C_RULE r ON (s.TYPE_ID=r.TYPE_ID) WHERE 
         ]]><if test="TYPE_ID != null">
         	s.TYPE_ID=#{TYPE_ID} AND
         </if><![CDATA[
 		STAT_TIME BETWEEN #{START_TIME} AND #{END_TIME}
 		GROUP BY r.TYPE_ID,r.TYPE_NAME
+		ORDER BY SIZE_TOTAL desc
     ]]></select>
     <select id="selectStatsCountAll" resultType="map"><![CDATA[
         SELECT sum(SIZE_ZM) + SUM(SIZE_ZM_E) SIZE_ZM,sum(SIZE_FM) +SUM(SIZE_FM_E) SIZE_FM FROM T_POM_S_STAT_SITE 

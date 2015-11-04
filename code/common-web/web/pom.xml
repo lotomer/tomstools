@@ -218,11 +218,11 @@
 				<!-- 邮件发送配置 -->
 				<mail.host>smtp.163.com</mail.host>
 				<mail.port>25</mail.port>
-				<mail.user>lotomer</mail.user>
-				<mail.password>851023</mail.password>
+				<mail.user>myuser</mail.user>
+				<mail.password>mypassword</mail.password>
 				
 				<mail.smtp.auth>true</mail.smtp.auth>
-				<mail.smtp.from>lotomer@163.com</mail.smtp.from>
+				<mail.smtp.from>myuser@163.com</mail.smtp.from>
 				<mail.debug>false</mail.debug>
 			</properties>
 		</profile>
