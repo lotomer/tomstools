@@ -40,7 +40,14 @@
         <div id="WORDS" style="width:85%;float:left;"></div>
 	</div>
 	<div id="divStatMainContent" style="background-color: #888" data-options="region:'center',split:true">
-	    <div style="width: 260px;" class="module row1">
+   		<div class="module row1"  style="width:231px;">
+   			<div data-options="fit:true" class="easyui-tabs">
+	   			<div title="热门词条" id="divWordsTop" style="padding:8px 0 0 10px;"></div>
+	   			<!-- <div title="网络热点" id="divHotWord1" style="padding:8px 0 0 10px;"></div> -->
+	   			<div title="行业热词" id="divHotWord0" style="padding:8px 0 0 10px;"></div>
+   			</div>
+   		</div>
+   		<div style="width: 260px;" class="module row1">
 	    	<div class="msgTitle">舆情级别</div>
 	    	<div id="divMain" class="moduleContent"></div>
 	    </div>
@@ -69,12 +76,6 @@
    			<div class="msgTitle">词条预警</div>
    			<div class="moduleContent" id="divCTYQ" style="text-align: left;margin-top:10px;"></div>
    		</div> -->
-   		<div class="module row1"  style="width:231px;">
-   			<div data-options="fit:true" class="easyui-tabs">
-	   			<div title="网络热点" id="divHotWord1" style="padding:8px 0 0 10px;"></div>
-	   			<div title="行业热词" id="divHotWord0" style="padding:8px 0 0 10px;"></div>
-   			</div>
-   		</div>
    		
    		<div style="width: 260px;" class="module row2"><div class="msgTitle">舆情媒体类型</div><div id="divYQMTLX" class="moduleContent"></div></div>
    		<div style="width: 445px" class="module row2"><div class="msgTitle">舆情来源网站</div><div id="divSiteTop" class="moduleContent"></div></div>
@@ -144,6 +145,8 @@
 		});
 		// 查询所有
 		query();
+		
+		initWordTop(data);
 		//initComboboxWithData("WORDS",data,function(value){
 		//	query(value.id);
 		//},true,"TYPE_ID","TYPE_NAME");
@@ -181,6 +184,16 @@
 		//loadYQYJ(typeId);
 		loadHotWord(typeId);
 		loadYQZS(typeId);
+	}
+	function initWordTop(data){
+		for (var i = 0; i < data.length; i++) {
+			if (i < 5){
+				$('#divWordsTop').append('<div style="width:160px;height:20px;float:left"><label style="float:left;width:20px;text-align:center;margin-right:5px;color:white;background-color:' + (i < 3 ? 'red' : '#333')
+					+ '">' + (i+1) + '</label><a href="#" onclick="javascript:window.top.createPageById(102002,\'&p=typeId:' + encodeURIComponent(data[i].TYPE_ID) + '\')" title="' +data[i].TYPE_NAME+ '"  style="white-space: nowrap;display:block;overflow:hidden; text-overflow:ellipsis;">' + data[i].TYPE_NAME+ '</a></div>');
+			}
+		}
+
+		$('#divWordsTop').append('<div style="float:right;margin-right: 10px;"><a href="#" onclick="javascript:window.top.createPageById(103001,\'&p=flag:' + '\')">更多...</a></div>');
 	}
 	function loadMain(ec,zm,fm){
 		var containId = "divMain";
@@ -637,7 +650,7 @@
 						return '<a href="' + row.URL + '" target="_blank" title="' + value + '" style="display:block;overflow:hidden; text-overflow:ellipsis;">' + value + '</a>';
 					}
 				}, {
-					field : 'CRAWL_TIME',
+					field : 'PUBLISH_TIME',
 					title : '时间',
 					align : 'center',
 					halign : 'center'
@@ -801,7 +814,7 @@
 	// 加载热点词汇
 	function loadHotWord(typeId) {
 		doLadHotWord(typeId,"0");
-		doLadHotWord(typeId,"1");
+		//odoLadHotWord(typeId,"1");
 	}
 	function doLadHotWord(typeId,flag) {
 		var containId = "divHotWord"+flag, TopN = 5;

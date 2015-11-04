@@ -86,7 +86,7 @@
 		$('#divStatWordsContent').html('');
 		$('#divStatWordsContent').append('<div id="divMetric" style="width:100%;height:100%"></div>');
 		var divMetric = $('#divMetric');
-		var pageSize = 5;
+		var pageSize = 15;
 		divMetric.datagrid({
 			//title:'${title}',
 			fitColumns : true,
@@ -104,7 +104,10 @@
 				title : '词条',
 				align : 'center',
 				halign : 'center',
-				sortable : "true"
+				sortable : "true",
+				formatter: function(value,row){
+					return '<a href="#" onclick="javascript:window.top.createPageById(102002,\'&p=typeId:' + encodeURIComponent(row.TYPE_ID) + '\')" title="' +row.TYPE_NAME+ '"  style="white-space: nowrap;display:block;overflow:hidden; text-overflow:ellipsis;">' + row.TYPE_NAME+ '</a>';
+				}
 			}, {
 				field : 'SIZE_ZM',
 				title : '正面信息数',

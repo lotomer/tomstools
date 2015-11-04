@@ -62,7 +62,7 @@ function loadCrossDomainData(url, successCallback,errorCallback) {
 		error : errorCallback
 	});
 }
-function initComboboxWithData(containId,data,onSelectCallback,force,valueField,textField){
+function initComboboxWithData(containId,data,onSelectCallback,force,valueField,textField,defaultValue){
 	var result = [],o = new Object(),valueField = undefined != valueField ? valueField: 'id',textField = undefined != textField ? textField: 'name';
 	if (!force){
 	    o.id = '*';
@@ -87,10 +87,15 @@ function initComboboxWithData(containId,data,onSelectCallback,force,valueField,t
             editable: false,
             data: result,
             onSelect:onSelectCallback
-        }).combobox("select",result[0].id);
+        });
+        if (defaultValue != undefined){
+        	$('#' + containId).combobox("select",defaultValue);
+        }else{
+        	$('#' + containId).combobox("select",result[0].id);
+        }
     }
 }
-function initCombobox(containId,url,onSelectCallback,force,valueField,textField){
+function initCombobox(containId,url,onSelectCallback,force,valueField,textField,defaultValue){
     // 获取该集群数据。如果指定了集群名，则获取该集群下的所有主机列表；如果没有指定集群名，则获取所有集群列表
     $.ajax({
         url: url,
@@ -99,7 +104,7 @@ function initCombobox(containId,url,onSelectCallback,force,valueField,textField)
         //data: {c:clusterName},
         success: function(data){
             // 获取成功
-            initComboboxWithData(containId, data, onSelectCallback, force, valueField, textField);
+            initComboboxWithData(containId, data, onSelectCallback, force, valueField, textField,defaultValue);
         }
     });
 }

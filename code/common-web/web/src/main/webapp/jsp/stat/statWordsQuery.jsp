@@ -60,7 +60,7 @@
 <script type="text/javascript" src="js/myEcharts.js"></script>
 <script type="text/javascript">
 	// 面板与内容之间的差值
-	var theme = '${theme}', key = '${user.key}';
+	var theme = '${theme}', key = '${user.key}',typeId='${typeId}';
 	// 页面初始化
 	$(function() {
 		// 绑定事件
@@ -76,8 +76,8 @@
 			}
 		});
 		initCombobox("selSite","crawl/selectSite.do");
-		initCombobox("selWords","setting/words/select.do",undefined,false,"TYPE_ID","TYPE_NAME");
-		query();
+		initCombobox("selWords","setting/words/select.do",query,false,"TYPE_ID","TYPE_NAME",typeId != '' ? typeId : undefined);
+		//query();
 	});
 	
 	
@@ -274,9 +274,44 @@
 				}*/
 			}, {
 				field : 'CRAWL_TIME',
-				title : '网页爬取时间',
+				title : '抓取时间',
 				align : 'left',
 				halign : 'center'
+			}, {
+				field : 'PUBLISH_TIME',
+				title : '发布时间',
+				align : 'left',
+				halign : 'center'
+			}, {
+				field : 'SOURCE',
+				title : '来源',
+				align : 'center',
+				width: 120,
+				halign : 'center',
+				formatter: function(value,row){
+					value = value == undefined? '':value;
+					return '<span title="' + value + '" style="display:block;overflow:hidden; text-overflow:ellipsis;">' + value + '</span>';
+				}
+			}, {
+				field : 'AUTHOR',
+				title : '作者',
+				align : 'center',
+				width: 120,
+				halign : 'center',
+				formatter: function(value,row){
+					value = value == undefined? '':value;
+					return '<span title="' + value + '" style="display:block;overflow:hidden; text-overflow:ellipsis;">' + value + '</span>';
+				}
+			}, {
+				field : 'EDITOR',
+				title : '编辑',
+				align : 'center',
+				width: 120,
+				halign : 'center',
+				formatter: function(value,row){
+					value = value == undefined? '':value;
+					return '<span title="' + value + '" style="display:block;overflow:hidden; text-overflow:ellipsis;">' + value + '</span>';
+				}
 			}, {
 				field : 'a',
 				title : '查看正文快照',

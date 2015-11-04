@@ -3,14 +3,16 @@
  */
 package org.tomstools.web.service;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
-import java.util.Map.Entry;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.logging.Log;
@@ -27,6 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.tomstools.analyzer.AnalyzeAssistor;
+import org.tomstools.common.MD5;
 import org.tomstools.common.parse.TemplateParser;
 import org.tomstools.web.crawler.PageFetcher;
 import org.tomstools.web.model.User;
@@ -42,7 +45,7 @@ import org.tomstools.web.solr.SolrTools;
 @Service("solrService")
 public class SolrService {
 	private static final Log LOG = LogFactory.getLog(SolrService.class);
-	public static final long STAT_TIME_DEFAULT = 15 * 24 * 3600 * 1000; // 默认统计时长。7天
+	public static final long STAT_TIME_DEFAULT = 15 * 24 * 3600 * 1000; // 默认统计时长。15天
 	private static final String CONFIG_SOLR_URL = "SOLR_URL";
 	@Autowired
 	private SolrMapper solrMapper;
@@ -119,87 +122,150 @@ public class SolrService {
 	// }
 
 	public int statWordsWithHost() throws Exception {
-		SolrTools solrTool = new SolrTools(userService.getConfig(-1, CONFIG_SOLR_URL));
-		int count = 0;
-		// 1、获取舆论词条规则
-		List<Map<String, Object>> words = businessSettingMapper.selectWordsList();
-		if (null == words || 0 == words.size()) {
-			return count;
-		}
-		List<Map<String, Object>> siteInfos = siteMapper.selectSiteList();
-		if (null == siteInfos || 0 == siteInfos.size()) {
-			return count;
-		}
-		Map<String, Integer> sites = new HashMap<String, Integer>();
-		sites.put("-1", -1);
-		for (Map<String, Object> siteInfo : siteInfos) {
-			sites.put(String.valueOf(siteInfo.get("SITE_HOST")),
-					Integer.parseInt(String.valueOf(siteInfo.get("SITE_ID"))));
-		}
-		for (Map<String, Object> word : words) {
-			Integer typeId = (Integer) word.get("TYPE_ID");
-			if (null == typeId) {
-				continue;
-			}
-			String templateZM = (String) word.get("TEMPLATE_ZM");
-			String templateFM = (String) word.get("TEMPLATE_FM");
-			String templateZM_E = (String) word.get("TEMPLATE_ZM_E");
-			String templateFM_E = (String) word.get("TEMPLATE_FM_E");
-			// 获取上次统计时间
-			Date lastStatTime = siteMapper.selectLastStatTime(typeId);
-			Date beginTime = null;
-			Date endTime = new Date();
-			if (null != lastStatTime) {
-				beginTime = new Date(lastStatTime.getTime());
-			} else {
-				beginTime = new Date(endTime.getTime() - STAT_TIME_DEFAULT);
-			}
-			Map<Integer, Long> siteZM = new HashMap<Integer, Long>();
-			Map<Integer, Long> siteFM = new HashMap<Integer, Long>();
-			Map<Integer, Long> siteZM_E = new HashMap<Integer, Long>();
-			Map<Integer, Long> siteFM_E = new HashMap<Integer, Long>();
-			// 获取正面信息数
-			if (!StringUtils.isEmpty(templateZM)) {
-				getSiteCount(typeId, "ZM", solrTool, sites, templateZM, beginTime, endTime, siteZM);
+        SolrTools solrTool = new SolrTools(userService.getConfig(-1, CONFIG_SOLR_URL));
+        int count = 0;
+        // 1、获取舆论词条规则
+        List<Map<String, Object>> words = businessSettingMapper.selectWordsList();
+        if (null == words || 0 == words.size()) {
+            return count;
+        }
+        List<Map<String, Object>> siteInfos = siteMapper.selectSiteList();
+        if (null == siteInfos || 0 == siteInfos.size()) {
+            return count;
+        }
+        Map<String, Integer> sites = new HashMap<String, Integer>();
+        sites.put("-1", -1);
+        for (Map<String, Object> siteInfo : siteInfos) {
+            sites.put(String.valueOf(siteInfo.get("SITE_HOST")),
+                    Integer.parseInt(String.valueOf(siteInfo.get("SITE_ID"))));
+        }
+        Date endTime = new Date();
+        for (Map<String, Object> word : words) {
+            Integer typeId = (Integer) word.get("TYPE_ID");
+            if (null == typeId) {
+                continue;
+            }
+            String templateZM = (String) word.get("TEMPLATE_ZM");
+            String templateFM = (String) word.get("TEMPLATE_FM");
+            String templateZM_E = (String) word.get("TEMPLATE_ZM_E");
+            String templateFM_E = (String) word.get("TEMPLATE_FM_E");
+            // 获取上次统计时间
+            Date lastStatTime = siteMapper.selectLastStatTime(typeId);
+            Date beginTime = null;
+            if (null != lastStatTime) {
+                beginTime = lastStatTime;
+            } else {
+                beginTime = new Date(endTime.getTime() - STAT_TIME_DEFAULT);
+            }
+            // 获取正面信息数
+            if (!StringUtils.isEmpty(templateZM)) {
+                count += getSiteCount(typeId, "ZM", solrTool, sites, templateZM, beginTime, endTime);
 
-			}
-			// 获取负面信息数
-			if (!StringUtils.isEmpty(templateFM)) {
-				getSiteCount(typeId, "FM", solrTool, sites, templateFM, beginTime, endTime, siteFM);
-			}
+            }
+            // 获取负面信息数
+            if (!StringUtils.isEmpty(templateFM)) {
+                count += getSiteCount(typeId, "FM", solrTool, sites, templateFM, beginTime, endTime);
+            }
 
-			// 获取正面信息数
-			if (!StringUtils.isEmpty(templateZM_E)) {
-				getSiteCount(typeId, "ZM_E", solrTool, sites, templateZM_E, beginTime, endTime, siteZM_E);
-			}
-			// 获取负面信息数
-			if (!StringUtils.isEmpty(templateFM_E)) {
-				getSiteCount(typeId, "FM_E", solrTool, sites, templateFM_E, beginTime, endTime, siteFM_E);
-			}
-
-			// 遍历所有站点，并保存结果
-			for (Entry<String, Integer> entry : sites.entrySet()) {
-				Long sizeZM = siteZM.get(entry.getValue());
-				Long sizeFM = siteFM.get(entry.getValue());
-				Long sizeZM_E = siteZM_E.get(entry.getValue());
-				Long sizeFM_E = siteFM_E.get(entry.getValue());
-				Integer siteId = entry.getValue();
-				if (null != siteId) {
-					sizeZM = null != sizeZM ? sizeZM : 0;
-					sizeFM = null != sizeFM ? sizeFM : 0;
-					sizeZM_E = null != sizeZM_E ? sizeZM_E : 0;
-					sizeFM_E = null != sizeFM_E ? sizeFM_E : 0;
-					if (0 != sizeZM || 0 != sizeFM || 0 != sizeZM_E || 0 != sizeFM_E) {
-						// 将数据入库
-						siteMapper.saveStat(typeId, siteId, sizeZM, sizeFM, sizeZM_E, sizeFM_E, endTime);
-						++count;
-					}
-				}
-			}
-		}
-
-		return count;
-	}
+            // 获取正面信息数
+            if (!StringUtils.isEmpty(templateZM_E)) {
+                count += getSiteCount(typeId, "ZM_E", solrTool, sites, templateZM_E, beginTime, endTime);
+            }
+            // 获取负面信息数
+            if (!StringUtils.isEmpty(templateFM_E)) {
+                count += getSiteCount(typeId, "FM_E", solrTool, sites, templateFM_E, beginTime, endTime);
+            }
+        }
+        if (0 < count){
+            // 删除原统计结果
+            siteMapper.deleteStat();
+            // 更新统计结果
+            siteMapper.saveStat(endTime);
+        }
+        return count;
+    }
+//	public int statWordsWithHost_bak() throws Exception {
+//        SolrTools solrTool = new SolrTools(userService.getConfig(-1, CONFIG_SOLR_URL));
+//        int count = 0;
+//        // 1、获取舆论词条规则
+//        List<Map<String, Object>> words = businessSettingMapper.selectWordsList();
+//        if (null == words || 0 == words.size()) {
+//            return count;
+//        }
+//        List<Map<String, Object>> siteInfos = siteMapper.selectSiteList();
+//        if (null == siteInfos || 0 == siteInfos.size()) {
+//            return count;
+//        }
+//        Map<String, Integer> sites = new HashMap<String, Integer>();
+//        sites.put("-1", -1);
+//        for (Map<String, Object> siteInfo : siteInfos) {
+//            sites.put(String.valueOf(siteInfo.get("SITE_HOST")),
+//                    Integer.parseInt(String.valueOf(siteInfo.get("SITE_ID"))));
+//        }
+//        Date endTime = new Date();
+//        for (Map<String, Object> word : words) {
+//            Integer typeId = (Integer) word.get("TYPE_ID");
+//            if (null == typeId) {
+//                continue;
+//            }
+//            String templateZM = (String) word.get("TEMPLATE_ZM");
+//            String templateFM = (String) word.get("TEMPLATE_FM");
+//            String templateZM_E = (String) word.get("TEMPLATE_ZM_E");
+//            String templateFM_E = (String) word.get("TEMPLATE_FM_E");
+//            // 获取上次统计时间
+//            Date lastStatTime = siteMapper.selectLastStatTime(typeId);
+//            Date beginTime = null;
+//            if (null != lastStatTime) {
+//                beginTime = lastStatTime;
+//            } else {
+//                beginTime = new Date(endTime.getTime() - STAT_TIME_DEFAULT);
+//            }
+//            Map<Integer, Long> siteZM = new HashMap<Integer, Long>();
+//            Map<Integer, Long> siteFM = new HashMap<Integer, Long>();
+//            Map<Integer, Long> siteZM_E = new HashMap<Integer, Long>();
+//            Map<Integer, Long> siteFM_E = new HashMap<Integer, Long>();
+//            // 获取正面信息数
+//            if (!StringUtils.isEmpty(templateZM)) {
+//                getSiteCount(typeId, "ZM", solrTool, sites, templateZM, beginTime, endTime, siteZM);
+//
+//            }
+//            // 获取负面信息数
+//            if (!StringUtils.isEmpty(templateFM)) {
+//                getSiteCount(typeId, "FM", solrTool, sites, templateFM, beginTime, endTime, siteFM);
+//            }
+//
+//            // 获取正面信息数
+//            if (!StringUtils.isEmpty(templateZM_E)) {
+//                getSiteCount(typeId, "ZM_E", solrTool, sites, templateZM_E, beginTime, endTime, siteZM_E);
+//            }
+//            // 获取负面信息数
+//            if (!StringUtils.isEmpty(templateFM_E)) {
+//                getSiteCount(typeId, "FM_E", solrTool, sites, templateFM_E, beginTime, endTime, siteFM_E);
+//            }
+//
+//            // 遍历所有站点，并保存结果
+//            for (Entry<String, Integer> entry : sites.entrySet()) {
+//                Long sizeZM = siteZM.get(entry.getValue());
+//                Long sizeFM = siteFM.get(entry.getValue());
+//                Long sizeZM_E = siteZM_E.get(entry.getValue());
+//                Long sizeFM_E = siteFM_E.get(entry.getValue());
+//                Integer siteId = entry.getValue();
+//                if (null != siteId) {
+//                    sizeZM = null != sizeZM ? sizeZM : 0;
+//                    sizeFM = null != sizeFM ? sizeFM : 0;
+//                    sizeZM_E = null != sizeZM_E ? sizeZM_E : 0;
+//                    sizeFM_E = null != sizeFM_E ? sizeFM_E : 0;
+//                    if (0 != sizeZM || 0 != sizeFM || 0 != sizeZM_E || 0 != sizeFM_E) {
+//                        // 将数据入库
+//                        siteMapper.saveStat(typeId, siteId, sizeZM, sizeFM, sizeZM_E, sizeFM_E, endTime);
+//                        ++count;
+//                    }
+//                }
+//            }
+//        }
+//
+//        return count;
+//    }
 
 	/**
 	 * 获取统计数据
@@ -285,41 +351,50 @@ public class SolrService {
 
 		return result;
 	}
-
-	private void getSiteCount(Integer typeId, String templateType, SolrTools solrTool, Map<String, Integer> sites,
-			String template, Date beginTime, Date endTime, Map<Integer, Long> siteCount) throws Exception {
-		if (StringUtils.isEmpty(template)) {
-			return;
+    private long getSiteCount(Integer typeId, String templateType, SolrTools solrTool, Map<String, Integer> sites,
+			String template, Date beginTime, Date endTime) throws Exception {
+        if (StringUtils.isEmpty(template)) {
+			return 0;
 		}
 		long total = 0;
 		long saveCount = 0;
 		int start = 0;
 		int size = 1000;
+		MD5 encoder = new MD5();
 		while (true) {
-			QueryResponse resp = solrTool.query("text:" + template, "host,title,url,tstamp", beginTime, endTime, null,
+			QueryResponse resp = solrTool.query("text:" + template, "host,title,url,tstamp,content", beginTime, endTime, null,
 					start, size);
 			SolrDocumentList datas = resp.getResults();
 			if (null != datas) {// 没有取完，还要继续
 				for (SolrDocument doc : datas) {
 				    total++;
-					String host = String.valueOf(doc.getFieldValue("host"));
+                    String host = String.valueOf(doc.getFieldValue("host"));
+                    String url = String.valueOf(doc.getFieldValue("url"));
+                    String content = String.valueOf(doc.getFieldValue("content"));
+                    // 判断url是否是目录（以“/”结束），如果是目录，则跳过
+                    if (StringUtils.isEmpty(url) || url.endsWith("/") 
+                      || url.endsWith("/index.html")|| url.endsWith("/index.htm")
+                      || url.endsWith("/index.php") || url.endsWith("/index.jsp")
+                      || url.endsWith("/index.asp")){
+                        continue;
+                    }
 					// 从host中解析站点
 					int siteId = getSiteIdByHost(sites, host);
 
 					// 保存明细到数据库
 					// 判断对应的url是否已经存在，如果不存在则添加
-					String flag = siteMapper.checkUrl(String.valueOf(doc.getFieldValue("url")));
+					String flag = siteMapper.checkUrl(new String(encoder.encrypt(url.getBytes())));
 					if (StringUtils.isEmpty(flag)) {
 					    saveCount++;
+					    Date dt = (Date) doc.getFieldValue("tstamp");
+					    // 从正文中提取作者、来源、时间
+					    Date publishTime = getDate(content);
+					    if (null == publishTime || publishTime.after(dt)){
+					        publishTime = dt;
+					    }
 						siteMapper.saveDetail(typeId, templateType, siteId, String.valueOf(doc.getFieldValue("title")),
-								String.valueOf(doc.getFieldValue("url")), (Date) doc.getFieldValue("tstamp"));
-    					// 记录次数
-    					Long count = siteCount.get(siteId);
-    					if (null != count) {
-    						siteCount.put(siteId, count + 1);
-    					} else {
-    						siteCount.put(siteId, 1l);
-    					}
+						        url, dt,getSource(content),getSource(content),getEditor(content),
+						        publishTime,new String(encoder.encrypt(url.getBytes())));
 					}
 				}
 				if (size == datas.size()) {
@@ -331,9 +406,132 @@ public class SolrService {
 		}
 		
 		LOG.info("typeId:" + typeId + ", templateType:" + templateType + ", total:" + total + ", saveCount:" + saveCount);
+		return saveCount;
 	}
-
-	private static int getSiteIdByHost(Map<String, Integer> sites, String host) {
+//    private void getSiteCount_bak(Integer typeId, String templateType, SolrTools solrTool, Map<String, Integer> sites,
+//            String template, Date beginTime, Date endTime, Map<Integer, Long> siteCount) throws Exception {
+//        if (StringUtils.isEmpty(template)) {
+//            return;
+//        }
+//        long total = 0;
+//        long saveCount = 0;
+//        int start = 0;
+//        int size = 1000;
+//        MD5 encoder = new MD5();
+//        while (true) {
+//            QueryResponse resp = solrTool.query("text:" + template, "host,title,url,tstamp,content", beginTime, endTime, null,
+//                    start, size);
+//            SolrDocumentList datas = resp.getResults();
+//            if (null != datas) {// 没有取完，还要继续
+//                for (SolrDocument doc : datas) {
+//                    total++;
+//                    String host = String.valueOf(doc.getFieldValue("host"));
+//                    String url = String.valueOf(doc.getFieldValue("url"));
+//                    String content = String.valueOf(doc.getFieldValue("content"));
+//                    // 判断url是否是目录（以“/”结束），如果是目录，则跳过
+//                    if (StringUtils.isEmpty(url) || url.endsWith("/") 
+//                      || url.endsWith("/index.html")|| url.endsWith("/index.htm")
+//                      || url.endsWith("/index.php") || url.endsWith("/index.jsp")
+//                      || url.endsWith("/index.asp")){
+//                        continue;
+//                    }
+//                    // 从host中解析站点
+//                    int siteId = getSiteIdByHost(sites, host);
+//
+//                    // 保存明细到数据库
+//                    // 判断对应的url是否已经存在，如果不存在则添加
+//                    String flag = siteMapper.checkUrl(new String(encoder.encrypt(url.getBytes())));
+//                    if (StringUtils.isEmpty(flag)) {
+//                        saveCount++;
+//                        Date dt = (Date) doc.getFieldValue("tstamp");
+//                        // 从正文中提取作者、来源、时间
+//                        Date publishTime = getDate(content);
+//                        if (null == publishTime || publishTime.after(dt)){
+//                            publishTime = dt;
+//                        }
+//                        siteMapper.saveDetail(typeId, templateType, siteId, String.valueOf(doc.getFieldValue("title")),
+//                                url, dt,getSource(content),getSource(content),getEditor(content),
+//                                publishTime,new String(encoder.encrypt(url.getBytes())));
+//                        // 记录次数
+//                        Long count = siteCount.get(siteId);
+//                        if (null != count) {
+//                            siteCount.put(siteId, count + 1);
+//                        } else {
+//                            siteCount.put(siteId, 1l);
+//                        }
+//                    }
+//                }
+//                if (size == datas.size()) {
+//                    start += size;
+//                    continue;
+//                }
+//            }
+//            break;
+//        }
+//        
+//        LOG.info("typeId:" + typeId + ", templateType:" + templateType + ", total:" + total + ", saveCount:" + saveCount);
+//    }
+    private static final Pattern PATTERN_SOURCE = Pattern.compile("来源：\\s*(\\S+)");
+    private static final Pattern PATTERN_AUTHOR = Pattern.compile("作者：\\s*([0-9a-zA-Z\u4e00-\u9fa5]+)");
+    private static final Pattern PATTERN_EDITOR = Pattern.compile("编辑：\\s*([0-9a-zA-Z\u4e00-\u9fa5]+)");
+    private static final Pattern[] PATTERN_DATES = {
+            Pattern.compile("(\\d{4}/\\d{1,2}/\\d{1,2})"),
+            Pattern.compile("(\\d{4}-\\d{1,2}-\\d{1,2})"),
+            Pattern.compile("(\\d{4}年\\d{1,2}月\\d{1,2}日)"),
+            Pattern.compile("(\\d{1,2}\\s+(Dec|Nov|Oct|Sep|Aug|Jul|Jun|May|Apr|Mar|Feb|Jan)\\s+\\d{4})"),
+            Pattern.compile("((December|November|October|September|August|July|June|May|April|March|February|January)\\s+\\d{1,2},\\s+\\d{4})"),
+            Pattern.compile("((Dec|Nov|Oct|Sep|Aug|Jul|Jun|May|Apr|Mar|Feb|Jan)\\.\\s+\\d{1,2},\\s+\\d{4})")};
+    public static final SimpleDateFormat[] DATE_FORMATS = {
+            new SimpleDateFormat("yyyy/MM/dd"),
+            new SimpleDateFormat("yyyy-MM-dd"),
+            new SimpleDateFormat("yyyy年MM月dd日"),
+            new SimpleDateFormat("d MMM yyyy",new Locale("en")),
+            new SimpleDateFormat("MMMM d, yyyy",new Locale("en")),
+            new SimpleDateFormat("MMM. d, yyyy",new Locale("en")),
+    };
+    static final String getSource(String content){
+        Matcher m = PATTERN_SOURCE.matcher(content);
+        if (m.find()){
+            return m.group(1);
+        }else{
+            return null;
+        }
+    }
+    static final String getAuthor(String content){
+        Matcher m = PATTERN_AUTHOR.matcher(content);
+        if (m.find()){
+            return m.group(1);
+        }else{
+            return null;
+        }
+    }
+    static final String getEditor(String content){
+        Matcher m = PATTERN_EDITOR.matcher(content);
+        if (m.find()){
+            return m.group(1);
+        }else{
+            return null;
+        }
+    }
+    static final Date getDate(String content){
+        int s = Integer.MAX_VALUE;
+        Date ret = null;
+        for (int i = 0; i < PATTERN_DATES.length; i++) {
+            Matcher m = PATTERN_DATES[i].matcher(content);
+            if (m.find()){
+                if (m.start() < s){
+                    s = m.start();
+                    try {
+                        ret = DATE_FORMATS[i].parse(m.group(1));
+                    } catch (ParseException e) {
+                        LOG.error(e.getMessage());
+                    }
+                }
+            }
+        }
+        return ret;
+    }
+    private static int getSiteIdByHost(Map<String, Integer> sites, String host) {
 		while (true) {
 			if (sites.containsKey(host)) {
 				Integer id = sites.get(host);
@@ -741,4 +939,25 @@ public class SolrService {
 	public int countHot(Date startTime, Date endTime, String flag) {
 		return siteMapper.countHot(startTime, endTime, flag);
 	}
+	public static void main(String[] args) {
+        String[] contents = {"四中全会到五中全会，省部级一把手换了13个-搜狐评论 首页 - 新闻 - 军事 - 文化 - 历史 - 体育 - NBA - 视频 - 娱乐 - 财经 - 股票 - 科技 - 汽车 - 房产 - 时尚 - 健康 - 教育 - 母婴 - 旅游 - 美食 - 星座 > 时政评论 搜狐评论 > 时政评论 国内 | 国际 | 社会 | 军事 | 评论 四中全会到五中全会，省部级一把手换了13个 正文 我来说两句 ( 人参与) 扫描到手机 关闭 2015-11-02 08:28:08 来源： 综合 作者：周宇 邹春霞 手机看新闻 保存到博客 大 | 中 | 小 打印 　　撰文 | 周宇 邹春霞 　　十八届五中全会上的人事变动，并不像人们想象的那么大。而其实，许多变动早在之前就已展开。 　　政知局（微信ID：bqzhengzhiju）小编梳理发现，相比此前，四中全会到五中全会这一年，人事调整更显频繁。5个省部级单位换了“一把手”，地方上则有8个省份的党政“一把手”有所调整，而副部级干部的变动那就更多了。 　　 调整 　　新换的13名主帅都是谁？ 　　从去年10月召开十八届四中全会至今，已有5个部门更换了“一把手”，包括文化部、环保部、中央统战部、国家统计局和安监总局。 　　去年12月，中宣部原常务副部长雒树刚调任文化部党组书记、部长，他今年60岁，原部长蔡武2014年10月满65岁，现任全国政协外事委员会副主任。 　　同年12月的最后一天，国务院宣布中央政治局委员孙春兰兼任中央统战部部长，原部长令计划已被双开。 　　另外三位调整的“一把手”系今年调任。1月，51岁的清华大学原校长陈吉宁接棒已到退休年龄的周生贤，出任环保部党组书记，2月开始任环保部部长。 　　国家统计局则是今年5月换的帅，王保安任国家统计局局长，他此前为财政部副部长。国家统计局原局长马建堂四中全会时由中央候补委员增补为中央委员，已于今年4月调任国家行政学院常务副院长。 　　在五中全会开幕前，10月中旬，公安部原副部长杨焕宁调任国家安全生产监督管理总局任党组书记、局长。原局长杨栋梁今年8月已落马。 　　政知局（微信ID：bqzhengzhiju）小编梳理发现，虽然部委“一把手”的变动只有5人，但副部级干部调动频繁。除了各大部委几乎都有调整以外，“一行三会”、国务院副秘书长、国新办、央视、央广、新华社等都有副部级以上干部调整。 　　地方党政领导方面，政知局（微信ID：bqzhengzhiju）小编注意到，十八届二中全会后全国31个省份的省级党政一把手调整基本到位。此后至四中全会召开时，仅有山西、吉林两省受反腐影响省委党政一把手有所调整。其中，吉林省原省委书记王儒林同岗调任山西，整顿因塌方式腐败严重受损的山西省委常委班子；山西省原省委书记袁纯清则调任中央农村工作领导小组副组长。吉林省党政一把手受此影响联动调整，原省长巴音朝鲁接手省委书记一职，省长一职则由中国农行调任的金融专家蒋超良接任。 　　而十八届四中全会至五中全会期间，据政知局（微信ID：bqzhengzhiju）小编统计，贵州、辽宁、河北、海南、安徽、云南、新疆、天津等8个省份的省级党委书记或省级行政长官有所调整。鉴于苏树林已落马，福建省长换人也是迟早的事情。 　　调整的原因多样：有的是源于反腐的连带效应，如天津、贵州。天津市原市委书记孙春兰补缺统战部后，由此造成天津市长黄兴国代理市委书记一职近一年；贵州原省委书记赵克志也因周本顺落马调任河北补缺。 　　有的是新老交替引发的正常调整，如辽宁、安徽，王珉、张宝顺到龄退居二线，两省党政一把手也因此换新；也有如云南，2014年底，时年64岁的云南省原省委书记秦光荣提前退居二线，调任全国人大，继而引发调整。 　　出现人事变动的8个省份中，海南省的调整略显特别。海南省原省长蒋定之，“罕见”回乡就任江苏省省人大常委会党组书记、副主任。其省长一职由国家海洋局原局长刘赐贵“空降”海南接任。 　 　部委 　　工信部发改委人事变动频繁 　　纵观1年来的人事调整，政知局（微信ID：bqzhengzhiju）小编发现，2个部委的副部级干部变动较为频繁――工信部和发改委。 　　工信部目前1正9副的领导班子格局中，有5位副部长是过去1年调整的。最早的调整发生在今年1月，工信部办公厅原主任莫玮任党组成员。紧接着的2月，北京航空航天大学原校长怀进鹏调任工信部任副部长、党组成员。7月，青海省原副省长辛国斌到任。此后，同样在10月，五中全会前夕，工信部再来两位副部长，分别是湖南省委原常委陈肇雄和原产业政策司司长冯飞。 　　国家发改委1年来同样有5位副部级干部履新。除了任建华任党组成员，负责纪检以外，另外4人都还有副主任的职务，其中3人是正部长级，只有发改委原副秘书长王晓涛是副部级。3位正部长级的副主任分别是国务院原副秘书长、国家食品药品监管总局原局长张勇，新疆自治区原副书记、政府主席努尔?白克力，国务院研究室原党组书记、主任宁吉础４送猓努尔?白克力还兼任国家能源局局长，福建省原副省长郑栅洁8月调任能源局任副部长级副局长。被免去职务的原副主任朱之鑫、解振华、吴新雄均是1949年生人，年龄已满，原副主任徐宪平1954年生人，今年也已61岁，4人都应因年龄原因卸任。 　　去年年底以来，宣传系统人事变动频繁，包括中宣部、网信办、国新办等国家宣传管理机构，还有新华社、央视、央广等国家级媒体的负责人。 　　 地方 　　履新省级政府一把手“老将”居多 　　在一些省份，党委书记未最后确定，经常会有“代理书记”的情况。 　　人民网舆情监测室常务副秘书长单学刚曾统计过，改革开放以来，共有8个省（自治区、直辖市）出现过10次党委代理书记（第一书记）。 　　政知局（微信ID：bqzhengzhiju）小编注意到，在此前出现过的代理书记中，代理时间最长的是新疆的王乐泉，其代理长达15个月，但这段代理发生在20年前。而在最近十年，福建、西藏、上海等三地曾出现代理书记的情况，其中代理时间最长的是卢展工，他于2004年2月代理福建省委书记，10个月后转正。 　　较为特别的是天津，天津市市长黄兴国从2014年12月代理市委书记至今近一年，已超过卢展工，成为近十年来代理书记时间最长的一位。 　　而一年来，贵州、辽宁、河北、安徽、云南、天津等6个省份在此前1年间调整的是省（市）委书记。其中，贵州、辽宁、安徽、云南都是由原省长接任，属正常调整。 　　相比省级党委书记，此前一年对省级政府一把手的调整出现了“老将”居多。 　　五中全会前的最新一例省级政府主官调整，出现在贵州。贵州省第十二届人大常委会第十八次会议10月16日决定，接受陈敏尔辞去贵州省省长职务的请求，任命孙志刚为贵州省副省长、代省长。孙志刚是位“老同志”，以61岁“高龄”履任地方主政长官，这在以往非常少见。 　　这是今年以来第二例。此前一例是今年6月接任辽宁省省长的陈求发，他履新时也已超过60岁。更早一例是接替努尔?白克力出任新疆自治区主席的雪克来提?扎克尔，2014年12月以61岁“高龄”代理省级政府一把手，之后转正。 　　政知局（微信ID：bqzhengzhiju）小编注意到，四中全会以来履新的省长们都不太年轻，海南刘赐贵、云南陈豪履新时也都在60岁左右，履新年龄最小的是安徽李锦斌，接任省长时为57岁。贵州、海南、云南、辽宁等4地履新的政府主官年龄都比党委书记大，年龄差最大的如贵州，贵州省委书记陈敏尔是为“60后”，比孙志刚小6岁。   http://star.news.sohu.com/20151102/n424900992.shtml star.news.sohu.com true 综合 周宇 邹春霞 http://star.news.sohu.com/20151102/n424900992.shtml report 3731 撰文|周宇邹春霞十八届五中全会上的人事变动，并不像人们想象的那么大。而其实，许多变动早在之前就已展开。政知局（微信ID：bqzhengzhiju）小编梳理发现， (责任编辑：UN656) 原标题：四中全会到五中全会，省部级一把手换了13个 分享： [保存到博客] 手机看新闻 本文相关推荐 16名省部级参加五中全... 18届四中全会内容 三中四中五中全会区别 十三届四中全会 五中全会或出现六位省长 房辉峰大闹四中全会 一把手接受纪委全会廉检 十八届四中全会决定全文 十八届四中全会依法治... 什么是四中全会、五中全会 三中、四中、五中、六中 党的十八届四中全会精神 丈夫中820多万大奖妻子领奖    双色球头奖17注607万    茂名彩民揽双色球4107万    体彩开奖 相关新闻 相关推荐 15-11-02 中共全国人大常委会党组召开会议学习贯彻党的十八 15-11-02 盘点四中全会到五中全会人事调整:五部委换帅(图) 15-11-02 五中全会引热议 各界聚焦创新发展 15-11-02 五中全会公报解读:创新提升至国家发展全局核心位 15-11-01 从十八届五中全会看未来五年发展思路 15-11-01 新华社评论员:坚持绿色发展 建设美丽中国 三论学 更多关于 五中 全会 的新闻>> 一中二中三中四中... 十八届四中全会内容 十八届四中全会内... 十八届四中全会主... 十八届四中全会考... 二中、三中、四中... 我要发布 热词： 灭火之行 纸尿裤求婚 野猪越狱 机器人伴娘 热剧： 大好时光 云中歌 新济公活佛 三个奶爸 大秧歌 热点推荐 更多>> 哪些省部级官员胆大“妄议中央”？ 从GDP“破7”解读中国经济 中央领导人遇突发事件如何化逦梗？ 流量不清零后“消耗快”，谁来监管 荷兰王室德法领导人相继访华 中欧为何密集互动 名家专栏 更多>> 高官杀情妇 枪中有冤案 赵黎平以不那么娴熟的枪法，深夜划破宁静，才能摊开来谈…[ 详细 ] 　　　 风过耳： 从通奸到吃里扒外 中纪委爱\"新词\" 西格： 强化家庭不必让妇女回家 独家策划 二号人物崔龙海下台 铁打的老大，流水的老二，老二流动的速度要看老大的心情…[ 详细 ] 朝鲜“二号人物”崔龙海：且上任且珍惜 金正恩一“卡位”，朴槿惠就中枪 朝鲜公主金正恩妹妹浮出水面 成二号人物 边和韩国对话边放导弹 金正恩真乖了？ 朝鲜影视，徘徊于人性与政治之间 热点视频 影视剧 综艺 自媒体 娱乐播报 | 章泽天承认婚礼前怀孕 大肚照曝光 笑傲江湖 | 郭德纲嘟嘴卖萌 云中歌 | 陵云夫妇深情相吻羡煞旁人 老总起贪念盗窃百万豪车 醉驾男连撞6车称随便罚 团伙强迫12岁少女卖淫 实拍特警徒手夺刀救人质 6岁女孩心脏肠道长体外 忧郁鹦鹉自残拔掉自身毛 考古惊现史前巨人族遗骸 女贼婚礼盗走50万嫁妆 我来说两句排行榜 240 圈子 - 河南汤阴一派出所长：法律是听我说的 我就是法 [ 评 ] 129 孙红雷批女演员为红陪睡：找老婆不能是圈内人 [ 评 ] 104 圈子 - 29岁小伙初恋爱上62岁大妈 大妈嫌被管出走(图) [ 评 ] 93 美曝中国潜射“舰艇杀手” 美航母难以招架 [ 评 ] 91 刘晓庆60岁与富豪老公庆生 亲自下厨贤惠-娱乐频道图片库-大视野-搜狐!!! [ 评 ] 91 习近平：进一步提升我国装备制造能力-搜狐新闻 [ 评 ] 89 圈子 - 3人银行卡未离身被盗刷45万 银行称系统无异常 [ 评 ] 85 圈子 - 女子5万错存去世前夫账户 银行拒绝退款(图) [ 评 ] 84 我来说两句-我来说两句-深圳一嫌犯指认现场时逃脱 警方悬赏20万缉捕-新闻图片库-大视野-搜狐 [ 评 ] 社区热帖推荐 校花一时迷糊就“悲剧”了 春光乍泄……[ 详细 ] H杯“波动妹”史上最震撼弹琴 巴西3女子结婚 还要生孩子 健身房的妹纸身材娜美 这就是传说中的黑帮生活？电影还原了这么多 日本G罩杯美少女coser身份曝光 客服热线：86-10-58511234 客服邮箱： kf@vip.sohu.com 设置首页 - 搜狗输入法 - 支付中心 - 搜狐招聘 - 广告服务 - 客服中心 - 联系方式 - 保护隐私权 - About SOHU - 公司介绍 - 网站地图 - 全部新闻 - 全部博文 Copyright ? 2015 Sohu.com Inc. All Rights Reserved. 搜狐公司 版权所有 搜狐不良信息举报邮箱： jubao@contact.sohu.com AD =",
+                "四中全会到五中全会 省部级一把手换了13个(名单)-新闻频道-和讯网 和讯首页 | 手机和讯 登录 注册 新闻 | 股票 | 评论 | 外汇 | 债券 | 基金 | 期货 | 黄金 | 银行 | 保险 | 数据 | 行情 | 信托 | 理财 | 收藏 | 读书 | 汽车 | 房产 | 科技 | 视频 | 博客 | 微博 | 股吧 | 论坛   滚动 　 金融资本 　 国内经济 　 产业经济 　 经济史话 时事 　 公司新闻 　 国际经济 　 生活消费 　 财经评论   专题 　 新闻周刊 　 一周深度 　 人物   访谈 话题   和讯预测    法律法规   封面   数据   公益 　 读书 　 商学院 　 部委 　 理财产品 天气 　 藏品 　 奢侈品 　 日历 　 理财培训 和讯网 > 新闻 > 时事要闻 > 正文 四中全会到五中全会 省部级一把手换了13个(名单) 字号 评论   邮件   纠错 2015-11-02 03:32:59 来源： 北青网-北京青年报   作者： 周宇 邹春霞     上周闭幕的十八届五中全会上，中央委员方面的人事调整颇受关注。自十八届二中全会以来，省部级人事便迎来密集调整。相比此前，四中全会到五中全会这一年，人事调整更显频繁。 北京 青年报记者梳理发现，四中全会以来，5个省部级单位换了“一把手”，地方上则有8个省份的省级党委书记或省级行政长官有所调整，而副部级干部的变动更是不胜枚举。出现人员调整的部委中，工信部和发改委的人事变动较为频繁。此外，履新省级政府的一把手中，以“老将”居多。 　　调整 　　5部委换帅 8个省份党政“一把手”有所调整 　　从去年10月召开十八届四中全会至今，已有5个部级单位更换了“一把手”，包括文化部、环保部、中央统战部、国家统计局和安监总局。 　　去年12月，中宣部原常务副部长 雒树刚 调任文化部党组书记、部长，他今年60岁，原部长蔡武2014年10月满65岁，现任全国政协外事委员会副主任。 　　同年12月的最后一天，国务院宣布中央政治局委员 孙春兰 兼任中央统战部部长，原部长 令计划 已被双开。 　　另外三位调整的“一把手”系今年调任。1月，51岁的清华大学原校长 陈吉宁 接棒已到退休年龄的 周生贤 ，出任环保部党组书记，2月开始任环保部部长。 　　国家统计局则是今年5月换的帅， 王保安 任国家统计局局长，他此前为财政部副部长。国家统计局原局长 马建堂 四中全会时由中央候补委员增补为中央委员，已于今年4月调任国家行政学院，任党委委员、常务副院长。 　　在五中全会开幕前，10月中旬，公安部原副部长杨焕宁调任国家安全生产监督管理总局任党组书记、局长。原局长 杨栋梁 今年8月已落马。 　　北京青年报记者梳理发现，虽然部委“一把手”的变动只有5人，但副部级干部调动频繁。除了各大部委几乎都有调整以外，“一行三会”、国务院副秘书长、国新办、央视、央广、新华社等都有副部级以上的干部调整。 　　地方党政领导方面，北青报记者注意到，十八届二中全会后全国31个省份的省级党政一把手调整基本到位。此后至四中全会召开时，仅有 山西 、 吉林 两省受反腐影响省委党政一把手有所调整。其中， 吉林 原省委书记 王儒林 同岗调任山西，整顿因塌方式腐败严重受损的山西省委常委班子，山西省原省委书记 袁纯清 则调任中央农村工作领导小组副组长，吉林省党政一把手受此影响联动调整，原省长 巴音朝鲁 接手省委书记一职，省长一职则由中国农行调任的金融专家 蒋超良 接任。 　　而十八届四中全会至五中全会期间，据北青报记者统计， 贵州 、 辽宁 、 河北 、海南、安徽、 云南 、 新疆 、 天津 等8个省份的省级党委书记或省级行政长官有所调整。 　 　调整的原因多样，具体有三个方面： 　　一是受腐败影响，如河北省原省委书记 周本顺 于今年7月落马。 　　二是源于反腐的连带效应，如天津、贵州、新疆。天津市原市委书记孙春兰补缺统战部后，由此造成天津市长 黄兴国 代理市委书记一职近一年；贵州也是如此，原省委书记 赵克志 调任河北补缺，党政一把手因而调整。 　　三是由新老交替引发的正常调整，如辽宁、安徽， 王珉 、 张宝顺 到龄退居二线，两省党政一把手也因此换新；也有如云南，2014年年底，时年64岁的云南省原省委书记 秦光荣 提前退居二线，调任全国人大，继而引发调整。 　　8个省份中，海南省的调整略显特别。海南省原省长 蒋定之 ，“罕见”回乡就任 江苏 省省人大常委会党组书记、副主任。其省长一职由国家海洋局原局长刘赐贵“空降”海南接任。在海南省委常委（扩大）会议上，官方透露蒋定之卸任海南省长前曾克服健康问题坚持工作，蒋定之随后在 全国两会 上透露是耳疾。 　　部委调整观察 　　工信部、发改委人事变动频繁 　　纵观1年来的人事调整，北青报记者发现，2个部委的副部级干部变动较为频繁――工信部和发改委。 　　工信部目前1正9副的领导班子格局中，有5位副部长是过去1年调整的。最早的调整发生在今年1月，工信部办公厅原主任莫玮任党组成员，晋升副部级。紧接着的2月，北京航空航天大学原校长怀进鹏调任工信部任副部长、党组成员。7月，青海省原副省长辛国斌到任。此后，同样在10月，五中全会前夕，工信部再来两位副部长，分别是 湖南 省委原常委陈肇雄和原产业政策司司长冯飞。 　　国家发改委1年来同样有5位副部级干部履新。除了任建华任党组成员，负责纪检以外，另外4人都还有副主任的职务，其中3人是正部长级，只有发改委原副秘书长 王晓涛 是副部级。3位正部长级的副主任分别是国务院原副秘书长、国家食品药品监管总局原局长 张勇 ，新疆自治区原副书记、政府主席努尔?白克力，国务院研究室原党组书记、主任 宁吉 。此外，努尔?白克力还兼任国家能源局局长， 福建 省原副省长 郑栅洁 8月调任能源局任副部长级副局长。被免去职务的原副主任 朱之鑫 、 解振华 、 吴新雄 均是1949年生人，年龄已满，原副主任 徐宪平 1954年生人，今年也已61岁，4人都应因年龄原因卸任。 　　此外，去年年底以来，宣传系统也出现人事变动，包括中宣部、网信办、国新办等国家宣传管理机构，还有新华社、央视、央广等国家级媒体的干部。 　 　干部来源各有不同 　　从干部提拔的来源来看，来自单位内部和外部的调任皆有。但是从数量上看，副部级干部由本单位内培养提拔的比例远高于外单位调任的。 　　比如工信部副部长莫玮、冯飞，之前都是工信部的司级干部，一个任办公厅主任，一个任产业政策司司长，今年先后升为副部长；发改委副主任王晓涛原为副秘书长；监察部副部长陈雍原为第十二纪检监察室主任。另外，财政部、公安部、教育部等近10个有副部长履新的单位均存在内部提拔的状况。 　　外单位调任同时提拔的也有，数量上则少得多，包括文化部部长雒树刚、统计局局长王保安、安监总局局长杨焕宁、国家预防腐败局副局长刘建超、中纪委秘书长杨晓超、商务部副部长钱克明、海南省长刘赐贵等都是这种情况。 　　在干部提拔中，提拔的速度不一。 　　例如杨焕宁到安监总局履新前，2001年就已经是公安部副部长，干了15年副部长才升至正部级。 　　而像杨晓超，2013年7月才从北京市财政局长任副市长，完成局级到副部的提升，紧接着1年后任北京市委常委、政法委书记，再1年就任中纪委秘书长，2年完成了副部到正部的升级。 　　地方调整观察 　　黄兴国成十年来任职时间最长代理书记 　　8个省份中，贵州、辽宁、河北、安徽、云南、天津等6个省份在此前1年间调整的是省（市）委书记。其中，贵州、辽宁、安徽、云南都是由原省长接任，属正常调整。 　　较为特别的是天津，孙春兰赴中央统战部任职后，天津市市长黄兴国从2014年12月代理市委书记至今。就在2个月前，他还经历了 天津港 ( 600717 , 股吧 )“8?12”特别重大火灾爆炸事故。8月19日，天津港爆炸举行第10场新闻发布会时，天津市代理书记、市长黄兴国首次出席发布会，表示自己对这次事故负有不可推卸的领导责任。 　　对代理省级党委书记， 人民网 ( 603000 , 股吧 ) 舆情 监测室常务副秘书长单学刚曾统计过，改革开放以来，共有8个省（自治区、直辖市）出现过10次党委代理书记（第一书记）。他分析指出，20世纪80年代起，代理书记出现多为突然事件打乱原有人事布局后的临时调整，比如原书记的健康原因或领导干部违纪被查处。 　　天津是 十八大 后人事调整中唯一出现代理书记的地方，主要是受反腐影响。2014年12月末，孙春兰在令计划落马一周后接任中央统战部部长，从而造成天津市委书记出缺，由黄兴国代理。但同时受反腐影响，河北则有所不同。首个落马的在任省委书记――河北省原省委书记周本顺落马一周内，贵州省原省委书记赵克志即从西南北上，填补了空缺。贵州省委书记则由 陈敏尔 接任，其同时兼任省长，直到中央决定孙志刚空降西南，任代理省长。 　　北青报记者注意到，在此前出现过的代理书记中，代理时间最长的是新疆的王乐泉，其代理长达15个月，但这段代理发生在20年前。而在最近十年，福建、 西藏 、 上海 等三地曾出现代理书记的情况，其中代理时间最长的是 卢展工 ，由于原书记宋德福因病修养，他于2004年2月代理福建省委书记，10个月后转正。 　　黄兴国至今代理天津市委书记一职接近一年，已超过卢展工，成为近十年来代理书记时间最长的一位。值得一提的是，此前在西藏、上海代理书记的 张庆黎 、韩正都在约7个月后迎来中央决定，前者成功转任，后者则回归原职于十八大后晋升上海市委书记。 　　履新省级政府一把手的“老将”居多 　　贵州、辽宁、海南、安徽、云南、新疆等6个省份政府一把手有调整， 苏树林 落马后福建省长后续也将调整。相比省级党委书记，此前一年对省级政府一把手的调整出现了“老将”居多、“不唯年龄论”的新特点。 　　五中全会前的最新一例省级政府主官调整，出现在贵州。贵州省第十二届人大常委会第十八次会议10月16日决定，接受 陈敏 尔辞去贵州省省长职务的请求，任命孙志刚为贵州省副省长、代省长。顶着“贵州省委书记、省长”的头衔，党政一肩挑长达2个多月的陈敏尔，终于卸下担子，专司党务。 　　值得一说的是为其分忧的新任省级行政长官孙志刚，这是位“老同志”。官方简历显示，孙志刚生于1954年5月，此前为国家卫计委副主任，正部级，但以61岁“高龄”履任地方主政长官，这在以往非常少见。 　　这是今年以来第二例。此前一例是今年6月接任辽宁省省长的 陈求发 ，1954年12月出生的他履新时也已超过60岁。更早一例是接替努尔?白克力出任新疆自治区主席的雪克来提?扎克尔，生于1953年8月，2014年12月以61岁“高龄”代理省级政府一把手，之后转正。这两位还有一个共同点，都是从通俗认为的二线（政协、人大）转到一线（党委、政府），其中雪克来提?扎克尔是在上述调整的11个月前，刚刚当选为自治区人大常委会主任。 　　北青报记者注意到，四中全会以来履新的省长们都不太年轻，海南的刘赐贵、云南的陈豪履新时也都在60岁左右，履新年龄最小的是安徽的李锦斌，1958年2月出生，接任省长时为57岁。一般认为，省级政府主官是省级党委书记的重要后备干部，如辽宁、安徽省委书记出缺后都由省长晋升，但贵州、海南、云南、辽宁等4地履新的政府主官年龄都比党委书记大，年龄差最大的如贵州，贵州省委书记陈敏尔是“60后”，生于1960年，比孙志刚小6岁。 　　部委中也存在这种情况，例如文化部部长雒树刚1955年5月生人，即将60岁时提成正部。工信部副部长莫玮1956年生人，59岁从正局升至副部。 　　不过，结合当选干部选任的新思路也不难理解，早在2013年6月召开的全国组织工作会议上，习近平曾提出选用干部“四不唯”，即“不唯票、不唯分、不唯GDP、不唯年龄”。 　　本版文/本报记者 周宇 邹春霞 （责任编辑：HN666） 相关新闻 11/02 11:14 贵州毕节市纳雍县县长郑成芳涉嫌严重违纪被查 11/02 11:06 贵州黄平县工商联：树“五好”形象标杆 11/02 09:57 中甲联赛收官战 纳欢队主场轻取贵州智诚 11/02 01:58 中甲联赛收官新疆队大胜贵州队位列第八 11/01 18:25 新疆雪豹男足主场迎战贵州智诚 4：2大胜对手 11/01 14:37 贵州秤杆作坊手艺人离世 其妻接过手艺艰难维生 11/01 14:07 中国在贵州喀斯特地区修建高难度调水工程 11/01 08:52 贵州举办贯彻巡视工作条例培训班 相关推荐 贵州 评论 还可输入 500 字 最热评论 最新评论 新闻精品推荐 特色： 新闻周刊 高清组图 专栏 热点： 聚焦证券界反腐风暴 美国研制LRSB轰炸机 习近平就俄罗斯客机失事向普京致慰问电 [ 俄公开失事客机现场卫星图 载遇难者遗体回国 ][ 残骸散落沙漠之中 ] 中韩自贸区将启12万亿美元大市场 装备制造为国企海外并购重点 最牛老外基辛格与中国领导人交往 法总统奥朗德抵达重庆参观 国产大型客机C919首架机下线 生育二孩最快也要等到明年 国产大飞机C919下线 中法海军在南海演练 俄客机残骸散落沙漠中 奶茶妹妹承认婚前怀孕 推广 热点 热点 每日要闻推荐 社区精华推荐 泽熙实控人徐翔涉操纵股票交易被抓 徐翔被抓泽熙官网登旧公告 疑员工呼吁别过多诋毁 李克强：今后五年中国经济需年均增长6.5%以上 中日韩领导会见记者 2020年实现东亚经济共同体 关键领域改革在途 “十三五”资本市场由大向强迈进 中央巡视组全面入驻金融业 或已掌握反腐线索 谁把薄发配到重庆 新版人民币三票即将暴涨 下层女如何看西门庆 券商股的庞氏骗局 精彩焦点图鉴 私募老大徐翔被警方带走 新疆现神奇天象疑似反导 排行榜 1 徐翔豢养记者美女获取内幕信息威逼公司分红 2 “徐翔犯罪团伙成员拘捕被当场击毙”系谣言 3 股市气象站：11月3日阴转晴利空洗盘有助大盘上攻 4 国资委披露C919国产大飞机客户名单已获517架订单 5 农村改革方案传递重农新信号首提政经分开 6 中法签署200亿欧元核废料回收协议 7 国企改革持续发力央企并购大潮涌动 8 国产大飞机今日正式下线已获逾500架订单 9 中纪委释疑党员能否炒股：四类人不能买卖股票 10 助力区域经济国家级经开区谋转型升级 　　【免责声明】本文仅代表作者本人观点，与和讯网无关。和讯网站对文中陈述、观点判断保持中立，不对所包含内容的准确性、可靠性或完整性提供任何明示或暗示的保证。请读者仅作参考，并请自行承担全部责任。 频 道 新闻 股票 基金 黄金 外汇 期货 保险 银行 理财 债券 互金 评论 交 易 财经新闻端 股票客户端 基金客户端 外汇客户端 期货客户端 机构底牌 现货客户端 手机和讯网 贵金属客户端 和讯恭候您的意见 - 联系我们 - 关于我们 - 广告服务 本站郑重声明：和讯公司系政府批准的证券投资咨询机构[ZX0005]。所载文章、数据仅供参考，使用前请核实，风险自负。 Copyright 和讯网 和讯信息科技有限公司 All Rights Reserved 版权所有 复制必究",
+                "天然气调价或推迟至年底 民用与非民用暂不并轨_网易财经 应用 网易新闻 网易云音乐 网易云阅读 有道云笔记 网易花田 网易公开课 网易彩票 有道词典 邮箱大师 LOFTER 网易云课堂 网易首页 登录 账号： 密码： 十天内免登录 忘记密码？ 免费下载网易官方手机邮箱应用 登　录 注册免费邮箱 注册VIP邮箱（特权邮箱，付费） 欢迎您， 安全退出 考拉海购 母婴专区 美容彩妆 家居日用 进口美食 营养保健 海外直邮 客户端下载 邮箱 免费邮箱 VIP邮箱 企业邮箱 免费注册 快速注册 客户端下载 支付 一卡通充值 一卡通购买 我的网易宝 网易理财 立马赚钱 电商 彩票 贵金属 车险 电影票 火车票 秀品商城 花田 找对象 搭讪广场 我的花田 下载花田客户端 LOFTER 进入LOFTER 热门话题 专题精选 下载LOFTER客户端 BOBO 女神在线直播 女神大厅 女神资讯 下载BoBo客户端 移动端 新闻 体育 NBA 娱乐 财经 股票 汽车 科技 手机 数码 女人 论坛 视频 旅游 房产 家居 教育 读书 游戏 健康 彩票 车险 海淘 应用 酒香 网易首页 > 财经频道 > 产经 > 正文 天然气调价或推迟至年底 民用与非民用暂不并轨 2015-11-02 19:34:36　来源: 上海证券报·中国证券网 (上海) 分享到： 0 天然气 价格调整或将推迟到年底。 今年年中以来，关于天然气价格下调的传闻就不断流传。《第一财经日报》获得的消息显示，早期国家发改委价格司牵头制定的天然气价格调整方案有所变化，民用和非民用气价格并轨短期无法实现，新的调价最迟在年底推出。 此前业内曾有预计10月底调价方案出台。能源咨询公司安迅思分析师陈芸颖认为，考虑到冬季需求增加的压力，天然气价格调整实施或延至明年。 不过一位燃气行业人士称，燃气企业受到上游高价气和下游需求疲弱夹击，处境艰难，业内普遍希望能在今年内进行非居民用气价格调整。 民用和非民用气价暂不并轨 今年年中，国家发改委价格司牵头制定的气价调整方案，除了气价调整，还伴随着民用和非民用气门站价格并轨的考虑。 但是此后至今，方案一直没有出台。10月21日，在国新办发布会上，国家发改委副主任胡祖才称，暂不调整居民用气价格，将继续推行阶梯气价制度，非居民用气价格根据市场进行调整。 这意味着原来拉平民用和非民用气价的考虑被搁置，从而影响到非民用气价格调整的幅度。上述燃气行业人士分析说，民用气价不调整后，非民用气降价空间也会被压缩，调价幅度要重新设定。 国内主要的天然气供应商 中石油 、 中海油 手中都握有高价的进口气，一旦下调幅度大，将成为“烫手山芋”，承担价格倒挂的损失，让利给下游企业。 陈芸颖分析说，目前已逐步进入传统天然气需求旺季，北方一些城市已经开始供暖，天然气消费量也将逐步攀升。由于目前的天然气价格较高，实际上抑制了包括工业、车用在内的部分需求。 从供应方来看，进入冬季以后，随着天然气消费量的增加，管道气的销售压力也将有较大缓解，通过价格调整来带动需求的迫切程度相比前几个月也没有那么显著。 陈芸颖解释，在部分地区， 中石化 、中石油等上游供应方也可以采用对少量大型用户下调价格的针对性措施，来刺激部分需求。如果价格下调的靴子落地，这一部分需求有可能快速增长，进而加大冬季的天然气保供压力，如果遭遇极端天气，甚至可能出现“气荒”的现象。 气价改革不局限于调价 胡祖才10月21日还指出，石油、天然气价格改革是能源价格改革的重要组成部分，下一步还要朝着市场化方向改革，并择机放开成品油价格。 安迅思分析说，此轮气价改革不仅仅包括价格调整，还会包括与价格改革相关的其他配套政策，配合推进“十三五”的相关政策，具体政策年内有望出台，但价格调整的执行时间或延至需求旺季结束以后，以确保冬季供暖季的顺利过渡。 气价改革一直在推动。最近多地都举行居民用气阶梯价格听证会，按照部署，要在今年底全面实施阶梯气价。 从2013年底天然气价格改革就已经启动，现是全面推行“市场净回值法”形成各省门站价格。发改委今年4月起，将各省份增量气最高门站价格每立方米降低0.44元，存量气最高门站价格提高0.04元，实现价格并轨，并放开直供用户（化肥企业除外）用气门站价格，由供需双方协商确定，实现存量增量并轨。 上述燃气行业人士对本报记者称，按照计划将实现民用与非民用用气门站价的并轨，但是现在这一动作延后了。未来改革的方向是，门站价格也解除政府管制，非民用气上下游协商形成，居民用气价格由政府核定成本，逐步放开。 去年以来，国际油价下滑，与油价相关的天然气价格也出现大幅下降。今年以来，进口的LNG（液化天然气）价格低至7美元/百万英热单位，但是在进口中受到基础设施、管道等准入限制，并没有对国内气价形成大的冲击。 但即便如此，国内天然气消费增速已明显下滑。2014年我国天然气表观消费量为1800亿立方米，同比增长7.4%，是近10年来同比增速首次出现个位数增长。截至今年9月底，国内天然气消费量1322亿立方米，增速进一步降低至2.5%，消费始终疲弱。 本文来源：上海证券报·中国证券网 责任编辑：NF049 分享到： 已推荐 0 网易荐新闻 推荐成功 快去看看还有哪些新闻被推荐了吧>> 分享到： 关键词阅读： 天然气 安迅思：天然气价格调整或延迟至需求旺季结束后 2015/11/02 深度布局天然气市场 BP中国策艰难调整 2015/10/31 廉价石油正迫使沙特考虑削减其天然气补贴 2015/10/29 天然气调价预期压制甲醇期价 2015/10/20 北京阶梯气价方案二获多数票 智能天然气表将免费换 2015/10/22 延伸阅读 网易聚合阅读 网易首页 财经首页 0 人参与 财经头条 财经首页 | 股票 | 商业 | 理财 俄官员砸巨资建中式豪宅 徐翔被查震惊游资 泽熙“噩梦”或刚刚开始 徐翔被捕前已被约谈 | 盘点这些年跌落神坛的\"股神\" | 徐翔覆灭记 徐翔股灾逃顶寻踪 | 泽熙淘汰机制残酷 | 11家公司撇清徐翔概念 16上市银行不良贷款余额猛增三成 农行居首 银行零售业务成雷区 | 银行收入结构分化 | 城商行前三季逆势快增 男子为结婚盗窃近百万获刑 武汉山寨“白宫”被闲置 6个月4次辟谣 徐翔被捕前已被约谈？ 大恒科技定增或生变 泽熙定增公司遭遇＂黑天鹅＂ 中美数据云泥之别 美元指数窄幅震荡 次新股逆市上涨 次新股炒作将开启 《深化农村改革综合性实施方案》发布 专家：李克强总理第三次经济公开课传递了啥 国家级水土保持规划获批 划23预防区17治理区 沱牌舍得集团12年终于嫁出去 天洋控股为一见钟情掷38亿豪娶 “二孩效应”： 5年后楼市或将新增9亿平方米需求 领导人峰会重启 中日韩FTA谈判面临新起点 聚合阅读 重新定位新闻浏览习惯 下载网易BoBo手机客户端 0 人跟贴 | 0 人参与 网友跟贴 0 人跟贴 | 0 人参与 | 手机发跟贴 | 注册 .tie-post .tie-post-area .post-area-photo{border-left-color:#cc1b1b;border-bottom-color:#cc1b1b;} .tie-post .tie-post-area .post-area-input{ border-right-color:#cc1b1b;border-bottom-color:#cc1b1b;} .tie-post .tie-hotword {border-left-color: #cc1b1b; border-right-color:#cc1b1b;} #tieAds{ border:1px solid #cc1b1b;border-bottom-width:0;width:588px; overflow:hidden; } .tie-post .tie-post-area .post-area-hover { border-color:#aad2ff;}",
+                "成品油调价窗口明日再启 或迎年内第10次下调-综合-节能-能源资讯-国际能源网 欢迎您访问国际能源网! 客服热线: 400-8256-198 | 会员服务 | 广告服务 | 网站导航 国际煤炭网 国际电力网 国际石油网 国际燃气网 国际新能源网 设为首页 加入收藏 资讯 国际 国内 财经 聚焦 深度 煤炭 价格 市场 库存 焦炭 煤层气 煤化工 电力 火电 水电 核电 农电 智能电网 特高压 输配电 电缆 石油 原油 汽柴油 燃料油 石油市场 油企 石油统计 燃气 天然气 液化气 管网 新能源 太阳能光伏 风电 新能源汽车 节能环保 气候变化 低碳经济 节能 国际能源网能源新闻 能源行业最大的门户网站 资讯 产品 求购 公司 行情 统计 首页 宏观 国际 国内 观察 聚焦 经济 政策 导读 人物 政客 专家 企业 技术 动态 标准 项目 安全 节能 环保 知识 安全 节能 环保 您当前的位置: 能源资讯 » 节能 » 综合 » 正文 成品油调价窗口明日再启 或迎年内第10次下调 国际能源网能源资讯频道   来源：人民网   作者：杜燕飞   日期：2015-11-02 关键词： 成品油 国际油价 原油市场 按照“十个工作日一调”原则，新一轮 成品油 调价窗口将于11月3日24时开启。多家机构表示，本轮计价周期内 国际 油价 维持低位震荡，油价年内第10次下调几成定局。 本轮计价周期内， 原油市场 上下起伏不定，供需面未发生较大改变。 美国 原油 日产量开始下滑，但 欧佩克 原油产量 继续增长抵消了它的影响。此外， 伊朗 有望在年底前与西方国家达成最终协议，并在制裁取消后增加原油产量，所以 市场 对于供应过剩的担忧仍在。 截至11月2日第9个工作日，参考原油品种均价为45.38美元/桶，原油变化率为-4.90%，初步预计 汽柴油 对应下调幅度为125-135元/吨。调价模型显示截至10月30日收盘，原油变化率为-4.13%，对应下调110元/吨，折合成升价为：93号 汽油 下调0.08元/升，0号 柴油 下跌0.09元/升。 “目前原油市场呈现的利空消息仍较多，原油上行乏力，本轮调价搁浅可能性不大，成品油或将迎来年内第十次下调。”分析师孙晓飞表示。 受成品油下调预期以及需求低迷的影响， 国内成品油 价格持续下滑。10月30日国内29个主要省区市中 石油 、 中石化 批发均价显示，国四93号汽油和0号柴油分别较零售到位均价低755和771元/吨;国五92号汽油和0号柴油分别较零售到位均价低957和901元/吨。 孙晓飞表示，“金九银十”旺季过后，市场或将重回疲软态势。而进入十一月份，北方地区将逐步置换负号柴油，届时0号柴油资源或现紧张现象，油价或将高位保持，但国内整体油价或将依旧呈现稳中窄幅下滑的走势。 成品油分析师王能表示，按照目前 原油期货价格 走势及下月预测来看，后期国际 原油期货 虽供过于求局面不改，但随着美国炼厂检修的结束，且冬季取暖油旺季的到来，或给油价一定的支撑。11月，国际 原油价格 存在反弹的基础，且从技术指标来看，油价下行动力在减弱，这也为下一轮 发改委 调价出现上调预期埋下可能。 点击查看更多精彩能源资讯 国际能源网声明：此资讯系转载自国际能源网合作媒体或互联网其它网站，国际能源网登载此文出于传递更多信息之目的，并不意味着赞同其观点或证实其描述。文章内容仅供参考。 [ 扩展搜索 ]  [ 加入收藏 ]  [ 告诉好友 ]  [ 打印本文 ]  [ 关闭窗口 ] 下一篇： 油价持续低迷打压欧美石油巨头业绩 上一篇： 深海海底区域资源勘探开发即将有法可依 关键词阅读： 成品油 国际油价 原油市场 • 油价持续低迷打压欧美石油巨头业绩 • 向中国运油的超级油轮数量剧减至一年多来最少 • 六家民营地炼企业获原油进口双权 垄断开始消融 • 油气市场需求低迷 中石油前三季度净利润降近七 • 油价下周二或迎年内第十次下调 幅度或超125元/ • 油价下周或迎第10次下调 预计汽油降0.1元 • 油价下周二或迎年内第十次下调 • 下周二成品油或下调：92号汽油约降0.1元/升 推荐图片新闻 更多>> 今年前5月新能源汽车 广州港制三年计划 加 股价巨震后汉能李河君 产油国增产 油价下行 首个省级电网输配电价 慎海雄：“互联网+” 低油价时代，欧佩克何 FMG董事长：警惕能源 能源人物 股价巨震后汉能李河君首度亮相 未来五年豪掷十亿治沙 图为汉能控股集团董事局主席李河君6月17日，汉能控股集团董事局主席李河君在汉能薄...[ 详细 ] 曹仁贤谈五大光伏认识误区 王亦楠：总理为何要求核电必须绝对保证安全 能源要闻推荐 曹仁贤谈五大光伏认识误区 高交会海外产生“磁铁”效应 欧洲企业期 我国应积极参与全球能源治理 附件：内蒙古西部电网输配电准许成本核定 附件:内蒙古西部电网输配电价改革试点方 国家发展改革委关于内蒙古西部电网输配电 “水十条”掀投资热 外企、上市公司竞相 全球原油难改供给过剩局面 油价上方阻力 要闻点击排行 环渤海动力煤价格指数“十九连跌”后首度 能源互联网顶层设计将于6月提交给国务院 山西中煤平朔低热值煤发电项目遭环保部拒 国际油价4日继续回落 国家发改委调研内陆核电安全性 中国核建集中开展联营挂靠、拆借资金等专 中阿博览会节水展在宁夏举行 探索水资源 中俄商讨共同开采俄大陆架油气田 国际能源网能源搜索 资讯 产品 求购 公司 行情 统计 搜索更多能源资讯 国际能源网:    国际煤炭网 国际电力网 国际石油网 国际燃气网 国际新能源网 网站首页 ｜ 关于我们 ｜ 会员服务 ｜ 广告服务 ｜ 服务条款 ｜ 隐私声明 ｜ 联系方式 ｜ 网站地图 2015  in-en.com , all rights reserved  国际能源网  服务热线：400 165 8896    京ICP备14050515号 全球首家能源产业价值链服务平台   360绿色网站     ",
+                "油价下周二或迎年内第十次下调-国内-要闻-能源资讯-国际能源网 欢迎您访问国际能源网! 客服热线: 400-8256-198 | 会员服务 | 广告服务 | 网站导航 国际煤炭网 国际电力网 国际石油网 国际燃气网 国际新能源网 设为首页 加入收藏 资讯 国际 国内 财经 聚焦 深度 煤炭 价格 市场 库存 焦炭 煤层气 煤化工 电力 火电 水电 核电 农电 智能电网 特高压 输配电 电缆 石油 原油 汽柴油 燃料油 石油市场 油企 石油统计 燃气 天然气 液化气 管网 新能源 太阳能光伏 风电 新能源汽车 节能环保 气候变化 低碳经济 节能 国际能源网能源新闻 能源行业最大的门户网站 资讯 产品 求购 公司 行情 统计 首页 宏观 国际 国内 观察 聚焦 经济 政策 导读 人物 政客 专家 企业 技术 动态 标准 项目 安全 节能 环保 知识 安全 节能 环保 您当前的位置: 能源资讯 » 要闻 » 国内 » 正文 油价下周二或迎年内第十次下调 国际能源网能源资讯频道   来源：全景网    日期：2015-10-30 关键词： 成品油价格 美国原油库存 国际原油价格 幅度或超125元/吨 汽油 每升降0.09元 原油价格 连续震荡下行，使得 国内油价 年内第十次下调渐行渐近。10月29日，从多家社会 监测机构 了解到，根据目前影响 国际 原油 价格走势的因素来看， 国际油价 短期仍将低位震荡，11月3日（下周二）新一轮 国内成品油 调价窗口正式开启，预计跌幅超过125元/吨，测算到零售价格90#汽油和0# 柴油 （全国平均）每升分别降低0.09元和0.11元。 过去一周，受到 中国 GDP 增幅减缓、 伊朗 将增加出口原油、 美国 原油库存 大幅度增长等因素的影响，WTI和Brent 原油期货 持续下滑，跌至近两个月低位。29日在美联储推迟加息以及投资者获利了结等心态的强力提振下， 国际原油 收盘呈现大涨走势，一举收复下旬原油多日下跌的幅度。 受此影响，国内 成品油 价调整参考的原油变化率有所收窄，但是负向发展趋势未变。截至29日，新机制执行后第65轮计价期第7个工作日，中宇资讯测算原油变化率为-5.07%，中宇原油估价46.574美元/桶，较基准价跌2.486美元/桶。以目前 原油现货价格 水平推算，预计成品油最终下调幅度将缩窄至125元/吨，约折合90#汽油0.09元/升，93#汽油0.10元/升，0#柴油0.11元/升。“除非未来国际原油现货均价每日上涨2.5美元，则下调预期才有扭转为搁浅的可能。”中宇资讯分析师高承莎称。 成品油行业分析师杨丹也认为，近期 原油市场 上下起伏不定，但供需面未发生较大改变，尽管 美国原油 日产量开始下滑，但 欧佩克 原油产量 继续增长抵消其影响。此外，伊朗有望在年底前与西方国家达成最终协议，并在制裁取消后增加原油产量， 市场 对于供应过剩的担忧仍在，预计未来一周，国际 油价 将维持低位震荡，下周二 成品油价格 下调势在必行。 受成品油下调预期以及需求低迷的影响，国内成品油价格持续下滑。数据显示，截至10月28日国内25个主要省市93#汽油批发均价为6933元/吨，较上周跌38元/吨；0#柴油批发均价为5324元/吨，较上周价格跌13元/吨。 “后期预计全国 汽柴油价格 走势主流维稳，个别根据销售及库存情况窄幅波动。”高承莎表示。 点击查看更多精彩能源资讯 国际能源网声明：此资讯系转载自国际能源网合作媒体或互联网其它网站，国际能源网登载此文出于传递更多信息之目的，并不意味着赞同其观点或证实其描述。文章内容仅供参考。 [ 扩展搜索 ]  [ 加入收藏 ]  [ 告诉好友 ]  [ 打印本文 ]  [ 关闭窗口 ] 下一篇： 沙特阿拉伯和匈牙利签署核能合作协议 上一篇： “三桶油”前三季业绩齐降 中石油净利降近七成 关键词阅读： 成品油价格 美国原油库存 国际原油价格 • 下周二成品油或下调：92号汽油约降0.1元/升 • “两桶油”前三季日少赚逾3亿 油价低迷拖累业绩 • 中石油三季度净利降八成 油价大幅下降是主因 • 中石化前三季净利降五成 • 汽柴油零售价下周有望迎来年内第十次下调 • 能源领域成《中央定价目录》价改焦点 • 纽约原油大涨6.3%报45.94美元 • 成品油调价窗口11月3日打开 预计油价再下调 推荐图片新闻 更多>> 今年前5月新能源汽车 广州港制三年计划 加 股价巨震后汉能李河君 产油国增产 油价下行 首个省级电网输配电价 慎海雄：“互联网+” 低油价时代，欧佩克何 FMG董事长：警惕能源 能源人物 股价巨震后汉能李河君首度亮相 未来五年豪掷十亿治沙 图为汉能控股集团董事局主席李河君6月17日，汉能控股集团董事局主席李河君在汉能薄...[ 详细 ] 曹仁贤谈五大光伏认识误区 王亦楠：总理为何要求核电必须绝对保证安全 能源要闻推荐 曹仁贤谈五大光伏认识误区 高交会海外产生“磁铁”效应 欧洲企业期 我国应积极参与全球能源治理 附件：内蒙古西部电网输配电准许成本核定 附件:内蒙古西部电网输配电价改革试点方 国家发展改革委关于内蒙古西部电网输配电 “水十条”掀投资热 外企、上市公司竞相 全球原油难改供给过剩局面 油价上方阻力 要闻点击排行 环渤海动力煤价格指数“十九连跌”后首度 能源互联网顶层设计将于6月提交给国务院 山西中煤平朔低热值煤发电项目遭环保部拒 国际油价4日继续回落 国家发改委调研内陆核电安全性 中国核建集中开展联营挂靠、拆借资金等专 中阿博览会节水展在宁夏举行 探索水资源 中俄商讨共同开采俄大陆架油气田 国际能源网能源搜索 资讯 产品 求购 公司 行情 统计 搜索更多能源资讯 国际能源网:    国际煤炭网 国际电力网 国际石油网 国际燃气网 国际新能源网 网站首页 ｜ 关于我们 ｜ 会员服务 ｜ 广告服务 ｜ 服务条款 ｜ 隐私声明 ｜ 联系方式 ｜ 网站地图 2015  in-en.com , all rights reserved  国际能源网  服务热线：400 165 8896    京ICP备14050515号 全球首家能源产业价值链服务平台   360绿色网站     ",
+                "法国总统奥朗德第二次到访中国 中法关系再升温--时政--人民网 帐号 密码 记住登录状态 选择去向 强国社区 强国论坛 强国博客 SNS 人民微博 人民聊吧 人民播客 E政广场 七一社区 通行证首页 |  注册   选择去向 强国社区 强国论坛 强国博客 SNS 人民微博 人民聊吧 人民播客 E政广场 七一社区 通行证首页   人民网首页 共产党新闻   要闻 时政 法治 | 国际 军事 | 台港澳 教育 | 社会 图片 观点 地方 | 财经 汽车 房产 | 体育 娱乐 文化 传媒 | 电视 社区 博客 访谈 | 游戏 彩信 动漫 RSS | 网站地图 人民网 >> 时政 法国总统奥朗德第二次到访中国 中法关系再升温 2015年11月02日13:18    来源： 中国网    手机看新闻    字号 原标题：法国总统奥朗德第二次到访中国 中法关系再升温 　　继习近平主席访英之后，德国总理安格拉 默克尔、法国总理弗朗索瓦 奥朗德相继访华。“金风玉露一相逢，便胜却人间无数”，中国展现了“大外交”情怀，与英、德、法跨越亚欧大陆共谋发展、共创希望。 　　10月26日，法国驻华大使顾山与德国驻华大使柯慕贤在《人民日报》发表署名文章，称法德“是中国在欧盟的核心伙伴”，“在经济技术领域的关键合作伙伴”，“合作热点很多”，“欢迎习近平主席值纪念联合国成立70周年之际，在纽约就发展、安全以及倡导大小国家一律平等的《联合国宪章》所作的承诺。” 　　应国家主席习近平邀请，法国总统弗朗索瓦 奥朗德于11月2日至3日对中国进行国事访问。这是奥朗德担任法国总统以来第二次到访中国。奥朗德曾于2013年4月对中国进行了37个小时的旋风式访问，开启了“中法合作新周期”。第一次访华，奥朗德自称是对中国的“认识和发现之旅”，除已开展的核能和航空领域外，更进一步加强了经贸合作，广泛开辟了新领域，尤其是在农产品、卫生保健、城市建设和数字产业等方面。 　　中法友谊独特，源自深厚的历史传承。近代，一批胸怀救国梦想的有志青年负笈法国，学习法国启蒙思想家伏尔泰、雨果、巴尔扎克、莫奈等的精神，追求独立自主和民族复兴，在两国间架起了友谊的桥梁。1963年10月，时任总统戴高乐将军授权前总理富尔携带亲笔信访华，突破意识形态，为中法建交奠定了基础，是中欧关系的重大突破之一。1973年，时任总统蓬皮杜访华，成为第一位正式访华的西方元首。中法关系风雨无阻、历久弥新，不断向前推进，遂成中欧关系的中流砥柱。法国是中国首个建立全面伙伴关系、全面战略伙伴关系、开启战略对话的西方国家。奥朗德2012年上台以来，中法关系更是“小步快跑”，明确表示中法“需要稳定、前后一致的关系”。2014年3月，习近平主席访法，在《费加罗报》发表署名文章，用“五十而知天命”形容当下的中法关系，既是对两国半世纪风雨同行的礼赞，也是对两国未来的深深期许。中法关系，有历史、有现实、有未来，必将创造更好的明天。 　　全面推进气候合作。法国作为第21届联合国气候变化大会（COP21）的主办国，奥朗德将该气候会议视为任内“一号外交行动”，希望在主场避免2009年哥本哈根大会的命运，达成“广泛、有约束力且雄心勃勃的全球性减排协议”，“将全球温度上升控制在2摄氏度以内”，“参与国发表各国的减排贡献”、“集中讨论融资与技术转让问题”。为此，奥朗德亲自领衔筹备工作，专设指导委员会、气候谈判特使和顾问，大幅提高对外气候援助承诺，促成各方拿出先行方案，颁布“欧洲乃至世界最先进”的《绿色发展能源过渡法案》，确立降低核电比例、取消煤炭补助等六大改革目标。中国作为在气候问题上“动力和能力最强”的国家，法国迫切期待中国能够积极参与对全球气候治理、乃至全球气候秩序的构建。同时，中国作为世界最大的可再生能源生产者和消费者，也是生态技术投资的主要接受者，在电动车和生态、智慧城市领域保持领先地位，法国希望借此机会进一步加强节能减排领域合作，共拓新市场。 　　全面深化经贸合作。欧债危机以来，法国经济增长乏力，2008至2014年间年均GDP增幅仅约0.1%，工业占GDP的比重不足20%。去年年底以来，受益于多方利好刺激，法国经济复苏迹象显现，经济改革力度也逐渐加大，持续推出了行政区划改革、《马克龙法案》、“新工业法国”等举措，希望通过结构性改革释放经济活力，并划定新资源开发、可持续发展城市、环保汽车、网络技术、新型医药等九大未来工业领域，计划至2023年全面实现数字化、智能化，并在本土创造47.9万个工作岗位及450亿欧元的附加值。2014年，中法贸易总额为557.9亿美元，增幅达10.9%。中法航空航天、核能、汽车等传统优势领域上不断深挖合作潜力，在刚刚结束的习近平主席访英期间，中广核主导的中方联合体和法国电力集团就共同修建和运营英国萨默塞特郡的欣克利角C核电站达成战略投资协议，项目第一期的建造成本预计将达180亿英镑（约合280亿美元）。新增长点不断涌现，中国已成长为法国红酒的第三大海外市场，达能等食品企业纷纷加大对华投资，中石化与法国道达尔公司合作开发页岩气，在香港合建全球最大规模的污泥处理厂。同时，中国对法投资不断增长，之禾、圣元、海尔等在法国进行了31项投资，占中国对欧投资项目总数的21%，创造了近7000个就业岗位。奥朗德希望法国“做吸引中资的领跑者”，并进一步扩大出口、吸引更多中国游客，搭乘中国经济快车，为法国经济复苏添动力，为谋求2017年总统连任增砝码。 　　全面落实金融合作。2012年至2014年，中法贸易人民币结算比例从6.5%快速升至44%，巴黎人民币存款规模翻番至200亿，居欧盟第二位。中法在金融领域有共同需求，法国央行计划减持美元资产，将人民币视为备选币种。法国亦极力推动巴黎成为欧洲大陆的人民币离岸结算中心，专门成立工作组谋划相关事宜。法国作为亚投行创始成员国，对亚投行建设非常关心并给予大力支持，法、德大使署名文章称，“两国股份累计约高达8%，远大于其余域外国家的规模”，“期待亚投行基于稳健治理的首批投资项目”。 　　中法将携手传承互尊、发展互信、推进互利，经济上互为优先合作伙伴，政治上建立战略互信，文化交流上欣欣向荣，战略上不断推进合作深度，恰如“一带一路”所描绘的场景，两国共铸世界和平发展的新篇章。（慕阳子 中国现代国际关系研究院欧洲所） (责编：郜碧澄(实习)、盛卉) 打印 网摘 纠错 商城 分享 推荐     分享到... 分享到人人 分享到QQ空间 最新评论 热门评论 查看全部留言 时政要闻 法国总统奥朗德第二次到访中国 中法关系再升温 中纪委释疑党员能否炒股：四类人不能买卖股票 “李总理访韩”漫评②：中国倡议为中日韩合作… 甘肃公布22个被巡视市县巡视反馈情况 国产大飞机C919向全球公开亮相 时政热图 习近平访英给百姓8大利好 影响我们生活的十大改变 习近平提到的英国文艺作品 习近平与贫困百姓在一起 习近平访美全纪录 习近平访美送出的“厚礼” 频道精选 被开除党籍的中央委员 张震同志生平旧照 习近平对教师们有啥期望？ 习近平关心西藏的10个细节 习近平对县委书记的12句告诫 盘点习近平10句反腐\"硬话\" 李克强再论面子与里子 国务院常务会议十大核心数字 国务院常务会议的十大关键词 下半年十件影响生活的大事 人民日报重要言论库 【任仲平文章】 【社  论】 【人民时评】 【评论员文章】 【望海楼】 【人民论坛】 重要理论 【人民日报理论版】 【理论书库】 【理论期刊】 【人民网论】 【人民观察】 【人民讲堂】 人民日报社概况 | 关于人民网 | 招聘英才 | 广告服务 | 合作加盟 | 供稿服务 | 网站声明 | 网站律师 | 呼叫中心 | ENGLISH 人 民 网 版 权 所 有 ，未 经 书 面 授 权 禁 止 使 用 Copyright ? 1997-2015 by www.people.com.cn all rights reserved 人 民 网 版 权 所 有 ，未 经 书 面 授 权 禁 止 使 用 Copyright ? 1997-2015 by www.people.com.cn. all rights reserved",
+                "补齐干部能下的制度短板--山西频道--人民网 人民网首页 账号 密码 记住登录状态 选择去向 强国社区 强国论坛 强国博客 SNS 人民微博 人民聊吧 人民播客 E政广场 七一社区 通行证首页 |   注册   |   网站地图   选择去向 强国社区 强国论坛 强国博客 SNS 人民微博 人民聊吧 人民播客 E政广场 七一社区 通行证首页     |   网站地图 共产党新闻 要闻 时政 法治 | 国际 军事 | 台港澳 教育 | 社会 图片 观点 地方 | 财经 汽车 房产 | 体育 娱乐 文化 传媒 | 电视 社区 政务通 博客 访谈 | 游戏 彩信 动漫 RSS 人民网 >> 山西频道 >> 理论  厘清“下”的界限　打通“下”的通道  补齐干部能下的制度短板 钟宪章 2015年11月02日07:23      来源： 人民网－《人民日报》      手机看新闻 打印 网摘 纠错 商城 分享 推荐           字号 分享到... 分享到人人 分享到QQ空间 　　流水不腐，户枢不蠹。长期以来，干部能上不能下问题成为制约干部工作的一个难点，是干部队伍建设的痼疾。这一问题造成干部队伍规模偏大，部分单位超领导职数配备干部，“肥大症”现象突出；一些不合格、不称职的干部长期滞留，阻碍了干部队伍健康发展。今年7月，中共中央办公厅印发《推进领导干部能上能下若干规定（试行）》（以下简称《规定》），从制度上厘清干部“下”的界限、打通干部“下”的通道，标志着我们党在解决领导干部能上不能下问题上迈出了实质性一步。 　　对干部能下作出刚性规定，补齐干部制度短板。改革开放以来，我们党废除事实上存在的领导干部职务终身制，建立完善领导干部退休、任期、交流、问责等制度，积极推进干部制度改革和能上能下问题的解决。但从总体上看，干部能下还存在制度短板，能上能下的双向机制并没有真正形成。用什么干部是导向，不用什么干部同样是导向。只有两个导向都明确清晰，干部队伍方能始终处在活水循环状态。《规定》聚焦干部“下”的问题，明确了干部“下”的6种情况，包括到龄退休免职、任期届满离任、问责处理、不适宜担任现职调整、健康原因调整和违纪违法免职等，在“让无为者无位、不胜任者无位、违纪者无位”上划出了“硬杠杠”。《规定》还对干部“下”的原则、方式、程序、渠道等环节作出明确规定，打通干部“下”的通道，对于优化政治生态、建设高素质干部队伍具有重要指导意义。 　　明确不称职干部的调整措施，破解干部能下的瓶颈制约。实现干部能下的难点，是把那些没有大过、没有违纪违法行为但在其位不谋其政、能力素质不适应的干部调整下来。由于受传统观念影响，“不到年龄不下、不犯错误不下”在一些地方成为惯例。实现干部能下，关键是让那些不适宜担任现职的干部“下”得合理合法、服众服气，能够起到激励干部队伍建设的作用。这就要对干部调整制度作出科学设计。为此，《规定》按照从严的要求，重点对调整不适宜担任现职的干部作出明确规定，梳理了干部“不适宜担任现职”的10种具体表现。这些具体标准既有助于广大干部树立正确从政理念，也能让不称职干部“下”得有理有据。《规定》还从守纪律讲规矩的高度，提出对政治上不守规矩、廉洁上不干净、工作上不作为不担当或能力不够、作风上不实在的4类干部要坚决调整下去的要求，从制度上设定了干部廉洁从政的政治底线。 　　完善干部“下”的出路安排，保护干部干事创业的积极性。解决干部能下的问题，特别是调整不适宜担任现职的干部，不是简单“一下了之”，而应正确把握政策界限，做好后续工作。为此，《规定》提出调整不适宜担任现职的干部，应根据其一贯表现和工作需要，区分不同情形，采取调离岗位、改任非领导职务、免职、降职等多种方式予以调整。对非个人原因不能胜任现职岗位的，应当予以妥善安排，使每一位“下”的干部都能适得其所；对调整下来的干部要给予关心帮助；加强思想工作，有针对性地加强日常教育管理，使被调整的干部卸下思想包袱；对调整决定不服的，可以申请复核和提出申诉。《规定》还提出对“下”的干部也要实行动态管理，在组织调整期满后，对德才表现和工作实绩突出、因工作需要且经考察符合任职条件的，仍可以提拔任职，使这些干部还有机会上来，打通干部能上能下的通道。 　　建立健全工作责任制，保证干部能上能下制度落地生根。制度的生命力在于执行。把干部能上能下制度落到实处，重点是增强党管干部意识、落实领导机构在干部工作中的相关责任。因此，各级党委应把推进领导干部能上能下作为全面从严治党、从严管理干部的重要内容。《规定》的落脚点是建立健全推进领导干部能上能下工作责任制，提出党委（党组）要承担主体责任，党委（党组）书记是第一责任人，组织（人事）部门要承担具体工作责任。在落实“两个责任”的过程中，应切实做到“真管真严、敢管敢严、长管长严”；从实际出发，制定落实细则，定期分析领导班子和干部队伍情况，保证能者上、庸者下、劣者汰，形成良好的用人导向和制度环境。 　　（作者为中共辽宁省委党校副教授） 　　《 人民日报 》（ 2015年11月02日 07 版） 延伸阅读: 突出抓好领导干部这个“关键少数” 对不合格的“回炉”干部就该降薪 人民日报来论：干部“召回”重在明责 云飞扬：“干部召回”是一种“另类的爱” 河北日报：“干部召回”让干部更有为 分享到： (责编：赵芳、王建) 26987405 我要留言 进入讨论区 论坛 博客 微博 SNS 育儿宝 图片 注册 / 登录 发言请遵守新闻跟帖服务协议    善意回帖，理性发言! 使用其他账号登录: 同步：   社区登录 用户名： 立即注册 密  码： 找回密码    恭喜你，发表成功! 请牢记你的用户名: ，密码: ,立即进入 个人中心 修改密码。 30 s后自动返回        推荐帖子推荐帖子推荐帖子      推荐帖子推荐帖子推荐帖子 ! 5s后自动返回        推荐帖子推荐帖子推荐帖子      推荐帖子推荐帖子推荐帖子 恭喜你，发表成功! 5s后自动返回        推荐帖子推荐帖子推荐帖子      推荐帖子推荐帖子推荐帖子 最新评论 热门评论 查看全部留言 > 今日热点 王儒林：广泛凝心聚力促进富民强省 三晋儿女拔穷根 山西对症施策精准扶贫 山西省政府党组召开会议学习贯彻五中全会精神 “太行风骨”在京展出299幅作品 压轴大戏舞剧《吕梁英雄传》震撼京城 太原申请低保先过家庭经济考核关 338城市将监测PM2.5 昆山特别重大爆炸 事故处理结果公布 从揪心到痛心，亚航失联客机确认失事 中纪委官网通报155起违反八项规定精神案件 西安“最牛村支书”等41人被移送司法机关 本网关注 | 强晋社区 襄汾：辣椒丰收了 农民犯愁了 悲鸿之子携50余书画家绘26米长卷 山西省人大常委会召开机关干部… 涉嫌渎职受贿 三名副厅级官员… 长治发现康熙年四色套印本《古… 山西省将筛选贫困村 开展旅游… 山西：“亮剑行动”打击“非法… 前11月山西检察机关查处县级… 洪洞举办“大美洪洞・靓丽汾河”摄影展 小店区举行国庆升国旗仪式 长治市启动《质量强市实施方案》 1-2月山西省进出口大幅增长… 太钢顺利通过WCA评估 闻喜县大棚西瓜种植鼓起了农民… 人民网发布《2014年旅游3… 长治市国土局通过2014年度… 热点专题 | 市县专题 社会主义核心价值观进校园 学习・讨论・落实 网络媒体山西行 晋商大会 走进山西看民企 太原国际马拉松大赛 名城祁县 盐湖区 大同县 宁武县 山阴县 24小时排行  |  新闻 频道 留言 热帖 人民日报社概况 | 关于人民网 | 招聘英才 | 广告服务 | 合作加盟 | 供稿服务 | 网站声明 | 网站律师 | 呼叫中心 | ENGLISH 人 民 网 版 权 所 有 ，未 经 书 面 授 权 禁 止 使 用 Copyright © 1997-2015 by www.people.com.cn all rights reserved 人 民 网 版 权 所 有 ，未 经 书 面 授 权 禁 止 使 用 Copyright © 1997-2015 by www.people.com.cn. all rights reserved",
+                "纽约油价上涨0.3%突破每桶46美元-股票频道-和讯网 和讯首页 | 手机和讯 登录 注册 新闻 | 股票 | 评论 | 外汇 | 债券 | 基金 | 期货 | 黄金 | 银行 | 保险 | 数据 | 行情 | 信托 | 理财 | 收藏 | 读书 | 汽车 | 房产 | 科技 | 视频 | 博客 | 微博 | 股吧 | 论坛 市场 个股 主力 新股 港股 研报 风险板 全球 公司 P2P 行业 券商 美股 新三板 行情中心 主力控盘 大宗交易 龙虎榜单 内部交易 公告 提示 资金流向 机构持仓 融资融券 转 融 通 公司资料 财报 分红 培训 股吧 直播 论坛 炒股大赛 证券开户 股票APP 投顾 产业链 和讯网 > 股票 > 美股市场 > 正文 纽约油价上涨0.3%突破每桶46美元 字号 评论   邮件   纠错 2015-10-30 05:18:39 来源： 新浪网   　　 >>【美股极速开户】与专业机构同行 3分钟创建账号 3个工作日内审核完毕可交易 　　北京时间30日凌晨，周四纽约原油 期货 价格收在每桶46美元以上，延续了昨日大涨逾6%的势头。市场预计原油产量下降的状况仍将继续。 　　与此同时，纽约天然气期货价格收跌，因天然气供应量已接近历史最高水平。 　　纽约商业交易所12月交割的原油期货价格上涨12美分或0.3%，收于每桶46.06美元，为一周多以来的最高收盘价。周三纽约油价大涨6.3%。 　　伦敦洲际交易所12月交割的布伦特原油期货价格下跌25美分或0.5%，收于每桶48.80美元。盘中最低曾下跌至每桶48.17美元。 　　Forex.com首席技术分析师法瓦德-拉扎克扎达(Fawad Razaqzada)表示：“原油可能最终对市场风险偏好的普遍好转作出了反应，可能会出现大幅攀升。毕竟现在大多数利空消息已经在油价中得到了反应，而且原油供应增长已经过了 高峰 。” （责任编辑：HF黄020） 相关新闻 10/22 10:18 油价或以接近阶段性底部 10/29 10:36 油价急弹 「两桶油」回升3.5%-4% 10/29 01:19 午盘：美股午盘继续上涨 油价大涨能源股攀升 10/28 10:18 石油供过于求 油价跌至数周低位 中石化现挫逾2% 10/28 05:04 欧股收跌1.1% 油价走低令石油股承压 相关推荐 油价 评论 还可输入 500 字 最热评论 最新评论 精品推荐 IPO观察 龙软科技应收账款居高不下 净利大幅下滑 [第539期]沃施园艺依赖海外市场 [第538期]千乘影视盈利模式单一 [第537期]嘉澳环保原材料价格波动 [第536期]安图生物募投项目有风险 [第535期]花王园艺存货余额畸高 [第534期]海利尔药业存环保问题 和讯议市厅 交易大师赛 名家直播室 和讯投顾志 推广 热点 热点 每日要闻推荐 社区精华推荐 实盘头名逆市抓涨停 月赛火热报名中 报名参赛 签到 做任务有收益 大赛QQ群 领红包 徐翔概念股突变黑天鹅 10余次精准买入定增股 知名私募牛散三季度大调仓 医药化工股受青睐 国家队现身半数A股公司 持股扫描 偏爱哪些股票 超4成公司Q3筹码趋向集中 45股户均持股升六成 谁把薄发配到重庆 新版人民币三票即将暴涨 下层女如何看西门庆 券商股的庞氏骗局 精彩专题图鉴 网上投洽会 温氏股份高估值遭质疑 五粮液捆绑经销商难混改 上海互联网产业为何沉沦 创业融资六秘诀 巨头强攻电影原因何在 公关如何与媒体打交道 排行榜 1 图解后市：指数已脱离单边上扬目前要多看少动关注补涨 2 史上11月涨多跌少变数大五类个股有望年底领涨 3 任泽平：新一轮行情波澜壮阔11月份历史上曾大涨42% 4 徐翔被查私募圈炸开锅徐翔概念股突变黑天鹅 5 收评：徐翔概念股集体阵亡跌逾8%华丽家族等4股跌停 6 泽熙徐翔被警方调查至少十余次精准买入定增股 7 一个好汉三个帮史玉柱131亿借壳登A股 8 徐翔每天研究股票超12小时 9 温氏股份借大华农上市或成创业板巨无霸 10 山西证券突发紧急事件15新三板股暂停转让 　　【免责声明】本文仅代表作者本人观点，与和讯网无关。和讯网站对文中陈述、观点判断保持中立，不对所包含内容的准确性、可靠性或完整性提供任何明示或暗示的保证。请读者仅作参考，并请自行承担全部责任。 频 道 新闻 股票 基金 黄金 外汇 期货 保险 银行 理财 债券 互金 评论 交 易 财经新闻端 股票客户端 基金客户端 外汇客户端 期货客户端 机构底牌 现货客户端 手机和讯网 贵金属客户端 和讯恭候您的意见 - 联系我们 - 关于我们 - 广告服务 本站郑重声明：和讯公司系政府批准的证券投资咨询机构[ZX0005]。所载文章、数据仅供参考，使用前请核实，风险自负。 Copyright 和讯网 和讯信息科技有限公司 All Rights Reserved 版权所有 复制必究",
+                "China Makes Leaderboards of 2015 Platts Top 250 Global | Platts Press Release | Media | Platts Cart English Русский 中文网站 ??? My Subscription | Register | Contact Us | Forgot Password? | Help Advanced Search HOME PRODUCTS & SERVICES Oil Natural Gas Electric Power Coal Shipping Petrochemicals Metals Agriculture Conferences & Events Maps & Geospatial UDI Data & Directories Delivery Platforms & Partners Insight Magazine Energy Week TV NEWS & ANALYSIS All Commodities Oil Natural Gas Electric Power Coal Shipping Petrochemicals Metals Agriculture Latest News Headlines News Features Videos The Barrel Blog Podcasts Industry Solution Papers Commodities Bulletin Top 250 Rankings Webinars METHODOLOGY & REFERENCE Oil Natural Gas Electric Power Coal Shipping Petrochemicals Metals Agriculture Methodology & Specifications - Overview Price Assessments Subscriber Notes New & Discontinued Price Symbols Corrections Market Issues Oil Market on Close Holiday Schedule Symbol Search / Price Symbol and Page Directories Conversion Tables Glossary SUBSCRIBER SUPPORT My Subscription Help & Support Software & User Manuals Email Alerts System Notifications Register / Log In ABOUT PLATTS Overview Leadership Offices History Social Responsibility Industry Recognition Events Media Center Press Releases Platts in the News Regulatory Engagement & Market Issues Careers Contact Us Home | About Platts | Media Center | Press Release Archive | Press Releases China Makes Leaderboards of 2015 Platts Top 250 Global Energy Company Rankings? Singapore - October 27, 2015 First Time in Rankings' 14 years: 3 Chinese Companies Make it to Top 10; 2 Make it to Top 5 Both APAC and EMEA Slip in Number, Average Rank and Growth Rates Ongoing Shale Plays Advance Americas' in the Rankings Hindustan Petroleum Corporation Ltd. Chairman Nishi Vasudeva Named 2015 ‘Asia CEO of the Year' China showed its increasing strength, not only as an energy production and demand center, but also as a leader in the world energy arena, according to the Platts Top 250 Global Energy Company Rankings? , which were announced Tuesday night. The Rankings, now in their 14th year, were unveiled to more than 300 energy executives at an annual dinner in Singapore, hosted by Platts, a leading global energy and commodities information provider. The Platts Top 250 rankings reflect the financial performance of publicly traded energy companies with assets greater than U.S.$5 billion, and are based on a combination of asset value, revenue, profit and return on invested capital (ROIC) for the latest fiscal year (2014). China Sets Record with 3 Companies in Top 10 Not one, but two Chinese energy giants, CNOOC Limited (Ltd) and PetroChina Company Ltd., moved into the Top 5 for the first time since the rankings began in 2002. The state-backed companies have rivaled Big Oil of the West for years, with PetroChina having appeared in the Top 10 for 11 years, and CNOOC Ltd. hovering in the 13th and 12th spots for the last several years. Despite weaker coal markets, China Shenhua Energy jumped into the Top 10 for the first time at #9, up from #15 place last year, as shrinking earnings from leading oil producers gave it a relative boost. It was the only coal and consumable fuel company in the leaderboard and marked the first time that China has had three companies in the top ranks, traditionally dominated by European and Americas counterparts. China was among the Asia Pacific (APAC) countries highlighted in the evening's keynote address , \" Diversification and Unification of Capital for Energy Investment ,\" given by Dr. Bo Bai , managing director of Warburg Pincus, who said he remains \"cautiously optimistic\" on the future of energy investing in China, India and Southeast Asia. \"As the region opens up its blocks, and reforms its fiscal regimes to enhance risk-adjusted returns, investment dollars will pour in, allowing countries in the region to benefit from more exploration, reserves, and production,\" explained Bai. Exxon Mobil Corporation Surpasses Decade at Top Spot Exxon Mobil Corporation retained its stronghold on the #1 spot for the 11th consecutive year, though integrated oil majors made up only half of this year's Top 10, with the sector's slightly weaker standing paving the way for two refining and marketing companies - Phillips 66 and Valero Energy Corporation - to join the Top 10 in 6th place and 8th place, respectively. Besides climbing from its 2014 rank of 13th place, Phillips 66 retained its positon as the world's biggest refiner. Valero, the world's biggest independent refiner, continued to benefit from the glut of U.S. crude oils in the U.S. Gulf Coast region. The Americas moved up the regional rankings, with its Top 10 energy companies placing 12th overall, up from the average rank of 15.5 the year before. Taken together, Americas energy firms now comprise 45% of the Top 250, crowding out a number of rivals from Asia and Europe. The changes also mark an inflection point for Asia's energy sector, which for years has seen its overall standing in the Platts Rankings edge higher and higher. While Asia's emerging economies, led by China, continue to pull in the biggest share of incremental global commodity demand growth, the pace of growth is now clearly slowing. APAC Softens, Europe, Middle East and Africa (EMEA) Falters Noticeably missing from the leaderboards' 5 and 10, were Britain's BP p.l.c., France's TOTAL SA, and Russia's OJSC Gazprom. The latter state gas supplier, which placed 4th overall last year, dived 39 places to 43rd, buffeted by the ruble's collapse, its impact on long-term credit, and other factors. TOTAL, once a Top 10 fixture, tumbled to 26th place this year as its earnings and returns faltered. Last year's 2nd-ranked BP fell to 29th this year, due in large part to its weaker profits and poor 2% ROIC. Despite a host of individual corporate achievements, Asia Pacific as a whole felt its economic muster begin to wane. The region, which had shown a \"personal best\" in last year's 2014 roster with 82 energy companies in the ranks -- surpassing the \"personal best\" of Europe, Middle East and Africa (EMEA) in 2008 with 80 spots -- slipped to 78 in the latest Rankings. A drop was also seen in APAC's average ranking of 137, as compared with 134 last year. Still, APAC's fastest growing ten companies had an average 3-year compound growth rate (CGR) of 21%, bettering the 14.8% CGR of its European counterparts. The number of EMEA entries on the list continued to slide this year, with 59 companies holding an average ranking placement of 123, down from last year when the region fielded 65 energy firms averaging a position of 113. Growth rates, based on average 3-year CGR, were just 2.8% -- less than half that of APAC (6%) and less than a third of that of the Americas (10.4%). Of the Top 50 Fastest Growing energy firms, only four were based in EMEA. Shale Play Advances Americas Shale oil retained center stage, helping to usher 113 Americas companies (89 U.S. and 14 Canada) into this year's Top 250 with an average ranking of 119. This is up from 103 companies with an average rank of 126 in 2014 but still below the 2003 peak of 149 companies. Despite being in its fifth year and in a much lower price environment, the shale oil revolution in some places of the U.S. has barely begun. Basins such as the Permian in West Texas and Mexico are reportedly becoming more productive, and producers continue to knock down the cost of production, requiring fewer rigs to continue high oil output. Dominating the worlds' Top 10 and Top 50 Fastest Growing energy company rosters are the Americas' tight and shale oil producers, as well as mid-stream and refining companies that are carrying and processing their increasing production volumes. Even gas utilities like AGL Resources Inc have ridden the wave of booming shale gas volumes moving to end customers through its increased transport/pipeline assets. While overall corporate growth rates for energy companies slowed from 10.0% to 7.3% on a 3-year CGR basis, the Americas energy companies (many of which are companies directly or indirectly benefiting from shale) shown in the Fastest Growing list, collectively enjoyed a combined 56% CGR, up from 46.8% the prior year. Mixed Bag for Utilities; Highest-Ranked Utilities Move Higher Some 128 of the world's Top 250 Global Energy Companies are electric utilities, gas utilities, independent power producers, multiple utilities, and renewable electricity producers. Utilities were among the sectors advancing in the 50 Fastest Growers list. All 10 of the highest-placed utilities have moved higher in the 2015 Top 250, indicating the reduced exposure to pure commodity price risk that these diversified and often partly regulated companies face, as compared to mid-cap oil and gas concerns. Separately, the largest pure coal mining company in the world, Coal India, climbed to 38th place this year from 47th place a year ago, due in large part to its impressive growth year-over-year, including a 14% jump in drilling over the past year. \"Asia CEO of the Year\" Awarded Taking \"Asia CEO of the Year\" honors this year was Ms. Nishi Vasudeva , chairman and managing director of Hindustan Petroleum Corporation Ltd. With this win, Vasudeva is automatically in the running with other finalists for the global \"CEO of the Year\" award, which will be announced December 9 at the Platts Global Energy Awards in New York. The Platts Top 250's independent judges panel, already impressed with Hindustan Petroleum's history of peer-beating marketing margins, credited Vasudeva's exemplary leadership with steering the company to its stated best financial performance since its 1974 formation. In the past year, the refining and marketing company showed a personal best in profits , well beyond its decades' highest profit from the prior year. According to the judges, these accomplishments were even more significant when juxtaposed with the volatile global economy, a",
+                " My Subscription | Register | Contact Us | Forgot Password  | Help Advanced Search      HOME     PRODUCTS & SERVICES     NEWS & ANALYSIS     METHODOLOGY & REFERENCE     SUBSCRIBER SUPPORT     ABOUT PLATTS  Skip Navigation LinksHome|News & Analysis|Latest News Headlines| China data: Sep gasoil exports surge to record high at 1.11 mil mt on weak local demand  Print  China data: Sep gasoil exports surge to record high at 1.11 mil mt on weak local demand  Singapore (Platts)--27 Oct 2015 458 am EDT/858 GMT  China's gasoil exports hit an all-time high at 1.11 million mt in September, and the exports are set to remain at a high level till the end of the year on slow domestic demand and available export quotas.  The September gasoil exports were nearly five times higher than the 225,810 mt exported a year ago and up 54% from the previous record high of 722,520 mt in August, according to data released Tuesday by the General Administration of Customs.  Refinery sources said the exports helped to ease inventory pressure generated by sluggish domestic demand. Some refineries in the country plan to export more gasoil barrels in October than September.  According to Platts' survey, state-owned China National Offshore Oil Corp., or CNOOC, plans to export up to 100,000 mt of gasoil in October, up significantly from the 50,000 mt in September, while seven Sinopec refineries plan to export 421,000 mt this month, up 27% from 331,000 in September.  Article continues below...  Request a free trial of: Oilgram News     Oilgram News Oilgram News     Oilgram News brings you fast-breaking global petroleum and gas news on and including:      Industry players, upstream and downstream markets, refineries, midstream transportation and financial reports     Supply and demand trends, government actions, exploration and technology     Daily futures summary     Weekly API statistics, and much more  Request a trial to Oilgram News     Request More Information   Two surveyed PetroChina refineries also plan to boost exports in October to 248,000 mt from 205,000 mt in September.  The Ministry of Commerce issued a total 8.83 million mt of gasoil export quotas to state-owned Sinopec, China National Petroleum Corp. and CNOOC for 2015, Platts calculations based on data from industry sources showed.  Over the first nine months, China's gasoil exports totaled 4.35 million mt, up 37.8% from 3.16 million mt in the same period last year.  This leaves a balance of 4.48 million mt of gasoil export quotas for the last three months of this year, or an average of 1.49 million mt each month over October-December.  As China's outflow of gasoil has increased, it has also expanded beyond its traditional market of Southeast Asia.  China's first substantial gasoil export to Togo, in west Africa, was seen in August, with a 79,279 mt shipment, customs data showed.  GASOLINE EXPORTS ALSO GET A BOOST IN SEPTEMBER  China's gasoline exports totaled 615,190 mt last month, up 71.1% from September 2014 and 31.7% from August 2015, according to customs data.  Gasoline exports are expected to be stable in the coming months due to recovering domestic demand and healthy inventory levels.  \"Compared with gasoil, gasoline sales are better and we don't have inventory pressure,\" said a refinery source from PetroChina.  Over January to September, China exported 4.02 million mt of gasoline, up 17.8% from the 3.42 million mt in the same period of last year.  The Ministry of Commerce issued 6.40 million mt of gasoline export quotas for 2015, leaving a balance of 2.98 million mt or a monthly average of 993,000 mt of unused quotas for the fourth quarter.  --Staff, newsdesk@platts.com --Edited by Geetha Narayanasamy, geetha.narayanasamy@platts.com              inShare2    Platts Email   PRODUCT FINDER  Step 1  Step 2  Step 3  Related News & Analysis    Video archives   Capitol Crude podcast archive   Global Oil Markets podcast archive   News features   The Barrel blog Related Products & Events    Price Assessments: Dated Brent   Oilgram News   Oilgram Price Report   African Refining Summit, 2nd Annual   Oil and Gas Acquisition and Divestiture Outlook   Middle East Crude Oil Summit, 3rd Annual  @PlattsOil on Twitter @PlattsGas on Twitter  Contact Us|Site Map|About Us|Holiday Schedule|Media Center|Platts Privacy & Cookie Notice|Terms & Conditions|For Advertisers|中文网站|Русский +1-800-PLATTS-8 / +1-800-752-8878 support@platts.com sales@platts.com ",
+                " About Us   UPI en Espa ol   Log in or Register!   facebook twitter search      Top News     Entertainment     Odd News     Business     Sports     Science     Health     Analysis     Photos     Archive  Home / Business News / Energy Industry  Oil prices down on Russian production gains China adds to downward pressure with lackluster PMI for October. By Daniel J. Graeber Follow @dan_graeber Contact the Author   |   Nov. 2, 2015 at 9:19 AM Follow @crudeoilprices Comments0 Comments share with facebook share with twitter Crude oil prices start first full trading day in November in the red on word China's economy is slowing further and increased production from Russia. (UPI Photo/Monika Graff) | License Photo Sign up for our Energy Newsletter Preview our latest newsletter    NEW YORK, Nov. 2 (UPI) -- An increase in Russian crude oil production and more signs of weakness in the Chinese economy pushed crude oil prices down on the first trading day in November.  The price for Brent crude oil was down about 1.3 percent from the previous session to $48.88 per barrel in early morning trading. West Texas Intermediate, the benchmark price for U.S crude oil, was down 1.5 percent to $45.85 per barrel.  Crude oil prices are moving steadily lower, off about 11 percent for the year, because of signs of lingering global economic weakness and a surplus in supplies.  Novatek, the largest private crude oil producer in Russia, reported a 40 percent increase in production year-on-year. Among those reporting a decline, Rosneft, one of the largest companies in Russian in terms of overall output, reported a 1.1 percent decline in production for October, when weighed against last year.  Russia's momentum in production mirrors the energy companies who've reported earnings so far in the third quarter. Most companies, despite the downturn sparked by the market tilt toward the supply side, have reported an increase in overall crude oil production this year.  In terms of broader economics, China continued with a long string of reports showing emerging weakness with a drop in the manufacturing purchasing managers' index, or PMI. A reading of 49.8 in October signals factory activity in the economy is in contraction.  The Shanghai Composite Index closed down 1.7 percent for Monday, with oil majors China Petroleum and Chemical Corp. and PetroChina Ltd. among those reporting heavy losses. Like Us on Facebook for more stories from UPI.com   Related UPI Stories      Oil prices recover from Monday's loss     Russian oil production rises     Crude oil eases back sightly     Crude oil falls on news of Russian output   Comments0 Comments share with facebook share with twitter Topics: Brent Crude Offers and Articles from the Web! Ads by Adblade      These Celebrities changed our lives forever, but left too soon.NewsZoom     These 12 super foods speed up your weight loss and can potentially help melt fat!Newszoom     These are the most toxic places on earth. You'll never believe #5! Newszoom     These Celebs Take Vacations to a Whole New Level! Newszoom     Follow this one secret rule to lose weight...Venus Factor     These Stock Images Will Leave you Speechless! Newszoom  Recommended Spouses of the 2016 presidential hopefuls [PHOTOS] Next Article Spouses of the 2016 presidential hopefuls [PHOTOS] Latest Headlines Moody's: No long-term oil threat for Canada Moody's: No long-term oil threat for Canada NEW YORK, Nov. 2 (UPI) -- Canadian provinces may miss their short-term budget targets because of lower oil prices, though balance is expected long term, Moody's said. Iran talking energy with European companies  Iran talking energy with European companies TEHRAN, Nov. 2 (UPI) -- Iran said it's been vetting interest from major European energy companies eager to wade into the oil and gas sector once sanctions pressures ease. Scotland hosting new type of offshore wind program   Scotland hosting new type of offshore wind program ABERDEEN, Scotland, Nov. 2 (UPI) -- The Scottish government said it granted a license to the operators of what Edinburgh said may be the world's largest offshore floating wind energy development. North Dakota shows 3 percent increase in rig activity    North Dakota shows 3 percent increase in rig activity BISMARCK, N.D., Nov. 2 (UPI) -- In a further sign the worst may be over for North Dakota, the state reported an increase in the number of rigs exploring for or producing oil and natural gas. West Africa drawing oil interest   West Africa drawing oil interest MELBOURNE, Nov. 2 (UPI) -- West Africa continues drawing interest from explorers, with Australia's FAR Ltd. announcing the start of work in a basin in Senegal described as world class. Shell starts November with asset sales    Shell starts November with asset sales THE HAGUE, Netherlands, Nov. 2 (UPI) -- After reporting heavy losses for the third quarter, Royal Dutch Shell said it sold off stakes in Chinese and French holdings in the downstream sector. Crude oil prices steady early Friday  Crude oil prices steady early Friday NEW YORK, Oct. 30 (UPI) -- Crude oil prices stood pat in early Friday trading, as a midweek rally was offset by lingering concerns of macroeconomic growth and geopolitical issues. Exxon boasts of balance during downturn    Exxon boasts of balance during downturn IRVING, Texas, Oct. 30 (UPI) -- U.S. supermajor Exxon Mobil said declines in its exploration and production operations were offset by gains downstream, where lower prices actually helped. South African waters drawing in energy companies    South African waters drawing in energy companies STAVANGER, Norway, Oct. 30 (UPI) -- Southern African waters drew more interest from energy explorers with Norway's Statoil and Italy's Eni wading into Mozambique waters. Industry lobbies for Atlantic drilling   Industry lobbies for Atlantic drilling RICHMOND, Va., Oct. 30 (UPI) -- Industry supporters have started an ad blitz in southern U.S. states, arguing offshore oil and gas exploration can exist side-by-side with the environment. Trending Stories Lessig drops out of 2016 race, says Democrats 'won't let me be a candidate' Anonymous begins publishing Ku Klux Klan member details Lawsuit: Notre Dame tutor coerced students into sex with daughter Study: Diet diversity, moderation might be less healthy for adults Mexican navy rescues four fishermen adrift at sea for a month More Collections Notable Deaths of 2015 Notable Deaths of 2015 2015 NFL Cheerleaders 2015 NFL Cheerleaders 12 Celebrities battling chronic illnesses 12 Celebrities battling chronic illnesses Latina 'Hot List' Party in West Hollywood Latina 'Hot List' Party in West Hollywood Top archaeological finds of 2015 Top archaeological finds of 2015 2015 New York City Marathon 2015 New York City Marathon 8 things you didn't know about baby gorillas 8 things you didn't know about baby gorillas 2016 Hooters Calendar Girls in New York 2016 Hooters Calendar Girls in New York AROUND THE WEB ABOUT UPI  United Press International is a leading provider of news, photos and information to millions of readers around the globe via UPI.com and its licensing services.  With a history of reliable reporting dating back to 1907, today's UPI is a credible source for the most important stories of the day, continually updated  - a one-stop site for U.S. and world news, as well as entertainment, trends, science, health and stunning photography. UPI also provides insightful reports on key topics of geopolitical importance, including energy and security.  A Spanish version of the site reaches millions of readers in Latin America and beyond.  UPI was founded in 1907 by E.W. Scripps as the United Press (UP). It became known as UPI after a merger with the International News Service in 1958, which was founded in 1909 by William Randolph Hearst. Today, UPI is owned by News World Communications.  It is based in Washington, D.C., and Boca Raton, Fla. EXPLORE UPI.com UPI is your trusted source for ...  Top News Entertainment News Odd News Business News Sports News Science News Health News News Photos World News U.S. News Energy Resources Security Industry Archives UPI Espanol Follow UPI FacebookFacebook TwitterTwitter Google+Google+ InstagramInstagram PinterestPinterest LinkedinLinkedin RSSRSS Sign up for our daily newsletter!Newsletter  Contact  Advertise Online with UPI  Submit News Tips  Feedback  TERMS OF USE | PRIVACY POLICY  Copyright   2015 United Press International, Inc. All Rights Reserved.  UPI.com is your trusted source for world news, top news, science news, health news and current events.  We thank you for visiting us and we hope that we will be your daily stop for news updates. ",
+                "国内成品油价再次上调 汽柴油每升上涨4分钱 中国 时事 社会 国际 亚太 趣闻 军事 周边 装备 图片 图说天下 财经 商业公司 评论 海外看中国 科技 探索 IT 译名 双语 漫谈 专题 图闻 锐参考 时事漫画 封面报道 军备办公室 战争之王 读书时间 国际先驱导报 首页 > 中国频道 > 中国滚动 > 正文 国内成品油价再次上调 汽柴油每升上涨4分钱 2015-10-20 17:45:02 来源： 国际在线 责任编辑： 国际在线报道：据发改委网站消息，今日，国家发展改革委发出通知，决定将汽、柴油价格每吨均提高50元，测算到零售价格90号汽油和0号柴油（全国平均）每升均提高0.04元，调价执行时间为10月20日24时。 此次成品油价格调整幅度，是按照现行成品油价格形成机制，根据10月20日前10个工作日国际市场原油平均价格变化情况计算确定的。9月下旬以来，受美国石油钻井平台数量下降等因素影响，国际市场油价呈震荡上行走势，前10个工作日平均价格有所上涨。 通知要求，中石油、中石化、中海油三大公司要组织好成品油生产和调运，确保市场稳定供应，严格执行国家价格政策。各级价格主管部门要加大市场监督检查力度，严厉查处不执行国家价格政策的行为，维护正常市场秩序。 上一页 1 2 下一页 本文系转载，不代表参考消息网的观点。参考消息网对其文字、图片与其他内容的真实性、及时性、完整性和准确性以及其权利属性均不作任何保证和承诺，请读者和相关方自行核实。 Angelababy赴整形医院 鉴定自己“是否整容” 成功嫁入豪门的10大女星 俄罗斯山顶奇观 “飞碟”盘旋似科幻大片 20岁妹子天生瞳孔异色 一黄一蓝魅惑又性感 娱乐圈内地花旦鲜为人知的首秀真容 腊肠犬“变身”泰迪熊 花园狂奔萌翻众人 泰国素食节上演利器穿脸 场面血腥惨不忍睹 剑桥学生恶搞新生遭痛批 学妹要给学长舔胸 一只在蘑菇底下避雨的猫头鹰 离散家属宴会朝鲜美女服务员抢眼 美国20岁女子腿长1.26米 欲挑战世界纪录 整牙变脸型 揭露整牙对女星的重要性 精品推荐 联合国涨“份子钱”，中国为何不接受? 7000多万人脱贫，难在哪里？ 国外如何管控危化品风险 精彩图集 中韩10大最丑明星排行榜 宋茜鹿晗榜上有名 娱乐圈要爱情不要婚姻的10大明星 Baby15岁牙套照曝光 青涩十足 猫咪手袋风靡日本 价格超真猫 热门图片 盘点娱乐圈10大男星鲜为人知的美艳亲妹妹 小周周首晒正脸照 天王女儿颜值比拼 摄影师再现15个被动物“养”大的野孩子 国粹成玩物：性感钢管舞娘京剧打扮拍片 排行榜 24小时 一周 一月 1 德媒：欧洲各国“狂热”争夺北京好感 2 支付宝推\"扶老人险\"最高赔2万 网友感叹道德沦 3 新郎临阵脱逃 美国女子婚宴豪掷22万招待流浪 4 英媒：中国股市重现生机 部分投资者悄然回归 5 外媒析常规军力排名:美遥遥领先 中日差距不大 6 冲绳为何反战？10万平民惨死 少女遭美军轮奸 7 台媒称\"康熙\"停播与\"换柱\"根源在于两岸实力消 8 日媒谈南京大屠杀申遗细节：中国外交工作准备 9 美国总统候选人特朗普：若当总统911不会发生 10 这才是战斗力！西藏军区特种部队吃饭不卸甲( 1 香港人在内地吃烤乳猪被\"吓坏\"：似猪又如鼠( 2 3天近15万人报名国考 人社部一岗位竞争888:1 3 俄陷经济危机年轻女子靠代孕挣钱：一单收费10 4 韩媒：韩国济州赌场发表声明 称未色诱中国赌 5 日本忧慰安妇也申遗成功 日高官：经费让中国 6 不朽功勋！盘点从黄埔走出的中共名将(高清组 7 德媒：欧洲各国“狂热”争夺北京好感 8 女子住店被房客偷拍裸照 向店家索天价赔偿(图 9 美媒:中国年轻人性态度开放 情趣用品商闷声发 10 外媒:中国超日本成全球第二富国家 中产达一亿 1 香港人在内地吃烤乳猪被\"吓坏\"：似猪又如鼠( 2 日本商家兴奋期待中国游客“爆买” 3 中国调查中朝边境枪击事件 韩媒：至少2人受伤 4 台媒：月球现3200多条裂缝 地球正撕裂月球表 5 港媒:上海夫妇在日被提示注意礼节 自觉受辱打 6 西媒称科学家或可通过改变鸡的基因制造恐龙 7 外媒：中国大部分“野长城”保存状况堪忧 8 中日高铁争夺转战美国 日媒忧中国拿走所有项 9 美国女拳击手因胸部重达5公斤 被迫越级比赛( 10 解放军仪仗队员遭俄美女索吻 机智应对获赞(图 关于参考消息 | 版权声明 | 广告服务 | 联系我们 | 订阅《参考消息》 | 参考消息网招聘 | 网站导航 国新网备2012001 互联网出版许可证（新出网证(京)字147号） 京ICP备11013708 京公网安备110402440030 - 参考消息报社 版权所有 -",
+                "华电跨进“天然气时代” -韦博石油网 您好,欢迎来到韦博石油网！[ 请登录 ]，新用户？[ 免费注册 ]          本网介绍 | 资费说明 中文 | English 首　页 | 信息频道 | 设备名录 | 渤海商品交易所-现货 | 油品销售 | 会议信息 | 技术服务 行业新闻 | 油品信息 | 钻采设备 | 五金工具 | 原油 | PTA | 产品名称 | 产品报价 | 国内展会 | 企业建站 市场调查报告 | 燃气信息 | 炼化设备 | 机械设备 | 成品油 | 焦炭 | 运输方式 | 质量标准 | 国际展会 | 软件开发 石化自动化 | 石油小产品 | 仪器仪表 | 油站设备 | 聚酯切片 | 螺纹钢 | 注意事项 | 结算方法 | 展会新闻稿 | 网站维护 今天是 2015年10月27日 欢迎您光临本站 首页 >> 今日热点 华电跨进“天然气时代” www.oilmg.com 2015/10/20 11:40:13 韦博石油网 　　本报资深记者 吴莉 《 中国能源报 》（ 2015年10月12日   第 13 版）   　　9月16日，华电集团董事长李庆奎赴加拿大、美国调研，考察加拿大太平洋西北液化天然气（PNW）项目，会见加拿大进步能源公司等企业负责人、美国加利福尼亚州能源委员会主席等政府官员，参观芝加哥商品交易所，全面考察国际特别是北美清洁能源市场前景，探讨清洁能源产业发展、天然气发电产业链拓展机会。 　　没错，不是中石油，也不是中石化，是中国华电。 　　一家电力能源企业，如此青睐天然气产业，让人心生好奇。 　　事实上，早在2011年，华电集团就开始布局天然气业务，四年来，从上游气源获取到终端市场，公司已形成完整的上下游产业链布局，悄然跨进“天然气时代”。 　　转型提档，打造清洁发展新时空 　　“清洁低碳是能源发展大势所趋，是转型升级的必由之路，也是华电履行社会责任的必然要求。” 李庆奎表示。 　　作为一种清洁能源，天然气可有效缓解能源紧缺，减少环境污染，在世界能源消费中占据越来越重要的位置，被寄予了填补全球能源供应与需求巨大缺口的期望。有人说，天然气的黄金时代已然到来。 　　但一个不容忽视的事实是，我国天然气在一次能源消费结构占比仅在6%左右，与世界24%的平均占比相距甚远。面对 “一煤独大”的能源消费结构，发展天然气是当下中国调整能源结构最现实的选择。 　　根据预测，随着全球经济电气化程度的提高，未来世界天然气30-40%将用于发电。到2030年我国用气结构将呈现城市燃气、工业燃料和发电为主的局面，在天然气发电领域，京津冀鲁、长三角、珠三角等大气污染重点防控区，将有序发展天然气调峰电站，优先发展天然气分布式能源，这些与华电未来清洁发展定位不谋而合。 　　“传统电力能源企业依托天然气最大发电用户和分布式能源优势向天然气领域拓展，是华电集团立足长远发展，顺应能源发展形势要求，实现世界一流综合能源集团目标的重要举措 ”。华电集团总经理程念高说。 　　作为国内最大的天然气发电商和分布式能源供应商，华电集团根据国内外能源行业发展趋势和自身发展战略需要，深入开展LNG产业模式、产业政策、产业战略和市场等研究，决定培育和发展LNG这一战略新兴产业。 　　2014年6月，中国华电集团清洁能源有限公司应运而生，公司定位华电集团油气业务的资源开发、运营管理和投融资平台，统一经营和管理华电集团油气业务，同时履行华电集团油气业务管理延伸职能，为华电集团油气业务的发展战略、决策、技术提供支撑和保障。 　　成立伊始，华电清洁能源公司便按照“气源优先、集中采购、气电互保、高端起步，产业链开发、抢占先机、重点突破”的原则发展LNG产业，围绕华电集团清洁发展、“气电一体化”的目标，增强上游开发技术、中下游运营和开拓能力以及多渠道融资方式的产业发展实力，着力将天然气产业培育成华电新的经济增长点。        　　开放创新 ，激活后发优势 　　上天容易入地难。开发地下数千米深的天然气，尤其是地质条件复杂的非常规油气资源页岩气的开采，即使是深耕多年，实战经验丰富的“三桶油”尚属不易，对新进者华电绝非易事。 　　如何激活发展潜能？ 　　新战略呼唤新思路。开放创新，深度融合，是华电集团激活后发优势推动天然气产业战略发展的重要举措。公司一边努力探索非常规油气资源勘探开发的方法和技术手段，注重借鉴引入华电集团管理体系建设的先进理念和经验，以三标一体化管理体系建设为抓手。与此同时，华电重点借鉴中石油中石化等石油企业的经验和模式，以电力企业精细化管理为蓝本，不断完善整合和优化公司项目管控体系，并将体系建设渗透于公司日常工作及项目管控的方方面面，为提高公司管理水平，增强综合实力奠定基础。 　　永顺、花垣、来凤、鹤峰四个页岩区块地处湘鄂西地区，是少数民族聚居区，当地山大林密、断崖林立、植被高大、荆棘密布；区内易引发极端气候条件下的山洪等自然灾害，以及崩塌、滑坡、泥石流等次生地质灾害；交通以省道为主，道路多为盘山公路，路窄、弯急、坡陡，雨季还可能出现山体滑坡、坠石等灾害，项目施工还涉及炸药管理等。面对一系列安全隐患，华电清洁能源公司借鉴电力建设安全管控模式 ，成立了专职项目执行安全管理机构和应急工作小组，严格落实安全管理相关规定，充分做好事故预想及应急预案编制落实工作，通过实行电力企业量化管理模式和隐患跟踪排查机制，从根本上杜绝了各类事故的发生。 　　不仅是在管理上，一切有利于公司天然气战略发展的创新模式在华电都可以被采纳。组建合资公司、混合所有制经营、参股、控股等在华电已屡见不鲜。 　　湖北页岩气开发公司通过加快落实LNG气化站、储运中心及LNG综合能源利用项目工作，利用拟组建合资公司优势，打造铁、水、公路联运体系，积极开拓湖北市场并对山东、江西等市场开展针对性的培育。 　　新机生新力。正是源于这些开放和创新，华电天然气发展战略得以迅速发展。目前公司已与全球十几家主要LNG供应商进行了长协采购谈判。LNG项目有望在短期内成为华电清洁能源公司重要的经济支柱。 　　承“上”启“下”，“补链、延链、壮链” 　　天然气产业让华电清洁发展之路的脉络更清晰。然而，做好产业延伸文章，打通完善产业链，才是华电天然气产业发展的终极目标。 　　资源有底气，发展才有硬气。 　　2014年7月16日，华电清洁能源公司与中石化合作完成加拿大太平洋西北液化天然气（PNW）项目15%权益的收购，华电占比5%，拥有60万吨/年的权益气量及50万吨/年的长协气量，成功获取海外LNG气源，这是华电集团在国内非油气央企中的率先突破。 　　此外，华电清洁能源公司还与马来西亚石油等国际石油巨头开展深入交流、合作，共同对LNG贸易和投资进行研究，洽谈LNG贸易和权益收购，为公司获取长期LNG资源打下基础。 　　对页岩气这块难啃的“骨头”，华电集团也有突破性进展。中标的5个区块，分布在湖南、湖北和贵州三省，基本完成二维地震勘探概查,处于探井井位论证阶段。截至2015年4月底，野外地质调查6900平方千米，二维地震勘探1602千米，钻探4口地质调查井,湖北来凤咸丰区块的来地1井龙马溪组、鹤峰区块鹤地1井大隆组见页岩气显示。 　　国内优良的LNG站址资源有限，不仅是“三桶油”，诸多能源公司都在紧密布局。华电在浙江、广东、福建、海南等沿海地区开展了十几个LNG接收站站址比选工作，初步研究并选定了优先发展项目，所在地发改委对项目列入省“十三五”能源发展规划也给予肯定和支持。 　　终端市场是LNG全产业链盈利模式中的重要环节，拥有了终端市场对全产业链的健康稳步发展和实现利益最大化至关重要。 　　为此，华电清洁能源公司瞄准长三角、珠三角等沿海发达地区的天然气市场，拓宽从沿海到内陆的天然气发电及工业用气等市场的延伸，渗透到华中、华东、华南等发达地区的天然气输送管道及天然气终端市场。 　　从上游气源获取、页岩气勘探、LNG长协贸易，到接收站等通道建设，再到天然气终端市场布局，华电全面出击，一条承“上”启“下”的天然气产业链已然显现，天然气战略新兴产业发展的廓影也清晰可见。 来源： 《 中国能源报 》 作者： 新闻排行榜 一周排行榜 非洲发展银行行长表示东非不会落入“石油陷阱” 北京石油交易所 “油信通”产品首单签约 我国页岩气勘探开发面临机遇期 国内气价疯涨行情或终止 韩国石油战略提速 民企跨国买油破冰 首条石油管道准备开工 投 稿 箱 请将您在经营管理中遇到问题的解决办法发给我们，让更多的朋友分享您的经验。 经营管理编辑组： EOS@drs-i.com 友情链接 | 合作伙伴 阿里巴巴 中国压缩机网 中华石油信息网 中国石油工具网 中国海洋工程网 中国石油人才网 中华检测会议网 能源界 能源界 燃气人才网 中国能源投资网 深圳埃科润滑材料有限公司 石油人才网 中国新能源人才网 ourchemical 上海燃气网 机械报告网 市场调查报告网 消防车 管道疏通车 龙庆（龙德） 中国电力人物网 首聚能源网 环球经济网 QC检测仪器网 燃料油 华博安全 国际期货 中国润滑油营销网 海洋工程装备网 香港经济网 中国黄金期货网 中伊经贸网 石油工业出版社 中国石油 中亚橡胶网 石油英才网 盖德化工网 原油期货 油搜 全国工商联石油业商会 竞争情报网 冀东油田吧 富诺投资 中俄石化商务网 北京石油交易所 中海油 中国城市低碳经济网 中国石化 中国润滑油协会 行业研究网 油价查询 石油石化供应商联盟 化工报告网 今日石油价格 中国无损检测论坛 兴业金号 安迅思化工能源 石油人网 石油壹号网 天拓咨询 低碳工业网 润滑油商务网 中国能源装备网 世界石油化工展销网 首页 | 客户服务 | 会员注册 | 联系我们 | 网站地图 | 法律声明 ©2005-2008 DRS iNNOVATIONS GROUP LTD. All Rights Reserved 京ICP备13027032号",
+                "中英有望签订逾2400亿元核电大单 资金潜入12股_网易财经 应用 网易新闻 网易云音乐 网易云阅读 有道云笔记 网易花田 网易公开课 网易彩票 有道词典 邮箱大师 LOFTER 网易云课堂 网易首页 登录 账号： 密码： 十天内免登录 忘记密码？ 免费下载网易官方手机邮箱应用 登　录 注册免费邮箱 注册VIP邮箱（特权邮箱，付费） 欢迎您， 安全退出 考拉海购 母婴专区 美容彩妆 家居日用 进口美食 营养保健 海外直邮 客户端下载 邮箱 免费邮箱 VIP邮箱 企业邮箱 免费注册 快速注册 客户端下载 支付 一卡通充值 一卡通购买 我的网易宝 网易理财 立马赚钱 电商 彩票 贵金属 车险 电影票 火车票 秀品商城 花田 找对象 搭讪广场 我的花田 下载花田客户端 LOFTER 进入LOFTER 热门话题 专题精选 下载LOFTER客户端 BOBO 女神在线直播 女神大厅 女神资讯 下载BoBo客户端 移动端 新闻 体育 NBA 娱乐 财经 股票 汽车 科技 手机 数码 女人 论坛 视频 旅游 房产 家居 教育 读书 游戏 健康 彩票 车险 海淘 应用 酒香 网易首页 > 财经频道 > 产经 > 正文 中英有望签订逾2400亿元核电大单 资金潜入12股 2015-09-22 07:05:00　来源: 证券日报-资本证券网 (北京) 分享到： 0 昨日， 核电 板块表现可圈可点，板块整体上涨5.03%，板块内 南风股份 、 应流股份 、 久立特材 、 中飞股份 、 兰石重装 、 丹甫股份 、 奥特迅 、 特锐德 、 中国一重 、 抚顺特钢 、 东方锆业 等11只成份股实现涨停，而 湘电股份 、 宝胜股份 、 科新机电 、 威尔泰 、 上风高科 、 永兴特钢 、 上海电气 、 中核科技 、 赣能股份 等个股涨幅也均在5%以上。 资金流向方面，据《证券日报》记者统计显示，昨日板块内共有35只概念股呈现大单资金净流入态势，其中，久立特材、特锐德、南风股份、奥特迅、东方锆业、 中国核电 、抚顺特钢、 浙富控股 、 盾安环境 、中飞股份、 中电远达 、 湖北能源 等12只概念股大单资金净流入均在1000万元以上，分别达到9798.57万元、9543.16万元、9274.93万元、6947.35万元、6310.60万元、5222.92万元、2613.23万元、2274.20万元、1553.69万元、1517.15万元、1239.66万元和1169.48万元，上述12只概念股累计吸金5.75亿元。 对此，分析人士指出，昨日核电板块强势表现，主要受到以下三大利好消息提振。 首先，9月18日，第十二届东盟国际博览会在广西南宁市会展中心开幕。中国广核集团（以下简称中广核）携我国自主核电技术最新成果“华龙一号”为代表的核电技术亮相东盟国际博览会。华龙一号是由中广核和中核集团联合研发的具有自主知识产权的三代百万千瓦级核电技术。作为中国具有完整自主知识产权三代核电品牌，华龙一号是目前国内可以自主出口的核电机型。 第二，据商务部网站消息，9月21日至24日，商务部将在美国组织举办4场贸易投资促进活动。商务部将与美 国华 盛顿州政府举办中美省州经贸合作研讨会，并将在研讨会开幕式上，会同辽宁、湖南、广东、四川、陕西5省和上海市与美方签署《中国省与美国华盛顿州贸易投资合作联合工作组谅解备忘录》。美国泰拉能源公司将与中国核工业集团签署第四代核电厂开发及商业化合作协议。 第三，9月21日，有消息称，正在访华的英国财政大臣乔治·奥斯本周一宣布，英国政府将给予欣克利角C核电站初步20亿英镑（约合197.69亿元人民币）的建设协议担保。奥斯本目前正在进行为期5天的对华访问，业内人士普遍预期， 中英 将在10月份习近平主席访英时 签订 预算高达250亿英镑（约合2415亿元人民币）欣克利角C站建设协议。 投资机会方面， 国泰君安 表示，“一带一路”国家提供了长期巨大核电潜在市场，“华龙一号”国产化技术走出去将成为趋势，海外市场前景相当巨大。核电海外扩张和内陆启动将继续拉升板块估值，装备类企业今年将先后迎来订单拐点，业绩拐点于明后年开始体现，其中手握核心原材料、新产品品类储备丰富、以及布局核电后市场的先行者会实现业绩大幅增长。建议关注：南风股份、中核科技、应流股份、浙富控股等。南风股份：核电重启业绩有望反转，3d打印进展顺利 核电重启业绩有望反转，引入核电人才助力发展。 公司是华南地区规模最大的专业从事通风与空气处理系统设计和产品开发、制造与销售的企业，HVAC产品 技术领先 ，在核电领域占有率较高。 2015年是我国核电重启之年，红沿河核电站5号机组已于3月29日正式开工，标志着我国沿海地区新建核电项目建设重新启动。据中核集团董事长孙勤表示，全国预计将有6至8台核电机组开工建设。受益于核电重启，公司业绩有望反转。 公司2014年12月29增补常南为副董事长，常南2014年9月起任南方增材副董事长，之前在核电领域积淀很深，曾任中电投核电有限公司总经理，将为公司核电及3D打印带来相关人脉资源。 与上海核工程研究院合作，3D打印进展顺利。 公司子公司南方增材2015年2月与上海核工程研究设计院签订的《技术服务合同》，南方增材为上海核工程研究院提供核电主蒸汽管道贯穿件模拟件，并配合进行市场推广，合作期两年，技术服务费200万。 通过与上海核工程研究设计院的技术合作，将加快该技术在核电领域运用步伐，开启重型金属3D打印技术产业化之门，具有重要意义。 收购中兴装备完成，协同效应明显。 公司已经完成了中兴装备100%股权收购，并于2014年7月合并报表，中兴装备主营业务是为石化、核电、新兴化工等能源工程重要装臵提供特种管件产品，与南风股份现有业务结合，协同效应明显。 投资建议：买入-A投资评级，6个月目标价125元。我们预计公司2015年-2016年的EPS分别为1.0、1.3、1.5元；公司主业反转，3D打印进展顺利，6个月目标价125元。 风险提示：3D产业化进程失败，核电建设低于预期中核科技：1H2015业绩平稳，核电重启有望带来自上而下的订单拐点 投资要点。 2015年半年报业绩略下滑，受2013年无新开工核电站影响。 公司是集工业阀门研发、设计、制造及销售为一体的制造企业，也是 中国阀门 行业、中核所属的首家上市企业。1H2015，公司营业收入5.21亿元，同比-2.94%；营业利润0.26亿元，同比-20.83%；净利润0.35亿元，同比-0.67%。我们认为业绩下滑的原因是：核电阀门订单有很强周期性。福岛事件后国内暂停新开工核电站，但核电阀门项目招标期较长，一般对业绩的体现是在项目开工后两年。因此，1H2015业绩受2013年全年无新开工核电站影响而下滑。 盈利能力平稳，下半年受核电重启利好将企稳上升。 上半年毛利率23.77%，同比-0.04pct。分产品看，核电阀门、核化工阀门、其他特种阀门、水道阀门、铸锻件毛坯的毛利率分别是30.18%，45.85%，22.75%，15.13%，14.24%，同比分别为+2.18pct、+1.14pct，+0.19pct，+0.90pct，-19.23pct。我们预测，随着下半年核化工阀门、阀门锻件募投项目相继投产，毛利率将上升。三项费用合计20.01%，同比+1.48pct，主要原因系销售费用增加所致。 公司预付账款增加68.69%，为0.69亿元，印证了订单拐点。 由于公司的预付账款账期基本上都是一年以内的，主要用途是公司增加合同备货和预付材料款等，因此预付账款的大幅度增加显示出公司的业务增长速度加快，对合同备货和原材料的需求逐步加大，说明已经进入快速发展通道，我们预计，内陆核电批准、红沿河5、6号机组开工、中英合作2500亿元核电站等事件催化已给公司带来实质性的订单进展，订单的拐点已经到来。 高壁垒、早起步是承担军工任务的必要前提。 公司是国内核工业集团系统所属企业，是首家在 A股 上市的阀门企业，面向资本市场的同时，还承担着为国防工业提供军品的任务。公司长期承担国家重点科研项目，包括核能建设专用阀门主蒸汽隔离阀、爆破阀和其他相关行业的关键阀门国产化等项目。2015年上半年，公司研发支出为1323万元，占营业收入比例为2.54%。 募投项目阀门锻件和核化工阀门已经达成投产条件。 高端核级阀门锻件生产基地建设项目，已完成项目施工建设和设备验收。该项目预计年产能6000万元，主要为核级阀门提供锻件。目前，公司核电关键阀门与核化工专用阀门的募集资金项目建设处于完工后陆续开始投入运行阶段，2014年实现业务收入3909万元。 中核集团旗下国企，有更多自上而下的订单机会。 目前核电建设运营商“中核集团、中广核、中电投”三足鼎立，阀门企业多为民营，如 江苏神通 、 纽威股份 、应流股份，而公司作为央企背景的国资企业，在承接项目上将享受更多自上而下的机会。 盈利预测与投资建议。 目前华龙一号关键阀门国产化比例要求达到85%以上，公司将积极抓住核电市场发展机遇，努力承接“华龙一号”订单，提升盈利水平。预计随着核电重启带来的订单，对应2015/16/17年的EPS为0.19/0.23/0.36元，对应PE分别为180/150/97，首次给予“增持”评级。 风险提示：核电重启低于低于预期。应流股份点评报告： 高端装备 零部件领先，核电、航空发动机领域有望快速增长 事件： 2015年上半年，公司营业收入71476.66万元，同比增长0.32%，净利润5035.58万元，同比下降34.41%。 主要观点： 1、业绩下滑源于产品毛利率下滑、管理费用提升。 2015年上半年，公司营业收入71476.66万元，同比增长0.32%，净利润5035.58万元，同比下降34.41%。利润下滑主要是由于国际油价的持续走低和国内核电项目重启缓慢，导致两大产品泵及阀门零件、机械装备构件毛利率均有一定下滑，而且管理费用增加1441万。 预计随着油价见底、核电重启，公司收入有望恢复增长、毛利率有望提升；随着公司研发推进、子公司成立，管理费用有望下降。 2、高端装备零部件制造领先。 公司是全球高端装备关键零部件制造领先企业，拥有铸造、加工、组焊为一体的完整产业链，拥有近400台各种先进数控机械加工设备，能够为客户提供核心零部件“一站式”解决方案。随着“中国制造2025”及工业4.0持续推进，公司将大幅受益。 3、拥有核一级泵阀类铸件许可证，核废料处理空间大。 公司是国内两家拥有核一级泵阀类铸件《民用核安全设备制造许可证》的企业之一。公司全资子公司安徽应流集团霍山铸造有限公司承担的装机容量为1400兆瓦先进非能动核电技术的中关键设备“CAP1400（DN450）爆破阀阀体铸件”研制项目和“CAP1400屏蔽电机主泵泵壳”研制项目通过了国家核电权威部门的出厂验收。 公司在核电工程一、二、三级产品订单较多，还加快核电站核一级产品在手订单的生产技术准备，在核电重启、订单集中的情况下，能加快进度，完成核电订单交付任务，促进公司业绩提升。 公司还与中国工程物理研究院核物理和化学研究所合作开发中子吸收材料技术的产业化，积极进军核废料处理市场，公司中子吸收材料产业化能力行业第一，市场空间巨大，未来将大幅受益。 4、积极拓展航空发动机、燃气轮机领域，定增资金提升实力。 2015年7月，公司通过全资子公司应流铸造设立安徽应流航源动力科技有限公司，目的在于加快公司在航空发动机、燃气轮机“两机”高端精密零部件制造领域的布局和建设，进一步提升公司在高端制造领域的领先优势。 公司在航空发动机领域已投入多年，增发完成后，将向航空发动机、燃气轮机零部件智能制造生产线项目投资18，937万元，该项目属产业链高端产品，主要难点之一就是高温合金涡轮叶片、导向器、机匣等核心件的精铸、机械加工和特种加工核心技术。而公司近年来一直积极向往航空发动机方向发展，并取得重大突破，项目建成后将进一步提升公司航空发动机、燃气轮机关键零部件的实力。项目建设周期为2年，内部收益率25.10%，达产后年收入达5.5亿元，利润总额9781万/年。 5、大股东参与定增，员工持股平台提升公司凝聚力，定增大幅降低财务费用。 2015年6月15日，公司发布公告，计划向八名投资者进行定增。公司实际控制人杜应流先生，部分董事、监事和高级管理人员参与认购。锁定期三十六个月，增发价格为25.67元/股，募集资金总额不超过151，453万元。 公司实际控制人杜应流先生认购780万股，占增发股本的13.2%。投资者衡胜投资、衡义投资、衡顺投资系本公司设立的员工持股平台，投资人包括公司董监高及核心员工，认购数量为1344万股，认购股份占增发股本的22.7%。 增发完成后，公司管理团队、核心管理技术人员持有公司股份，利益一致，保证了企业经营目标与股东的目标一致，提高了队伍的积极性和团队稳定性。 本次增发完成后，11.12亿元偿还银行贷款，将优化公司资产负债结构，大幅降低公司财务费用。 6、盈利预测与评级。 公司作为高端设备零部件供应商，拥有核一级泵阀类铸件许可证，积极推进核废料处理，大幅受益“中国制造2025”的推进及核电的建设，大股东、员工持股平台参与定增有效提升公司凝聚力。考虑定增的影响，预计公司2015-2017年EPS分别为0.29元、0.52元、0.71元，对应估值分别为66倍、37倍、26倍，给予“增持”评级。 7、风险提示。 高端装备零部件订单下滑，核电订单低于预期，定增进展低于预期浙富控股：收购车猫网继续践行“大能源+互联网”战略，成立浙富资本管理布局并购基金 投资要点 传统业务水力发电设备，受益于国家“一带一路”战略 公司于2014年累计获取三个重大海外水电订单，分别来自于乌干达、老挝和土耳其，三个大订单金额总计9.17亿元。2015年7月，公司中标埃塞俄比亚配网改造项目，中标金额约为1.61亿元，占公司2014年营业收入的23.48%。 成立浙富资本管理，布局并购基金 公司近日公告拟成立浙富资本管理注册资本一亿元，浙富控股持有51%股权；自然人孙毅（董事长）、姚玮、郦琪各持有标的公司20%、19%、10%股权。未来拟通过“浙富资本”打造金融投资控股子平台，借助并购基金等形式，为标的企业提供一站式金融服务。 收购四川华都，标的为核一级零部件供应商、华龙一号唯一的控制棒驱动设备供应商，2015年可贡献业绩 根据公司的“大能源”发展战略，未来公司将资源配臵重心向核电业务转移。四川华都公司作为“华龙一号”核反应控制棒驱动设备的国内唯一的生产商，未来订单受益于“华龙一号”技术的推广。目前，华都核电设备订单的订单总金额在5亿元以上，预计在2015年下半年开始产生业绩。 收购浙江格睿能源动力，依托高校技研发背景，涉足节能领域 公司在2014年收购了浙江格睿能源动力科技有限公司51%的股权，交易对价2.30亿元，收购浙江格睿股权是公司践行大能源战略的又一重要举措。格睿的业绩承诺为2015-2019年净利润不低于0.4亿元，1亿元，1.3亿元，1.3亿元和1.3亿元。 参股“梦想强音”、参股“ 二三四五 ”，多元化经营 2014年，浙富控股通过直接持有40%股权，托管11%股权，实现对梦响强音的控股。2015年6月，解除11%股份的托管权，共持有40%梦想强音股份，未来将重点放在大能源战略上。公司通过二级市场增发的方式，持有二三四五股权，占二三四五总股本的16.46%。 盈利预测与投资建议 暂不考虑石油业务和对车猫网的投资意向，预计2015年净利润为对外收购产生的2.13亿元和传统水电业务的0.85亿元，共2.98亿元对应2015/16/17年的EPS为0.15，0.21，0.30元，按照核电板块普遍估值较高，对应目标价格13.00元，故上调评级至“买入”。 风险提示：核电重启低于预期，华龙一号推广低于预期。久立特材：将高端进行到底 核心观点： 毛利提升是公司今后成长的核心脉络。公司是国内优质的民营不锈钢管材企业，发展脉络清晰，走的是“中、高、尖”的路线，2010年之前聚焦于中低端的不锈钢无缝管和焊管，成长靠“量”的拉动，在传统不锈钢无缝管和不锈钢焊管国内龙头地位奠定之后，借助上市的机遇，公司开始向高端领域进军，2010-2013年公司开始向LNG、镍质合金、复合管、核电等进军，业绩增长开始依靠“质”的提升：2012-2013年的业绩增长基本来自高毛利的LNG管、镍质合金管的放量，2014至今受油价低迷和石油反腐的影响，之前的业绩增长引擎油气管业务出现了停滞，2016年之后，随着尖端产品核电和军工的放量，未来三年公司毛利将迎来大幅向上的拐点，真正迎来全面高端化的发展阶段。 高端领域具备垄断性优势，理应享受高估值。从估值层面看，今年业绩预期小幅下滑，估值超40倍，明年我们预期估值在30倍左右，估值向上的弹性有限，但我们认为仅从PE角度对公司估值，缺少对公司竞争优势定价，在高端的LNG管、镍质合金管、核电690蒸发器管和军工等领域，公司均具备垄断性优势（LNG管国内主要是公司和武进不锈钢两家，690仅有公司和宝银，镍质合金管仅有宝钢和公司），凭借垄断性的行业地位，公司成长确定性更高，风险溢价小，理应享受高估值溢价。此外，从市值空间而言，未来核电业务的预期收入规模10-20亿，军工也有几个亿，基本上相当于在军工、核电领域再造了一个久立，市值向上的弹性大。 风险提示：核电启动进度不及预期；军工市场拓展不及预期 【相关新闻】 中英财金对话取得53项重要成果 拟开展\"沪伦通\" 马凯：深化中英双方贸易和投资合作 中国核电项目密集上马 在建规模世界第一 财经热点资讯 [滚动] 中英签下多个大单 李嘉诚布局又快人一步 (10-23 00:52) [滚动] 工资条里的这些秘密 你真的知道吗？ (10-23 00:30) [滚动] 美股早盘大涨1.5% 麦当劳领涨道指 (10-23 00:00) [滚动] 18省份GDP三季报出炉 重庆7次蝉联增速第一 (10-22 23:09) [滚动] 协鑫集成重组获通过 启源装备并购被否 (10-22 23:02) [滚动] 利民股份拟定增超7亿元 控股股东参与认购 (10-22 23:02) [滚动] 片仔癀三季报净利增25% 证金汇金持股2.68% (10-22 22:59) [滚动] 只有超级马拉松的虐心程度堪比中国A股 (10-22 22:59) [滚动] A股离奇大跌到底暗示了什么？ (10-22 22:58) [滚动] 美国9月谘商会领先指标连续第三个月不及预期 (10-22 22:47) [滚动] 股市早知道：影响市场的重要新闻汇总（10.22） (10-22 22:38) [滚动] 美国9月成屋销售远超预期 (10-22 22:16) [滚动] 光线传媒否认《港囧》“幽灵场”排片拉高票房 (10-22 22:16) [滚动] 李克强会见美前财长：人民币不存在持续贬值基础 (10-22 22:13) [滚动] 苹果与富士康合作开发太阳能 3股有望受益 (10-22 22:08) [滚动] 并购盛世下 亚洲私募股权基金却持币为王 (10-22 22:00) [滚动] 李克强谈稳定股市措施：是从中国国情出发 (10-22 21:49) [滚动] 长盈精密：汇金持股4.6% 为第二大股东 (10-22 21:44) [滚动] 浦东杭州天津三机场因正点率低受罚 (10-22 21:44) [滚动] 振东制药拟26.5亿元收购康远制药 (10-22 21:43) [滚动] 启源装备重组事项未获证监会通过 (10-22 21:42) [滚动] 全球工业低迷受害者：卡特彼勒三季度净利暴跌64% (10-22 21:36) [滚动] 美股周四小幅高开 失业金数据好于预期 (10-22 21:33) [滚动] 欧央行大招在手 加码QE还要再降息？ (10-22 21:26) [滚动] 首创集团班子成员单价万元买下属房企别墅 (10-22 21:24) [滚动] 欧洲央行释放强烈宽松信号 欧元大跌130点 (10-22 21:22) [滚动] 万讯自控终止重组 深交所“问询”背后诱因 (10-22 21:13) [滚动] 启明星辰等五公司并购重组获通过 (10-22 21:10) [滚动] 全球矿山巨头卡特彼勒三季度净利暴跌64% (10-22 21:06) [滚动] 欧洲央行释放强烈宽松信号 欧元暴跌130点 (10-22 21:03) [滚动] 李克强会见美国国际商用机器公司董事长罗睿兰 (10-22 20:57) [滚动] 欧央行行长：12月将重新审视货币政策宽松的程度 (10-22 20:51) [滚动] 中央巡视组：铁路总公司权力寻租较为严重 (10-22 20:50) [滚动] 中央巡视组：航天科技以虚假合同套取国有资金 (10-22 20:50) [滚动] 中央巡视组：鞍钢集团利益输送问题严重 (10-22 20:49) [滚动] 中央巡视组：中国一重盲目投资 涉嫌利益输送 (10-22 20:49) [滚动] 愤怒的小鸟快飞不起来了 Ravio两年裁员近一半 (10-22 20:49) [滚动] 通威股份：继续推进相关重组事宜 (10-22 20:48) [滚动] 中英将致力于构建面向21世纪全球战略伙伴关系 (10-22 20:48) [滚动] 金管局注资对港股意味着什么？ (10-22 20:36) 15家单位巡视情况：权力寻租严重 存团伙式腐败 国航和南航均表态 未收到合并重组相关信息 国务院：全国建立居住证制度 明确积分落户 多部委密集开展专项督查 破解\"政令不出中南海\" 央行开展千亿MLF操作 降准预期再度升温 郑万春辞任工行副行长 此前传将任民生银行行长 可口可乐工厂伪造环保数据 声明回避核心问题 消息称今年专项建设债规模至少增加至6000亿元 央视曝哈尔滨水投集团为暴利破坏1200亩黑土地 前9月国企利润同比降幅扩大 钢铁煤炭继续亏损 国务院再推结构性减税 高新技术企业迎福利 银行理财收益持续走低 资配荒难觅高收益投向 女子靠炫富诈骗1100万:1顿饭30万 南非大学生抗议学费上涨致激烈冲突",
+                " 联 合 会       组织机构  理事会  会员  入会  动态  通知  政策  奖励  成果  安全  标准 环保  品牌  命名  评价  期刊  煤化工  专题  劳模 数据资讯频道    重要新闻  国际新闻  行业分析  经济运行  原油价格  化工专题  |  产值数据  产量数据  收入利润   进出口数据  《数据快报》 商机频道    首页  设备  塑料  橡胶  原料  合成纤维  农化  颜料染料  涂料  助剂  进口二手设备 | 供应商委员会新上线  项目  专家  企业  会展     联合会频道 网上办事 会长信箱     当前位置：首页 --> 展会信息    2015中国国际LNG技术装备展览会 举办时间:    2015-11-24/2015-11-26 举办地点:     上海新国际博览中心 举办单位:     中国石油学会 中国国际贸易促进委员会 承办单位:    上海艾灵会展有限公司 上海艾展展览服务有限公司    详细内容       　　批准单位：上海市人民政府商务委员会  　　主办单位：中国石油学会 中国国际贸易促进委员会  　　支持单位：中国石油天然气集团公司 中国石油化工集团公司 中国海洋石油总公司  　　协办单位：中国船舶重工集团公司 日本天然气协会 韩国天然气公社 国际储气罐和接收站操作协会 印尼石油协会 英国石油勘探协会 俄罗斯天然气工业股份公司 韩国高压气体工业协同组合联合会 马来西亚石油天然气行业协会 马来西亚国家石油公司  　　承办单位：上海艾灵会展有限公司 上海艾展展览服务有限公司  　　【日程安排】  　　报到地点：上海新国际博览中心(龙阳路2345号)  　　报到时间：2015年11月22-23日 布展时间：2015年11月22-23日  　　展出时间：2015年11月24-26日 撤展时间：2015年11月26日(下午14：30)  　　【展会背景】  　　天然气作为清洁能源越来越受到广大使用者的广泛关注，液化天然气在能源供应中的比正以每年约12%的高速增长，成为全球增长最迅猛的能源行业之一。近年来全球LNG的生产和贸易日趋活跃，正在成为世界油气工业新的热点。我国LNG产业发展迅速，受到全球眼光的关注,2011年世界LNG消费量同比增长9.4%的情况下，中国LNG增速达28%这一“中国速度”更是另世界瞩目。LNG继页岩气后已经成为行业发展的大热话题。根据国际能源署(IEA)的报告显示，亚洲在2015年前将成为仅次于北美洲的全球第2大天然气市场，天然气年需求量将增加到7900亿立方米。有权威机构预测，2015年中国对LNG的需求预计达到3100万立方吨。  　　【主要展商】  　　ChinaLng 2015中国国际LNG技术装备展览会 由权威机构举办与国际知名的SIPPE2015第十届上海国际石油天然气技术装备展同期举办，历届展会吸引到包括中国石油、中石化、中海油、中国化工、中国船舶重工集团公司、烟台杰瑞、山东科瑞、富瑞特装、陕鼓动力、华港集团、霍尼韦尔、沈阳远大压缩机股份、杭州福斯达实业集团、青岛瑞丰、中集安瑞科、烟台冰轮股份、中能服、北京天海工业、豪特耐管道、华谊集团、博思特能源装备、查特深冷工程、无锡辉腾科技、API培训与认证、张家港中集圣达、江南工业集团、LMF、SAMSUNG、Youngkook、Oilgear、RosneftOil、伊朗NIOC、伊朗NIGC、伊朗National Petrochemical Company、伊朗NIORDC、Business Group、Pietro Fiorentini、Saudi Arabian Oil Co、SULZER、Total、Fanavaran、Tencate、Intra Corporation、SANGBONG Corporation Intra Corporation、Armacel、 Raymonds、SHAIC、Haward、SilcoTek、Control Flow、RUSNANO、ECOIN、FNS PLUS、Kish Spanta等来自美国、澳大利亚、意大利、新加坡、加拿大、德国、英国、奥地利、韩国、迪拜、法国、瑞士、俄罗斯以及伊朗、中国香港及中国二十多个国家和地区的3500多家企业参展，共吸引超过52个国家及地区的超过25万名观众参与，展会累计成交60亿美元。全球石油天然气行业企业在上海这个国际大舞台展现最新技术装备、贸易交流、开拓商机。  　　历届主要国外展团，如：日本、韩国、新加坡、马来西亚、印度尼西亚、美国、澳大利亚、迪拜、奥地利、加拿大、意大利、挪威、墨西哥、俄罗斯、伊朗、巴基斯坦、尼日利亚等20多个国家的展示团采购团。  　　【选择ChinaLng优势】  　　  ChinaLng是亚洲最具国际影响力的液化天然气展  　　展会规模及专业采购商数量连续9年实现30%的稳步增长，2015年将有来自全球900家企业参与，专业观众预计30000人次，VIP采购商600家。  　　  ChinaLng主办机构权威及阵容强大 展会服务走向国际化及专业化水平  　　中国石油学会(CPS)是中国石油石化行业最权威组织，中国贸促会(CCPIT)具有强大的海外合作资源，艾灵公司(AIEXPO)是专著于能源行业会议、咨询、服务的国际性专业机构。  　　  ChinaLng巨大的投入及宣传推广  　　与国内外100多家媒体，40多个行业组织建立合作关系，在全球5个重点地区的展会进行推广，并组织参与40多个国内外的行业展会。  　　  ChinaLng同期举办高端的会议论坛  　　会议论坛将邀请国内外50位行业领导、专家、典型企业代表发表演讲交流， 500名专业人士参加。  　　  ChinaLng提供展商与买家商务配对 对采购团及VIP采购商提供专项资助服务  　　ChinaLng拥有强大的资源优势，将不断在国内外展会、媒体进行宣传和推广，对展商和采购商进行商务配对，争取邀请到更多的采购商到展会现场参观考察。为了确保展会效果，ChinaLng组委会对国内外油田、石油、石化、天然气等行业专业采购团级VIP采购商提供专项资助服务。  　　【展品范围】  　　■ 油、气储运成套设备及相关配件 ■ 油站油库防爆产品  　　■ 油气回收设备与技术 油.气清洁产品与设备 ■ 输气站站场设备  　　■ 汽车油改气设备及各类节油产品 ■ 零部件及专用装备  　　■ 油、气分析仪器,环保、节能和安全管理技术与设备 ■ 燃料转换系统  　　■ 成品油仓储、配件及相关设备配件类  　　■ 非油品业务类、洗车设备、GPS导航、汽车防盗、车载MP3  　　■ 天然气汽车、煤层气汽车、天然气运输车等、天然气汽车零部件双燃料或两用燃料发动机等  　　■ 液化气压缩天然气、液化石油气、煤层气相关技术设备  　　■ 安防、应急设备、通信及信息系统  　　■ 各类阀门类流体分离设备\\特种工程管道材料  　　■ 各种新型燃料汽车、环保汽车及其配套设施  　　■ LNG加注站设备类 LNG加注机主体及配套设施  　　【参展费用】  　　会刊宣传费用: 封面20000元 封底 15000元 封二13000元 扉页11000元 封三9000元 彩色内页6000元 黑白内页 3000元 文字介绍1500元  　　展馆现场广告：拱门￥23000元/个 胸牌￥20000元/期 吊绳￥30000元/期 气球￥15000元/个 门票￥10,000元/展期 手提袋￥20000元/展期 喷绘￥600元/ m2  　　其他室外广告、论坛及展会晚宴的赞助、演讲请联系组委会。  　　【参展联络】  　　地 址：上海市长逸路15号A座复旦软件园1309-1310室  　　总 机：+86-21-36411820 传 真：+86-21-65282319  　　网 址： www.chinalng-expo.com 邮 箱：2433854269@qq.com  　　联系人：钱多多 15800887941 邮 编：200441 【打印稿件】【关闭】 【大 中 小】           最新展会  更多>>     ·第五届中国国际天然气技术装备展览会 ·2015全国化工行业污染防治技术与清洁生产展览会 ·2015中国（宁波）国际工程塑料与改性塑料展览会暨化工原料与助剂采购交易... ·第五届中国石油化工装备采购国际峰会暨展览会 ·2015第六届中国（北京）国际煤化工展览会 ·第七届中国（上海）国际泵、阀门及管道展览会 ·第七届中国（上海）国际化工技术装备展览会    过期展会   更多>>     ·2014第六届中国国际管材展览...    2014-9-27 ·2014年全国TnPM大会暨第...   2014-9-20 ·2014中国国际现代分离技术展...   2014-9-19 ·2014（第十三届）中国国际化...   2014-9-13 ·2014中国化工新材料发展交流...   2014-9-3 ·第六届中国（上海）国际化工技术...    2014-8-28 ·第六届中国（上海）国际泵、阀门...   2014-8-28 联合会介绍 | 组织机构 | 法律声明 | 联系我们 | 解决方案 业务咨询：010-84885237,84885243  编辑部：010-52867232，64697972  传真电话：010-84885391  邮箱：webmail@cpcia.org.cn 地址：北京市朝阳区亚运村安慧里4区16号楼中国化工大厦   邮编：100723 主办单位：中国石油和化学工业联合会    经营授权：中国化工经济技术发展中心   ",
+                };
+        for (int i = 0; i < contents.length; i++) {
+            System.out.println("来源：" + getSource(contents[i])+"，作者："+getAuthor(contents[i])+"，编辑：" +getEditor(contents[i])+ "，时间："+getDate(contents[i]) + "-" + new Date().before(getDate(contents[i])));
+        }
+    }
 }
