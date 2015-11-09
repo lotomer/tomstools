@@ -43,8 +43,8 @@
    		<div class="module row1"  style="width:231px;">
    			<div data-options="fit:true" class="easyui-tabs">
 	   			<div title="热门词条" id="divWordsTop" style="padding:8px 0 0 10px;"></div>
-	   			<!-- <div title="网络热点" id="divHotWord1" style="padding:8px 0 0 10px;"></div> -->
-	   			<div title="行业热词" id="divHotWord0" style="padding:8px 0 0 10px;"></div>
+	   			<!-- <div title="网络热点" id="divHotWord1" style="padding:8px 0 0 10px;"></div> 
+	   			<div title="行业热词" id="divHotWord0" style="padding:8px 0 0 10px;"></div>-->
    			</div>
    		</div>
    		<div style="width: 260px;" class="module row1">
@@ -813,8 +813,8 @@
 	}
 	// 加载热点词汇
 	function loadHotWord(typeId) {
-		doLadHotWord(typeId,"0");
-		//odoLadHotWord(typeId,"1");
+		//doLadHotWord(typeId,"0");
+		//doLadHotWord(typeId,"1");
 	}
 	function doLadHotWord(typeId,flag) {
 		var containId = "divHotWord"+flag, TopN = 5;
