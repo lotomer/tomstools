@@ -240,13 +240,16 @@ public class StatAction {
 			HttpServletResponse resp) throws Exception {
 		resp.setContentType("application/json;charset=UTF-8");
 		Calendar now = Calendar.getInstance();
-		now.set(Calendar.HOUR_OF_DAY, 0);
-		now.set(Calendar.MINUTE, 0);
-		now.set(Calendar.SECOND, 0);
+		now.add(Calendar.DAY_OF_MONTH, -1);
+		now.set(Calendar.HOUR_OF_DAY, 23);
+        now.set(Calendar.MINUTE, 59);
+		now.set(Calendar.SECOND, 59);
 		Calendar start = Calendar.getInstance();
 		start.setTime(now.getTime());
-		start.add(Calendar.DAY_OF_MONTH, -1);
-
+		start.set(Calendar.HOUR_OF_DAY, 0);
+		start.set(Calendar.MINUTE, 0);
+		start.set(Calendar.SECOND, 0);
+        
 		List<Map<String, Object>> result = solrService.statWordsCount(start.getTime(), now.getTime(), typeId);
 		if (null != result) {
 			return JSON.toJSONString(result);

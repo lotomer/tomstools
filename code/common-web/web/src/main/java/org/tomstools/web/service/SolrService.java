@@ -180,7 +180,7 @@ public class SolrService {
             // 删除原统计结果
             siteMapper.deleteStat();
             // 更新统计结果
-            siteMapper.saveStat(endTime);
+            siteMapper.saveStat(new java.sql.Date(endTime.getTime()));
         }
         return count;
     }
@@ -279,7 +279,7 @@ public class SolrService {
 	 * @return 统计结果。按天统计
 	 */
 	public List<Map<String, Object>> statWords(Date startTime, Date endTime, Integer typeId) {
-		return siteMapper.selectStats(startTime, endTime, typeId);
+		return siteMapper.selectStats(new java.sql.Date(startTime.getTime()), new java.sql.Date(endTime.getTime()), typeId);
 	}
 
 	/**
@@ -393,8 +393,8 @@ public class SolrService {
 					        publishTime = dt;
 					    }
 						siteMapper.saveDetail(typeId, templateType, siteId, String.valueOf(doc.getFieldValue("title")),
-						        url, dt,getSource(content),getAuthor(content),getEditor(content),
-						        publishTime,new String(encoder.encrypt(url.getBytes())));
+						        url, new java.sql.Date(dt.getTime()),getSource(content),getAuthor(content),getEditor(content),
+						        new java.sql.Date(publishTime.getTime()),new String(encoder.encrypt(url.getBytes())));
 					}
 				}
 				if (size == datas.size()) {
@@ -554,7 +554,7 @@ public class SolrService {
 		}
 		return -1;
 	}
-
+    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 	/**
 	 * 获取指定时间内指定词条进行统计。<br>
 	 * 如果typeId为null，则表示所有词条按词条统计
@@ -568,7 +568,8 @@ public class SolrService {
 	 * @return 统计结果。分词条统计
 	 */
 	public List<Map<String, Object>> statWordsCount(Date startTime, Date endTime, Integer typeId) {
-		return siteMapper.selectStatsCount(startTime, endTime, typeId);
+	    LOG.info("startTime:"+DATE_FORMAT.format(startTime) + "  endTime: " + DATE_FORMAT.format(endTime));
+		return siteMapper.selectStatsCount(new java.sql.Date(startTime.getTime()), new java.sql.Date(endTime.getTime()), typeId);
 	}
 
 	/** 获取语言列表 */
@@ -582,25 +583,25 @@ public class SolrService {
 	}
 
 	public List<Map<String, Object>> siteTop(Date startTime, Date endTime, Integer typeId, int topNum) {
-		return siteMapper.selectSiteTop(startTime, endTime, typeId,topNum);
+		return siteMapper.selectSiteTop(new java.sql.Date(startTime.getTime()), new java.sql.Date(endTime.getTime()), typeId,topNum);
 	}
 	public List<Map<String, Object>> selectWordsTop(Date startTime, Date endTime, int topNum) {
-		return siteMapper.selectWordsTop(startTime, endTime, topNum);
+		return siteMapper.selectWordsTop(new java.sql.Date(startTime.getTime()), new java.sql.Date(endTime.getTime()), topNum);
 	}
 
 	public List<Map<String, Object>> selectHotwordTop(Date startTime, Date endTime, int topNum,String flag) {
-		return siteMapper.selectHotwordTop(startTime, endTime, topNum,flag);
+		return siteMapper.selectHotwordTop(new java.sql.Date(startTime.getTime()), new java.sql.Date(endTime.getTime()), topNum,flag);
 	}
 	public List<Map<String, Object>> statMediaCount(Date startTime, Date endTime, Integer typeId) {
-		return siteMapper.selectMediaCount(startTime, endTime,typeId);
+		return siteMapper.selectMediaCount(new java.sql.Date(startTime.getTime()), new java.sql.Date(endTime.getTime()),typeId);
 	}
 
 	public List<Map<String, Object>> statMedia(Date startTime, Date endTime, Integer typeId) {
-		return siteMapper.selectMedia(startTime, endTime,typeId);
+		return siteMapper.selectMedia(new java.sql.Date(startTime.getTime()), new java.sql.Date(endTime.getTime()),typeId);
 	}
 
 	public List<Map<String, Object>> statWordsCountAll(Date startTime, Date endTime, Integer typeId) {
-		return siteMapper.selectStatsCountAll(startTime, endTime,typeId);
+		return siteMapper.selectStatsCountAll(new java.sql.Date(startTime.getTime()), new java.sql.Date(endTime.getTime()),typeId);
 	}
 
 	/**
@@ -662,18 +663,18 @@ public class SolrService {
 	 */
 	public List<Map<String, Object>> statWordsCountQuery(Date start, Date end, Integer langId, Integer countryId,
 			Integer siteTypeId, Integer siteId) {
-		return siteMapper.statWordsCountQuery(start, end, langId, countryId, siteTypeId, siteId);
+		return siteMapper.statWordsCountQuery(new java.sql.Date(start.getTime()), new java.sql.Date(end.getTime()), langId, countryId, siteTypeId, siteId);
 	}
 
 	public List<Map<String, Object>> statWordsQueryDetail(Date startTime, Date endTime, Integer langId,
 			Integer countryId, Integer siteTypeId, Integer siteId, Integer wordsId,Integer start, Integer rows) {
 		start = null != start ? start : 0;
 		rows = null != rows ? rows : 10;
-		return siteMapper.statWordsQueryDetail(startTime, endTime, langId, countryId, siteTypeId, siteId, wordsId,start, rows);
+		return siteMapper.statWordsQueryDetail(new java.sql.Date(startTime.getTime()), new java.sql.Date(endTime.getTime()), langId, countryId, siteTypeId, siteId, wordsId,start, rows);
 	}
 	public int countWordsQueryDetail(Date startTime, Date endTime, Integer langId, Integer countryId, Integer siteTypeId,
 			Integer siteId, Integer wordsId) {
-		return siteMapper.countWordsQueryDetail(startTime, endTime, langId, countryId, siteTypeId, siteId, wordsId);
+		return siteMapper.countWordsQueryDetail(new java.sql.Date(startTime.getTime()), new java.sql.Date(endTime.getTime()), langId, countryId, siteTypeId, siteId, wordsId);
 	}
 	/**
 	 * 根据站点类型状态获取站点类型列表
@@ -699,7 +700,7 @@ public class SolrService {
 		startTime.set(Calendar.MINUTE, 0);
 		startTime.set(Calendar.SECOND, 0);
 
-		List<Map<String, Object>> statCounts = siteMapper.selectStatsCount(startTime.getTime(), endTime.getTime(),
+		List<Map<String, Object>> statCounts = siteMapper.selectStatsCount(new java.sql.Date(startTime.getTimeInMillis()), new java.sql.Date(endTime.getTimeInMillis()),
 				null);
 		if (null == statCounts || statCounts.isEmpty()) {
 			return 0;
@@ -938,11 +939,11 @@ public class SolrService {
 	public List<Map<String, Object>> selectHot(Date startTime, Date endTime, String flag, Integer start, Integer rows) {
 		start = null != start ? start : 0;
 		rows = null != rows ? rows : 10;
-		return siteMapper.selectHot(startTime, endTime, flag, start, rows);
+		return siteMapper.selectHot(new java.sql.Date(startTime.getTime()), new java.sql.Date(endTime.getTime()), flag, start, rows);
 	}
 
 	public int countHot(Date startTime, Date endTime, String flag) {
-		return siteMapper.countHot(startTime, endTime, flag);
+		return siteMapper.countHot(new java.sql.Date(startTime.getTime()), new java.sql.Date(endTime.getTime()), flag);
 	}
 	public static void main(String[] args) {
         String[] contents = {"四中全会到五中全会，省部级一把手换了13个-搜狐评论 首页 - 新闻 - 军事 - 文化 - 历史 - 体育 - NBA - 视频 - 娱乐 - 财经 - 股票 - 科技 - 汽车 - 房产 - 时尚 - 健康 - 教育 - 母婴 - 旅游 - 美食 - 星座 > 时政评论 搜狐评论 > 时政评论 国内 | 国际 | 社会 | 军事 | 评论 四中全会到五中全会，省部级一把手换了13个 正文 我来说两句 ( 人参与) 扫描到手机 关闭 2015-11-02 08:28:08 来源： 综合 作者：周宇 邹春霞 手机看新闻 保存到博客 大 | 中 | 小 打印 　　撰文 | 周宇 邹春霞 　　十八届五中全会上的人事变动，并不像人们想象的那么大。而其实，许多变动早在之前就已展开。 　　政知局（微信ID：bqzhengzhiju）小编梳理发现，相比此前，四中全会到五中全会这一年，人事调整更显频繁。5个省部级单位换了“一把手”，地方上则有8个省份的党政“一把手”有所调整，而副部级干部的变动那就更多了。 　　 调整 　　新换的13名主帅都是谁？ 　　从去年10月召开十八届四中全会至今，已有5个部门更换了“一把手”，包括文化部、环保部、中央统战部、国家统计局和安监总局。 　　去年12月，中宣部原常务副部长雒树刚调任文化部党组书记、部长，他今年60岁，原部长蔡武2014年10月满65岁，现任全国政协外事委员会副主任。 　　同年12月的最后一天，国务院宣布中央政治局委员孙春兰兼任中央统战部部长，原部长令计划已被双开。 　　另外三位调整的“一把手”系今年调任。1月，51岁的清华大学原校长陈吉宁接棒已到退休年龄的周生贤，出任环保部党组书记，2月开始任环保部部长。 　　国家统计局则是今年5月换的帅，王保安任国家统计局局长，他此前为财政部副部长。国家统计局原局长马建堂四中全会时由中央候补委员增补为中央委员，已于今年4月调任国家行政学院常务副院长。 　　在五中全会开幕前，10月中旬，公安部原副部长杨焕宁调任国家安全生产监督管理总局任党组书记、局长。原局长杨栋梁今年8月已落马。 　　政知局（微信ID：bqzhengzhiju）小编梳理发现，虽然部委“一把手”的变动只有5人，但副部级干部调动频繁。除了各大部委几乎都有调整以外，“一行三会”、国务院副秘书长、国新办、央视、央广、新华社等都有副部级以上干部调整。 　　地方党政领导方面，政知局（微信ID：bqzhengzhiju）小编注意到，十八届二中全会后全国31个省份的省级党政一把手调整基本到位。此后至四中全会召开时，仅有山西、吉林两省受反腐影响省委党政一把手有所调整。其中，吉林省原省委书记王儒林同岗调任山西，整顿因塌方式腐败严重受损的山西省委常委班子；山西省原省委书记袁纯清则调任中央农村工作领导小组副组长。吉林省党政一把手受此影响联动调整，原省长巴音朝鲁接手省委书记一职，省长一职则由中国农行调任的金融专家蒋超良接任。 　　而十八届四中全会至五中全会期间，据政知局（微信ID：bqzhengzhiju）小编统计，贵州、辽宁、河北、海南、安徽、云南、新疆、天津等8个省份的省级党委书记或省级行政长官有所调整。鉴于苏树林已落马，福建省长换人也是迟早的事情。 　　调整的原因多样：有的是源于反腐的连带效应，如天津、贵州。天津市原市委书记孙春兰补缺统战部后，由此造成天津市长黄兴国代理市委书记一职近一年；贵州原省委书记赵克志也因周本顺落马调任河北补缺。 　　有的是新老交替引发的正常调整，如辽宁、安徽，王珉、张宝顺到龄退居二线，两省党政一把手也因此换新；也有如云南，2014年底，时年64岁的云南省原省委书记秦光荣提前退居二线，调任全国人大，继而引发调整。 　　出现人事变动的8个省份中，海南省的调整略显特别。海南省原省长蒋定之，“罕见”回乡就任江苏省省人大常委会党组书记、副主任。其省长一职由国家海洋局原局长刘赐贵“空降”海南接任。 　 　部委 　　工信部发改委人事变动频繁 　　纵观1年来的人事调整，政知局（微信ID：bqzhengzhiju）小编发现，2个部委的副部级干部变动较为频繁――工信部和发改委。 　　工信部目前1正9副的领导班子格局中，有5位副部长是过去1年调整的。最早的调整发生在今年1月，工信部办公厅原主任莫玮任党组成员。紧接着的2月，北京航空航天大学原校长怀进鹏调任工信部任副部长、党组成员。7月，青海省原副省长辛国斌到任。此后，同样在10月，五中全会前夕，工信部再来两位副部长，分别是湖南省委原常委陈肇雄和原产业政策司司长冯飞。 　　国家发改委1年来同样有5位副部级干部履新。除了任建华任党组成员，负责纪检以外，另外4人都还有副主任的职务，其中3人是正部长级，只有发改委原副秘书长王晓涛是副部级。3位正部长级的副主任分别是国务院原副秘书长、国家食品药品监管总局原局长张勇，新疆自治区原副书记、政府主席努尔?白克力，国务院研究室原党组书记、主任宁吉础４送猓努尔?白克力还兼任国家能源局局长，福建省原副省长郑栅洁8月调任能源局任副部长级副局长。被免去职务的原副主任朱之鑫、解振华、吴新雄均是1949年生人，年龄已满，原副主任徐宪平1954年生人，今年也已61岁，4人都应因年龄原因卸任。 　　去年年底以来，宣传系统人事变动频繁，包括中宣部、网信办、国新办等国家宣传管理机构，还有新华社、央视、央广等国家级媒体的负责人。 　　 地方 　　履新省级政府一把手“老将”居多 　　在一些省份，党委书记未最后确定，经常会有“代理书记”的情况。 　　人民网舆情监测室常务副秘书长单学刚曾统计过，改革开放以来，共有8个省（自治区、直辖市）出现过10次党委代理书记（第一书记）。 　　政知局（微信ID：bqzhengzhiju）小编注意到，在此前出现过的代理书记中，代理时间最长的是新疆的王乐泉，其代理长达15个月，但这段代理发生在20年前。而在最近十年，福建、西藏、上海等三地曾出现代理书记的情况，其中代理时间最长的是卢展工，他于2004年2月代理福建省委书记，10个月后转正。 　　较为特别的是天津，天津市市长黄兴国从2014年12月代理市委书记至今近一年，已超过卢展工，成为近十年来代理书记时间最长的一位。 　　而一年来，贵州、辽宁、河北、安徽、云南、天津等6个省份在此前1年间调整的是省（市）委书记。其中，贵州、辽宁、安徽、云南都是由原省长接任，属正常调整。 　　相比省级党委书记，此前一年对省级政府一把手的调整出现了“老将”居多。 　　五中全会前的最新一例省级政府主官调整，出现在贵州。贵州省第十二届人大常委会第十八次会议10月16日决定，接受陈敏尔辞去贵州省省长职务的请求，任命孙志刚为贵州省副省长、代省长。孙志刚是位“老同志”，以61岁“高龄”履任地方主政长官，这在以往非常少见。 　　这是今年以来第二例。此前一例是今年6月接任辽宁省省长的陈求发，他履新时也已超过60岁。更早一例是接替努尔?白克力出任新疆自治区主席的雪克来提?扎克尔，2014年12月以61岁“高龄”代理省级政府一把手，之后转正。 　　政知局（微信ID：bqzhengzhiju）小编注意到，四中全会以来履新的省长们都不太年轻，海南刘赐贵、云南陈豪履新时也都在60岁左右，履新年龄最小的是安徽李锦斌，接任省长时为57岁。贵州、海南、云南、辽宁等4地履新的政府主官年龄都比党委书记大，年龄差最大的如贵州，贵州省委书记陈敏尔是为“60后”，比孙志刚小6岁。   http://star.news.sohu.com/20151102/n424900992.shtml star.news.sohu.com true 综合 周宇 邹春霞 http://star.news.sohu.com/20151102/n424900992.shtml report 3731 撰文|周宇邹春霞十八届五中全会上的人事变动，并不像人们想象的那么大。而其实，许多变动早在之前就已展开。政知局（微信ID：bqzhengzhiju）小编梳理发现， (责任编辑：UN656) 原标题：四中全会到五中全会，省部级一把手换了13个 分享： [保存到博客] 手机看新闻 本文相关推荐 16名省部级参加五中全... 18届四中全会内容 三中四中五中全会区别 十三届四中全会 五中全会或出现六位省长 房辉峰大闹四中全会 一把手接受纪委全会廉检 十八届四中全会决定全文 十八届四中全会依法治... 什么是四中全会、五中全会 三中、四中、五中、六中 党的十八届四中全会精神 丈夫中820多万大奖妻子领奖    双色球头奖17注607万    茂名彩民揽双色球4107万    体彩开奖 相关新闻 相关推荐 15-11-02 中共全国人大常委会党组召开会议学习贯彻党的十八 15-11-02 盘点四中全会到五中全会人事调整:五部委换帅(图) 15-11-02 五中全会引热议 各界聚焦创新发展 15-11-02 五中全会公报解读:创新提升至国家发展全局核心位 15-11-01 从十八届五中全会看未来五年发展思路 15-11-01 新华社评论员:坚持绿色发展 建设美丽中国 三论学 更多关于 五中 全会 的新闻>> 一中二中三中四中... 十八届四中全会内容 十八届四中全会内... 十八届四中全会主... 十八届四中全会考... 二中、三中、四中... 我要发布 热词： 灭火之行 纸尿裤求婚 野猪越狱 机器人伴娘 热剧： 大好时光 云中歌 新济公活佛 三个奶爸 大秧歌 热点推荐 更多>> 哪些省部级官员胆大“妄议中央”？ 从GDP“破7”解读中国经济 中央领导人遇突发事件如何化逦梗？ 流量不清零后“消耗快”，谁来监管 荷兰王室德法领导人相继访华 中欧为何密集互动 名家专栏 更多>> 高官杀情妇 枪中有冤案 赵黎平以不那么娴熟的枪法，深夜划破宁静，才能摊开来谈…[ 详细 ] 　　　 风过耳： 从通奸到吃里扒外 中纪委爱\"新词\" 西格： 强化家庭不必让妇女回家 独家策划 二号人物崔龙海下台 铁打的老大，流水的老二，老二流动的速度要看老大的心情…[ 详细 ] 朝鲜“二号人物”崔龙海：且上任且珍惜 金正恩一“卡位”，朴槿惠就中枪 朝鲜公主金正恩妹妹浮出水面 成二号人物 边和韩国对话边放导弹 金正恩真乖了？ 朝鲜影视，徘徊于人性与政治之间 热点视频 影视剧 综艺 自媒体 娱乐播报 | 章泽天承认婚礼前怀孕 大肚照曝光 笑傲江湖 | 郭德纲嘟嘴卖萌 云中歌 | 陵云夫妇深情相吻羡煞旁人 老总起贪念盗窃百万豪车 醉驾男连撞6车称随便罚 团伙强迫12岁少女卖淫 实拍特警徒手夺刀救人质 6岁女孩心脏肠道长体外 忧郁鹦鹉自残拔掉自身毛 考古惊现史前巨人族遗骸 女贼婚礼盗走50万嫁妆 我来说两句排行榜 240 圈子 - 河南汤阴一派出所长：法律是听我说的 我就是法 [ 评 ] 129 孙红雷批女演员为红陪睡：找老婆不能是圈内人 [ 评 ] 104 圈子 - 29岁小伙初恋爱上62岁大妈 大妈嫌被管出走(图) [ 评 ] 93 美曝中国潜射“舰艇杀手” 美航母难以招架 [ 评 ] 91 刘晓庆60岁与富豪老公庆生 亲自下厨贤惠-娱乐频道图片库-大视野-搜狐!!! [ 评 ] 91 习近平：进一步提升我国装备制造能力-搜狐新闻 [ 评 ] 89 圈子 - 3人银行卡未离身被盗刷45万 银行称系统无异常 [ 评 ] 85 圈子 - 女子5万错存去世前夫账户 银行拒绝退款(图) [ 评 ] 84 我来说两句-我来说两句-深圳一嫌犯指认现场时逃脱 警方悬赏20万缉捕-新闻图片库-大视野-搜狐 [ 评 ] 社区热帖推荐 校花一时迷糊就“悲剧”了 春光乍泄……[ 详细 ] H杯“波动妹”史上最震撼弹琴 巴西3女子结婚 还要生孩子 健身房的妹纸身材娜美 这就是传说中的黑帮生活？电影还原了这么多 日本G罩杯美少女coser身份曝光 客服热线：86-10-58511234 客服邮箱： kf@vip.sohu.com 设置首页 - 搜狗输入法 - 支付中心 - 搜狐招聘 - 广告服务 - 客服中心 - 联系方式 - 保护隐私权 - About SOHU - 公司介绍 - 网站地图 - 全部新闻 - 全部博文 Copyright ? 2015 Sohu.com Inc. All Rights Reserved. 搜狐公司 版权所有 搜狐不良信息举报邮箱： jubao@contact.sohu.com AD =",
