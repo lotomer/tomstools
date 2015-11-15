@@ -56,7 +56,7 @@
 <script type="text/javascript" src="js/utils.js"></script>
 <script type="text/javascript">
 	// 面板与内容之间的差值
-	var theme = '${theme}', key = '${user.key}';
+	var theme = '${theme}', key = '${user.key}',autoFreshTime='${refresh}';
 	// 页面初始化
 	$(function() {
 		// 绑定事件
@@ -89,6 +89,10 @@
 			idField : "STATUS_ID",
 			sortName : "UPDATE_TIME_STR",
 			sortOrder : "desc",
+			onLoadSuccess : function(data){
+				// 继续刷新
+				autoRefrech();
+			},
 			//pagination : pageSize < datas.length,
 			pageSize : 500,
 			//pageList : getPageList(pageSize),'
@@ -143,6 +147,18 @@
 
 			} ] ]
 		}).datagrid('clientPaging');
+	}
+	
+	// 自定义刷新
+	function refrech(){
+		var divMetric = $('#divMetric');
+		if (divMetric[0]){
+			if (TObj){
+				clearTimeout(TObj);
+				TObj = undefined;
+			}
+			divMetric.datagrid('reload');
+		}
 	}
 </script>
 </html>

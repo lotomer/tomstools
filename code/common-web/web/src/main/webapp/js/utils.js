@@ -1,17 +1,24 @@
 function isArray(o) {  
   return Object.prototype.toString.call(o) === '[object Array]';   
 }
-// 用户可自定义
+var TObj;
+//用户可自定义
 function refrech(){
 	location.reload();
+	if (TObj){
+		clearTimeout(TObj);
+		TObj = undefined;
+	}
 }
 
-// 刷新页面
+//刷新页面
 function autoRefrech(){
 	if (autoFreshTime){
 		var t = parseInt(autoFreshTime);
 		if (!isNaN(t) && t != 0){
-			setTimeout("refrech()",t * 1000);
+			if (!TObj){
+				TObj=setTimeout("refrech()",t * 1000);
+			}
 		}
 	}
 }
