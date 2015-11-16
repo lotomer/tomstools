@@ -153,10 +153,7 @@
 	function refrech(){
 		var divMetric = $('#divMetric');
 		if (divMetric[0]){
-			if (TObj){
-				clearTimeout(TObj);
-				TObj = undefined;
-			}
+			doClearTimeout();
 			divMetric.datagrid('reload');
 		}
 	}

@@ -2,13 +2,17 @@ function isArray(o) {
   return Object.prototype.toString.call(o) === '[object Array]';   
 }
 var TObj;
-//用户可自定义
-function refrech(){
-	location.reload();
+// 清除定时任务
+function doClearTimeout(){
 	if (TObj){
 		clearTimeout(TObj);
 		TObj = undefined;
 	}
+}
+//用户可自定义
+function refrech(){
+	location.reload();
+	doClearTimeout();
 }
 
 //刷新页面
