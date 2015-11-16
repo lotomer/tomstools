@@ -102,10 +102,11 @@
 		});
 	}
 	function processData(datas) {
-		var ec = window.echarts;
 		if (!datas || !datas.length) {
+			showEmpty('divStatWordsContent');
 			return;
 		}
+		var ec = window.echarts;
 		$('#divStatWordsContent').html('');
 		$('#divStatWordsContent').append(
 				'<div id="divMetric" style="width:100%;height:100%"></div>');

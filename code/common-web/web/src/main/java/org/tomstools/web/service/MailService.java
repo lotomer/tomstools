@@ -21,7 +21,7 @@ public class MailService {
     private static final Log LOG = LogFactory.getLog(MailService.class);
 	@Autowired
 	private JavaMailSenderImpl javaMailSender;
-	public void sendMail(String title,String content,String to){
+	public boolean sendMail(String title,String content,String to){
 //		JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
 //        mailSender.setDefaultEncoding("UTF-8");
 //        mailSender.setHost(mailHost);
@@ -40,8 +40,10 @@ public class MailService {
 	        mailMessage.setSubject(title);
 	        mailMessage.setText(content);
 	        javaMailSender.send(mailMessage);
+	        return true;
 	    }else{
 	        LOG.warn("Need config the mail host!");
+	        return false;
 	    }
         
 	}

@@ -3,7 +3,7 @@
 <mapper namespace="org.tomstools.web.persistence.SiteMapper">
     
     <select id="selectSiteList" resultType="map"><![CDATA[
-        SELECT * FROM T_CRAWL_C_SITE WHERE IS_VALID=1
+        SELECT *,CASE LANG_ID WHEN 0 THEN 'ZH' WHEN 1 THEN 'EN' ELSE '' END LANG FROM T_CRAWL_C_SITE WHERE IS_VALID=1
     ]]></select>
     <select id="selectLastStatTime" resultType="date"><![CDATA[
         SELECT UPDATE_TIME FROM T_POM_S_STAT_SITE WHERE TYPE_ID=#{TYPE_ID} ORDER BY STAT_TIME DESC LIMIT 1

@@ -79,8 +79,8 @@
 		});
 	}
 	function processData(datas) {
-		var divMetric = $('#divStatWordsContent');
 		if (!datas || !datas.length) {
+			showEmpty('divStatWordsContent');
 			return;
 		}
 		$('#divStatWordsContent').html('');

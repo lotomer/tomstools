@@ -31,12 +31,24 @@ window.messager = $.messager;
 function trim(str){
 	return str.replace(/(^\s*)|(\s*$)/g,'');
 }
+function checkAjaxData(data,title){
+	if (!isArray(data)){
+		if (data.error){
+			showErrorMessage(title,data.error);
+		}else{
+			showErrorMessage(title,"");
+		}
+		return false;
+	}else{
+		return true;
+	}
+}
 function showErrorMessage(title,msg){
 	if (msg.startWith("NEED_LOGIN:")){
-		showMessage("保存失败","用户已失效，请重新登录",true);
+		showMessage("操作失败","用户已失效，请重新登录",true);
 		window.top.location.href = "login.do";
 	}else{
-		showMessage("保存失败",msg);
+		showMessage("操作失败",msg);
 	}
 }
 String.prototype.startWith=function(str){

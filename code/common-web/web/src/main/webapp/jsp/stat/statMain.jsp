@@ -127,6 +127,9 @@
 		window.echarts = ec;
 	}
 	function initCondition(data) {
+		if (!checkAjaxData(data,"获取词条")){
+			return;
+		}
 		var o1 = $('<a></a>'),option={toggle:true,text:'【全部】',group:'grpWords'};
 		$('#WORDS').append(o1);
 		option.selected = true;
@@ -823,7 +826,7 @@
 			key : key,TYPE_ID:typeId,DAYS:1,FLAG:flag,
 			topNum : TopN
 		}, function(datas) {
-			if (!datas) {
+			if (!checkAjaxData(datas,"获取热词")){
 				return;
 			}
 

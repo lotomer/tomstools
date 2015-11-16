@@ -133,11 +133,15 @@ public class SolrService {
         if (null == siteInfos || 0 == siteInfos.size()) {
             return count;
         }
-        Map<String, Integer> sites = new HashMap<String, Integer>();
-        sites.put("-1", -1);
+        Map<String, Map<String,Object>> sites = new HashMap<String, Map<String,Object>>();
+        Map<String,Object> o = new HashMap<String, Object>();
+        o.put("SITE_ID", -1);
+        sites.put("-1", o);
         for (Map<String, Object> siteInfo : siteInfos) {
-            sites.put(String.valueOf(siteInfo.get("SITE_HOST")),
-                    Integer.parseInt(String.valueOf(siteInfo.get("SITE_ID"))));
+            o = new HashMap<String, Object>();
+            o.put("SITE_ID", Integer.parseInt(String.valueOf(siteInfo.get("SITE_ID"))));
+            o.put("LANG", siteInfo.get("LANG"));
+            sites.put(String.valueOf(siteInfo.get("SITE_HOST")),o);
         }
         Date endTime = new Date();
         for (Map<String, Object> word : words) {
@@ -351,7 +355,7 @@ public class SolrService {
 
 		return result;
 	}
-    private long getSiteCount(Integer typeId, String templateType, SolrTools solrTool, Map<String, Integer> sites,
+    private long getSiteCount(Integer typeId, String templateType, SolrTools solrTool, Map<String, Map<String, Object>> sites,
 			String template, Date beginTime, Date endTime) throws Exception {
         if (StringUtils.isEmpty(template)) {
 			return 0;
@@ -379,11 +383,15 @@ public class SolrService {
                         continue;
                     }
 					// 从host中解析站点
-					int siteId = getSiteIdByHost(sites, host);
+					Map<String, Object> siteInfo = getSiteIdByHost(sites, host);
 					// 没有匹配上站点，则跳过
-					if (-1 == siteId){
+					if (null == siteInfo){
 					    continue;
 					}
+					int siteId = Integer.parseInt(String.valueOf(siteInfo.get("SITE_ID")));
+					if (-1 == siteId){
+                        continue;
+                    }
 					// 保存明细到数据库
 					// 判断对应的url是否已经存在，如果不存在则添加
 					String flag = siteMapper.checkUrl(new String(encoder.encrypt(url.getBytes())));
@@ -395,9 +403,18 @@ public class SolrService {
 					    if (null == publishTime || publishTime.after(dt)){
 					        publishTime = dt;
 					    }
-                        String source = getSource(content);
-                        String author = getAuthor(content);
-                        String editor = getEditor(content);
+                        String source = null;
+                        String author = null;
+                        String editor = null;
+                        if ("ZH".equals(siteInfo.get("LANG"))){
+                            source = getSource(content);
+                            author = getAuthor(content);
+                            editor = getEditor(content);
+                        }else{
+                            source = getSourceE(content);
+                            author = getAuthorE(content);
+                            editor = getEditorE(content);
+                        }
                         if (!StringUtils.isEmpty(source) && 128 < source.length()){
                             source = source.substring(0,128);
                         }
@@ -486,9 +503,12 @@ public class SolrService {
 //        
 //        LOG.info("typeId:" + typeId + ", templateType:" + templateType + ", total:" + total + ", saveCount:" + saveCount);
 //    }
-    private static final Pattern PATTERN_SOURCE = Pattern.compile("来源[：:]\\s*(\\S+)");
-    private static final Pattern PATTERN_AUTHOR = Pattern.compile("作者[：:]\\s*([0-9a-zA-Z\u4e00-\u9fa5]+)");
+    private static final Pattern PATTERN_SOURCE = Pattern.compile("(来源)[：:]\\s*(\\S+)");
+    private static final Pattern PATTERN_AUTHOR = Pattern.compile("(作者)[：:]\\s*([0-9a-zA-Z\u4e00-\u9fa5]+)");
     private static final Pattern PATTERN_EDITOR = Pattern.compile("(编辑|责编)[：:]\\s*([0-9a-zA-Z\u4e00-\u9fa5]+)");
+    private static final Pattern PATTERN_SOURCE_E = Pattern.compile("(来源)[：:]\\s*(\\S+)");
+    private static final Pattern PATTERN_AUTHOR_E = Pattern.compile("\\s(By)(( [A-Z][0-9a-z]+)+)");
+    private static final Pattern PATTERN_EDITOR_E = Pattern.compile("(编辑|责编)[：:]\\s*([0-9a-zA-Z\u4e00-\u9fa5]+)");
 //    private static final Pattern PATTERN_SOURCE = Pattern.compile("来源[：:]\\s{0,1}(\\S*)\\s");
 //    private static final Pattern PATTERN_AUTHOR = Pattern.compile("作者[：:]\\s{0,1}([0-9a-zA-Z\u4e00-\u9fa5]*)\\s");
 //    private static final Pattern PATTERN_EDITOR = Pattern.compile("(编辑|责编)[：:]\\s{0,1}([0-9a-zA-Z\u4e00-\u9fa5]*)\\s");
@@ -498,6 +518,7 @@ public class SolrService {
             Pattern.compile("(\\d{4}年\\d{1,2}月\\d{1,2}日)"),
             Pattern.compile("(\\d{1,2}月\\d{1,2}日, \\d{4})"),
             Pattern.compile("(\\d{1,2}\\s+(Dec|Nov|Oct|Sep|Aug|Jul|Jun|May|Apr|Mar|Feb|Jan)\\s+\\d{4})"),
+            Pattern.compile("(\\d{1,2}\\s+(December|November|October|September|August|July|June|May|April|March|February|January)\\s+\\d{4})"),
             Pattern.compile("((December|November|October|September|August|July|June|May|April|March|February|January)\\s+\\d{1,2},\\s+\\d{4})"),
             Pattern.compile("((Dec|Nov|Oct|Sep|Aug|Jul|Jun|May|Apr|Mar|Feb|Jan)\\.\\s+\\d{1,2},\\s+\\d{4})")};
     public static final SimpleDateFormat[] DATE_FORMATS = {
@@ -506,13 +527,22 @@ public class SolrService {
             new SimpleDateFormat("yyyy年MM月dd日"),
             new SimpleDateFormat("MM月dd日, yyyy"),
             new SimpleDateFormat("d MMM yyyy",new Locale("en")),
+            new SimpleDateFormat("d MMMM yyyy",new Locale("en")),
             new SimpleDateFormat("MMMM d, yyyy",new Locale("en")),
             new SimpleDateFormat("MMM. d, yyyy",new Locale("en")),
     };
     static final String getSource(String content){
         Matcher m = PATTERN_SOURCE.matcher(content);
         if (m.find()){
-            return m.group(1);
+            return m.group(2);
+        }else{
+            return null;
+        }
+    }
+    static final String getSourceE(String content){
+        Matcher m = PATTERN_SOURCE_E.matcher(content);
+        if (m.find()){
+            return m.group(2);
         }else{
             return null;
         }
@@ -520,13 +550,29 @@ public class SolrService {
     static final String getAuthor(String content){
         Matcher m = PATTERN_AUTHOR.matcher(content);
         if (m.find()){
-            return m.group(1);
+            return m.group(2);
+        }else{
+            return null;
+        }
+    }
+    static final String getAuthorE(String content){
+        Matcher m = PATTERN_AUTHOR_E.matcher(content);
+        if (m.find()){
+            return m.group(2);
         }else{
             return null;
         }
     }
     static final String getEditor(String content){
         Matcher m = PATTERN_EDITOR.matcher(content);
+        if (m.find()){
+            return m.group(2);
+        }else{
+            return null;
+        }
+    }
+    static final String getEditorE(String content){
+        Matcher m = PATTERN_EDITOR_E.matcher(content);
         if (m.find()){
             return m.group(2);
         }else{
@@ -551,14 +597,14 @@ public class SolrService {
         }
         return ret;
     }
-    private static int getSiteIdByHost(Map<String, Integer> sites, String host) {
+    private static Map<String, Object> getSiteIdByHost(Map<String, Map<String, Object>> sites, String host) {
 		while (true) {
 			if (sites.containsKey(host)) {
-				Integer id = sites.get(host);
-				if (null != id) {
-					return id;
+				Map<String, Object> info = sites.get(host);
+				if (null != info) {
+					return info;
 				} else {
-					return -1;
+					return null;
 				}
 			}
 			int index = host.indexOf(".");
@@ -567,9 +613,9 @@ public class SolrService {
 			}
 			host = host.substring(index + 1);
 		}
-		return -1;
+		return null;
 	}
-    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    //private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 	/**
 	 * 获取指定时间内指定词条进行统计。<br>
 	 * 如果typeId为null，则表示所有词条按词条统计
@@ -583,7 +629,7 @@ public class SolrService {
 	 * @return 统计结果。分词条统计
 	 */
 	public List<Map<String, Object>> statWordsCount(Date startTime, Date endTime, Integer typeId) {
-	    LOG.info("startTime:"+DATE_FORMAT.format(startTime) + "  endTime: " + DATE_FORMAT.format(endTime));
+	    //LOG.info("startTime:"+DATE_FORMAT.format(startTime) + "  endTime: " + DATE_FORMAT.format(endTime));
 		return siteMapper.selectStatsCount(new java.sql.Date(startTime.getTime()), new java.sql.Date(endTime.getTime()), typeId);
 	}
 
@@ -836,14 +882,17 @@ public class SolrService {
 					if (userId != null) {
 						User user = userService.getUserById(userId);
 						if (null != user) {
-							++count;
 							alertLog.put("NOTIFIER", user.getNickName());
 							String title = TemplateParser.parse(alertLog, tmplTitle);
 							String content = TemplateParser.parse(alertLog, tmplContent);
 							if ("1".equals(alertType)) {// 邮件
-								notifyByEmail(user.getEmail(), title, content);
+								if (notifyByEmail(user.getEmail(), title, content)){
+								    ++count;
+								}
 							} else if ("2".equals(alertType)) {// 短信
-								notifyBySms(user.getPhoneNumber(), title, content);
+								if(notifyBySms(user.getPhoneNumber(), title, content)){
+								    ++count;
+								}
 							}
 						}
 					}
@@ -857,15 +906,20 @@ public class SolrService {
 		return count;
 	}
 
-	private void notifyBySms(String phoneNumber, String title, String content) {
+	private boolean notifyBySms(String phoneNumber, String title, String content) {
 		if (!StringUtils.isEmpty(phoneNumber) && !StringUtils.isEmpty(content)) {
 			LOG.info("发送短信:" + content);
+			return true;
+		}else{
+		    return false;
 		}
 	}
 
-	private void notifyByEmail(String email, String title, String content) {
+	private boolean notifyByEmail(String email, String title, String content) {
 		if (!StringUtils.isEmpty(email) && !StringUtils.isEmpty(content)) {
-			mailService.sendMail(title, content, email);
+			return mailService.sendMail(title, content, email);
+		}else{
+		    return false;
 		}
 	}
 
@@ -980,9 +1034,12 @@ public class SolrService {
                 "      国内新闻     国际新闻     财经新闻     观点评论     宏观解读     企业舆情      石油技术     石油装备     钻井工程     石油历史      勘探开发     炼油化工     油品销售     燃气管道      石油院校     油田生活  24小时播不停： 尼泊尔运回中国石油美媒称减少对印依赖转向中国  |       油价大涨4%受巴西罢工与利比亚原油出口暂停提振  |      能源局：推动宁夏国家新能源综合示范区建设  |     苏树林大庆往事：当局长后就开始给亲戚安排工作  |       长庆钻井管柱自动化处理系统钻机苏里格投用  |     王宜林会见加拿大不列颠哥伦比亚(BC)省省长简蕙芝  |    中国石油集团召开坚决完成全年稳增长目标任务视频会议  |    油海观潮：顺绿色创新之势谋持续发展之道  |      大众柴油排放丑闻升级：蔓延至奥迪保时捷  |      中国石油测井公司高新成像测井技术走出“深闺”  |        尼泊尔运回中国石油美媒称减少对印依赖转向中国  |      油价大涨4%受巴西罢工与利比亚原油出口暂停提振  |      能源局：推动宁夏国家新能源综合示范区建设  |     苏树林大庆往事：当局长后就开始给亲戚安排工作  |       长庆钻井管柱自动化处理系统钻机苏里格投用  |     王宜林会见加拿大不列颠哥伦比亚(BC)省省长简蕙芝  |    中国石油集团召开坚决完成全年稳增长目标任务视频会议  |    油海观潮：顺绿色创新之势谋持续发展之道  |      大众柴油排放丑闻升级：蔓延至奥迪保时捷  |      中国石油测井公司高新成像测井技术走出“深闺”  |   您的位置： 首页 >  油品销售 巴肯油田减产导致购买成本增加美炼油厂转向进口原油 来源：FX168     责编：杨红雪     发布时间：2015-11-04  石油壹号网消息：PBF Energy公司是美国最大的独立炼油企业之一，曾花费数年时间以及投入大量资金修建Delaware市的铁路原油运输终端，计划增加来自北达科他州巴肯油田的原油输送能力，不过市场分析师周二(11月3日)指出，目前该公司已经放弃了这项计划，转而直接从海外进口原油。  据悉，PBF Energy公司已经关闭了于2013年才刚刚开业的俄克拉荷马市办公地点，该地点主要负责公司在北达科他州的原油业务。  PBF董事长Thomas OMalley是此次改变的主要推手，反映出美国东海岸炼油企业对原油来源的态度转变。  北达科他州巴肯油田产量在2015年6月录得纪录高位每日115.3万桶，而8月已经下滑至每日113万桶。供应量的降低导致巴肯原油的购买成本更加昂贵，因内陆运输费用更高。美国东海岸炼油企业开始转而使用来自拉美、中东和非洲的进口原油。消息人士透露，目前已经有3家炼油企业开始逐渐使用进口原油。  原油交易商表示，PBF公司、Philadelphia Energy Solutions公司以及Delta航空旗下的Monroe Energy公司正计划将巴肯原油使用量削减至2013年以来最低。  Philadelphia Energy Solutions公司11月来自巴肯油田的铁路运输计划仅为17车次，较2015年夏季每月100车次下降显著。美国能源信息署(EIA)数据显示，Philadelphia Energy Solutions公司在2015年1月至7月间的原油进口数量同比增长逾一倍，主要来自于尼日利亚、乍得和阿塞拜疆。 相关阅读      巴肯油田减产导致购买成本增加美炼油厂转向进口            石油壹号网 http://weibo.com/oilone/      24小时新闻排行     热点新闻排行      尼泊尔运回中国石油美媒称减少对印依赖转向...     苏树林大庆往事：当局长后就开始给亲戚安排...     中国石油集团召开新闻宣传工作领导小组会议     中国石油“一体化”模式优质高效建设津华管...  石油联播 更多  俄罗斯：超一半汽车加油站出售伪劣      中石油：加强内部巡视力度     庆祝克拉玛依油田发现60周年宣传片     天津港“8·12”特别重大火灾爆炸事故：中...  网友讨论 查看往期 本期调查     热词： 油价涨跌 油价|消 中海油|B 六连跌结束后油价涨跌的趋势与预测 正 方 [全文] 0人 0人 反 方 周三即9月16日24时油价窗口开启，预计这次将迎来“六连跌”后的首次上调，涨幅大概会[全文]      客户热线：010-83686528　传真：010-83686528-8003 　 投稿邮箱:news@oilone.cn Copyright 2012 oilone.org. All Rights Reserved 石油壹号网版权所有 京ICP备12033856号-1 京公网安备11010102000532号 未经石油壹号网书面授权，请勿转载内容或建立镜像，违者依法必究！          ",
                 " 应用 网易首页 登录 注册免费邮箱      考拉海购     邮箱     支付     电商     花田     LOFTER     BOBO     移动端  新闻体育NBA娱乐财经股票汽车科技手机数码女人论坛视频旅游房产家居教育读书游戏健康彩票车险海淘应用酒香 网易首页 > 网易家居 > 正文东鹏瓷砖 涂装发展现状分析 涂装水漆化转型 2015-10-20 09:04:39　来源: 网易家居 分享到：  1  2015年1月1日，号称“史上最严”的新环保法正式施行。与此同时，年轻消费群体逐渐成为市场主力军，带来消费理念的升级，对健康环保的关注度不断提高。纵观2015年的涂装市场，低碳环保无疑是当之无愧的主旋律。  2015年1月1日，号称“史上最严”的新环保法正式施行。与此同时，年轻消费群体逐渐成为市场主力军，带来消费理念的升级，对健康环保的关注度不断提高。纵观2015年的涂装市场，低碳环保无疑是当之无愧的主旋律。市场需求和外部大环境的“内忧外患”，倒逼涂装行业向国际先进水平接轨看齐，更加环保健康的水漆消费将成为涂装市场蓝海。  当前，环境污染问题已经成为全球话题，中国的环境问题更是不容忽视。相关数据显示，目前我国年排放VOC1800万吨，其中涂料涂装行业占四分之一。而当前市场主流的涂装产品——油漆，则含有大量甲醛、苯等有害物质，挥发期长达3-15年，可对人体造成直接伤害。据中国某室内装饰协会环境检测中心透漏，全国每年由于室内污染引起的死亡人数高达11.1万人。  事实上，欧美发达国家早已经认识到油漆的不足，并改用低碳环保的替代产品。如欧盟自2004年1月1日起，全面禁止在欧盟国家内生产、销售溶剂型涂料(俗称油漆)，改用水性涂料(水漆);美国也在2004年出台政策，限制中国油漆家具美国市场的进口。  随着节能减排在世界范围内的推进，中国也积极寻求与发达国家接轨，通过法律、法规加强行业管理，引导行业逐步淘汰高污染、高排放的油性涂装产品，引导行业向低碳环保的转型。与油性涂料相比，水性涂料VOC排放降低了60%到70%，更利于环保，因此导入水性涂料是涂装行业向环保升级的必然趋势，也是国家政策倡导推广的重点。  消费者需求是市场的指南针。时代在进步，消费者也就在升级换代。随着年轻一代消费者成长为市场主体，健康消费、绿色消费等意识和理念日益得到重视。业内专家表示，2015年的涂装市场，基于消费者需求，对更加环保健康的水性涂料的市场需求将会持续增长，市场供求之间存在巨大缺口，水性涂料将成为涂装市场的蓝海，成为推动水漆替代油漆的产业升级的催化剂。  2015年，绿色、环保、低碳将成为涂料市场主旋律，替换传统油性漆的产业升级即将开启，涂料行业企业面临转型和洗牌的压力，水漆则成为撬动市场的利器。据笔者从相关渠道了解，在当前我国的涂装行业企业中，晨阳水漆是国内最先试水水性涂料企业，自上世纪90年代末，致力于水漆的研发、生产，并一直大力推广水漆在环保上的优势。16年来，晨阳水漆积极进行研发投入和技术创新，不仅建有国内唯一一家水性涂料院士工作站，还与中科院工程研究所合作建立了全国唯一一家水性涂装纳米材料实验室，晨阳水漆始终坚持产品品质第一位，严把原材料到生产的每个环节，不让一桶不合格的产品流入市场，以品质赢得了客户的青睐和消费者认可，旗下产品通过了欧盟SGS及德国TUV等国际高标准认证，与中石化、三一重工(600031,股吧)等工业名企及隆基泰和、奥润顺达等地产、节能门窗（门窗装修效果图）巨头互为合作伙伴。目前，晨阳水漆正在整体规划实施千亩产业园项目，全力打造水漆民族第一品牌。  随着社会环境保护意识的提升，绿色家装需求不断扩大，水漆将引领家装消费新趋势。我们也需要更多晨阳水漆这样的行业龙头，以加速环保水漆涂装的推广和使用，让更多消费者能享受到更健康的绿色家居生活。  文中数据来源：前瞻产业研究院《2015-2020年中国涂装行业市场需求预测与投资战略规划分析报告》:http://bg.qianzhan.com/report/detail/56dafc80ec644221.html 吴紫珊 本文来源：网易家居      涂装     水漆     转型  分享到：  网易首页家居首页 下载网易新闻客户端 1 人参与 关键词阅读 48小时评论排行 关键词： 涂装 水漆 转型      首届“泰斯特杯”硅藻泥涂装工艺大赛在京举行 2015/09/27     立邦墙面涂装体系 保护墙面有“一套” 2015/07/08     涂料涂装一体化——惠及多方的涂装之路 2014/12/17     木门涂装：三分油漆七分木材 2014/08/20     涂装界的黑马 防腐涂料发展潜力巨大 2014/07/17  下载网易BoBo手机客户端      小小演奏家 小小的梦     228     小小演奏家 小小的梦     动感热辣好声音     928     动感热辣好声音     妹纸化身白衣天使     2234     妹纸化身白衣天使     香甜可口软妹纸     294     香甜可口软妹纸  1人跟贴 | 1人参与 最新跟贴 p8663111 p8663111 [网易河北省网友] 2015-10-30 14:08:20 随着社会环境保护意识的提升，绿色家装需求不断扩大，水漆将引领家装消费新趋势。我们也需要更多晨阳水漆这样的行业龙头，以加速环保水漆涂装的推广和使用，让更多消费者能享受到更健康的绿色家居生活。      顶[0]     回复     复制  查看全部跟贴>> 1人跟贴 | 1人参与 | 手机发跟贴 | 注册 文明上网，登录发贴 账号 密码 自动登录 登录并发表  网友评论仅供其表达个人看法，并不表明网易立场。 家居推荐 进入家居频道 全家共用一缸洗澡水 外国人在日本生活时的困扰      辣妈装修140平毛坯房 29.7万基建家具全包     江南小镇100万140平3层自建房 一年全程记录     西安女孩在北京建花房，手把手教你建造全过程！  装修俱乐部 阅读全部      非洲风与东方艺术混搭     非洲风与东方艺术混搭     清晨只想让阳光叫醒我     清晨只想让阳光叫醒我      换个窗帘换种心情     空间节省技巧你得知道     橱柜采购 你得知道...     别在地板上犯错误     衣柜设计 教你省空间      瓷砖平整服帖有妙招     影视墙装修全过程     窗帘选购安装细解     预防墙身裂缝有技巧     组合书柜 实用又美观      装修日记     户型分析     施工交流     建材家具     达人扮家     装修基金  家居图集 阅读全部      三室两厅现代混搭     三室两厅现代混搭     89平地中海风情家     89平地中海风情家     165平北欧简约宅     165平北欧简约宅     89平两房两厅混搭     89平两房两厅混搭  热点新闻 网曝王丽坤疑插足于和伟婚姻 两人已相恋3年      台湾卖淫案38名女星完整特征名单曝光     买春名单曝光：天王级艺人与知名女星老公上榜     仅花10万元 北漂大叔回乡自建高大上独院别墅  精彩视频 进入视频频道      男子当街持钢管砸警车     男子当街持钢管砸警车     印度火车箱顶挤数百人     印度火车箱顶挤数百人     男生教室内遭多人暴打     男生教室内遭多人暴打     客机坠毁现场视频曝光     客机坠毁现场视频曝光  家居热图 阅读全部      彭于晏与他的绯闻女友     彭于晏与他的绯闻女友     富豪杜海涛 豪宅遍地     富豪杜海涛 豪宅遍地      谢霆锋砸4000万购豪宅     伏明霞身材走样？     邓文迪主动引诱布莱尔      揭李泽楷数栋豪宅     这个家除了砖全部网购     这二手房竟藏惊人秘密  彩票 贵金属 保险 话费 点卡 电影票      彩票:     双色球 3D 大乐透 七乐彩 时时彩 足彩     彩票开奖:     双色球 3D 大乐透 快3 11选5 七星彩     走势图:     双色球 3D 大乐透 时时彩 七星彩 11选5  点击排行 跟贴排行      12837263仅花10万元 北漂大叔回乡自建高大上独院别墅     2580207全家共用一缸洗澡水 外国人在日本生活时的困扰     3236649辣妈装修140平毛坯房 29.7万基建家具全包     488694西安女孩在北京建花房，手把手教你建造全过程！     566341卡车能拉着寝室到你的城市？侃一侃午睡这些事儿     655047天冷了，教你自制壁炉全过程！     749029江南小镇100万140平3层自建房 一年全程记录     848700刘嘉玲千万豪宅别墅内部全曝光 装潢赛皇家宫殿  博客/论坛 怕被炒美女遮肉弹身材扮丑      北京特产为啥让河南人包了     人民币剧烈贬值情景或再现     火鸡掐架场面惊人     盘点全球“最萌身高差”伴侣     牛圣山秋色  全局导航 网易 有态度 新闻 国内 评论 国际 探索 社会 军事 图片 体育 NBA CBA 综合 中超 国际足球 英超 西甲 意甲 娱乐 明星 图片 电影 资料库 电视 音乐 财经 股票 行情 产经 新股 金融 基金 商业 理财 汽车 购车 行情 选车 车型库 论坛 行业 用车 汽车图片 科技 中国概念股 科技企业库 女人 亲子 艺术 时尚 星座 情爱 免费试用 美容 女人图库 手机/数码 移动 笔记本 手机库 家电 手机论坛 平板 相机手机视频 房产/家居 北京房产 上海房产 广州房产 全部分站 楼盘库 家具 卫浴 衣柜 旅游 户外 贵州 美食 四川 景点 新疆 专题 西藏 教育 移民 考研 留学 公务员 外语 中小学 高考 校园 查看网易地图 下载网易新闻客户端 ? 1997-2015 网易公司版权所有 About NetEase | 公司简介 | 联系方法 | 招聘信息 | 客户服务 | 隐私政策 | 广告服务 | 网站地图 | 意见反馈 | 不良信息举报 ",
                 " 参考消息      中国     时事     社会     国际     亚太     趣闻     军事     周边     装备      图片     图说天下     财经     商业公司     评论     海外看中国      科技     探索     IT     译名     双语     漫谈     专题     图闻     锐参考      时事漫画     封面报道     军备办公室     战争之王     读书时间     国际先驱导报      全球十大房价涨幅最高城市     全球十大房价涨幅最高城市      全球10大年平均住房价格涨幅最高城市中，中国有两座城市上榜。>>     中国战机外销仍受发动机掣肘     中国战机外销仍受发动机掣肘      在中国人仿制的“侧卫”机型中，性能最强大的是歼-15、歼-11D和歼-16。>>     中国(广州)国际智能装备暨机器人博览会     北大乾元国学：十年磨砺，正本清源，学以致用     2016年《国际先驱导报》欢迎您的订阅     ad  习马会里程碑意义 滚动新闻      山西巡视反腐完成全覆盖 党政纪处分1880人     20:55     全面建小康 扬帆再起航 ——《中共中央关于制定国民经济和社会发展第十三个五年规划的建议》诞生记     20:55     邓文中：创新不能“太听话” 发展核心科技不能“差不多”     20:41     昆明一黑车女司机遭两“姘夫”谋杀碎尸     20:41     四部门：医疗资源相对集中城市仍存医托诈骗问题     20:41     台媒:英女子划船骑单车绕地球4年 太平洋求婚未婚妻     20:34     民政部：民政政务信息工作存时效性不够等问题     20:20     中俄边境5处实体界碑、地名碑正式落成     20:14     山西巡视反腐完成全覆盖 党政纪处分1880人     20:55     全面建小康 扬帆再起航 ——《中共中央关于制定国民经济和社会发展第十三个五年规划的建议》诞生记     20:55     邓文中：创新不能“太听话” 发展核心科技不能“差不多”     20:41     昆明一黑车女司机遭两“姘夫”谋杀碎尸     20:41     四部门：医疗资源相对集中城市仍存医托诈骗问题     20:41     台媒:英女子划船骑单车绕地球4年 太平洋求婚未婚妻     20:34     民政部：民政政务信息工作存时效性不够等问题     20:20     中俄边境5处实体界碑、地名碑正式落成     20:14   首页>中国频道>时事要闻>正文 山西巡视反腐完成全覆盖 党政纪处分1880人 2015-11-04 20:55:01 来源：中国新闻网 责任编辑：  中新社太原11月4日电 (李新锁)11月4日，山西省纪委发布消息，自2015年4月以来，山西省委安排5个常规巡视组对晋中、晋城等5市及所辖44个县(市、区)、11所院校进行巡视，完成对山西全省市县(区)巡视全覆盖。  期间，巡视组共向5市移交问题线索4311件，其中立案1297件，党政纪处分1880人，移交司法机关处理127人。  2015年4月，在经历塌方式腐败、重建官场之际，山西安排5个巡视组在5个月内巡视58个单位，其中包括了地级市、县区、高校，基层政府，巡视数量体量很大，被舆论称为“史上最长巡视”。  彼时，山西省委要求，本轮巡视要“用最坚决的态度减少腐败存量，用最果断的措施遏制腐败增量”，重构良好政治生态。  11月4日，山西省委巡视办介绍，在本轮巡视中，巡视组边巡视边移交边查处，不断提高巡视质量和效果，实现对山西市县(区)巡视全覆盖。本轮巡视共发现问题线索3228条，涉及省管干部82人、处级干部358人、班子成员158人、党政一把手30人。  山西省委巡视办表示，山西大部分市县区、院校党委管党治党意识不强，党员干部党性观念淡漠，出规破矩问题频现。部分党政机关人员违规经商办企业，一些领导干部插手土地转让、矿产开发等，为亲属及特定关系人经商办企业提供方便。部分市县区选人用人导向不正，违规提拔干部问题突出，“官二代”“富二代”提拔快且身居关键岗位。此外，懒政怠政、不担当、不作为、慢作为等问题突出。公款旅游依然存在，婚丧嫁娶大操大办借机敛财问题时有发生。  实际上，在官场重建过程中，山西从未放松“挖掘腐败存量、遏制腐败增量”。  两天前，山西腐败重灾区——吕梁市两名处级官员在同一天内被“双开”。不久前，山西省长治医学院原院长王庸晋和长治医学院附属和平医院原院长、长治市政协副主席魏武夫妻二人双双落马。  对于此轮巡视成果，山西省委书记王儒林主持召开省委“五人小组”会议，对涉及省管干部的问题线索正移交省纪委、省委组织部和相关部门处理。  “正视问题不回避、惩治腐败不手软，革弊立新、激浊扬清”，不久前，王儒林在向中央巡视组汇报时表示，山西充分发挥巡视“利剑”作用，已形成惩治腐败的高压态势和强大震慑。(完) 本文系转载，不代表参考消息网的观点。参考消息网对其文字、图片与其他内容的真实性、及时性、完整性和准确性以及其权利属性均不作任何保证和承诺，请读者和相关方自行核实。      印尼巨蜥公园内打架 口水战升级为摔跤赛印尼巨蜥公园内打架 口水战升级为摔跤赛     成功嫁入豪门的10大女星成功嫁入豪门的10大女星     鹦鹉患忧郁症自残 几乎将羽毛拔光鹦鹉患忧郁症自残 几乎将羽毛拔光     最美警校女教师走红 长相清纯上课被围观最美警校女教师走红 长相清纯上课被围观  您看完此新闻的心情是      [高兴]      高兴      0人     [感人]      感人      0人     [无聊]      无聊      0人     [搞笑]      搞笑      0人     [震惊]      震惊      0人     [愤怒]      愤怒      0人     [无奈]      无奈      0人     [害怕]      害怕      0人     [难过]      难过      0人      370斤女模特乘飞机被歧视 怒减180斤华丽蜕变370斤女模特乘飞机被歧视 怒减180斤华丽蜕变     猫头鹰收起翅膀掠过天空瞬间猫头鹰收起翅膀掠过天空瞬间     盘点宠物猫狗的绝妙隐身照：傻傻分不清楚盘点宠物猫狗的绝妙隐身照：傻傻分不清楚     西班牙变性人首次参加世界小姐比赛西班牙变性人首次参加世界小姐比赛     澳洲少女天生亚洲脸 每天扮成日本动漫人物澳洲少女天生亚洲脸 每天扮成日本动漫人物     女子街头假装喝醉 测试男人反应女子街头假装喝醉 测试男人反应     泰国17岁少女选美夺冠 回乡跪谢拾荒母亲泰国17岁少女选美夺冠 回乡跪谢拾荒母亲     整牙变脸型 揭露整牙对女星的重要性整牙变脸型 揭露整牙对女星的重要性  网友评论(0人参与，0条评论) 来说两句吧...      微博登录     QQ登录  还没有评论，快来抢沙发吧！ 畅言 精品推荐 图闻 图解国产大飞机C919 锐参考 全面放开二孩，你还会生吗？ 环球调查 国外如何管控危化品风险 精彩图集      只因长太美 女子恋爱多年没法领证只因长太美 女子恋爱多年没法领证     台湾孕妇在美国高空产女 婴儿获美籍母被遣回台湾孕妇在美国高空产女 婴儿获美籍母被遣回     变性女被囚男监 万人忧其遭性侵请求转移变性女被囚男监 万人忧其遭性侵请求转移     猫咪手袋风靡日本 价格超真猫猫咪手袋风靡日本 价格超真猫  热门图片      明星恋情见光死 扒扒娱乐圈10大短命恋情明星恋情见光死 扒扒娱乐圈10大短命恋情     女主播用橡胶易容 “变身”兔子杰西卡女主播用橡胶易容 “变身”兔子杰西卡     摄影师再现15个被动物“养”大的野孩子摄影师再现15个被动物“养”大的野孩子     国粹成玩物：性感钢管舞娘京剧打扮拍片国粹成玩物：性感钢管舞娘京剧打扮拍片  排行榜      24小时     一周     一月      1     港媒：联合国报告称日本13%少女援交 日本否认     2     北美海岸百万海星染病自杀 撕裂自己内脏喷出(     3     台媒:\"火球\"划过曼谷天空 诡异蓝光照亮夜空(     4     俄媒：宇航员在空间站看不到长城 能看见道路     5     摔机着陆！美媒:印空军流血不止 或不敌巴基斯     6     韩日慰安妇问题分歧依旧 安倍独自出门吃烧烤     7     美媒:CIA官员否认因“中国网袭”撤走驻北京特     8     外媒：中国欲借C919客机挑战外国巨头     9     一周军情锐评：俄军在叙亮肌肉 西方最近比较     10     外媒称进口葡萄酒在华遇冷：波尔多红酒15元贱  关于参考消息 | 版权声明 | 广告服务 | 联系我们 | 订阅《参考消息》 | 参考消息网招聘 | 网站导航  国新网备2012001互联网出版许可证（新出网证(京)字147号）京ICP备11013708 京公网安备110402440030  - 参考消息报社 版权所有 - 关闭 关闭 ",
+                " logoUPrivacy and cookiesJobsDatingOffersShopPuzzlesInvestor SubscribeRegisterLog in Telegraph.co.uk Search - enhanced by OpenText  Monday 16 November 2015      Home     Video     News     World     Sport     Finance     Comment     Culture     Travel     Life     Women     Fashion     Luxury     Tech     Cars     Film     TV      USA     Asia     China     Europe     Middle East     Australasia     Africa     South America     Central Asia     KCL Big Question     Expat     Honduras      France     Francois Hollande     Germany     Angela Merkel     Russia     Vladimir Putin     Greece     Spain     Italy      Home      News      World News      Europe      France  French air strikes will make little difference, warns Jeremy Corbyn Labour leader says the only way to deal with Isil threat is through a political settlement to Syria's long-running civil war                                                                                                             Email   El Corbyno: non-drinker, non-smoker, vegetarian Jeremy Corbyn doubts air strikes will make any difference in fight against Isil Photo: Nick Edwards/The Telegraph Michael Wilkinson  By Michael Wilkinson, Political Correspondent  9:48AM GMT 16 Nov 2015 Follow  French air strikes against Isil targets in Syria will make little difference, Labour leader Jeremy Corbyn has warned.  Following Friday's terror attacks in Paris, French warplanes mounted a series of strikes against the Isil - also referred to as Islamic State or Isis - stronghold of Raqqa.  \"I am not saying 'sit round the table with Isis', I am saying bring about a political settlement in Syria which will help then to bring some kind of unity government.\" Jeremy Corbyn  However Mr Corbyn said that the only way to deal with the threat from Isil was through a political settlement to Syria's long-running civil war.  \"Does the bombing change it  Probably not. The idea has to be surely a political settlement in Syria,\" he told ITV1's Lorraine programme.  He added: \"We have to be careful. One war doesn't necessarily bring about peace, it often can bring yet more conflicts, more mayhem and more loss.\"  The Labour leader criticised the media for focusing on Paris while at the same time giving \"hardly any publicity\" to an Isil attack in Beirut last week which killed more than 40 people or a bomb exploding at a peace rally in Turkey last month which killed 97 people.  He said: \"I think first of all what happened in Paris was appalling. This is a vibrant, multi-cultural city, young people of all faiths, and older people as well, all there together and cultures and this terrible thing happened. Likewise, which didn't unfortunately get hardly any publicity, was a bombing in Beirut last week or the killing in Turkey and I think our media needs to be able to report things that happened outside Europe as well as inside Europe. A life is a life.\"  Mr Corbyn acknowledged that achieving a settlement in Syria would be \"very difficult\" but said that international talks over the weekend appeared to have made some progress.  \"I am not saying 'sit round the table with Isis', I am saying bring about a political settlement in Syria which will help then to bring some kind of unity government - technical government - in Syria,\" he said.  The Labour leader said that the rise of Isil had raised some \"very big questions\" as to who was behind the jihadist group.  \"Who is funding Isis  Who is arming Isis  Who is providing safe havens for Isis  You have to ask questions about the arms that everyone has sold in the region, the role of Saudi Arabia in this. I think there are some very big questions,\" he said.     While Mr Corbyn said that the attacks in Paris were \"appalling\", he criticised the British media for giving little coverage to recent terrorist attacks in Turkey and Lebanon.  \"I think our media needs to be able to report things that happen outside Europe as well as inside Europe. A life is a life,\" he said. Follow @telegraphnews                                                                                                              Email     Promoted stories      What's the Most Popular Baby Name in Your State  AllAnalytics     TED Talks Live Continues With \"War & Peace\" at the… TheaterMania     Hollande says 'terrorists' at Paris Bataclan hall killed Nikkei Asian Review     Striking the Balance Between Information… CollaboristaBlog     Citi: English Proficiency Ensures Consistency Why English Matters by TOEIC     9 Tile Ideas To Upgrade Your Home Dwell     Stunning Moments of Discovery Through Travel… CNN     Top 5 Reasons The Philippines Is A Great Base… Century Spire Offices on INQUIRER.net     How Bad Were the First World War Generals  Dummies.com   Recommended by   Telegraph Sponsored      Maggie Smith: major roles     The brotherhood that inspired The Last Panthers     Seven habits to help you age happily   Recommended by  Top news galleries Gruesome food: 20 of the world's most bizarre dishes Gruesome food: 20 of the world's most bizarre dishes    As I'm A Celebrity... Get Me Out of Here! returns, we look at 20 of the strangest culinary delicacies from around the world Charles and Camilla down under Prince Charles (R) and his wife Camilla, Duchess of Duchess, wave farewell as they depart Australia in Perth    In pics: Duchess of Cornwall and Prince of Wales tour of New Zealand and Australia Pictures of the day Skipper the adventure dog goes for a paddle with his owner Jon Taylor on the canal in Wheaton Aston, Staffordshire    A paddling doggy, a London sunset and Paris in mourning Best looks from the weekend Best looks from the weekend    Jessica Alba and Gwen Stefani bring glamour to the Baby 2 Baby Gala, while other film stars flock to LA’s annual Governor’s Ball 25 great closing lines in films Claude Rains, Paul Henreid, Humphrey Bogart, Ingrid Bergman in 'Casablanca' . It had its premiere 70 years ago - on 26 November 1942   Film   Martin Chilton looks at some great final lines to movies Comments Rita Ora: Eurovision flop to X Factor New 'The Voice' judge Rita Ora with Ricky Wilson   Music    Ahead of tonight's X Factor results, here's the story of Rita Ora's unlikely rise Comments #PeaceForParis A peace vigil in Kathmandu    In pics: French cartoonist Jean Jullien's poignant drawing Paris terror attacks in pictures    In pics: Images from a night of carnage in France's capital as scores are killed and injured in Paris The 10 biggest doping scandals in sport - is the Russian drugs expose top     After Russia was accused of a state-sanctioned drugs programme in athletics, Ben Rumsby assesses the biggest doping scandals to hit sport Comments David Beckham Unicef match: Sports and celebrities including Sir Alex Ferguson and Ronaldinho turn out at Old Trafford    The stars were out for the 'Match for Children' on Saturday Comments  Ads by Google      British Expat In China       Avoid Losing 55% Of ￡70k+ Pensions Download A Free Expat Pension Guide      your.expatpensionreview.com     Expat Living In China       ￡50k-￡1m Or ￡500+ Regular Savings  Review Your Interest Rates Today!      expatsavingsreview.com     理财资讯：0元开户,炒黄金送$200      恒信贵金属,4倍赠金,开户送200美金,0佣金 0手续费,T+0双向交易,涨跌皆赚,免费开户      www.hx9999.com  Latest Video  Paris attacks: Anonymous declares war on Isil Anonymous declares war on Isil people have created a mural in Port de Solferino, Paris, under the words: WATCH LIVE Live: Paris marks minute silence Paris attacks: Girlfriend's moving tribute to British man killed at Bataclan theatre Girlfriend's moving tribute to British vicitm Mariesha Payne (L) and Christine Tadhope (R) (APTN) Survivors hid in cellar to escape gunmen Paris attacks: Sky News presenter Kay Burley reports from cafe following panic from false alarm News presenter during moment of panic BBC's Nick Robinson to have tumour removed BBC Radio 4 pips interrupted by person saying 's***'  More from the web      Profit from property without purchasing     Profit from property without purchasing      Rise in property prices, especially in London, can offer exciting opportunities for investors     View  More from the web      The future of online learning     The future of online learning      Fast, fun and fully interactive language courses available online.     View  More from the web Promoted stories The French and Indian War The French and Indian War (Dummies.com) Stormfall: Free and Addicting strategy game! Prepare for war! Stormfall: Free and Addicting strategy game! Prepare for war! (Stormfall) How to Use the SAS Pi Constant How to Use the SAS Pi Constant (AllAnalytics) Boston Children's Theatre Offers Theater Workshop to Military Families Boston Children's Theatre Offers Theater Workshop to Military Families (TheaterMania) Recommended by  SPONSORED FEATURES Telegraph Jobs Search for a new job and get help with your career today View Telegraph Jobs Why CV action words matter and how to use them View Telegraph Courses Discover a new language experience View Careers Advice What is your business worth  View  Back to top      HOME     News     UK News     Politics      Long Reads      Wikileaks     Jobs      World News     Europe     USA     China      Royal Family News      Celebrity news     Dating      Finance     Education     Defence      Weird News      Editor's Choice     Financial Services      Pictures     Video     Matt     Alex      Comment      Blogs     Crossword      Contact us     Privacy and Cookies     Advertising     Fantasy Football      Tickets      Announcements     Reader Prints      Follow Us     Apps     Epaper     Expat      Promotions     Subscriber     Syndication    Copyright of Telegraph Media Group Limited 2015  Terms and Conditions  Today's News  Archive  Style Book  Weather Forecast ",
+                " IEA Logo About News Publications Topics Countries Statistics EventsWorkshopsSpeechesNewslettersIEA in the newsMultimedia International Energy Agency  > Newsroom & events > IEA journal > Issue 7 Chinese national oil companies' investments: going global for energy A CNOOC facility in China. Investment abroad by the country's NOCs can bring home technologies needed to tap unconventional reserves.  The IEA tracks Chinese oil firms’ growing overseas investments, finding they are driven by commercial interests but may affect foreign policy  3 November 2014  Chinese national oil companies (NOCs) are the new big players on the global energy scene. In the last three years, they spent a total of USD 73 billion in upstream investments and now operate in more than 40 countries to control about 7% of worldwide crude oil output, raising alarms in some quarters about supply security and price.  To address those concerns, the IEA investigated the NOCs’ spending, producing two reports. The first, which in 2011 quantified the size and growth of investments, determined that the Chinese NOCs had been responsible for 61% of acquisitions by all NOCs in 2009. It also found that the Chinese companies’ overseas investments had, for the most part, increased global oil and gas supplies for all importers. A follow-up report this year confirmed the 2011 findings, adding that combined overseas oil and gas production by Chinese companies totalled 2.5 million barrels per day (mb/d), reflecting a geographic diversification of assets.  A growing degree of independence  The IEA studies, Overseas Investments by China’s National Oil Companies: Assessing the Drivers and Impacts and Update on Overseas Investments by China’s Oil Companies, did not find cause to believe that the Chinese NOCs operate under the direct instructions of, or in close co-ordination with, the central government. Instead, the studies determined that the companies, especially the big three – China National Petroleum Corporation (CNPC), parent company of PetroChina; China Petroleum & Chemical Corporation (Sinopec Group); and China National Offshore Oil Corporation (CNOOC) – had benefitted from three decades of economic reforms to gain a great deal of power in relation to the government.  China’s soaring domestic energy consumption has increased the NOCs’ financial and economic impact, giving them the means to lobby for greater influence. With domestic production stalled at just over 4 mb/d for the past two years, imports meet 59% of Chinese demand – which grew 3% last year and is expected to overtake that of the United States in 2030. While the NOCs remain primarily owned by the state, the studies found that they have carved out significant operational and investment independence from the government because of their historical associations with former ministries; top company officials’ high ranks within the Communist Party; the fragmented and decentralised nature of Chinese energy governance structure; and the companies’ much larger sizes and lobbying power relative to the government agencies tasked with overseeing them.  No evidence emerged from the IEA research that the Chinese government requires the companies to ship back overseas production to China, as some critics have suggested. Instead, the studies found, NOCs’ decisions about equity oil’s marketing are mainly based on commercial considerations, the production-sharing contracts involving the investments, or both.  “The IEA report (2011) disproved the common misconception that China’s NOCs were acting overseas under the instruction of the Chinese government,” the 2014 study says, adding that “further research conducted for this updated publication has uncovered no evidence to suggest that the Chinese government imposes a quota on the NOCs regarding the amount of their overseas oil that they must ship to China”.  Investments in countries near and far  Two big changes the IEA detected between the studies are the companies’ new emphasis on investment in unconventional oil and gas, and a reorientation from high-risk regions to areas with more stable geopolitics. The recalibration has come as countries in the Americas and Australia have been more welcoming of Chinese investment, while investments in other regions have had less success amid rising nationalism and political uncertainty.  The first significant setback for Chinese investment was in Sudan. Chinese NOCs are the biggest investors in South Sudan’s oil industry, but the investment was originally made before the new nation came into existence.  Sudan was among the very first countries to attract Chinese interest, with activities dating back to 1995. That involvement forced China to weather international scrutiny during the Darfur crisis, but by 2010, Chinese equity production in the country, most of whose oil fields are in the south, was 210 000 barrels per day (kb/d). After South Sudan’s 2011 independence, oil transport negotiations deadlocked, and by early 2012, nearly 900 Chinese-operated wells were shut or forced to reduce production. South Sudan expelled President Liu Yingcai of the Chinese-Malaysian oil consortium Petrodar for “non-cooperation”. By the end of 2013, CNPC and Sinopec reported oil production of only 84 kb/d in South Sudan and Sudan.  Unrest in South Sudan has not gone away, with intermittent fighting this year. But contrary to the position it adopted during the so-called Arab Spring and in Syria in particular, the Chinese government has sought to be a major mediator among the various factions.  Similarly, unrest in Iraq continues to threaten Chinese NOCs’ combined 472 kb/d production entitlement – 25% of all Chinese overseas oil output. China has long viewed Iraq as a replacement for reduced flow from Iran.  From 2007 the NOCs invested no less than USD 14 billion in Iranian oil and gas fields, making the country China’s third-largest oil supplier in 2010 and 2011, with 11% of total imports. But the effects of international sanctions dropped Iran to sixth place as of the end of 2013, just after Iraq and well behind top-ranked Saudi Arabia, which provides about half of all imports.   Libya also has been a deep disappointment, with fighting there cutting exports to China by more than one-third, to 0.8% of total imports in 2013. The government also had to arrange an emergency plan to evacuate 35 000 Chinese nationals from the country during the overthrow of the Qaddafi regime, and it subsequently has been involved in complex discussions concerning its pre-2011 contracts.   Then there is Syria, where Chinese companies had a total equity production of 84 kb/d, which fell to below 53 kb/d in 2011. By the end of 2013 only the small NOC Sinochem was still producing oil there, about 2.5 kb/d.  Security challenges have affected NOCs’ operations in Myanmar and Nigeria and potentially in Central Asia, where the competitive edge held from early entry is threatened by growing ethnic tensions and terrorist threats in the some of the five countries through which the Central Asia-China pipelines run. More trouble may follow, as CNPC successfully bid in 2012 to be among the first companies to explore for oil and gas in Afghanistan.  Not all of the NOCs’ setbacks have been the result of political unrest: some of their African investments, including in Niger and Chad, are at risk of reversal of contracts.  The companies have had greater success in Russia, Saudi Arabia and Central Asian countries such as Turkmenistan and Kazakhstan, where energy deals have been combined with other investment. Sinopec entered the refining industry in Saudi Arabia by investing USD 4.5 billion in the company’s first international downstream deal. A loan-for-gas deal with Turkmenistan secured 25 billion cubic metres (bcm) of gas supply, bringing total supply capacity to 65 bcm per year.  Increased co-operation with Western firms  The uneven results of investment in high-risk regions have led to a shift in Chinese investment to more stable regions as well as closer co-operation and co-ordination with independent oil companies of Western countries. Every Chinese NOC has expanded its global production portfolio significantly, particularly in North America and Australia, usually through direct acquisition when possible. Along with smaller Chinese companies, the NOCs invested USD 38 billion in 2013 in global upstream oil and gas mergers and acquisitions, up from USD 15 billion in 2012 and USD 20 billion in 2011. This shift not only has smoothed investments and purchases, according to the IEA report this year, but also has furthered China’s mastery of techniques it hopes to use for domestic production.  China’s National Energy Administration addressed research,development and demonstration projects in 2012’s 12th Five-Year Plan for Energy Technology, which calls for domestic development of shale gas, heavy oil and other unconventional energy sources. The Ministry of Land and Resources estimates that domestic shale gas reserves exceed the United States’, and expertise from NOCs’ investments in foreign companies could help develop those reserves. Global majors including Shell, ConocoPhillips, ENI and Total have co-operation accords with NOCs to conduct seismic surveys, exploration, and joint research to develop shale gas and oil blocks in China. But the new IEA study notes the significant differences between US and Chinese reserves, which will mean a potentially challenging adaptation of North American drilling technologies to China’s geological specifications.  Commercial influences on foreign policy  Given 21 years of surging investment in countries around the world, it was inevitable that Chinese NOCs would run into challenges and generate concerns. The IEA studies found that the companies have relied heavily on Chinese government support in the Middle East and in Sudan and South Sudan, raising two questions: will China’s commercial interests help shape the country’s foreign policy in these regions, and to what extent does the existence of substantial energy and other commercial investments already influence China’s diplomatic decisions  Today, perhaps the greatest challenge facing the NOCs is that their business interests are highly dependent on the evolution of Chinese foreign policy.  But the NOCs are not waiting as they charge ahead with overseas expansions and keep the pressure on both themselves and their government to garner more experience in their dealings in the international energy arena.  IEA keeps monitoring all NOCs’ investments  Given the potential effect on global energy security and engagement, two of the Agency’s principal concerns, the IEA carefully monitors ongoing investment by all NOCs around the world. While the Chinese companies’ overseas investments may have originated as primarily commercial moves, recent events have politicised many of them, and the IEA is among many observers watching how the Chinese NOCs and their government find ways to work with each other – and other players in the global energy sector – to reconcile these political and security issues.   This article by former IEA China Programme Officer Julie Jiang, originally appeared in IEA Energy: The Journal of the International Energy Agency. Julie Jiang left the IEA in 2014 after five years, during which she co-ordinated bilateral co-operation projects with China and co-wrote four publications. Prior to joining the IEA, she was a manager for the US Foreign Commercial Service’s programme in China.   Both Overseas Investments by China’s National Oil Companies: Assessing the Drivers and Impacts and Update on Overseas Investments by China’s Oil Companies are available for free; click on the title of each to download it.  Through the end of 2014, the IEA regularly produced IEA Energy, but analysis and views contained in the journal are those of individual IEA analysts and not necessarily those of the IEA Secretariat or IEA member countries, and are not to be construed as advice on any specific issue or situation. Click here to view past issues of IEA Energy.        Browse IEA news by topic: China Oil Global Engagement inShare88 Tweet Recent News      Executive Director meets with Australian Prime Minister     IEA releases Oil Market Report for November     IEA hails launch of Canadian CO2 storage project, first to cut emissions from oil sands     Free IEA headline statistics aim to widen understanding of energy production and use     IEA updates carbon emissions data ahead of climate change negotiations, revealing recent trends      TwitterFacebookLinkedInYouTubeGooglePlus  About us      Delegates     Outlook     History     Members     Contact us     Executive office     Jobs     Training     Technology Platform  Topics      Carbon capture     Climate change     Coal     Electricity     Energy efficiency     Energy poverty     Energy security     Energy technology     Natural gas     Nuclear     Oil     Renewables     Transport  Countries      Member countries     Non-member countries  News      Events     IEA in the news     Multimedia  Statistics      Data services     Statistics by country     Policies & Measures Database      Contact us Terms and Conditions, Use and Copyright Sitemap Delegates     2015 OECD/IEA",
                 };
         for (int i = 0; i < contents.length; i++) {
             System.out.println("来源：" + getSource(contents[i])+"，作者："+getAuthor(contents[i])+"，编辑：" +getEditor(contents[i])+ "，时间："+getDate(contents[i]) );
+            System.out.println("来源：" + getSourceE(contents[i])+"，作者："+getAuthorE(contents[i])+"，编辑：" +getEditorE(contents[i])+ "，时间："+getDate(contents[i]) );
         }
     }
 }
