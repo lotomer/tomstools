@@ -18,7 +18,7 @@ public interface SiteMapper {
      *            词条编号
      * @return 最后一次统计的时间
      */
-    public Date selectLastStatTime(@Param("TYPE_ID") Integer typeId);
+    public java.util.Date selectLastStatTime(@Param("TYPE_ID") Integer typeId);
 
     public void deleteStat();
     

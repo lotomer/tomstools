@@ -380,7 +380,10 @@ public class SolrService {
                     }
 					// 从host中解析站点
 					int siteId = getSiteIdByHost(sites, host);
-
+					// 没有匹配上站点，则跳过
+					if (-1 == siteId){
+					    continue;
+					}
 					// 保存明细到数据库
 					// 判断对应的url是否已经存在，如果不存在则添加
 					String flag = siteMapper.checkUrl(new String(encoder.encrypt(url.getBytes())));
@@ -392,8 +395,20 @@ public class SolrService {
 					    if (null == publishTime || publishTime.after(dt)){
 					        publishTime = dt;
 					    }
+                        String source = getSource(content);
+                        String author = getAuthor(content);
+                        String editor = getEditor(content);
+                        if (!StringUtils.isEmpty(source) && 128 < source.length()){
+                            source = source.substring(0,128);
+                        }
+                        if (!StringUtils.isEmpty(author) && 128 < author.length()){
+                            author = author.substring(0,128);
+                        }
+                        if (!StringUtils.isEmpty(editor) && 128 < editor.length()){
+                            editor = editor.substring(0,128);
+                        }
 						siteMapper.saveDetail(typeId, templateType, siteId, String.valueOf(doc.getFieldValue("title")),
-						        url, new java.sql.Date(dt.getTime()),getSource(content),getAuthor(content),getEditor(content),
+						        url, new java.sql.Date(dt.getTime()),source,author,editor,
 						        new java.sql.Date(publishTime.getTime()),new String(encoder.encrypt(url.getBytes())));
 					}
 				}
