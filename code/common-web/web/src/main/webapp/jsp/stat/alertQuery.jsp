@@ -15,7 +15,7 @@
 		style="height: 80px;padding:5px 30px;">
 		<table>
 			<tr>
-				<td ><label>通知类型：</label></td>
+				<td ><label>通知方式：</label></td>
                 <td><input id="selAlertType" data-options='editable: false,data:[{value:"*",text:"--请选择--"},{value:0,text:"站内通知"},{value:1,text:"邮件通知"},{value:2,text:"短信通知"}]' class="easyui-combobox"></input></td>
                 <td ><label>通知状态：</label></td>
                 <td><input id="selNotifyStatus" data-options='editable: false,data:[{value:"*",text:"--请选择--"},{value:0,text:"未通知"},{value:1,text:"已通知"},{value:2,text:"通知失败"}]' class="easyui-combobox"></input></td>
