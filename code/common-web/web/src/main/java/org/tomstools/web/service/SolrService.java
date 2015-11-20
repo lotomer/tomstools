@@ -3,6 +3,7 @@
  */
 package org.tomstools.web.service;
 
+import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -394,7 +395,8 @@ public class SolrService {
                     }
 					// 保存明细到数据库
 					// 判断对应的url是否已经存在，如果不存在则添加
-					String flag = siteMapper.checkUrl(new String(encoder.encrypt(url.getBytes())));
+					String urlEncode = new String(encoder.encrypt(url.getBytes()));
+					String flag = siteMapper.checkUrl(urlEncode);
 					if (StringUtils.isEmpty(flag)) {
 					    saveCount++;
 					    Date dt = (Date) doc.getFieldValue("tstamp");
@@ -424,9 +426,13 @@ public class SolrService {
                         if (!StringUtils.isEmpty(editor) && 128 < editor.length()){
                             editor = editor.substring(0,128);
                         }
-						siteMapper.saveDetail(typeId, templateType, siteId, String.valueOf(doc.getFieldValue("title")),
+                        try{
+                            siteMapper.saveDetail(typeId, templateType, siteId, String.valueOf(doc.getFieldValue("title")),
 						        url, new java.sql.Date(dt.getTime()),source,author,editor,
-						        new java.sql.Date(publishTime.getTime()),new String(encoder.encrypt(url.getBytes())));
+						        new java.sql.Date(publishTime.getTime()),urlEncode);
+                        }catch(SQLException e){
+                            LOG.warn(e.getMessage(),e);
+                        }
 					}
 				}
 				if (size == datas.size()) {

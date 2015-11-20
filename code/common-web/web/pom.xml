@@ -196,7 +196,7 @@
 				<mail.host>smtp.163.com</mail.host>
 				<mail.port>25</mail.port>
 				<mail.user>org_energypo</mail.user>
-				<mail.password>qwe123</mail.password>
+				<mail.password>bwjhfhicqyyfdgbn</mail.password>
 				
 				<mail.smtp.auth>true</mail.smtp.auth>
 				<mail.smtp.from>org_energypo@163.com</mail.smtp.from>
@@ -219,7 +219,7 @@
 				<mail.host>smtp.163.com</mail.host>
 				<mail.port>25</mail.port>
 				<mail.user>org_energypo</mail.user>
-				<mail.password>qwe123</mail.password>
+				<mail.password>bwjhfhicqyyfdgbn</mail.password>
 				
 				<mail.smtp.auth>true</mail.smtp.auth>
 				<mail.smtp.from>org_energypo@163.com</mail.smtp.from>

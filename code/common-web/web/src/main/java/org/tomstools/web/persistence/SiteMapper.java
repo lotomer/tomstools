@@ -1,6 +1,7 @@
 package org.tomstools.web.persistence;
 
 import java.sql.Date;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 
@@ -45,7 +46,7 @@ public interface SiteMapper {
     public void saveDetail(@Param("TYPE_ID") int typeId, @Param("TEMPLATE_TYPE") String templateType,
             @Param("SITE_ID") int siteId, @Param("TITLE") String title, @Param("URL") String url,
             @Param("TSTAMP") Date tstamp, @Param("SOURCE") String source, @Param("AUTHOR") String author,
-            @Param("EDITOR") String editor, @Param("PUBLISH_TIME") Date publishTime, @Param("URL_ENCODE") String urlEncode);
+            @Param("EDITOR") String editor, @Param("PUBLISH_TIME") Date publishTime, @Param("URL_ENCODE") String urlEncode) throws SQLException;
 
     public List<Map<String, Object>> selectDetail(@Param("TYPE_ID") Integer typeId, @Param("START") Integer start,
             @Param("ROWS") Integer rows);

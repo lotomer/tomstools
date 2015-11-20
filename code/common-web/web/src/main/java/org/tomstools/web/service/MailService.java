@@ -7,6 +7,7 @@ package org.tomstools.web.service;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.stereotype.Controller;
@@ -39,7 +40,11 @@ public class MailService {
 	        mailMessage.setTo(to);
 	        mailMessage.setSubject(title);
 	        mailMessage.setText(content);
-	        javaMailSender.send(mailMessage);
+	        try{
+	            javaMailSender.send(mailMessage);
+	        }catch(MailException e){
+	            LOG.error("Send mail failed! From " + javaMailSender.getUsername() + " to " + to + ":" + e.getMessage(),e);
+	        }
 	        return true;
 	    }else{
 	        LOG.warn("Need config the mail host!");
