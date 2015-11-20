@@ -63,7 +63,7 @@
                 </div>
             </form>
         </div>
-        <div id="login_copyright">Copyright&copy;2015 网络舆情监控系统  All rights reserved.</div>
+        <div id="login_copyright">Copyright&copy;2015 中国国际能源舆情研究中心  All rights reserved.</div>
     </div>
     <script type="text/javascript" src="js/jquery.min.js"></script>
     <script type="text/javascript" src="js/easyui/jquery.easyui.min.js"></script>

@@ -29,7 +29,7 @@
 	</div>
 	<div data-options="region:'south',border:false"
 		style="height: 26px; text-align: center; padding: 5px 10px;">
-		Copyright&copy;2015 网络舆情监控系统 All rights reserved.</div>
+		Copyright&copy;2015 中国国际能源舆情研究中心 All rights reserved.</div>
 	<div  data-options="region:'west',split:false,border:false,fit:false" title=""
 		style="width: 80px;height: 100%">
 		<div id="menu" style="width: 100%;background-color: #333;height: 99%">
