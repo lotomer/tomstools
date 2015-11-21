@@ -124,7 +124,7 @@
 	}
 	var url, siteData;
 	function add() {
-		$('#dlg').dialog('open').dialog('setTitle', '新增站点');
+		$('#dlg').dialog('open').dialog('setTitle', '新增预警设置');
 		$('#fm').form('clear');
 		$('#selAlertType').combobox("select","0");
 		url = 'setting/alert/add.do?key=' + key;
@@ -132,7 +132,7 @@
 	function edit() {
 		var row = $('#divMetric').datagrid('getSelected');
 		if (row) {
-			$('#dlg').dialog('open').dialog('setTitle', '修改站点');
+			$('#dlg').dialog('open').dialog('setTitle', '修改预警设置');
 			$('#fm').form('clear').form('load', row);
 			url = 'setting/alert/save.do?key=' + key + '&id=' + row.ALERT_ID;
 			selectCombobox(row);
@@ -194,7 +194,7 @@
 		var divMetric = $('#divMetric'), pageSize = 15;
 		divMetric.datagrid({
 			toolbar : '#tb',
-			title : '站点列表',
+			title : '预警设置列表',
 			url : "setting/alert/select.do",
 			fitColumns : true,
 			rownumbers : true,
