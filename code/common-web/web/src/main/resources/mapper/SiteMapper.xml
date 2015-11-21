@@ -105,7 +105,7 @@
         </if><if test="SITE_TYPE_ID != null">
         	cs.SITE_TYPE_ID=#{SITE_TYPE_ID} AND
         </if><![CDATA[
-		PUBLISH_TIME BETWEEN #{START_TIME} AND #{END_TIME}
+		PUBLISH_TIME BETWEEN #{START_TIME} AND #{END_TIME} AND r.IS_VALID=1
 		) a GROUP BY TYPE_ID,TYPE_NAME ORDER BY SIZE_FM desc,SIZE_FM_E desc,SIZE_ZM desc,SIZE_ZM_E desc
     ]]></select>
     <select id="statWordsCountQuery_BAK" resultType="map"><![CDATA[
@@ -139,7 +139,7 @@
         </if><if test="TYPE_ID != null">
         	s.TYPE_ID=#{TYPE_ID} AND
         </if><![CDATA[
-		PUBLISH_TIME BETWEEN #{START_TIME} AND #{END_TIME}
+		PUBLISH_TIME BETWEEN #{START_TIME} AND #{END_TIME} AND r.IS_VALID=1
 		ORDER BY PUBLISH_TIME DESC, CRAWL_TIME DESC  LIMIT #{START},#{ROWS}
     ]]></select>
     <select id="countWordsQueryDetail" resultType="int"><![CDATA[
@@ -157,7 +157,7 @@
         </if><if test="TYPE_ID != null">
         	s.TYPE_ID=#{TYPE_ID} AND
         </if><![CDATA[
-		PUBLISH_TIME BETWEEN #{START_TIME} AND #{END_TIME}
+		PUBLISH_TIME BETWEEN #{START_TIME} AND #{END_TIME} AND r.IS_VALID=1
     ]]></select>
     
     <delete id="deleteStat">
@@ -185,8 +185,8 @@
     <select id="selectDetail" resultType="map"><![CDATA[
     	SELECT s.DETAIL_SEQ,s.TEMPLATE_TYPE,s.TYPE_ID,r.TYPE_NAME,s.SITE_ID,cs.SITE_NAME,s.TITLE,s.URL,DATE_FORMAT(s.CRAWL_TIME,'%Y-%m-%d') CRAWL_TIME,DATE_FORMAT(s.PUBLISH_TIME,'%Y-%m-%d') PUBLISH_TIME,DATE_FORMAT(s.IN_TIME,'%Y-%m-%d') IN_TIME
 		FROM T_POM_R_DETAIL s LEFT JOIN T_CRAWL_C_SITE cs ON (s.SITE_ID=cs.SITE_ID) 
-		LEFT JOIN T_POM_C_RULE r ON (s.TYPE_ID=r.TYPE_ID)
-    	]]><if test="TYPE_ID != null"> WHERE s.TYPE_ID=#{TYPE_ID}</if>
+		LEFT JOIN T_POM_C_RULE r ON (s.TYPE_ID=r.TYPE_ID) WHERE
+    	]]><if test="TYPE_ID != null"> s.TYPE_ID=#{TYPE_ID} AND </if> r.IS_VALID=1
     	<![CDATA[ORDER BY PUBLISH_TIME DESC LIMIT #{START},#{ROWS}
     ]]></select>
     <select id="checkUrl" resultType="string"><![CDATA[
@@ -200,7 +200,7 @@
         ]]><if test="TYPE_ID != null">
         	s.TYPE_ID=#{TYPE_ID} AND
         </if><![CDATA[
-		STAT_TIME BETWEEN #{START_TIME} AND #{END_TIME}
+		STAT_TIME BETWEEN #{START_TIME} AND #{END_TIME} AND r.IS_VALID=1
 		GROUP BY r.TYPE_ID,r.TYPE_NAME,dt ORDER BY dt desc
     ]]></select>
     <select id="selectStatsCount" resultType="map"><![CDATA[
@@ -209,7 +209,7 @@
         ]]><if test="TYPE_ID != null">
         	s.TYPE_ID=#{TYPE_ID} AND
         </if><![CDATA[
-		STAT_TIME BETWEEN #{START_TIME} AND #{END_TIME}
+		STAT_TIME BETWEEN #{START_TIME} AND #{END_TIME} AND r.IS_VALID=1
 		GROUP BY r.TYPE_ID,r.TYPE_NAME
 		ORDER BY SIZE_TOTAL desc
     ]]></select>
