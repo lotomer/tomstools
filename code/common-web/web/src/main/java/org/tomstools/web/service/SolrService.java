@@ -162,23 +162,27 @@ public class SolrService {
             } else {
                 beginTime = new Date(endTime.getTime() - STAT_TIME_DEFAULT);
             }
-            // 获取正面信息数
-            if (!StringUtils.isEmpty(templateZM)) {
-                count += getSiteCount(typeId, "ZM", solrTool, sites, templateZM, beginTime, endTime);
-
-            }
-            // 获取负面信息数
-            if (!StringUtils.isEmpty(templateFM)) {
-                count += getSiteCount(typeId, "FM", solrTool, sites, templateFM, beginTime, endTime);
-            }
-
-            // 获取正面信息数
-            if (!StringUtils.isEmpty(templateZM_E)) {
-                count += getSiteCount(typeId, "ZM_E", solrTool, sites, templateZM_E, beginTime, endTime);
-            }
-            // 获取负面信息数
-            if (!StringUtils.isEmpty(templateFM_E)) {
-                count += getSiteCount(typeId, "FM_E", solrTool, sites, templateFM_E, beginTime, endTime);
+            try{
+                // 获取正面信息数
+                if (!StringUtils.isEmpty(templateZM)) {
+                    count += getSiteCount(typeId, "ZM", solrTool, sites, templateZM, beginTime, endTime);
+    
+                }
+                // 获取负面信息数
+                if (!StringUtils.isEmpty(templateFM)) {
+                    count += getSiteCount(typeId, "FM", solrTool, sites, templateFM, beginTime, endTime);
+                }
+    
+                // 获取正面信息数
+                if (!StringUtils.isEmpty(templateZM_E)) {
+                    count += getSiteCount(typeId, "ZM_E", solrTool, sites, templateZM_E, beginTime, endTime);
+                }
+                // 获取负面信息数
+                if (!StringUtils.isEmpty(templateFM_E)) {
+                    count += getSiteCount(typeId, "FM_E", solrTool, sites, templateFM_E, beginTime, endTime);
+                }
+            }catch(Exception e){
+                LOG.warn(e.getMessage(),e);
             }
         }
         if (0 < count){
