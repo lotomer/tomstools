@@ -47,7 +47,7 @@ public class SystemAction {
             @RequestParam(value = "id", required = false) Integer userId,
             @RequestParam(value = "OLD_PASSWORD", required = false) String oldPassword,
             @RequestParam(value = "NEW_PASSWORD", required = false) String newPassword,
-            @RequestParam(value = "NICK_NAME", required = true) String nickName,
+            @RequestParam(value = "NICK_NAME", required = false) String nickName,
             @RequestParam(value = "EMAIL", required = false) String email,
             @RequestParam(value = "PHONE_NUMBER", required = false) String phoneNumber,
             @RequestParam(value = "CLIENT_IP", required = false) String clientIp, HttpServletRequest req,

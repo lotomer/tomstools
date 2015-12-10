@@ -195,6 +195,7 @@
 		$('#WORD').combobox('textbox').bind('keyup', function(e){
 			queryWord($('#WORD').combobox('getText'));
 		});
+		VALID_KEY=["0","1","2","3","4","5","6","7","8","9","\"","~"];
 		$("textarea.ta").bind("keypress",function(e) {
 			if (e.keyCode != 8   // 删除键-向前
 				&& e.keyCode != 46 //删除键-向后
@@ -203,8 +204,11 @@
 				&& e.keyCode != 39 //方向键-向右
 				&& e.keyCode != 40 //方向键-向下
 				){
-				// 屏蔽
-				e.preventDefault();
+				if (-1 == arrayIndexOf(VALID_KEY,e.key)){
+					//log(e);
+					// 屏蔽
+					e.preventDefault();
+				}
 			}
 		}).focus(function() {  
             this.style.imeMode='disabled';  
