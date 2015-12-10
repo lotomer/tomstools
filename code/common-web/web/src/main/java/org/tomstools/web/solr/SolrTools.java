@@ -251,7 +251,7 @@ public class SolrTools {
 	}
 
 	public static void main(String[] args) throws Exception {
-		test1("http://192.168.172.129:8983/solr");
+		test2("http://203.130.40.177:8983/solr");
 	}
 
 	public static void test1(String solrServer) throws Exception {
@@ -268,7 +268,7 @@ public class SolrTools {
 		ArrayList<String> serverUrls = new ArrayList<String>();
 		serverUrls.add(solrServer);
 		SolrTools solr = new SolrTools(serverUrls);
-		String query = "text:习大大 AND 论坛  NOT 2014";
+		String query = "text:张来斌 AND （石油大学校长 OR 华东石油学院 OR 石油大学) AND ( 学术 OR 成果)";
 		List<String> selectFields = new ArrayList<String>();
 		selectFields.add("title");
 		selectFields.add("url");

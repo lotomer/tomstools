@@ -107,6 +107,11 @@
 			<type>jar</type>
 			<scope>compile</scope>
 		</dependency>
+		<!-- <dependency>
+			<groupId>org.apache.solr</groupId>
+			<artifactId>solr-core</artifactId>
+			<version>${solr.version}</version>
+		</dependency> -->
 
 		<dependency>
 			<groupId>commons-fileupload</groupId>
@@ -212,8 +217,8 @@
 				<datasource>dataSource_c3p0</datasource>
 				<jdbc_classname>com.mysql.jdbc.Driver</jdbc_classname>
 				<jdbc_url>jdbc:mysql://127.0.0.1:3306/common?useUnicode=true&amp;characterEncoding=UTF-8</jdbc_url>
-				<jdbc_user>root</jdbc_user>
-				<jdbc_password>root123</jdbc_password>
+				<jdbc_user>mysql</jdbc_user>
+				<jdbc_password>mysql123</jdbc_password>
 				<jndi>NONE</jndi>
 				<!-- 邮件发送配置 -->
 				<mail.host>smtp.163.com</mail.host>

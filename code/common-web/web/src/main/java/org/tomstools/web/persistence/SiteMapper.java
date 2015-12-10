@@ -122,4 +122,6 @@ public interface SiteMapper {
 
     public int countHot(@Param("START_TIME") Date startTime, @Param("END_TIME") Date endTime,
             @Param("FLAG") String flag);
+
+    public List<String> queryWords(@Param("WORD") String word);
 }

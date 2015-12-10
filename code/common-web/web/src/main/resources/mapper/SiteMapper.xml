@@ -219,4 +219,8 @@
         	TYPE_ID=#{TYPE_ID} AND
         </if><![CDATA[STAT_TIME BETWEEN #{START_TIME} AND #{END_TIME}
     ]]></select>
+    <select id="queryWords" resultType="map"><![CDATA[
+        SELECT WORD,TENDENCY,LANG_ID FROM T_POM_C_WORD 
+ 		WHERE WORD LIKE #{WORD} AND IS_VALID=1 ORDER BY TENDENCY DESC,CHAR_LENGTH(WORD) limit 10
+    ]]></select>
 </mapper>

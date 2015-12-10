@@ -174,35 +174,26 @@
 				}
 			})
 		})(jQuery);
-		$.ajax({
-			url : 'setting/word/select.do?key='+key,
-			dataType : 'json',
-			async : true,
-			success : function(data){
-				if (data && data.length){
-					data.sort(function(a,b){return b.TENDENCY-a.TENDENCY;});
-					window.WORDLIST=data;
-					$('#WORD').combobox({
-			            valueField: "WORD",
-			            textField: "WORD",
-			            groupField:"TENDENCY",
-			            panelHeight: 350,
-			            editable: true,
-			            selectOnNavigation: true,
-			            groupFormatter: function(group){
-			        		if (-1 == group){
-			        			return "贬义词";
-			        		}else if (1 == group){
-			        			return "褒义词";
-			        		}else{
-			        			return "中性词";
-			        		}
-			        	},
-			            data: data
-			        });
-					
-				}
-			}
+		$('#WORD').combobox({
+            valueField: "WORD",
+            textField: "WORD",
+            groupField:"TENDENCY",
+            panelHeight: 350,
+            editable: true,
+            selectOnNavigation: false,
+            groupFormatter: function(group){
+        		if (-1 == group){
+        			return "贬义词";
+        		}else if (1 == group){
+        			return "褒义词";
+        		}else{
+        			return "中性词";
+        		}
+        	},
+            data: []
+        });
+		$('#WORD').combobox('textbox').bind('keyup', function(e){
+			queryWord($('#WORD').combobox('getText'));
 		});
 		$("textarea.ta").bind("keypress",function(e) {
 			if (e.keyCode != 8   // 删除键-向前
@@ -225,6 +216,21 @@
 		// 绑定事件
 		query();
 	});
+	function queryWord(value){
+		if (!value) return;
+		$.ajax({
+			url : 'crawl/query/queryWord.do?key='+key + '&WORD=' + encodeURIComponent(value),// + "&_r=" + Math.random(),
+			dataType : 'json',
+			async : true,
+			success : function(data){
+				if (data && data.length){
+					window.WORDLIST=data;
+					$('#WORD').combobox("loadData",data).combobox("setText",value);
+					$('#WORD').combobox('textbox').focus();
+				}
+			}
+		});
+	}
 	function insertWord(word){
 		if (TEXTAREA_ID){
 			var obj = $("#" + TEXTAREA_ID);

@@ -721,4 +721,21 @@ public class StatAction {
 		}
 		return "[]";
 	}
+	
+	@RequestMapping("/query/queryWord.do")
+    public @ResponseBody String queryWord(@RequestParam("key") String key,
+            @RequestParam(value = "WORD", required = true) String word, 
+            @RequestParam(value = "page", required = false) Integer page,
+            @RequestParam(value = "rows", required = false) Integer rows,HttpServletRequest req,
+            HttpServletResponse resp) throws Exception {
+        resp.setContentType("application/json;charset=UTF-8");
+        User user = userService.getUserByKey(key);
+        if (user != null){
+            List<String> result = solrService.queryWords(word + '%');
+            if (null != result) {
+                return JSON.toJSONString(result);
+            }
+        }
+        return "[]";
+    }
 }

@@ -113,7 +113,7 @@ function initComboboxWithData(containId,data,onSelectCallback,force,valueField,t
         });
         if (defaultValue != undefined){
         	$('#' + containId).combobox("select",defaultValue);
-        }else{
+        }else if(isArray(result) && result.length > 0){
         	$('#' + containId).combobox("select",result[0].id);
         }
     }
