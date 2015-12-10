@@ -3,6 +3,8 @@
  */
 package org.tomstools.web.action;
 
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -293,9 +295,21 @@ public class BusinessSettingAction {
 	// -- 词汇管理 --
 	// ------------------------------------------------------------
 	@RequestMapping("/word/select.do")
-	public @ResponseBody String selectWordList() {
-		List<Map<String, Object>> result = businessSettingService.selectWordList();
-		return JSON.toJSONString(result);
+	public @ResponseBody String selectWordList(
+            @RequestParam(value = "page", required = false) Integer page,
+            @RequestParam(value = "rows", required = false) Integer rows, HttpServletRequest req,
+            HttpServletResponse resp) {
+		rows = rows == null? 10 : rows;
+        int startNum = page == null ? 0 : (page - 1) * rows;
+        int total = businessSettingService.countWord();
+        List<Map<String, Object>> details = businessSettingService.selectWordList(startNum, rows);
+        if (null == details){
+            details = Collections.emptyList();
+        }
+        Map<String,Object> result = new HashMap<String, Object>();
+        result.put("total", total);
+        result.put("rows", details);
+        return JSON.toJSONString(result);
 	}
 
 	@RequestMapping("/word/delete.do")

@@ -68,7 +68,8 @@ public interface BusinessSettingMapper {
 	//////////////////////////////////////////////////
 	// 词汇管理
 	//////////////////////////////////////////////////
-	public List<Map<String, Object>> selectWordList();
+	public int countWord();
+	public List<Map<String, Object>> selectWordList(@Param("START") Integer start, @Param("ROWS") Integer rows);
 	public Integer selectWordIdByWord(@Param("WORD") String word);
 
 	public void deleteWord(@Param("WORD") String word);

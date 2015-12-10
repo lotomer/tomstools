@@ -78,8 +78,13 @@ public class BusinessSettingService {
 		businessSettingMapper.addSiteDetail(siteId,url);
 	}
 
-	public List<Map<String, Object>> selectWordList() {
-		return businessSettingMapper.selectWordList();
+	public int countWord(){
+	    return businessSettingMapper.countWord();
+	}
+	public List<Map<String, Object>> selectWordList(Integer start, Integer rows) {
+	    start = null != start ? start : 0;
+        rows = null != rows ? rows : 10;
+		return businessSettingMapper.selectWordList(start,rows);
 	}
 
 	public void deleteWord(String word) {

@@ -87,11 +87,17 @@
     </insert>
     
     <!-- 词汇管理 -->
+    <select id="countWord" resultType="int">
+        SELECT count(1)
+		FROM T_POM_C_WORD u
+		WHERE 
+		u.IS_VALID=1
+    </select>
     <select id="selectWordList" resultType="map">
         SELECT u.*
 		FROM T_POM_C_WORD u
 		WHERE 
-		u.IS_VALID=1
+		u.IS_VALID=1 limit #{START},#{ROWS}
     </select>
     <select id="selectWordIdByWord" resultType="int">
         SELECT ID

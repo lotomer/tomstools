@@ -145,78 +145,37 @@
 		$('#divWordContent').html('');
 		$('#divWordContent').append(
 				'<div id="divMetric" style="width:100%;height:100%"></div>');
-		var divMetric = $('#divMetric'), pageSize = 15;
-		divMetric.datagrid({
-			toolbar : '#tb',
-			//title:'${title}',
-			url : "setting/word/select.do",
-			queryParams: {key:key},
-			fitColumns : false,
-			rownumbers : true,
-			singleSelect : true,
-			remoteSort : false,
-			//idField : "TYPE_ID",
-			//sortName : "status",
-			//sortOrder : "asc",
-			pagination : true,
-			pageSize : pageSize,
-			pageList : getPageList(pageSize),
-			columns : [ [ {
-				field : 'TENDENCY',
-				title : '词性',
-				align : 'center',
-				halign : 'center',
-				formatter: function(value){
-					if (-1 == value){
-						return '贬义词';
-					}else if (1 == value){
-						return '褒义词';
-					}else{
-						return '中性词';
+		
+		$.ajax({
+			url : 'setting/word/select.do?key='+key,
+			dataType : 'json',
+			async : true,
+			success : function(data){
+				if (data && data.length){
+					for(var i = 0,iLen = data.length;i < iLen;i++){
+						showWord(data[i].WORD,data[i].TENDENCY,data[i].LANG_ID);
 					}
 				}
-			}, {
-				field : 'LANG_ID',
-				title : '语言',
-				align : 'center',
-				halign : 'center',
-				formatter: function(value){
-					if (0 == value){
-						return '中文';
-					}else if (1 == value){
-						return '英文';
-					}else{
-						return '未知';
-					}
-				}
-			}, {
-				field : 'WORD',
-				title : '词汇',
-				align : 'center',
-				halign : 'center',
-				width: 500,
-				formatter: function(value,row){
-					return '<a title="' + value + '" style="display:block;overflow:hidden; text-overflow:ellipsis;">' + value + '</a>';
-				}
-			}, {
-				field : 'A',
-				title : '删除',
-				align : 'center',
-				halign : 'center',
-				formatter: function(value,row){
-					return '<a href="#" onclick="javascript:removeit(\'' + row.WORD + '\')">删除</a>';
-				}
-			}]]});
+			}
+		});
 	}
 	
+	function showWord(word,typeId,langId){
+		var container = $('#divMetric'),color='white';
+		if (-1 == typeId){
+			color='RGB(252,182,198)';
+		}else if (1 == typeId){
+			color = 'RGB(181,253,214)';
+		}
+		container.append('<div id="word_' + word + '" class="word" style="background-color:' + color + '"><span>' + word + '</span><a class="clear" href="javascript:removeit(\'' + word+ '\')">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a></div>');
+	}
 	function removeit(id){
         if (id != undefined){
             $.messager.confirm('删除确认','确定要删除吗？',function(r){
                 if (r){
                     $.post("setting/word/delete.do",{id:id,key:key},function(result){
                         if (!result){
-                            //$('#word_' + id).remove();
-                            query();
+                            $('#word_' + id).remove();
                         } else {
 							showErrorMessage('操作失败',result);
                         }
