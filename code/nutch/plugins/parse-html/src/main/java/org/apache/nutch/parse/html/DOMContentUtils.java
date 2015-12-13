@@ -164,6 +164,13 @@ public class DOMContentUtils {
       if (nodeType == Node.COMMENT_NODE) {
         walker.skipChildren();
       }
+      // TODO 需要新增内容：   、所有article标签中的内容、h1标签的内容及其所有兄弟标签的内容
+      if ("article".equalsIgnoreCase(nodeName)){
+          
+      }else if ("h1".equalsIgnoreCase(nodeName)){
+          
+      }
+      
       if (nodeType == Node.TEXT_NODE) {
         if (currentNode.getParentNode() instanceof Element) {
           Element e = (Element) currentNode.getParentNode();
