@@ -108,7 +108,7 @@
 	// 页面初始化
 	$(function() {
 		// 生成词条
-		loadData("divCondition", "crawl/query/wordsTop.do", {key:key,topNum:10}, initCondition);
+		loadData("divCondition", "crawl/query/wordsTop.do", {key:key,topNum:5}, initCondition);
 		// 路径配置
 		require.config({
 			paths : {
