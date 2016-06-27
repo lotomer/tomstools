@@ -193,6 +193,7 @@ public class PageFetcher {
             logger.error("try again..." + (i + 1));
         }
         HttpClientUtils.closeQuietly(httpClient);
+        if (logger.isDebugEnabled()) logger.debug(responseText);
         return responseText;
     }
 

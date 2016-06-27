@@ -333,10 +333,15 @@ public class TargetCrawler implements Runnable {
                         webRoot, parentPath);
             }
             // List<String> nextPages = new ArrayList<String>();
+            int total = contentPages.size();
+            int idx = 0;
             for (Page page : contentPages) {
                 // nextPages.addAll(processSubPage(targetBusi,fetcher,
                 // HTMLUtil.getRealUrl(aUrl, webRoot, parentPath)));
-                processSubPage(targetBusi, fetcher, HTMLUtil.getRealUrl(page.url, webRoot, parentPath),page.constantValues);
+                ++idx;
+                String subUrl = HTMLUtil.getRealUrl(page.url, webRoot, parentPath);
+                LOGGER.info("process sub page: " + subUrl + " [" + idx+ "/" +total + "]");
+                processSubPage(targetBusi, fetcher, subUrl,page.constantValues);
                 if (targetBusi.isFinished()) {
                     LOGGER.warn("is finished!");
                     return null;

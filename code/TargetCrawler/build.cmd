@@ -1,4 +1,3 @@
 @echo off
-mvn package
-
-pause
+call mvn package
+if not %errorlevel% == 0 pause
