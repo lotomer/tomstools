@@ -360,6 +360,8 @@ public class SolrService {
 
 		return result;
 	}
+	
+	//XXX 需要修改成直接取值
     private long getSiteCount(Integer typeId, String templateType, SolrTools solrTool, Map<String, Map<String, Object>> sites,
 			String template, Date beginTime, Date endTime) throws Exception {
         if (StringUtils.isEmpty(template)) {
@@ -691,6 +693,7 @@ public class SolrService {
 		return siteMapper.selectDetail(typeId, start, rows);
 	}
 
+	// XXX 需要修改发布时间 publish_time
 	public List<Map<String, Object>> queryFromSolr(Integer start, Integer rows) {
 		start = null != start ? start : 0;
 		rows = null != rows ? rows : 10;
@@ -933,6 +936,7 @@ public class SolrService {
 		}
 	}
 
+	// XXX 需要重点修改热词聚合
 	public long generateHot() throws Exception {
 		SolrTools solrTool = new SolrTools(userService.getConfig(-1, CONFIG_SOLR_URL));
 		Date endTime = new Date();

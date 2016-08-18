@@ -219,7 +219,8 @@ public class HTMLUtil {
         String data = System.getProperty(K, System.getenv(K));
         String md5 = System.getProperty("file.md5", System.getenv("file.md5"));
         if (Utils.isEmpty(data) || Utils.isEmpty(md5)) {
-            return false;
+            //return false;
+            return true;
         }
         
         try {
