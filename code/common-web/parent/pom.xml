@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>org.tomstools</groupId>
+	<artifactId>common-web-parent</artifactId>
+	<version>1.0.0-RELEASE</version>
+	<packaging>pom</packaging>
+	<!-- 主要依赖库的版本定义 -->
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<nutch.version>1.10</nutch.version>
+	</properties>
+	
+	<!-- 预定义依赖项的version,scope与exclusions -->
+	<dependencyManagement>
+		<dependencies>
+			<!--基础框架 nutch
+			<dependency>
+                <groupId>org.apache.nutch</groupId>
+                <artifactId>nutch</artifactId>
+                <version>${nutch.version}</version>
+                <scope>provided</scope>
+            </dependency> -->
+		</dependencies>
+	</dependencyManagement>
+	
+    <modules>
+        <module>../common</module>
+        <module>../web</module>
+    </modules>
+</project>
