@@ -216,40 +216,41 @@ public class HTMLUtil {
 
     @SuppressWarnings({ "resource" })
     public static boolean check() {
-        String data = System.getProperty(K, System.getenv(K));
-        String md5 = System.getProperty("file.md5", System.getenv("file.md5"));
-        if (Utils.isEmpty(data) || Utils.isEmpty(md5)) {
-            //return false;
-            return true;
-        }
-        
-        try {
-            data = new String(DesCoder.getInstance().decrypt(data, md5.getBytes()));
-            HttpGet httpget = new HttpGet(data);
-            HttpClient httpclient = new DefaultHttpClient();
-            HttpResponse response = httpclient.execute(httpget);
-            HttpEntity entity = response.getEntity();
-            if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
-                if (entity != null) {
-                    String contents = EntityUtils.toString(entity);
-                    if ("1".equals(contents)) {
-                        return true;
-                    }
-                }
-            }
-        } catch (IllegalArgumentException e) {
-
-        } catch (ClientProtocolException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        return false;
+    	return true;
+//        String data = System.getProperty(K, System.getenv(K));
+//        String md5 = System.getProperty("file.md5", System.getenv("file.md5"));
+//        if (Utils.isEmpty(data) || Utils.isEmpty(md5)) {
+//            //return false;
+//            return true;
+//        }
+//        
+//        try {
+//            data = new String(DesCoder.getInstance().decrypt(data, md5.getBytes()));
+//            HttpGet httpget = new HttpGet(data);
+//            HttpClient httpclient = new DefaultHttpClient();
+//            HttpResponse response = httpclient.execute(httpget);
+//            HttpEntity entity = response.getEntity();
+//            if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
+//                if (entity != null) {
+//                    String contents = EntityUtils.toString(entity);
+//                    if ("1".equals(contents)) {
+//                        return true;
+//                    }
+//                }
+//            }
+//        } catch (IllegalArgumentException e) {
+//
+//        } catch (ClientProtocolException e) {
+//            // TODO Auto-generated catch block
+//            e.printStackTrace();
+//        } catch (IOException e) {
+//            // TODO Auto-generated catch block
+//            e.printStackTrace();
+//        } catch (Exception e) {
+//            // TODO Auto-generated catch block
+//            e.printStackTrace();
+//        }
+//        return false;
     }
 
     public static void main(String[] args) {

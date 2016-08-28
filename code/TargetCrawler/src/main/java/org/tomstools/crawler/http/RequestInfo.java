@@ -20,11 +20,13 @@ public class RequestInfo {
     private Parameters formDatas; // 表单数据
     private Header headers; // 请求头
     private String baseUrl;
+    private Proxy proxy;
     public RequestInfo(RequestInfo other) {
         if (null != other){
             this.url = other.url;
             this.formDatas = new Parameters(other.formDatas);
             this.headers = new Header(other.headers);
+            this.proxy = new Proxy(other.proxy);
         }
     }
 
@@ -79,7 +81,16 @@ public class RequestInfo {
         this.headers = headers;
     }
 
-    /**
+    
+    public final Proxy getProxy() {
+		return proxy;
+	}
+
+	public final void setProxy(Proxy proxy) {
+		this.proxy = proxy;
+	}
+
+	/**
      * 从另一个对象中复制有效数据。有效数据即值不为null
      * 
      * @param other 包含有效数据的另一个对象
@@ -121,6 +132,10 @@ public class RequestInfo {
                         formDatas.get(i).putAll(other.formDatas.get(i));
                     }
                 }
+            }
+            // 复制代理
+            if (!Utils.isEmpty(other.proxy)) {
+            	proxy = new Proxy(other.proxy);
             }
         }
     }

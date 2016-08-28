@@ -24,6 +24,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.http.HttpEntity;
+import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.NameValuePair;
@@ -117,6 +118,11 @@ public class PageFetcher {
         initHttp(requestBuilder);
         // HttpPost httpPost = new HttpPost(pageUrl);
         Builder builder = RequestConfig.custom();
+        // 设置代理
+        Proxy proxy = requestInfo.getProxy();
+        if (!Utils.isEmpty(proxy)){
+        	builder.setProxy(new HttpHost(proxy.getHostName(), proxy.getPort(), proxy.getScheme()));
+        }
         // 设置启动连接超时时间
         builder.setConnectionRequestTimeout(connectionTimeOut);
         // httpclient.getParams().setIntParameter(CoreConnectionPNames.CONNECTION_TIMEOUT,

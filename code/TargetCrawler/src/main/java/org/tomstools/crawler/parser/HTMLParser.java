@@ -87,11 +87,11 @@ public class HTMLParser implements Parser {
         }
         public String getOwnText() {
             // 先判断是否包含title属性，如果包含title属性则直接返回title属性
-            if(element.hasAttr("title")){
-                return element.attr("title");
-            }else{
+//            if(element.hasAttr("title")){
+//                return element.attr("title");
+//            }else{
                 return element.ownText();
-            }
+//            }
         }
 
         /*
